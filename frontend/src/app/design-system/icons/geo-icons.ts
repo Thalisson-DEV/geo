@@ -140,6 +140,7 @@ import {
   LucideMap,
   LucideMapPin,
   LucideMaximize2,
+  LucideMinimize2,
   LucideMegaphone,
   LucideMenu,
   LucideMessageCircle,
@@ -371,6 +372,7 @@ export const GEO_ICONES = {
   'map': LucideMap.icon.node,
   'map-pin': LucideMapPin.icon.node,
   'maximize-2': LucideMaximize2.icon.node,
+  'minimize-2': LucideMinimize2.icon.node,
   'megaphone': LucideMegaphone.icon.node,
   'menu': LucideMenu.icon.node,
   'message-circle': LucideMessageCircle.icon.node,
@@ -635,6 +637,7 @@ export const PI_PARA_LUCIDE: Record<string, GeoIconeNome> = {
   'server': 'server',
   'eraser': 'eraser',
   'window-maximize': 'maximize-2',
+  'window-minimize': 'minimize-2',
   'thumbtack': 'pin',
   'sort-alt': 'arrow-up-down',
   'hand-pointer': 'pointer',
@@ -704,6 +707,29 @@ const MODIFICADORES_PI = new Set(['pi', 'pi-spin', 'pi-fw']);
  * Resolve um nome Lucide ("check") ou uma classe PrimeIcons ("pi pi-check pi-spin") para o
  * ícone registrado. Devolve `undefined` quando não há equivalente.
  */
+/**
+ * SVG do ícone como texto, para HTML montado fora do Angular (ex.: `innerHTML` de markdown). No
+ * template use sempre `<geo-icon>`. Traço em `currentColor`; o tamanho (1em) e a espessura vêm da
+ * classe global `geo-icon-svg`.
+ */
+export function svgIcone(nome: GeoIconeNome, classe = ''): string {
+  const filhos = GEO_ICONES[nome]
+    .map(([tag, attrs]) => {
+      const atributos = Object.entries(attrs)
+        .filter(([chave]) => chave !== 'key')
+        .map(([chave, valor]) => `${chave}="${String(valor)}"`)
+        .join(' ');
+      return `<${tag} ${atributos}></${tag}>`;
+    })
+    .join('');
+  const classes = classe ? `geo-icon-svg ${classe}` : 'geo-icon-svg';
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" ` +
+    `stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" class="${classes}">` +
+    `${filhos}</svg>`
+  );
+}
+
 export function resolverIcone(nome: string | null | undefined): { nome: GeoIconeNome; girar: boolean } | undefined {
   if (!nome) return undefined;
   const partes = nome.trim().split(/\s+/);

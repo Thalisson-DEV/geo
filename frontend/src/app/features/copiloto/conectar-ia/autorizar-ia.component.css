@@ -143,11 +143,11 @@
   color: var(--geo-foreground);
 }
 
-.autorizar__listas div:first-child h2 .pi {
+.autorizar__listas div:first-child h2 geo-icon {
   color: var(--geo-success);
 }
 
-.autorizar__listas div:last-child h2 .pi {
+.autorizar__listas div:last-child h2 geo-icon {
   color: var(--geo-foreground-muted);
 }
 

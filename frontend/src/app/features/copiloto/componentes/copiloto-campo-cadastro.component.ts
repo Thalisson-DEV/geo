@@ -22,6 +22,7 @@ import {
   GeoTextareaComponent,
   LookupOption,
   LookupStatus,
+  GeoIconComponent
 } from '@geo/ui';
 import { CampoCadastro, OpcaoCadastro } from '../../../core/models/assistente.models';
 import { AssistenteService } from '../../../core/services/assistente.service';
@@ -64,7 +65,7 @@ export function deData(data: Date | null, comHora: boolean): string | null {
 @Component({
   selector: 'app-copiloto-campo-cadastro',
   standalone: true,
-  imports: [
+  imports: [GeoIconComponent, 
     FormsModule,
     GeoAutocompleteComponent,
     GeoBooleanControlComponent,

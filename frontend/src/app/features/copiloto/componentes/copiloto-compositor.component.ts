@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, computed, inject, input, model, output, signal, viewChild } from '@angular/core';
-import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoIconComponent } from '@geo/ui';
 import { GeoTextareaComponent } from '@geo/ui/forms';
 import { AssistenteContexto } from '../../../core/models/assistente.models';
 import { AnexoPendente, formatarTamanho } from '../copiloto.store';
@@ -19,13 +19,13 @@ export interface CompetenciaAtalho {
 @Component({
   selector: 'app-copiloto-compositor',
   standalone: true,
-  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent],
+  imports: [GeoIconComponent, GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form class="compositor" (submit)="$event.preventDefault(); enviarAgora()" [class.compositor--desabilitado]="!disponivel()">
       @if (contexto(); as ctx) {
         <div class="compositor__contexto">
-          <geo-status tone="brand" icon="pi-map-marker">
+          <geo-status tone="brand" icon="map-pin">
             Contexto: {{ ctx.rotulo || ctx.pagina || ctx.entidadeTipo }}
           </geo-status>
         </div>
@@ -34,14 +34,11 @@ export interface CompetenciaAtalho {
         <ul class="compositor__anexos" aria-label="Anexos desta mensagem">
           @for (anexo of anexos(); track anexo.idLocal) {
             <li class="anexo" [attr.data-estado]="anexo.estado">
-              <i
-                class="pi"
-                [class.pi-spinner]="anexo.estado === 'enviando'"
+              <geo-icon
+                class="geo-icon--texto"
+                [name]="anexo.estado === 'enviando' ? 'loader-circle' : anexo.estado === 'erro' || !!anexo.erro ? 'triangle-alert' : 'paperclip'"
                 [class.anexo__giro]="anexo.estado === 'enviando'"
-                [class.pi-paperclip]="anexo.estado === 'pronto' && !anexo.erro"
-                [class.pi-exclamation-triangle]="anexo.estado === 'erro' || !!anexo.erro"
-                aria-hidden="true"
-              ></i>
+              ></geo-icon>
               <span class="anexo__nome">{{ anexo.nome }}</span>
               <span class="anexo__meta">
                 @switch (anexo.estado) {
@@ -51,7 +48,7 @@ export interface CompetenciaAtalho {
                 }
               </span>
               <geo-icon-button
-                icon="pi pi-times"
+                icon="x"
                 size="icon-sm"
                 [label]="'Remover ' + anexo.nome"
                 (pressed)="removerAnexo.emit(anexo.idLocal)"
@@ -108,7 +105,7 @@ export interface CompetenciaAtalho {
           (change)="aoSelecionar($event)"
         />
         <geo-icon-button
-          icon="pi pi-paperclip"
+          icon="paperclip"
           label="Anexar arquivos (PDF, planilhas, CSV, JSON, texto, DOCX ou imagens)"
           [disabled]="!disponivel()"
           (pressed)="seletor.click()"
@@ -123,7 +120,7 @@ export interface CompetenciaAtalho {
         @if (transmitindo()) {
           <geo-button
             variant="secondary"
-            icon="pi pi-stop-circle"
+            icon="circle-stop"
             label="Parar"
             ariaLabel="Parar a geração da resposta"
             [loading]="parando()"
@@ -132,7 +129,7 @@ export interface CompetenciaAtalho {
         } @else {
           <geo-button
             type="submit"
-            icon="pi pi-send"
+            icon="send"
             label="Enviar"
             [disabled]="!podeEnviar()"
             ariaLabel="Enviar mensagem"

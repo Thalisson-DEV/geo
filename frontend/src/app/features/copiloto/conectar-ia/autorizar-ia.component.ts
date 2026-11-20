@@ -5,7 +5,8 @@ import {
   GeoBooleanControlComponent,
   GeoButtonComponent,
   GeoCalloutComponent,
-  GeoIconButtonComponent
+  GeoIconButtonComponent,
+  GeoIconComponent
 } from '@geo/ui';
 import { AutorizacaoIaPrevia, AutorizarIaRequest } from '../../../core/models/conexoes-ia.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -21,7 +22,7 @@ import { ThemeService } from '../../../core/services/theme.service';
   selector: 'app-autorizar-ia',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [GeoAsyncStateComponent, GeoBooleanControlComponent, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent],
+  imports: [GeoIconComponent, GeoAsyncStateComponent, GeoBooleanControlComponent, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent],
   styleUrl: './autorizar-ia.component.css',
   templateUrl: './autorizar-ia.component.html'
 })

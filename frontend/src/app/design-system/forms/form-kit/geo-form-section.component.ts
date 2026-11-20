@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, input } from '@angular/core';
 import { GEO_FORM_SECTION, GeoFormRegistry } from './form-kit.registry';
+import { GeoIconComponent } from '../../icons/geo-icon.component';
 
 let sectionSequence = 0;
 
@@ -17,6 +18,7 @@ let sectionSequence = 0;
 @Component({
   selector: 'geo-form-section',
   standalone: true,
+  imports: [GeoIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
@@ -37,7 +39,7 @@ let sectionSequence = 0;
     @if (title()) {
       <header class="geo-form-section__header">
         @if (icon()) {
-          <span class="geo-form-section__icon" aria-hidden="true"><i [class]="icon()"></i></span>
+          <span class="geo-form-section__icon" aria-hidden="true"><geo-icon class="geo-icon--texto" [name]="icon()!" /></span>
         }
         <div class="geo-form-section__heading">
           <h2 class="geo-form-section__title" [id]="titleId">{{ title() }}</h2>
@@ -58,7 +60,7 @@ export class GeoFormSectionComponent {
 
   readonly title = input<string>('');
   readonly description = input<string | undefined>();
-  /** Ícone da seção (`pi pi-...`), em caixa ao lado do título. Ajuda a escanear formulários longos. */
+  /** Ícone da seção (nome Lucide ou `pi pi-...`), em caixa ao lado do título. Ajuda a escanear formulários longos. */
   readonly icon = input<string | undefined>();
   /** Id da âncora (`#materiais`). Default: gerado. */
   readonly sectionId = input<string | undefined>(undefined, { alias: 'id' });

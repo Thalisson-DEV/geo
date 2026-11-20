@@ -3,7 +3,7 @@
   <section class="cartao" [class.cartao--decidido]="!pendente()" [attr.aria-busy]="ocupado() !== null"
     [attr.aria-label]="p.titulo + ', ' + selo().texto">
     <header class="cartao__cabecalho">
-      <span class="cartao__icone" aria-hidden="true"><i class="pi pi-check-square"></i></span>
+      <span class="cartao__icone" aria-hidden="true"><geo-icon class="geo-icon--texto" name="square-check"></geo-icon></span>
       <div class="cartao__titulos">
         <h3 class="cartao__titulo">{{ p.titulo }}</h3>
         <p class="cartao__subtitulo">{{ subtitulo() }}</p>
@@ -19,8 +19,7 @@
               <li class="item" [class.item--rejeitar]="item.decisao === 'REJEITAR'">
                 <div class="item__linha">
                   <span class="item__marca" [attr.aria-label]="item.decisao === 'APROVAR' ? 'Aprovar' : 'Rejeitar'">
-                    <i class="pi" [class.pi-check]="item.decisao === 'APROVAR'" [class.pi-times]="item.decisao === 'REJEITAR'"
-                      aria-hidden="true"></i>
+                    <geo-icon class="geo-icon--texto" [name]="item.decisao === 'APROVAR' ? 'check' : 'x'"></geo-icon>
                   </span>
                   <div class="item__texto">
                     <p class="item__titulo">
@@ -46,14 +45,14 @@
                     <span class="item__acao">{{ item.decisao === 'APROVAR' ? 'Aprovar' : 'Rejeitar' }}</span>
                   </div>
                   <div class="item__botoes">
-                    <geo-icon-button [icon]="item.decisao === 'APROVAR' ? 'pi pi-times' : 'pi pi-check'" size="icon-sm"
+                    <geo-icon-button [icon]="item.decisao === 'APROVAR' ? 'x' : 'check'" size="icon-sm"
                       [label]="(item.decisao === 'APROVAR' ? 'Rejeitar ' : 'Aprovar ') + item.titulo + ' em vez disso'"
                       [disabled]="ocupado() !== null" (pressed)="trocarDecisao(item)"></geo-icon-button>
                     @if (item.caminho) {
-                      <geo-icon-button icon="pi pi-arrow-up-right" size="icon-sm" [label]="'Abrir ' + item.titulo"
+                      <geo-icon-button icon="arrow-up-right" size="icon-sm" [label]="'Abrir ' + item.titulo"
                         [disabled]="ocupado() !== null" (pressed)="abrir(item.caminho)"></geo-icon-button>
                     }
-                    <geo-icon-button icon="pi pi-trash" size="icon-sm" [label]="'Tirar ' + item.titulo + ' da decisão'"
+                    <geo-icon-button icon="trash-2" size="icon-sm" [label]="'Tirar ' + item.titulo + ' da decisão'"
                       [disabled]="ocupado() !== null" (pressed)="tirar(item)"></geo-icon-button>
                   </div>
                 </div>
@@ -65,7 +64,7 @@
                       description="Quem pediu vê este motivo."></geo-textarea>
                   </div>
                 } @else if (item.observacao) {
-                  <p class="item__observacao"><i class="pi pi-comment" aria-hidden="true"></i> {{ item.observacao }}</p>
+                  <p class="item__observacao"><geo-icon class="geo-icon--texto" name="message-square"></geo-icon> {{ item.observacao }}</p>
                 }
               </li>
             }
@@ -74,7 +73,7 @@
 
         @if (fora().length) {
           <div class="fora" role="note">
-            <p class="fora__titulo"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+            <p class="fora__titulo"><geo-icon class="geo-icon--texto" name="triangle-alert"></geo-icon>
               {{ fora().length === 1 ? 'Ficou de fora desta decisão' : 'Ficaram de fora desta decisão' }}</p>
             <ul class="fora__lista">
               @for (item of fora(); track item.indice) {
@@ -89,13 +88,13 @@
       </div>
 
       @if (erro()) {
-        <geo-callout tone="danger" icon="pi-exclamation-triangle" [dense]="true" title="Não foi possível concluir">{{ erro() }}</geo-callout>
+        <geo-callout tone="danger" icon="triangle-alert" [dense]="true" title="Não foi possível concluir">{{ erro() }}</geo-callout>
       }
 
       <footer class="cartao__rodape">
         <p class="cartao__resumo" aria-live="polite">
           @if (ocupado() === 'revisando') {
-            <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Conferindo...
+            <geo-icon class="geo-icon--texto" name="loader-circle" [spin]="true"></geo-icon> Conferindo...
           } @else {
             {{ resumo() }}
           }
@@ -103,7 +102,7 @@
         <div class="cartao__botoes">
           <geo-button variant="ghost" size="sm" label="Cancelar" [disabled]="ocupado() !== null"
             [loading]="ocupado() === 'cancelando'" (pressed)="cancelar()"></geo-button>
-          <geo-button variant="primary" size="sm" icon="pi pi-check" [label]="rotuloConfirmar()"
+          <geo-button variant="primary" size="sm" icon="check" [label]="rotuloConfirmar()"
             [disabled]="!entram().length || faltam() > 0 || (ocupado() !== null && ocupado() !== 'confirmando')"
             [loading]="ocupado() === 'confirmando'" (pressed)="confirmar()"></geo-button>
         </div>
@@ -121,17 +120,12 @@
             <ul class="desfecho__lista" aria-label="O que foi decidido">
               @for (item of decididos(); track item.indice) {
                 <li class="desfecho__item" [class.desfecho__item--falha]="item.status === 'FALHOU'">
-                  <i class="pi" aria-hidden="true"
-                    [class.pi-check-circle]="item.status === 'APROVADA'"
-                    [class.pi-times-circle]="item.status !== 'APROVADA'"
-                    [class.desfecho__ok]="item.status === 'APROVADA'"
-                    [class.desfecho__rejeitada]="item.status === 'REJEITADA'"
-                    [class.desfecho__falha]="item.status === 'FALHOU'"></i>
+                  <geo-icon class="geo-icon--texto" [name]="item.status === 'APROVADA' ? 'circle-check' : 'circle-x'" [class.desfecho__ok]="item.status === 'APROVADA'" [class.desfecho__rejeitada]="item.status === 'REJEITADA'" [class.desfecho__falha]="item.status === 'FALHOU'"></geo-icon>
                   <span class="desfecho__nome">{{ item.titulo }}@if (item.fornecedor) { · {{ item.fornecedor }} }</span>
                   <span class="desfecho__valor">{{ moeda(item.valor) }}</span>
                   <span class="desfecho__status">{{ rotuloStatus(item) }}</span>
                   @if (item.caminho) {
-                    <geo-button variant="link" size="sm" icon="pi pi-arrow-up-right" iconPosition="right" label="Abrir"
+                    <geo-button variant="link" size="sm" icon="arrow-up-right" iconPosition="right" label="Abrir"
                       [ariaLabel]="'Abrir ' + item.titulo" (pressed)="abrir(item.caminho)"></geo-button>
                   }
                   @if (item.mensagem) {
@@ -141,7 +135,7 @@
               }
               @for (item of foraDoResultado(); track item.indice) {
                 <li class="desfecho__item desfecho__item--fora">
-                  <i class="pi pi-minus-circle desfecho__fora" aria-hidden="true"></i>
+                  <geo-icon class="geo-icon--texto desfecho__fora" name="circle-minus"></geo-icon>
                   <span class="desfecho__nome">{{ item.titulo }}</span>
                   <span class="desfecho__status">Ficou de fora</span>
                   <span class="desfecho__motivo desfecho__motivo--fora">{{ item.mensagem }}</span>

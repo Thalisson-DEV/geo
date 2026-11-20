@@ -44,7 +44,7 @@
   background: var(--geo-surface-subtle);
 }
 
-.leitura__valor i {
+.leitura__valor geo-icon {
   font-size: 0.8rem;
 }
 

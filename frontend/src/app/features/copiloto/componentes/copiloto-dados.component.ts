@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { GeoButtonComponent, GeoIconButtonComponent, GeoTabItem, GeoTabPanelDirective, GeoTabsComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoTabItem, GeoTabPanelDirective, GeoTabsComponent, GeoIconComponent } from '@geo/ui';
 import { GeoAsyncStateComponent, NotificationService } from '@geo/ui/feedback';
 import { ResultadoTabular } from '../../../core/models/assistente.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -32,18 +32,18 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
 @Component({
   selector: 'app-copiloto-dados',
   standalone: true,
-  imports: [NgTemplateOutlet, GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent, GeoTabsComponent, GeoTabPanelDirective],
+  imports: [GeoIconComponent, NgTemplateOutlet, GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent, GeoTabsComponent, GeoTabPanelDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="dados" aria-labelledby="copiloto-dados-titulo">
       <header class="dados__cabecalho">
-        <span class="dados__icone" aria-hidden="true"><i class="pi pi-table"></i></span>
+        <span class="dados__icone" aria-hidden="true"><geo-icon class="geo-icon--texto" name="table"></geo-icon></span>
         <div class="dados__titulos">
           <h2 class="dados__titulo" id="copiloto-dados-titulo">Dados usados na resposta</h2>
           <p class="dados__subtitulo">Tabelas que a Bússola consultou para chegar a esses números</p>
         </div>
         <ng-content select="[acoes-painel]"></ng-content>
-        <geo-icon-button icon="pi pi-times" label="Fechar os dados" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
+        <geo-icon-button icon="x" label="Fechar os dados" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
       </header>
 
       @if (codigos().length > 1) {
@@ -66,7 +66,7 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
           }
           @case ('erro') {
             <geo-async-state state="error" [compact]="true" title="Não foi possível abrir estes dados"
-              [description]="erroAtual()" actionLabel="Tentar novamente" actionIcon="pi pi-refresh"
+              [description]="erroAtual()" actionLabel="Tentar novamente" actionIcon="refresh-cw"
               (action)="carregar(codigoAtivo(), true)"></geo-async-state>
           }
           @default {
@@ -76,8 +76,8 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
                   <strong>{{ d.titulo }}</strong>
                   <span>{{ natureza[d.natureza] || d.natureza }} · {{ d.total.toLocaleString('pt-BR') }} {{ d.total === 1 ? 'linha' : 'linhas' }}@if (d.linhas.length < d.total) { · mostrando {{ d.linhas.length.toLocaleString('pt-BR') }} }</span>
                 </div>
-                <geo-button variant="ghost" size="sm" icon="pi pi-copy" label="Copiar" (pressed)="copiar(d)"></geo-button>
-                <geo-button variant="secondary" size="sm" icon="pi pi-download" label="CSV" (pressed)="baixarCsv(d)"></geo-button>
+                <geo-button variant="ghost" size="sm" icon="copy" label="Copiar" (pressed)="copiar(d)"></geo-button>
+                <geo-button variant="secondary" size="sm" icon="download" label="CSV" (pressed)="baixarCsv(d)"></geo-button>
               </div>
               @if (d.linhas.length) {
                 <div class="dados__tabela" role="region" tabindex="0" [attr.aria-label]="d.titulo">

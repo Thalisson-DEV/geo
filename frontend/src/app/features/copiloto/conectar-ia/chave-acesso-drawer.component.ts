@@ -40,20 +40,20 @@ import { copiarTexto } from './conectar-ia.util';
       [description]="criada() ? criada()!.conexao.nome : 'Para assistentes que pedem uma chave em vez do seu login.'"
       [dirty]="pendente()" [loading]="salvando()" [discardMessage]="aviso()" size="md" (closed)="limpar()">
       @if (criada(); as c) {
-        <geo-form-section title="Sua chave" icon="pi pi-key">
+        <geo-form-section title="Sua chave" icon="key-round">
           <div class="geo-form-stack">
-            <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Copie agora">
+            <geo-callout tone="warning" icon="triangle-alert" title="Copie agora">
               Por segurança, a chave aparece só desta vez. Se perder, é só gerar outra.
             </geo-callout>
             <div class="chave-copiar">
               <geo-text-input label="Chave de acesso" [labelVisible]="false" [readonly]="true" [value]="c.chave"></geo-text-input>
-              <geo-button [variant]="copiada() ? 'success' : 'primary'" [icon]="copiada() ? 'pi pi-check' : 'pi pi-copy'"
+              <geo-button [variant]="copiada() ? 'success' : 'primary'" [icon]="copiada() ? 'check' : 'copy'"
                 [label]="copiada() ? 'Copiada' : 'Copiar chave'" (pressed)="copiar(c.chave)"></geo-button>
             </div>
             <p class="geo-sr-only" aria-live="polite">{{ copiada() ? 'Chave copiada para a área de transferência.' : '' }}</p>
           </div>
         </geo-form-section>
-        <geo-form-section title="Como usar" icon="pi pi-list-check">
+        <geo-form-section title="Como usar" icon="list-checks">
           <ol class="chave-uso">
             <li>No seu assistente, adicione o GEO com o endereço <strong>{{ endereco() }}</strong>.</li>
             <li>Quando ele pedir a chave, cole a que você copiou.</li>
@@ -61,7 +61,7 @@ import { copiarTexto } from './conectar-ia.util';
           </ol>
         </geo-form-section>
       } @else {
-        <geo-form-section title="Sobre a chave" icon="pi pi-key"
+        <geo-form-section title="Sobre a chave" icon="key-round"
           description="Claude e ChatGPT conectam pelo seu login e não precisam de chave.">
           <div class="geo-form-stack">
             <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="80"
@@ -77,10 +77,10 @@ import { copiarTexto } from './conectar-ia.util';
 
       <div drawer-footer class="geo-actions-row">
         @if (criada()) {
-          <geo-button icon="pi pi-check" label="Concluir" (pressed)="drawer.requestClose()"></geo-button>
+          <geo-button icon="check" label="Concluir" (pressed)="drawer.requestClose()"></geo-button>
         } @else {
           <geo-button variant="ghost" label="Cancelar" [disabled]="salvando()" (pressed)="drawer.requestClose()"></geo-button>
-          <geo-button icon="pi pi-key" label="Gerar chave" [loading]="salvando()" (pressed)="gerar()"></geo-button>
+          <geo-button icon="key-round" label="Gerar chave" [loading]="salvando()" (pressed)="gerar()"></geo-button>
         }
       </div>
     </geo-form-drawer>

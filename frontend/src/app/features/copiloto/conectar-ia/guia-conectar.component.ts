@@ -8,7 +8,8 @@ import {
   GeoTabItem,
   GeoTabPanelDirective,
   GeoTabsComponent,
-  GeoTextInputComponent
+  GeoTextInputComponent,
+  GeoIconComponent
 } from '@geo/ui';
 import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarTexto } from './conectar-ia.util';
 
@@ -20,7 +21,7 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
   selector: 'app-guia-conectar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [GeoIconComponent, 
     GeoButtonComponent,
     GeoCalloutComponent,
     GeoDrawerComponent,
@@ -34,7 +35,7 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
   template: `
     <geo-drawer [(visible)]="visivel" title="Conectar uma IA" size="lg" eyebrow="Passo a passo"
       description="Leva uns dois minutos. Depois você pergunta sobre o GEO direto no seu assistente.">
-      <geo-form-section title="1. Copie o endereço do GEO" icon="pi pi-link"
+      <geo-form-section title="1. Copie o endereço do GEO" icon="link"
         description="É por ele que o seu assistente encontra o GEO. Você vai colar no passo 2.">
         @if (erroEndereco()) {
           <geo-callout tone="danger" [dense]="true">Não foi possível carregar o endereço. Feche e abra este passo a passo de novo.</geo-callout>
@@ -43,14 +44,14 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
             <geo-text-input label="Endereço do GEO" [labelVisible]="false" [readonly]="true"
               [value]="endereco() || 'Carregando...'"></geo-text-input>
             <geo-button [variant]="copiado() === 'endereco' ? 'success' : 'primary'"
-              [icon]="copiado() === 'endereco' ? 'pi pi-check' : 'pi pi-copy'"
+              [icon]="copiado() === 'endereco' ? 'check' : 'copy'"
               [label]="copiado() === 'endereco' ? 'Copiado' : 'Copiar endereço'"
               [disabled]="!endereco()" (pressed)="copiar('endereco', endereco())"></geo-button>
           </div>
         }
       </geo-form-section>
 
-      <geo-form-section title="2. Siga os passos no seu assistente" icon="pi pi-list-check"
+      <geo-form-section title="2. Siga os passos no seu assistente" icon="list-checks"
         description="Escolha qual você usa. Os nomes em destaque são os botões que aparecem na tela dele.">
         <geo-tabs [tabs]="abas" [(value)]="provedor" ariaLabel="Qual assistente você usa" [lazy]="false">
           @for (p of provedores; track p.id) {
@@ -62,14 +63,14 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
                     <span class="guia-passos__numero" aria-hidden="true">{{ $index + 1 }}</span>
                     <div class="guia-passos__texto">
                       <p>@for (t of passo.trechos; track $index) {@if (t.botao) {<strong class="guia-botao">{{ t.texto }}</strong>} @else {<span>{{ t.texto }}</span>}}</p>
-                      @if (passo.dica) { <p class="guia-dica"><i class="pi pi-info-circle" aria-hidden="true"></i>{{ passo.dica }}</p> }
+                      @if (passo.dica) { <p class="guia-dica"><geo-icon class="geo-icon--texto" name="info"></geo-icon>{{ passo.dica }}</p> }
                     </div>
                   </li>
                 }
               </ol>
               @if (p.id === 'outros') {
                 <div class="guia-outros">
-                  <geo-button variant="outline" icon="pi pi-key" label="Gerar chave de acesso" (pressed)="gerarChave.emit()"></geo-button>
+                  <geo-button variant="outline" icon="key-round" label="Gerar chave de acesso" (pressed)="gerarChave.emit()"></geo-button>
                 </div>
               }
             </ng-template>
@@ -77,13 +78,13 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
         </geo-tabs>
       </geo-form-section>
 
-      <geo-form-section title="3. Teste com uma pergunta" icon="pi pi-comment"
+      <geo-form-section title="3. Teste com uma pergunta" icon="message-square"
         description="Copie uma destas e cole numa conversa nova do seu assistente.">
         <ul class="guia-exemplos">
           @for (e of exemplos(); track e) {
             <li>
               <span>{{ e }}</span>
-              <geo-icon-button size="icon-sm" [icon]="copiado() === e ? 'pi pi-check' : 'pi pi-copy'"
+              <geo-icon-button size="icon-sm" [icon]="copiado() === e ? 'check' : 'copy'"
                 [label]="copiado() === e ? 'Pergunta copiada' : 'Copiar pergunta'" [tooltip]="copiado() === e ? 'Copiada' : 'Copiar'"
                 (pressed)="copiar(e, e)"></geo-icon-button>
             </li>
@@ -91,14 +92,14 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
         </ul>
       </geo-form-section>
 
-      <geo-form-section title="O que a sua IA pode fazer" icon="pi pi-shield">
+      <geo-form-section title="O que a sua IA pode fazer" icon="shield">
         <div class="guia-copiloto">
           <img src="icons/bussola.svg" alt="" width="40" height="40" />
           <p>A sua IA usa as mesmas consultas da <strong>Bússola</strong> e age sempre como você: enxerga só o que o seu perfil já enxerga no GEO.</p>
         </div>
         <div class="guia-limites">
           <div>
-            <h3><i class="pi pi-check-circle" aria-hidden="true"></i>Pode</h3>
+            <h3><geo-icon class="geo-icon--texto" name="circle-check"></geo-icon>Pode</h3>
             <ul>
               <li>Consultar estoque, solicitações, obras e o que mais o seu perfil acessa.</li>
               <li>Resumir e comparar os dados para você.</li>
@@ -106,7 +107,7 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
             </ul>
           </div>
           <div>
-            <h3><i class="pi pi-ban" aria-hidden="true"></i>Não pode</h3>
+            <h3><geo-icon class="geo-icon--texto" name="ban"></geo-icon>Não pode</h3>
             <ul>
               <li>Ver o que o seu perfil não vê.</li>
               <li>Cadastrar ou aprovar nada sem a sua permissão.</li>

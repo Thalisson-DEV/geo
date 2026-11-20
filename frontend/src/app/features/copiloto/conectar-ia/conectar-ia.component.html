@@ -1,12 +1,12 @@
 <div class="geo-page">
   <geo-page-header
     title="Conectar sua IA"
-    icon="pi pi-link"
+    icon="link"
     [breadcrumb]="[{ label: 'Bússola' }, { label: 'Conectar sua IA' }]"
     description="Use o GEO dentro do Claude, do ChatGPT ou de outro assistente: pergunte sobre os dados da empresa sem sair da conversa."
   >
-    <geo-button actions variant="outline" icon="pi pi-key" label="Gerar chave de acesso" (pressed)="abrirChave()"></geo-button>
-    <geo-button actions icon="pi pi-plus" label="Conectar uma IA" (pressed)="abrirGuia()"></geo-button>
+    <geo-button actions variant="outline" icon="key-round" label="Gerar chave de acesso" (pressed)="abrirChave()"></geo-button>
+    <geo-button actions icon="plus" label="Conectar uma IA" (pressed)="abrirGuia()"></geo-button>
   </geo-page-header>
 
   @if (admin()) {
@@ -30,7 +30,7 @@
           [stateTitle]="erroTodas() ? 'Não foi possível carregar as conexões' : 'Nenhuma IA conectada na empresa'"
           [stateDescription]="erroTodas() ?? 'Quando alguém conectar o Claude, o ChatGPT ou outro assistente, a conexão aparece aqui.'"
           [emptyActionLabel]="erroTodas() ? 'Tentar de novo' : undefined"
-          emptyActionIcon="pi pi-refresh"
+          emptyActionIcon="refresh-cw"
           noResultsTitle="Nenhuma conexão dessa pessoa."
           (emptyAction)="carregarTodas()"
           (clearFilters)="pessoa.set(null)"
@@ -41,7 +41,7 @@
               [options]="opcoesPessoa()" [(value)]="pessoa"></geo-select>
             @if (desconectadasTodas()) {
               <button type="button" class="geo-quick-filter" [attr.aria-pressed]="verDesconectadas()" (click)="verDesconectadas.set(!verDesconectadas())">
-          <i class="pi pi-history" aria-hidden="true"></i>Desconectadas ({{ desconectadasTodas() }})
+          <geo-icon class="geo-icon--texto" name="history"></geo-icon>Desconectadas ({{ desconectadasTodas() }})
         </button>
             }
           </div>
@@ -58,7 +58,7 @@
           <ng-template geoRowActions let-row>
             @if (row.situacao !== 'DESCONECTADA') {
             <span class="geo-table-actions">
-              <geo-icon-button icon="pi pi-power-off" size="icon-sm" tooltip="Desconectar"
+              <geo-icon-button icon="power" size="icon-sm" tooltip="Desconectar"
                 [label]="'Desconectar ' + row.nome + ' de ' + row.usuarioLogin" (pressed)="desconectar(row)"></geo-icon-button>
             </span>
             }
@@ -86,14 +86,14 @@
     [stateTitle]="erroMinhas() ? 'Não foi possível carregar as suas conexões' : 'Você ainda não conectou nenhuma IA'"
     [stateDescription]="erroMinhas() ?? 'Conecte o Claude, o ChatGPT ou outro assistente e pergunte sobre estoque, solicitações e obras direto na conversa. Leva uns dois minutos.'"
     [emptyActionLabel]="erroMinhas() ? 'Tentar de novo' : 'Ver o passo a passo'"
-    [emptyActionIcon]="erroMinhas() ? 'pi pi-refresh' : 'pi pi-list-check'"
+    [emptyActionIcon]="erroMinhas() ? 'refresh-cw' : 'list-checks'"
     (emptyAction)="erroMinhas() ? carregarMinhas() : abrirGuia()"
     (rowActivate)="abrir($event)"
   >
     @if (desconectadasMinhas()) {
       <div table-filters class="geo-quick-filters conexoes-filtros">
         <button type="button" class="geo-quick-filter" [attr.aria-pressed]="verDesconectadas()" (click)="verDesconectadas.set(!verDesconectadas())">
-          <i class="pi pi-history" aria-hidden="true"></i>Desconectadas ({{ desconectadasMinhas() }})
+          <geo-icon class="geo-icon--texto" name="history"></geo-icon>Desconectadas ({{ desconectadasMinhas() }})
         </button>
       </div>
     }
@@ -109,7 +109,7 @@
     <ng-template geoRowActions let-row>
       @if (row.situacao !== 'DESCONECTADA') {
         <span class="geo-table-actions">
-          <geo-icon-button icon="pi pi-power-off" size="icon-sm" tooltip="Desconectar" [label]="'Desconectar ' + row.nome"
+          <geo-icon-button icon="power" size="icon-sm" tooltip="Desconectar" [label]="'Desconectar ' + row.nome"
             (pressed)="desconectar(row)"></geo-icon-button>
         </span>
       }
@@ -119,7 +119,7 @@
 
 <ng-template #celulaAplicativo let-row>
   <span class="conexao-app">
-    <span class="conexao-app__icone" aria-hidden="true"><i [class]="icone(row)"></i></span>
+    <span class="conexao-app__icone" aria-hidden="true"><geo-icon class="geo-icon--texto" [name]="icone(row)"></geo-icon></span>
     <span class="conexao-app__texto">
       <span class="geo-cell-strong">{{ row.nome }}</span>
       <span class="geo-cell-muted">{{ como(row) }}</span>
@@ -129,7 +129,7 @@
 
 <ng-template #celulaPermissao let-row>
   <span class="conexao-permissao">
-    <i [class]="row.permiteEscrita ? 'pi pi-pencil' : 'pi pi-eye'" aria-hidden="true"></i>{{ permissao(row) }}
+    <geo-icon class="geo-icon--texto" [name]="row.permiteEscrita ? 'pencil' : 'eye'"></geo-icon>{{ permissao(row) }}
   </span>
 </ng-template>
 
@@ -137,7 +137,7 @@
   [description]="selecionada() ? como(selecionada()!) : undefined">
   @if (selecionada(); as c) {
     <section class="geo-sheet-section" aria-labelledby="conexao-acesso">
-      <h2 id="conexao-acesso"><i class="pi pi-shield" aria-hidden="true"></i>Acesso</h2>
+      <h2 id="conexao-acesso"><geo-icon class="geo-icon--texto" name="shield"></geo-icon>Acesso</h2>
       <dl class="geo-sheet">
         @if (c.usuarioLogin) {
           <div><dt>Pessoa</dt><dd>{{ c.usuarioLogin }}</dd></div>
@@ -160,7 +160,7 @@
       </dl>
     </section>
     <section class="geo-sheet-section" aria-labelledby="conexao-uso">
-      <h2 id="conexao-uso"><i class="pi pi-history" aria-hidden="true"></i>Uso</h2>
+      <h2 id="conexao-uso"><geo-icon class="geo-icon--texto" name="history"></geo-icon>Uso</h2>
       <dl class="geo-sheet">
         <div><dt>Conectou</dt><dd>{{ relativo(c.criadaEm) }} <span class="geo-cell-muted">{{ dataHora(c.criadaEm) }}</span></dd></div>
         <div>
@@ -177,11 +177,11 @@
       </dl>
     </section>
     @if (c.situacao === 'VENCIDA') {
-      <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" class="conexao-aviso">
+      <geo-callout tone="warning" icon="triangle-alert" [dense]="true" class="conexao-aviso">
         A chave venceu e o assistente não consegue mais usar o GEO. Gere uma chave nova e troque no assistente.
       </geo-callout>
     } @else if (!c.permiteEscrita && podeEscrever() && !c.usuarioLogin) {
-      <geo-callout tone="info" icon="pi pi-info-circle" [dense]="true" class="conexao-aviso">
+      <geo-callout tone="info" icon="info" [dense]="true" class="conexao-aviso">
         Esta conexão só consulta. Para também cadastrar e aprovar, {{ c.tipo === 'CHAVE' ? 'gere uma chave nova com a opção Consultar, cadastrar e aprovar' : 'desconecte e conecte de novo ligando a opção de cadastrar e aprovar' }}.
       </geo-callout>
     }
@@ -190,7 +190,7 @@
     <geo-button variant="ghost" label="Fechar" (pressed)="detalheAberto.set(false)"></geo-button>
     @if (selecionada(); as c) {
       @if (c.situacao !== 'DESCONECTADA') {
-      <geo-button variant="destructive" icon="pi pi-power-off" label="Desconectar" [loading]="desconectando()" (pressed)="desconectar(c)"></geo-button>
+      <geo-button variant="destructive" icon="power" label="Desconectar" [loading]="desconectando()" (pressed)="desconectar(c)"></geo-button>
       }
     }
   </div>

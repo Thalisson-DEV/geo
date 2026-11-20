@@ -22,7 +22,7 @@
   text-align: right;
 }
 
-.usuario__recorte i {
+.usuario__recorte geo-icon {
   font-size: 0.7rem;
   color: var(--geo-brand);
 }
@@ -387,7 +387,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--geo-foreground-subtle);
 }
-.assistente__decorrido .pi { font-size: 0.7rem; }
+.assistente__decorrido geo-icon { font-size: 0.7rem; }
 
 .assistente__longa {
   display: flex;
@@ -402,7 +402,7 @@
   line-height: 1.5;
   color: var(--geo-foreground-muted);
 }
-.assistente__longa .pi { margin-top: 0.15rem; color: var(--geo-brand); }
+.assistente__longa geo-icon { margin-top: 0.15rem; color: var(--geo-brand); }
 
 .assistente__retomar { margin-top: 0.6rem; }
 

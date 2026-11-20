@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent, GeoTone } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent, GeoTone, GeoIconComponent } from '@geo/ui';
 import { GeoCalloutComponent } from '@geo/ui/feedback';
 import {
   AcaoCartao,
@@ -28,7 +28,7 @@ const DATA = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit'
 @Component({
   selector: 'app-copiloto-cartao-aprovacao',
   standalone: true,
-  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent, GeoCalloutComponent],
+  imports: [GeoIconComponent, GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent, GeoCalloutComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './copiloto-cartao-aprovacao.component.html',
   styleUrl: './copiloto-cartao-aprovacao.component.css',
@@ -72,19 +72,19 @@ export class CopilotoCartaoAprovacaoComponent {
       case 'CONFIRMADA': {
         const r = this.resultado();
         return r?.falhas
-          ? { tom: 'warning', texto: 'Decidido em parte', icone: 'pi pi-exclamation-circle' }
-          : { tom: 'success', texto: 'Decidido', icone: 'pi pi-check' };
+          ? { tom: 'warning', texto: 'Decidido em parte', icone: 'circle-alert' }
+          : { tom: 'success', texto: 'Decidido', icone: 'check' };
       }
       case 'FALHOU':
-        return { tom: 'danger', texto: 'Não decidido', icone: 'pi pi-times-circle' };
+        return { tom: 'danger', texto: 'Não decidido', icone: 'circle-x' };
       case 'REJEITADA':
-        return { tom: 'neutral', texto: 'Cancelado', icone: 'pi pi-ban' };
+        return { tom: 'neutral', texto: 'Cancelado', icone: 'ban' };
       case 'EXPIRADA':
-        return { tom: 'neutral', texto: 'Sem efeito', icone: 'pi pi-clock' };
+        return { tom: 'neutral', texto: 'Sem efeito', icone: 'clock' };
       default:
         return this.previa()?.pronta
-          ? { tom: 'info', texto: 'Confira e confirme', icone: 'pi pi-check-circle' }
-          : { tom: 'warning', texto: 'Falta completar', icone: 'pi pi-pencil' };
+          ? { tom: 'info', texto: 'Confira e confirme', icone: 'circle-check' }
+          : { tom: 'warning', texto: 'Falta completar', icone: 'pencil' };
     }
   });
 

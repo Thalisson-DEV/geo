@@ -1,34 +1,34 @@
 import { ChangeDetectionStrategy, Component, computed, inject, output } from '@angular/core';
-import { GeoButtonComponent, GeoIconButtonComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoIconComponent } from '@geo/ui';
 import { GeoAsyncStateComponent } from '@geo/ui/feedback';
 import { ArquivoAssistente, ArtefatoAssistente } from '../../../core/models/assistente.models';
 import { CopilotoStore, formatarTamanho } from '../copiloto.store';
 import { ICONE_ARTEFATO, ROTULO_ARTEFATO } from '../copiloto-formatos';
 
 const ICONE_ARQUIVO: Record<string, string> = {
-  PDF: 'pi pi-file-pdf',
-  PLANILHA: 'pi pi-file-excel',
-  CSV: 'pi pi-file-excel',
-  IMAGEM: 'pi pi-image',
-  DOCUMENTO: 'pi pi-file-word',
+  PDF: 'file-text',
+  PLANILHA: 'file-spreadsheet',
+  CSV: 'file-spreadsheet',
+  IMAGEM: 'image',
+  DOCUMENTO: 'file-type',
 };
 
 /** Tudo o que a conversa produziu e recebeu, num lugar só: artefatos, arquivos gerados e anexos (última versão). */
 @Component({
   selector: 'app-copiloto-arquivos',
   standalone: true,
-  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent],
+  imports: [GeoIconComponent, GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="arquivos" aria-labelledby="copiloto-arquivos-titulo">
       <header class="arquivos__cabecalho">
-        <span class="arquivos__icone" aria-hidden="true"><i class="pi pi-folder-open"></i></span>
+        <span class="arquivos__icone" aria-hidden="true"><geo-icon class="geo-icon--texto" name="folder-open"></geo-icon></span>
         <div class="arquivos__titulos">
           <h2 class="arquivos__titulo" id="copiloto-arquivos-titulo">Arquivos da conversa</h2>
           <p class="arquivos__subtitulo">Só a versão mais recente de cada arquivo</p>
         </div>
         <ng-content select="[acoes-painel]"></ng-content>
-        <geo-icon-button icon="pi pi-times" label="Fechar a lista de arquivos" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
+        <geo-icon-button icon="x" label="Fechar a lista de arquivos" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
       </header>
 
       <div class="arquivos__corpo">
@@ -42,12 +42,12 @@ const ICONE_ARQUIVO: Record<string, string> = {
             <ul>
               @for (artefato of artefatos(); track artefato.codigo) {
                 <li class="item">
-                  <span class="item__icone" aria-hidden="true"><i [class]="iconeArtefato[artefato.tipo] || 'pi pi-file'"></i></span>
+                  <span class="item__icone" aria-hidden="true"><geo-icon class="geo-icon--texto" [name]="iconeArtefato[artefato.tipo] || 'file'"></geo-icon></span>
                   <span class="item__texto">
                     <span class="item__nome" [attr.title]="artefato.titulo">{{ artefato.titulo }}</span>
                     <span class="item__meta">{{ rotuloArtefato[artefato.tipo] || artefato.tipo }}</span>
                   </span>
-                  <geo-button variant="ghost" size="sm" icon="pi pi-arrow-right" label="Abrir"
+                  <geo-button variant="ghost" size="sm" icon="arrow-right" label="Abrir"
                     [ariaLabel]="'Abrir ' + artefato.titulo" (pressed)="abrirArtefato.emit(artefato.codigo)"></geo-button>
                 </li>
               }
@@ -61,12 +61,12 @@ const ICONE_ARQUIVO: Record<string, string> = {
               <ul>
                 @for (arquivo of grupo.itens; track arquivo.id) {
                   <li class="item">
-                    <span class="item__icone" aria-hidden="true"><i [class]="icone(arquivo)"></i></span>
+                    <span class="item__icone" aria-hidden="true"><geo-icon class="geo-icon--texto" [name]="icone(arquivo)"></geo-icon></span>
                     <span class="item__texto">
                       <span class="item__nome" [attr.title]="arquivo.nome">{{ arquivo.nome }}</span>
                       <span class="item__meta">{{ formatarTamanho(arquivo.tamanhoBytes) }}@if (arquivo.criadoEm) { · {{ data(arquivo.criadoEm) }} }</span>
                     </span>
-                    <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + arquivo.nome" tooltip="Baixar" size="icon-sm"
+                    <geo-icon-button icon="download" [label]="'Baixar ' + arquivo.nome" tooltip="Baixar" size="icon-sm"
                       (pressed)="baixar(arquivo)"></geo-icon-button>
                   </li>
                 }
@@ -127,7 +127,7 @@ export class CopilotoArquivosComponent {
   protected readonly formatarTamanho = formatarTamanho;
 
   protected icone(arquivo: ArquivoAssistente): string {
-    return ICONE_ARQUIVO[arquivo.categoria] ?? 'pi pi-file';
+    return ICONE_ARQUIVO[arquivo.categoria] ?? 'file';
   }
 
   protected data(valor: string): string {

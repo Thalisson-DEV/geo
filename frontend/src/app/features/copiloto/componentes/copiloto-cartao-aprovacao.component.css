@@ -38,7 +38,7 @@
   color: var(--geo-brand);
 }
 
-.cartao__icone i {
+.cartao__icone geo-icon {
   font-size: 1rem;
 }
 
@@ -129,7 +129,7 @@
   color: var(--geo-danger-text);
 }
 
-.item__marca i {
+.item__marca geo-icon {
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -230,7 +230,7 @@
   color: var(--geo-foreground-muted);
 }
 
-.item__observacao i {
+.item__observacao geo-icon {
   font-size: 0.72rem;
 }
 

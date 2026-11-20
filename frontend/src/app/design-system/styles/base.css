@@ -1,4 +1,23 @@
 @layer geo.base {
+  /*
+   * <geo-icon class="geo-icon--texto">: o ícone acompanha o tamanho do texto ao redor (1em), como os
+   * glifos do PrimeIcons. Útil ao migrar <i class="pi ..."> dimensionado por font-size.
+   */
+  .geo-icon--texto {
+    --geo-icon-size-sm: 1em;
+    --geo-icon-size-md: 1em;
+    --geo-icon-size-lg: 1em;
+  }
+
+  /* SVG gerado por svgIcone() para HTML montado fora do Angular: tamanho do texto, traço do GEO. */
+  .geo-icon-svg {
+    flex: none;
+    inline-size: 1em;
+    block-size: 1em;
+    stroke-width: var(--geo-icon-stroke);
+    vertical-align: -0.125em;
+  }
+
   html {
     background: var(--geo-canvas);
     color: var(--geo-foreground);

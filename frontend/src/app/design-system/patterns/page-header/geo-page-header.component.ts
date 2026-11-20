@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, InjectionToken, Signal, computed, i
 import { Params } from '@angular/router';
 import { publicarTrilhaDaPagina } from './geo-trilha-da-pagina';
 import { GeoIconButtonComponent } from '../../primitives/button';
+import { GeoIconComponent } from '../../icons/geo-icon.component';
 
 /** Trecho da trilha "você está em", mostrada no cabeçalho do app. O último é a página atual. */
 export interface GeoBreadcrumbItem {
@@ -31,7 +32,7 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
 @Component({
   selector: 'geo-page-header',
   standalone: true,
-  imports: [GeoIconButtonComponent],
+  imports: [GeoIconButtonComponent, GeoIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'geo-page-header' },
   styles: `
@@ -126,7 +127,7 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
   template: `
     <div class="geo-page-header__main">
       @if (icon()) {
-        <span class="geo-page-header__mark" aria-hidden="true"><i [class]="icon()"></i></span>
+        <span class="geo-page-header__mark" aria-hidden="true"><geo-icon class="geo-icon--texto" [name]="icon()!" /></span>
       }
       <div class="geo-page-header__text">
         <div class="geo-page-header__title-row">

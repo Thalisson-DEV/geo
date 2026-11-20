@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { GeoTone } from '../../core';
+import { GeoIconComponent } from '../../icons/geo-icon.component';
 
 interface CalloutPresentation {
   icon: string;
@@ -16,6 +17,7 @@ interface CalloutPresentation {
 @Component({
   selector: 'geo-callout',
   standalone: true,
+  imports: [GeoIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'geo-callout',
@@ -24,7 +26,7 @@ interface CalloutPresentation {
   },
   template: `
     <span class="geo-callout__icon" aria-hidden="true">
-      <i class="pi {{ presentation().icon }}"></i>
+      <geo-icon class="geo-icon--texto" [name]="presentation().icon" />
     </span>
 
     <div class="geo-callout__body">
@@ -50,18 +52,19 @@ export class GeoCalloutComponent {
 
   protected readonly presentation = computed<CalloutPresentation>(() => {
     const presentations: Record<GeoTone, CalloutPresentation> = {
-      neutral: { icon: 'pi-info-circle', label: 'Nota' },
-      brand: { icon: 'pi-lightbulb', label: 'Destaque' },
-      info: { icon: 'pi-info-circle', label: 'Informação' },
-      success: { icon: 'pi-check-circle', label: 'Confirmado' },
-      warning: { icon: 'pi-exclamation-triangle', label: 'Atenção' },
-      danger: { icon: 'pi-times-circle', label: 'Crítico' }
+      neutral: { icon: 'info', label: 'Nota' },
+      brand: { icon: 'lightbulb', label: 'Destaque' },
+      info: { icon: 'info', label: 'Informação' },
+      success: { icon: 'circle-check', label: 'Confirmado' },
+      warning: { icon: 'triangle-alert', label: 'Atenção' },
+      danger: { icon: 'circle-x', label: 'Crítico' }
     };
 
     const presentation = presentations[this.tone()];
     const custom = this.icon()?.trim();
     if (!custom) return presentation;
 
-    return { ...presentation, icon: custom.replace(/^pi\s+/, '') };
+    // Nome Lucide ou classe PrimeIcons (`pi pi-star`): o geo-icon resolve os dois.
+    return { ...presentation, icon: custom };
   });
 }

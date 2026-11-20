@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoIconComponent } from '@geo/ui';
 import { GeoAsyncStateComponent, GeoCalloutComponent } from '@geo/ui/feedback';
 import { ConversaResumo, FocoPainel } from '../../../core/models/assistente.models';
 import { AssistenteService } from '../../../core/services/assistente.service';
@@ -45,7 +45,7 @@ import { CopilotoPainelService } from './copiloto-painel.service';
 @Component({
   selector: 'app-copiloto-painel',
   standalone: true,
-  imports: [
+  imports: [GeoIconComponent, 
     GeoButtonComponent,
     GeoIconButtonComponent,
     GeoStatusComponent,

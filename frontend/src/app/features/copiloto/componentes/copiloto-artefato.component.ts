@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
-import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoIconComponent } from '@geo/ui';
 import { GeoCalloutComponent } from '@geo/ui/feedback';
 import { GeoChartComponent, GeoChartPoint, GeoChartSeries } from '@geo/ui/patterns';
 import {
@@ -30,7 +30,7 @@ import { CopilotoMarkdownComponent } from './copiloto-markdown.component';
 @Component({
   selector: 'app-copiloto-artefato',
   standalone: true,
-  imports: [
+  imports: [GeoIconComponent, 
     NgTemplateOutlet,
     GeoButtonComponent,
     GeoIconButtonComponent,
@@ -121,16 +121,16 @@ export class CopilotoArtefatoComponent {
     if (!comparacao) return null;
     const variacao = comparacao.variacao;
     if (variacao === null || variacao === undefined) {
-      return { texto: `Referência: ${formatarValor(comparacao.valor, kpi.formato)} ${comparacao.rotulo}`, tom: 'neutral', icone: 'pi-minus' };
+      return { texto: `Referência: ${formatarValor(comparacao.valor, kpi.formato)} ${comparacao.rotulo}`, tom: 'neutral', icone: 'minus' };
     }
     const bom = kpi.melhorQuando === 'menor' ? variacao < 0 : variacao > 0;
     const sinal = variacao > 0 ? '+' : '';
     const texto = `${sinal}${formatarValor(variacao, 'percentual')} ${comparacao.rotulo}`;
-    if (variacao === 0) return { texto, tom: 'neutral', icone: 'pi-minus' };
+    if (variacao === 0) return { texto, tom: 'neutral', icone: 'minus' };
     return {
       texto,
       tom: kpi.melhorQuando ? (bom ? 'success' : 'danger') : 'neutral',
-      icone: variacao > 0 ? 'pi-arrow-up' : 'pi-arrow-down',
+      icone: variacao > 0 ? 'arrow-up' : 'arrow-down',
     };
   }
 }

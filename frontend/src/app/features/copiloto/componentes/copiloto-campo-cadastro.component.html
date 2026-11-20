@@ -7,7 +7,7 @@
         @if (c.itens?.length) { <span class="lista__contagem">{{ c.itens!.length }}</span> }
       </legend>
       @if (c.problema && !c.itens?.length) {
-        <p class="lista__vazia lista__vazia--problema"><i class="pi pi-info-circle" aria-hidden="true"></i>{{ c.problema }}</p>
+        <p class="lista__vazia lista__vazia--problema"><geo-icon class="geo-icon--texto" name="info"></geo-icon>{{ c.problema }}</p>
       } @else if (!c.itens?.length) {
         <p class="lista__vazia">Nenhum item.</p>
       }
@@ -18,11 +18,11 @@
               <app-copiloto-campo-cadastro [campo]="filho" [desabilitado]="desabilitado()" (ajustar)="repassar($event)" />
             }
           </div>
-          <geo-icon-button class="lista__remover" icon="pi pi-trash" size="icon-sm" [label]="'Remover ' + rotuloItem(i)"
+          <geo-icon-button class="lista__remover" icon="trash-2" size="icon-sm" [label]="'Remover ' + rotuloItem(i)"
             [disabled]="desabilitado()" (pressed)="removerItem(i)"></geo-icon-button>
         </div>
       }
-      <geo-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar item" [disabled]="desabilitado()"
+      <geo-button variant="ghost" size="sm" icon="plus" label="Adicionar item" [disabled]="desabilitado()"
         (pressed)="incluirItem()"></geo-button>
     </fieldset>
   }
@@ -47,7 +47,7 @@
           @for (item of selecionados(); track item.indice) {
             <li class="multiplo__item" [class.multiplo__item--problema]="!!item.problema">
               <span class="multiplo__nome">{{ item.rotulo }}</span>
-              <geo-icon-button icon="pi pi-times" size="icon-sm" [label]="'Tirar ' + item.rotulo" [disabled]="desabilitado()"
+              <geo-icon-button icon="x" size="icon-sm" [label]="'Tirar ' + item.rotulo" [disabled]="desabilitado()"
                 (pressed)="tirarDaLista(item.indice)"></geo-icon-button>
               @if (item.problema) {
                 <span class="multiplo__problema">{{ item.problema }}</span>
@@ -123,7 +123,7 @@
   @case (c.tipo === 'SENHA') {
     <div class="campo campo--leitura">
       <span class="leitura__rotulo">{{ c.rotulo }}</span>
-      <span class="leitura__valor"><i class="pi pi-lock" aria-hidden="true"></i>{{ c.exibicao || 'Provisória, mostrada ao concluir' }}</span>
+      <span class="leitura__valor"><geo-icon class="geo-icon--texto" name="lock"></geo-icon>{{ c.exibicao || 'Provisória, mostrada ao concluir' }}</span>
     </div>
   }
   @default {

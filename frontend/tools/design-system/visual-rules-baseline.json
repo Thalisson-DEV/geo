@@ -367,92 +367,24 @@
     "icone-primeicons": 16,
     "primeng-direto": 3
   },
-  "src/app/features/copiloto/componentes/copiloto-artefato.component.html": {
-    "icone-primeicons": 10
-  },
-  "src/app/features/copiloto/componentes/copiloto-boas-vindas.component.ts": {
-    "icone-primeicons": 13
-  },
-  "src/app/features/copiloto/componentes/copiloto-campo-cadastro.component.html": {
-    "icone-primeicons": 5
-  },
-  "src/app/features/copiloto/componentes/copiloto-cartao-aprovacao.component.html": {
-    "icone-primeicons": 11
-  },
-  "src/app/features/copiloto/componentes/copiloto-cartao-aprovacao.component.ts": {
-    "icone-primeicons": 7
-  },
-  "src/app/features/copiloto/componentes/copiloto-cartao-cadastro.component.html": {
-    "icone-primeicons": 10
-  },
-  "src/app/features/copiloto/componentes/copiloto-cartao-cadastro.component.ts": {
-    "icone-primeicons": 7
-  },
   "src/app/features/copiloto/componentes/copiloto-compositor.component.ts": {
-    "icone-primeicons": 4,
     "movimento-literal": 1
   },
   "src/app/features/copiloto/componentes/copiloto-conversas.component.ts": {
-    "icone-primeicons": 7,
     "movimento-literal": 1
   },
   "src/app/features/copiloto/componentes/copiloto-etapas.component.css": {
     "movimento-literal": 1
   },
-  "src/app/features/copiloto/componentes/copiloto-etapas.component.html": {
-    "icone-primeicons": 9
-  },
-  "src/app/features/copiloto/componentes/copiloto-etapas.component.ts": {
-    "icone-primeicons": 1
-  },
   "src/app/features/copiloto/componentes/copiloto-mensagem.component.css": {
     "movimento-literal": 2,
     "movimento-tailwind": 1
   },
-  "src/app/features/copiloto/componentes/copiloto-mensagem.component.html": {
-    "icone-primeicons": 8
-  },
-  "src/app/features/copiloto/componentes/copiloto-mensagem.component.ts": {
-    "icone-primeicons": 4
-  },
-  "src/app/features/copiloto/conectar-ia/autorizar-ia.component.html": {
-    "icone-primeicons": 7
-  },
-  "src/app/features/copiloto/conectar-ia/chave-acesso-drawer.component.ts": {
-    "icone-primeicons": 8
-  },
-  "src/app/features/copiloto/conectar-ia/conectar-ia.component.html": {
-    "icone-primeicons": 17
-  },
-  "src/app/features/copiloto/conectar-ia/conectar-ia.component.ts": {
-    "icone-primeicons": 2
-  },
-  "src/app/features/copiloto/conectar-ia/conectar-ia.util.ts": {
-    "icone-primeicons": 7
-  },
-  "src/app/features/copiloto/conectar-ia/guia-conectar.component.ts": {
-    "icone-primeicons": 12
-  },
-  "src/app/features/copiloto/contexto/copiloto-contexto.ts": {
-    "icone-primeicons": 5
-  },
-  "src/app/features/copiloto/copiloto-formatos.ts": {
-    "icone-primeicons": 22
-  },
   "src/app/features/copiloto/copiloto-workspace.component.css": {
     "important": 1
   },
-  "src/app/features/copiloto/copiloto-workspace.component.html": {
-    "icone-primeicons": 7
-  },
   "src/app/features/copiloto/painel/copiloto-area.component.ts": {
     "important": 1
-  },
-  "src/app/features/copiloto/painel/copiloto-gatilhos.component.ts": {
-    "icone-primeicons": 2
-  },
-  "src/app/features/copiloto/painel/copiloto-painel.component.html": {
-    "icone-primeicons": 10
   },
   "src/app/features/dp/descontos/dashboard/dashboard-descontos.component.html": {
     "cor-literal": 6,

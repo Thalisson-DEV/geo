@@ -11,14 +11,14 @@
       <span class="sp__marca">Bússola</span>
       <h2 class="sp__titulo" [attr.title]="titulo()">{{ titulo() }}</h2>
     </div>
-    <geo-icon-button icon="pi pi-plus" label="Nova análise neste painel" tooltipPosition="bottom" (pressed)="nova()"></geo-icon-button>
+    <geo-icon-button icon="plus" label="Nova análise neste painel" tooltipPosition="bottom" (pressed)="nova()"></geo-icon-button>
     <geo-icon-button
-      icon="pi pi-external-link"
+      icon="external-link"
       [label]="store.conversaId() ? 'Abrir na Bússola (continuar esta conversa no workspace completo)' : 'Abrir na Bússola (workspace completo com o contexto deste painel)'"
       tooltipPosition="bottom"
       (pressed)="abrirNoWorkspace()"
     ></geo-icon-button>
-    <geo-icon-button icon="pi pi-times" label="Ocultar Bússola" tooltipPosition="bottom" (pressed)="painel.fechar()"></geo-icon-button>
+    <geo-icon-button icon="x" label="Ocultar Bússola" tooltipPosition="bottom" (pressed)="painel.fechar()"></geo-icon-button>
   </header>
 
   <div class="sp__mensagens" #rolagem (scroll)="aoRolar()">
@@ -32,7 +32,7 @@
           title="Não foi possível abrir esta análise"
           [description]="store.erroConversa() || undefined"
           actionLabel="Começar nova análise"
-          actionIcon="pi pi-plus"
+          actionIcon="plus"
           (action)="nova()"
         ></geo-async-state>
       } @else if (store.vazia()) {
@@ -67,7 +67,7 @@
 
           @if (store.capacidades(); as cap) {
             @if (!cap.disponivel) {
-              <geo-callout tone="warning" icon="pi-exclamation-triangle" title="Bússola indisponível" [dense]="true">
+              <geo-callout tone="warning" icon="triangle-alert" title="Bússola indisponível" [dense]="true">
                 {{ cap.motivoIndisponibilidade || 'O provedor de IA não está configurado neste ambiente.' }}
               </geo-callout>
             } @else if (sugestoes().length) {
@@ -75,7 +75,7 @@
                 @for (sugestao of sugestoes(); track sugestao.rotulo) {
                   <li>
                     <button type="button" class="sp__sugestao" (click)="usarSugestao(sugestao.pergunta)">
-                      <i [class]="sugestao.icone" aria-hidden="true"></i>
+                      <geo-icon class="geo-icon--texto" [name]="sugestao.icone"></geo-icon>
                       <span>{{ sugestao.rotulo }}</span>
                     </button>
                   </li>
@@ -92,7 +92,7 @@
             <geo-button
               variant="ghost"
               size="sm"
-              icon="pi pi-history"
+              icon="history"
               [label]="'Continuar análise anterior: ' + conversa.titulo"
               (pressed)="continuarAnterior()"
             ></geo-button>
@@ -108,30 +108,30 @@
 
   @if (!grudado() && !store.vazia()) {
     <div class="sp__fim">
-      <geo-button variant="secondary" size="sm" icon="pi pi-arrow-down" label="Ir para o fim" (pressed)="irParaOFim()"></geo-button>
+      <geo-button variant="secondary" size="sm" icon="arrow-down" label="Ir para o fim" (pressed)="irParaOFim()"></geo-button>
     </div>
   }
 
   <div class="sp__rodape">
     @if (store.reconectando()) {
-      <geo-callout tone="warning" icon="pi-sync" [dense]="true">
+      <geo-callout tone="warning" icon="refresh-cw" [dense]="true">
         A conexão oscilou. Reconectando à resposta em andamento — nada foi perdido.
       </geo-callout>
     }
     @if (recorteMudou() && !store.transmitindo()) {
       <p class="sp__aviso-recorte" role="status">
-        <i class="pi pi-filter" aria-hidden="true"></i>
+        <geo-icon class="geo-icon--texto" name="funnel"></geo-icon>
         Os filtros mudaram. A próxima pergunta usa o recorte atual: {{ recorteAtual() }}.
       </p>
     }
     <div class="sp__contexto">
       @if (foco(); as f) {
         <span class="sp__foco">
-          <geo-status tone="brand" icon="pi-bullseye">Foco: {{ f.rotulo || f.id }}</geo-status>
-          <geo-icon-button icon="pi pi-times" size="icon-sm" label="Remover foco da pergunta" (pressed)="removerFoco()"></geo-icon-button>
+          <geo-status tone="brand" icon="target">Foco: {{ f.rotulo || f.id }}</geo-status>
+          <geo-icon-button icon="x" size="icon-sm" label="Remover foco da pergunta" (pressed)="removerFoco()"></geo-icon-button>
         </span>
       } @else if (contexto()) {
-        <geo-status tone="neutral" icon="pi-objects-column">{{ recorteAtual() }}</geo-status>
+        <geo-status tone="neutral" icon="columns-3">{{ recorteAtual() }}</geo-status>
       }
     </div>
     <app-copiloto-compositor
@@ -153,7 +153,7 @@
     <div class="sp__artefato" role="dialog" aria-modal="false" aria-label="Artefato gerado">
       <div class="sp__artefato-barra">
         <span>Prévia do artefato</span>
-        <geo-button variant="ghost" size="sm" icon="pi pi-external-link" label="Abrir no workspace" (pressed)="abrirNoWorkspace()"></geo-button>
+        <geo-button variant="ghost" size="sm" icon="external-link" label="Abrir no workspace" (pressed)="abrirNoWorkspace()"></geo-button>
       </div>
       <app-copiloto-artefato
         [artefato]="artefato"
@@ -166,7 +166,7 @@
 
   @if (arrastando()) {
     <div class="sp__soltar" aria-hidden="true">
-      <i class="pi pi-paperclip"></i>
+      <geo-icon class="geo-icon--texto" name="paperclip"></geo-icon>
       <span>Solte para anexar à pergunta</span>
     </div>
   }

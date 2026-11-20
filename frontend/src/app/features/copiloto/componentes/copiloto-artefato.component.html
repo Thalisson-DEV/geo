@@ -1,6 +1,6 @@
 <section class="painel" [attr.aria-labelledby]="'artefato-' + artefato().codigo">
   <header class="painel__cabecalho">
-    <span class="painel__icone" aria-hidden="true"><i [class]="icone[artefato().tipo] || 'pi pi-file'"></i></span>
+    <span class="painel__icone" aria-hidden="true"><geo-icon class="geo-icon--texto" [name]="icone[artefato().tipo] || 'file'"></geo-icon></span>
     <div class="painel__titulos">
       <h2 class="painel__titulo" [id]="'artefato-' + artefato().codigo">{{ artefato().titulo }}</h2>
       <p class="painel__subtitulo">
@@ -27,23 +27,23 @@
     <div class="painel__acoes">
       <ng-content select="[acoes-painel]"></ng-content>
       @if (artefatos().length > 1 && indice() >= 0) {
-        <geo-icon-button icon="pi pi-angle-left" label="Artefato anterior" size="icon-sm" [disabled]="indice() <= 0" (pressed)="anterior()"></geo-icon-button>
+        <geo-icon-button icon="chevron-left" label="Artefato anterior" size="icon-sm" [disabled]="indice() <= 0" (pressed)="anterior()"></geo-icon-button>
         <span class="painel__posicao">{{ indice() + 1 }}/{{ artefatos().length }}</span>
-        <geo-icon-button icon="pi pi-angle-right" label="Próximo artefato" size="icon-sm" [disabled]="indice() >= artefatos().length - 1" (pressed)="proximo()"></geo-icon-button>
+        <geo-icon-button icon="chevron-right" label="Próximo artefato" size="icon-sm" [disabled]="indice() >= artefatos().length - 1" (pressed)="proximo()"></geo-icon-button>
       }
-      <geo-icon-button icon="pi pi-times" label="Fechar painel de artefatos" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
+      <geo-icon-button icon="x" label="Fechar painel de artefatos" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
     </div>
   </header>
 
   <div class="painel__corpo">
     @if (arquivo(); as arq) {
       <div class="painel__arquivo">
-        <i [class]="artefato().tipo === 'RELATORIO' ? 'pi pi-file-pdf' : 'pi pi-file-excel'" aria-hidden="true"></i>
+        <geo-icon class="geo-icon--texto" [name]="artefato().tipo === 'RELATORIO' ? 'file-text' : 'file-spreadsheet'"></geo-icon>
         <span class="painel__arquivo-nome">{{ arq.nome }}</span>
         @if (artefato().tipo === 'RELATORIO') {
-          <geo-button variant="outline" size="sm" icon="pi pi-external-link" label="Abrir PDF" (pressed)="abrirPdf()"></geo-button>
+          <geo-button variant="outline" size="sm" icon="external-link" label="Abrir PDF" (pressed)="abrirPdf()"></geo-button>
         }
-        <geo-button size="sm" icon="pi pi-download" label="Baixar" (pressed)="baixar()"></geo-button>
+        <geo-button size="sm" icon="download" label="Baixar" (pressed)="baixar()"></geo-button>
       </div>
     }
 
@@ -80,14 +80,14 @@
           <ul class="abas">
             @for (aba of spec().abas ?? []; track $index) {
               <li>
-                <i class="pi pi-table" aria-hidden="true"></i>
+                <geo-icon class="geo-icon--texto" name="table"></geo-icon>
                 <strong>{{ aba.nome }}</strong>
                 <span>{{ aba.linhas.toLocaleString('pt-BR') }} linhas · {{ aba.colunas }} colunas · {{ aba.resultado }}</span>
               </li>
             }
           </ul>
           @for (aviso of spec().avisos ?? []; track $index) {
-            <geo-callout tone="warning" icon="pi-info-circle" [dense]="true">{{ aviso }}</geo-callout>
+            <geo-callout tone="warning" icon="info" [dense]="true">{{ aviso }}</geo-callout>
           }
         </section>
       }
@@ -99,9 +99,9 @@
     @if (spec().procedencia?.length) {
       <section class="procedencia">
         <button type="button" class="procedencia__botao" [attr.aria-expanded]="procedenciaAberta()" (click)="procedenciaAberta.set(!procedenciaAberta())">
-          <i class="pi pi-database" aria-hidden="true"></i>
+          <geo-icon class="geo-icon--texto" name="database"></geo-icon>
           Procedência dos dados ({{ spec().procedencia!.length }})
-          <i class="pi" [class.pi-chevron-up]="procedenciaAberta()" [class.pi-chevron-down]="!procedenciaAberta()" aria-hidden="true"></i>
+          <geo-icon class="geo-icon--texto" [name]="procedenciaAberta() ? 'chevron-up' : 'chevron-down'"></geo-icon>
         </button>
         @if (procedenciaAberta()) {
           <ul class="procedencia__lista">

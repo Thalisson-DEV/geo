@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoIconComponent } from '@geo/ui';
 import { GeoCalloutComponent, NotificationService } from '@geo/ui/feedback';
 import { ArquivoAssistente, ArtefatoAssistente, AssistenteAcao } from '../../../core/models/assistente.models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -44,7 +44,7 @@ const ROTULO_CATEGORIA: Record<string, string> = {
 @Component({
   selector: 'app-copiloto-mensagem',
   standalone: true,
-  imports: [
+  imports: [GeoIconComponent, 
     GeoButtonComponent,
     GeoIconButtonComponent,
     GeoStatusComponent,
@@ -367,16 +367,16 @@ ${this.htmlDaResposta()}
   protected iconeArquivo(arquivo: ArquivoAssistente): string {
     switch (arquivo.categoria) {
       case 'PDF':
-        return 'pi pi-file-pdf';
+        return 'file-text';
       case 'PLANILHA':
       case 'CSV':
-        return 'pi pi-file-excel';
+        return 'file-spreadsheet';
       case 'IMAGEM':
-        return 'pi pi-image';
+        return 'image';
       case 'DOCUMENTO':
-        return 'pi pi-file-word';
+        return 'file-type';
       default:
-        return 'pi pi-file';
+        return 'file';
     }
   }
 }

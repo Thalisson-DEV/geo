@@ -261,20 +261,20 @@ export function capacidadeDisponivel(capacidades: CapacidadesAssistente | null, 
 /** Ações rápidas genéricas derivadas do próprio contexto (valem para qualquer painel). */
 export function sugestoesGenericas(contexto: CopilotoDashboardContext): SugestaoPainel[] {
   const sugestoes: SugestaoPainel[] = [
-    { rotulo: 'Explicar este painel', icone: 'pi pi-compass', requer: ['dados'],
+    { rotulo: 'Explicar este painel', icone: 'compass', requer: ['dados'],
       pergunta: 'O que está acontecendo neste painel? Resuma os principais indicadores e o que merece atenção.' },
-    { rotulo: 'Encontrar anomalias', icone: 'pi pi-exclamation-triangle', requer: ['dados', 'analise'],
+    { rotulo: 'Encontrar anomalias', icone: 'triangle-alert', requer: ['dados', 'analise'],
       pergunta: 'Existe alguma anomalia ou ponto fora do padrão nos dados deste painel? Investigue nos dados detalhados.' },
   ];
   if (contexto.periodo?.inicio || contexto.periodo?.fim) {
-    sugestoes.push({ rotulo: 'Comparar com o período anterior', icone: 'pi pi-arrow-right-arrow-left', requer: ['dados', 'analise'],
+    sugestoes.push({ rotulo: 'Comparar com o período anterior', icone: 'arrow-right-left', requer: ['dados', 'analise'],
       pergunta: 'Compare os principais indicadores deste painel com o período anterior equivalente e explique as variações.' });
   }
   if ((contexto.graficos ?? []).length) {
-    sugestoes.push({ rotulo: 'Visualizar comparação', icone: 'pi pi-chart-bar', requer: ['dados', 'artefato'],
+    sugestoes.push({ rotulo: 'Visualizar comparação', icone: 'chart-column', requer: ['dados', 'artefato'],
       pergunta: 'Monte um gráfico comparando os principais recortes deste painel.' });
   }
-  sugestoes.push({ rotulo: 'Gerar relatório', icone: 'pi pi-file-pdf', requer: ['dados', 'relatorio'],
+  sugestoes.push({ rotulo: 'Gerar relatório', icone: 'file-text', requer: ['dados', 'relatorio'],
     pergunta: 'Gere um relatório PDF deste painel com os indicadores, os destaques e recomendações, usando os dados reais.' });
   return sugestoes;
 }

@@ -40,7 +40,7 @@ export const PROVEDORES: Provedor[] = [
   {
     id: 'claude',
     nome: 'Claude',
-    icone: 'pi pi-sparkles',
+    icone: 'sparkles',
     onde: 'No site claude.ai ou no aplicativo do Claude no computador.',
     passos: [
       passo('Abra o Claude, clique no seu nome no canto da tela e depois em [Configurações].'),
@@ -54,7 +54,7 @@ export const PROVEDORES: Provedor[] = [
   {
     id: 'chatgpt',
     nome: 'ChatGPT',
-    icone: 'pi pi-comments',
+    icone: 'messages-square',
     onde: 'No site chatgpt.com, com uma conta que permite conectar aplicativos.',
     passos: [
       passo('Abra o ChatGPT, clique no seu nome e depois em [Configurações].'),
@@ -68,7 +68,7 @@ export const PROVEDORES: Provedor[] = [
   {
     id: 'outros',
     nome: 'Outros',
-    icone: 'pi pi-th-large',
+    icone: 'layout-grid',
     onde: 'Claude Code, Cursor, VS Code e outros assistentes que aceitam conectar sistemas.',
     passos: [
       passo('No assistente, procure a opção de adicionar um conector e cole o endereço que você copiou.'),
@@ -88,9 +88,9 @@ export const EXEMPLOS_PERGUNTA = [
 export const EXEMPLO_CADASTRO = 'Cadastre um motivo de desconto chamado "Avaria de ferramenta", com até 3 parcelas.';
 
 export const SITUACAO: Record<SituacaoConexaoIa, { rotulo: string; tom: GeoTone; icone: string }> = {
-  CONECTADA: { rotulo: 'Conectada', tom: 'success', icone: 'pi-check-circle' },
-  VENCIDA: { rotulo: 'Chave vencida', tom: 'warning', icone: 'pi-exclamation-triangle' },
-  DESCONECTADA: { rotulo: 'Desconectada', tom: 'neutral', icone: 'pi-minus-circle' }
+  CONECTADA: { rotulo: 'Conectada', tom: 'success', icone: 'circle-check' },
+  VENCIDA: { rotulo: 'Chave vencida', tom: 'warning', icone: 'triangle-alert' },
+  DESCONECTADA: { rotulo: 'Desconectada', tom: 'neutral', icone: 'circle-minus' }
 };
 
 export function rotuloPermissao(c: Pick<ConexaoIa, 'permiteEscrita'>): string {
@@ -100,9 +100,9 @@ export function rotuloPermissao(c: Pick<ConexaoIa, 'permiteEscrita'>): string {
 /** Ícone do aplicativo: provedor conhecido pelo nome, ou chave para conexões por chave. */
 export function iconeConexao(c: Pick<ConexaoIa, 'nome' | 'aplicativo' | 'tipo'>): string {
   const nome = `${c.nome} ${c.aplicativo ?? ''}`.toLowerCase();
-  if (nome.includes('claude')) return 'pi pi-sparkles';
-  if (nome.includes('chatgpt') || nome.includes('openai')) return 'pi pi-comments';
-  return c.tipo === 'CHAVE' ? 'pi pi-key' : 'pi pi-desktop';
+  if (nome.includes('claude')) return 'sparkles';
+  if (nome.includes('chatgpt') || nome.includes('openai')) return 'messages-square';
+  return c.tipo === 'CHAVE' ? 'key-round' : 'monitor';
 }
 
 /** Como a conexão foi feita, em linguagem simples. */

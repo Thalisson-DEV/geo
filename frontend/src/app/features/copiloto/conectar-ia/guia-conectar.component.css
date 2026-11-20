@@ -62,7 +62,7 @@
   font-size: var(--geo-font-caption);
 }
 
-.guia-dica .pi {
+.guia-dica geo-icon {
   margin-top: 0.2rem;
   font-size: 0.75rem;
 }
@@ -125,11 +125,11 @@
   color: var(--geo-foreground);
 }
 
-.guia-limites div:first-child h3 .pi {
+.guia-limites div:first-child h3 geo-icon {
   color: var(--geo-success);
 }
 
-.guia-limites div:last-child h3 .pi {
+.guia-limites div:last-child h3 geo-icon {
   color: var(--geo-foreground-muted);
 }
 

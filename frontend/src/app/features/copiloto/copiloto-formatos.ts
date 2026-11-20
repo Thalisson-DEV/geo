@@ -21,31 +21,31 @@ export const TIPO_GRAFICO: Record<TipoGraficoArtefato, GeoChartKind> = {
 
 /** Ícone e rótulo de cada categoria de ferramenta (ToolKind do backend). */
 export const TIPO_ETAPA: Record<string, { icone: string; rotulo: string }> = {
-  CATALOG: { icone: 'pi pi-book', rotulo: 'Catálogo' },
-  DATA: { icone: 'pi pi-database', rotulo: 'Dados do GEO' },
-  SQL: { icone: 'pi pi-code', rotulo: 'SQL analítico' },
-  ANALYSIS: { icone: 'pi pi-chart-line', rotulo: 'Análise' },
-  PYTHON: { icone: 'pi pi-microchip-ai', rotulo: 'Python' },
-  WEB_SEARCH: { icone: 'pi pi-globe', rotulo: 'Pesquisa web' },
-  OPEN_URL: { icone: 'pi pi-external-link', rotulo: 'Leitura de página' },
-  FILE: { icone: 'pi pi-paperclip', rotulo: 'Arquivo' },
-  ARTIFACT: { icone: 'pi pi-objects-column', rotulo: 'Artefato' },
-  REPORT: { icone: 'pi pi-file-pdf', rotulo: 'Relatório' },
-  EXPORT: { icone: 'pi pi-file-excel', rotulo: 'Exportação' },
-  SKILL: { icone: 'pi pi-bolt', rotulo: 'Roteiro' },
-  NAVIGATION: { icone: 'pi pi-compass', rotulo: 'Navegação' },
-  WRITE: { icone: 'pi pi-pencil', rotulo: 'Alteração' },
+  CATALOG: { icone: 'book-open', rotulo: 'Catálogo' },
+  DATA: { icone: 'database', rotulo: 'Dados do GEO' },
+  SQL: { icone: 'code', rotulo: 'SQL analítico' },
+  ANALYSIS: { icone: 'chart-line', rotulo: 'Análise' },
+  PYTHON: { icone: 'cpu', rotulo: 'Python' },
+  WEB_SEARCH: { icone: 'globe', rotulo: 'Pesquisa web' },
+  OPEN_URL: { icone: 'external-link', rotulo: 'Leitura de página' },
+  FILE: { icone: 'paperclip', rotulo: 'Arquivo' },
+  ARTIFACT: { icone: 'columns-3', rotulo: 'Artefato' },
+  REPORT: { icone: 'file-text', rotulo: 'Relatório' },
+  EXPORT: { icone: 'file-spreadsheet', rotulo: 'Exportação' },
+  SKILL: { icone: 'zap', rotulo: 'Roteiro' },
+  NAVIGATION: { icone: 'compass', rotulo: 'Navegação' },
+  WRITE: { icone: 'pencil', rotulo: 'Alteração' },
 };
 
 export const ICONE_ARTEFATO: Record<TipoArtefato, string> = {
-  DASHBOARD: 'pi pi-th-large',
-  GRAFICO: 'pi pi-chart-bar',
-  TABELA: 'pi pi-table',
-  RELATORIO: 'pi pi-file-pdf',
-  DOCUMENTO: 'pi pi-file',
-  PLANILHA: 'pi pi-file-excel',
-  IMAGEM: 'pi pi-image',
-  CODIGO: 'pi pi-code',
+  DASHBOARD: 'layout-grid',
+  GRAFICO: 'chart-column',
+  TABELA: 'table',
+  RELATORIO: 'file-text',
+  DOCUMENTO: 'file',
+  PLANILHA: 'file-spreadsheet',
+  IMAGEM: 'image',
+  CODIGO: 'code',
 };
 
 export const ROTULO_ARTEFATO: Record<TipoArtefato, string> = {

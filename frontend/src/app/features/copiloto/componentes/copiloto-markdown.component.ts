@@ -12,6 +12,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { NotificationService } from '@geo/ui/feedback';
+import { svgIcone } from '@geo/ui';
 import { CITACAO_RESULTADOS, codigosResultado } from '../copiloto-texto';
 
 const renderizador = new marked.Renderer();
@@ -157,7 +158,7 @@ export class CopilotoMarkdownComponent {
         botao.dataset['resultados'] = codigos.join(',');
         botao.title = 'Ver os dados usados neste trecho';
         botao.setAttribute('aria-label', `Ver os dados usados neste trecho (${codigos.length} ${codigos.length === 1 ? 'tabela' : 'tabelas'})`);
-        botao.innerHTML = '<i class="pi pi-table" aria-hidden="true"></i><span>dados</span>';
+        botao.innerHTML = `${svgIcone('table')}<span>dados</span>`;
         const espaco = document.createDocumentFragment();
         espaco.append(' ', botao);
         return espaco;
@@ -183,9 +184,10 @@ export class CopilotoMarkdownComponent {
         botao.dataset['coluna'] = String(indice);
         botao.setAttribute('aria-label', `Ordenar por ${th.textContent?.trim() ?? 'esta coluna'}`);
         botao.append(...Array.from(th.childNodes));
-        const seta = document.createElement('i');
-        seta.className = 'pi pi-sort-alt markdown-ordenar__seta';
+        const seta = document.createElement('span');
+        seta.className = 'markdown-ordenar__seta';
         seta.setAttribute('aria-hidden', 'true');
+        seta.innerHTML = svgIcone('arrow-up-down');
         botao.append(seta);
         th.append(botao);
         th.setAttribute('aria-sort', 'none');
@@ -198,8 +200,8 @@ export class CopilotoMarkdownComponent {
       barra.setAttribute('aria-label', 'Ações da tabela');
       barra.innerHTML = `
         <span class="markdown-tabela__total">${registros} ${registros === 1 ? 'linha' : 'linhas'}</span>
-        <button type="button" class="markdown-tabela__acao" data-acao="copiar-tabela"><i class="pi pi-copy" aria-hidden="true"></i>Copiar</button>
-        <button type="button" class="markdown-tabela__acao" data-acao="csv-tabela"><i class="pi pi-download" aria-hidden="true"></i>CSV</button>`;
+        <button type="button" class="markdown-tabela__acao" data-acao="copiar-tabela">${svgIcone('copy')}Copiar</button>
+        <button type="button" class="markdown-tabela__acao" data-acao="csv-tabela">${svgIcone('download')}CSV</button>`;
       rolagem.replaceWith(bloco);
       bloco.append(barra, rolagem);
     });
@@ -302,11 +304,12 @@ export class CopilotoMarkdownComponent {
     const crescente = th.getAttribute('aria-sort') !== 'ascending';
     tabela.querySelectorAll('thead th').forEach((outro) => {
       outro.setAttribute('aria-sort', 'none');
-      outro.querySelector('.markdown-ordenar__seta')?.setAttribute('class', 'pi pi-sort-alt markdown-ordenar__seta');
+      const setaOutro = outro.querySelector('.markdown-ordenar__seta');
+      if (setaOutro) setaOutro.innerHTML = svgIcone('arrow-up-down');
     });
     th.setAttribute('aria-sort', crescente ? 'ascending' : 'descending');
-    botao.querySelector('.markdown-ordenar__seta')?.setAttribute('class',
-      `pi ${crescente ? 'pi-sort-amount-up-alt' : 'pi-sort-amount-down'} markdown-ordenar__seta`);
+    const seta = botao.querySelector('.markdown-ordenar__seta');
+    if (seta) seta.innerHTML = svgIcone(crescente ? 'arrow-up-narrow-wide' : 'arrow-down-wide-narrow');
     const todas = Array.from(corpo.rows);
     // A linha de total (primeira célula "Total") continua no fim, fora da ordenação.
     const total = todas.length > 2 && /^total/i.test(todas[todas.length - 1].cells[0]?.textContent?.trim() ?? '')

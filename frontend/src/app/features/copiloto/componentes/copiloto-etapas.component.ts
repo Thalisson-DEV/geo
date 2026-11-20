@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import { GeoStatusComponent } from '@geo/ui';
+import { GeoStatusComponent, GeoIconComponent } from '@geo/ui';
 import { ArquivoAssistente } from '../../../core/models/assistente.models';
 import { EtapaView } from '../copiloto-pacotes';
 import { TIPO_ETAPA, formatarCelula, formatarDuracao, rotuloColuna } from '../copiloto-formatos';
@@ -14,7 +14,7 @@ let sequencia = 0;
 @Component({
   selector: 'app-copiloto-etapas',
   standalone: true,
-  imports: [GeoStatusComponent],
+  imports: [GeoIconComponent, GeoStatusComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './copiloto-etapas.component.html',
   styleUrl: './copiloto-etapas.component.css',
@@ -58,7 +58,7 @@ export class CopilotoEtapasComponent {
   protected readonly rotuloColuna = rotuloColuna;
 
   protected icone(tipo: string): string {
-    return TIPO_ETAPA[tipo]?.icone ?? 'pi pi-cog';
+    return TIPO_ETAPA[tipo]?.icone ?? 'settings';
   }
 
   protected categoria(tipo: string): string {

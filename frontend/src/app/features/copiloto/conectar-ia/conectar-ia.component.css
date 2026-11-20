@@ -27,7 +27,7 @@
   gap: 0.375rem;
 }
 
-.conexao-permissao .pi {
+.conexao-permissao geo-icon {
   font-size: 0.8rem;
   color: var(--geo-foreground-muted);
 }

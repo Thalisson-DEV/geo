@@ -54,7 +54,7 @@
   >
     <header class="ws__topo">
       <geo-icon-button
-        icon="pi pi-history"
+        icon="history"
         [label]="listaVisivel() ? 'Ocultar histórico de conversas' : 'Mostrar histórico de conversas'"
         (pressed)="alternarLista()"
       ></geo-icon-button>
@@ -67,17 +67,17 @@
         <geo-button
           variant="ghost"
           size="sm"
-          icon="pi pi-folder-open"
+          icon="folder-open"
           [label]="'Arquivos (' + totalArquivos() + ')'"
           [ariaLabel]="'Arquivos e artefatos desta conversa: ' + totalArquivos()"
           (pressed)="store.abrirArquivos()"
         ></geo-button>
       }
       @if (podeConectarIa()) {
-        <geo-icon-button icon="pi pi-link" label="Usar o GEO no Claude, ChatGPT ou outra IA" tooltip="Conectar sua IA" (pressed)="conectarIa()"></geo-icon-button>
+        <geo-icon-button icon="link" label="Usar o GEO no Claude, ChatGPT ou outra IA" tooltip="Conectar sua IA" (pressed)="conectarIa()"></geo-icon-button>
       }
       @if (!listaVisivel()) {
-        <geo-icon-button icon="pi pi-plus" label="Nova conversa" (pressed)="nova()"></geo-icon-button>
+        <geo-icon-button icon="plus" label="Nova conversa" (pressed)="nova()"></geo-icon-button>
       }
     </header>
 
@@ -91,7 +91,7 @@
             title="Não foi possível abrir esta conversa"
             [description]="store.erroConversa() || undefined"
             actionLabel="Começar nova conversa"
-            actionIcon="pi pi-plus"
+            actionIcon="plus"
             (action)="nova()"
           ></geo-async-state>
         } @else if (store.vazia()) {
@@ -122,13 +122,13 @@
 
     @if (!grudado() && !store.vazia() && !store.carregandoConversa()) {
       <div class="ws__fim">
-        <geo-button variant="secondary" size="sm" icon="pi pi-arrow-down" label="Ir para o fim" (pressed)="irParaOFim()"></geo-button>
+        <geo-button variant="secondary" size="sm" icon="arrow-down" label="Ir para o fim" (pressed)="irParaOFim()"></geo-button>
       </div>
     }
 
     <div class="ws__rodape">
       @if (store.reconectando()) {
-        <geo-callout tone="warning" icon="pi-sync" [dense]="true">
+        <geo-callout tone="warning" icon="refresh-cw" [dense]="true">
           A conexão oscilou. Reconectando à resposta em andamento — nada foi perdido.
         </geo-callout>
       }
@@ -153,7 +153,7 @@
 
     @if (arrastando()) {
       <div class="ws__soltar" aria-hidden="true">
-        <i class="pi pi-paperclip"></i>
+        <geo-icon class="geo-icon--texto" name="paperclip"></geo-icon>
         <span>Solte os arquivos para anexar à mensagem</span>
       </div>
     }
@@ -179,7 +179,7 @@
         @if (desktop()) {
           <geo-icon-button
             acoes-painel
-            [icon]="painelCheio() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+            [icon]="painelCheio() ? 'minimize-2' : 'maximize-2'"
             [label]="painelCheio() ? 'Voltar a ver a conversa ao lado' : 'Abrir o painel em tela cheia'"
             [tooltip]="painelCheio() ? 'Mostrar a conversa' : 'Tela cheia'"
             size="icon-sm"

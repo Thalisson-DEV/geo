@@ -3,7 +3,7 @@
   <section class="cartao" [class.cartao--decidido]="!pendente()" [attr.aria-busy]="ocupado() !== null"
     [attr.aria-label]="p.titulo + ', ' + selo().texto">
     <header class="cartao__cabecalho">
-      <span class="cartao__icone" aria-hidden="true"><i [class]="icone()"></i></span>
+      <span class="cartao__icone" aria-hidden="true"><geo-icon class="geo-icon--texto" [name]="icone()"></geo-icon></span>
       <div class="cartao__titulos">
         <h3 class="cartao__titulo">{{ p.titulo }}</h3>
         <p class="cartao__subtitulo">{{ subtitulo() }}</p>
@@ -23,12 +23,12 @@
                     <span class="lote__numero" aria-hidden="true">{{ i + 1 }}</span>
                     <span class="lote__nome">{{ registro.titulo }}</span>
                     <span class="lote__estado" [class.lote__estado--pronto]="registro.pronto">
-                      <i class="pi" [class.pi-check]="registro.pronto" [class.pi-pencil]="!registro.pronto" aria-hidden="true"></i>
+                      <geo-icon class="geo-icon--texto" [name]="registro.pronto ? 'check' : 'pencil'"></geo-icon>
                       {{ rotuloRegistro(registro) }}
                     </span>
-                    <i class="pi lote__seta" [class.pi-chevron-down]="aberto() !== i" [class.pi-chevron-up]="aberto() === i" aria-hidden="true"></i>
+                    <geo-icon class="geo-icon--texto lote__seta" [name]="aberto() !== i ? 'chevron-down' : 'chevron-up'"></geo-icon>
                   </button>
-                  <geo-icon-button icon="pi pi-trash" size="icon-sm" [label]="'Tirar ' + registro.titulo + ' do cadastro'"
+                  <geo-icon-button icon="trash-2" size="icon-sm" [label]="'Tirar ' + registro.titulo + ' do cadastro'"
                     [disabled]="ocupado() !== null" (pressed)="removerRegistro(i)"></geo-icon-button>
                 </div>
                 @if (aberto() === i) {
@@ -61,16 +61,16 @@
       </div>
 
       @if (erro()) {
-        <geo-callout tone="danger" icon="pi-exclamation-triangle" [dense]="true" title="Não foi possível concluir">{{ erro() }}</geo-callout>
+        <geo-callout tone="danger" icon="triangle-alert" [dense]="true" title="Não foi possível concluir">{{ erro() }}</geo-callout>
       }
       @if (aviso()) {
-        <geo-callout tone="warning" icon="pi-pencil" [dense]="true">{{ aviso() }}</geo-callout>
+        <geo-callout tone="warning" icon="pencil" [dense]="true">{{ aviso() }}</geo-callout>
       }
 
       <footer class="cartao__rodape">
         <p class="cartao__resumo" aria-live="polite">
           @if (ocupado() === 'revisando') {
-            <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Conferindo os dados...
+            <geo-icon class="geo-icon--texto" name="loader-circle" [spin]="true"></geo-icon> Conferindo os dados...
           } @else {
             {{ resumoPendencias() }}
           }
@@ -78,7 +78,7 @@
         <div class="cartao__botoes">
           <geo-button variant="ghost" size="sm" label="Cancelar" [disabled]="ocupado() !== null"
             [loading]="ocupado() === 'cancelando'" (pressed)="cancelar()"></geo-button>
-          <geo-button variant="primary" size="sm" icon="pi pi-check" [label]="rotuloConfirmar()"
+          <geo-button variant="primary" size="sm" icon="check" [label]="rotuloConfirmar()"
             [disabled]="!p.pronta || !p.registros.length || (ocupado() !== null && ocupado() !== 'confirmando')"
             [loading]="ocupado() === 'confirmando'" (pressed)="confirmar()"></geo-button>
         </div>
@@ -97,10 +97,10 @@
               <ul class="desfecho__lista" aria-label="Registros gravados">
                 @for (registro of gravados(); track registro.indice) {
                   <li class="desfecho__item">
-                    <i class="pi pi-check-circle desfecho__ok" aria-hidden="true"></i>
+                    <geo-icon class="geo-icon--texto desfecho__ok" name="circle-check"></geo-icon>
                     <span class="desfecho__nome">{{ registro.rotulo || registro.titulo }}</span>
                     @if (registro.link; as link) {
-                      <geo-button variant="link" size="sm" icon="pi pi-arrow-up-right" iconPosition="right" [label]="link.rotulo"
+                      <geo-button variant="link" size="sm" icon="arrow-up-right" iconPosition="right" [label]="link.rotulo"
                         [ariaLabel]="link.rotulo + ': ' + (registro.rotulo || registro.titulo)" (pressed)="abrir(link)"></geo-button>
                     }
                   </li>
@@ -111,7 +111,7 @@
               <ul class="desfecho__lista" aria-label="Registros não gravados">
                 @for (registro of falhas(); track registro.indice) {
                   <li class="desfecho__item desfecho__item--falha">
-                    <i class="pi pi-times-circle desfecho__falha" aria-hidden="true"></i>
+                    <geo-icon class="geo-icon--texto desfecho__falha" name="circle-x"></geo-icon>
                     <span class="desfecho__nome">{{ registro.titulo }}</span>
                     <span class="desfecho__motivo">{{ registro.mensagem }}</span>
                   </li>
@@ -120,15 +120,15 @@
             }
             @if (senhas().length) {
               <div class="senhas">
-                <p class="senhas__titulo"><i class="pi pi-lock" aria-hidden="true"></i> Senha provisória</p>
+                <p class="senhas__titulo"><geo-icon class="geo-icon--texto" name="lock"></geo-icon> Senha provisória</p>
                 <p class="senhas__ajuda">Anote ou copie agora: ela não aparece de novo. A pessoa troca no primeiro acesso.</p>
                 @for (senha of senhas(); track $index; let i = $index) {
                   <div class="senhas__linha">
                     <span class="senhas__dono">{{ senha.registro }}</span>
                     <code class="senhas__valor">{{ senhaVisivel()[i] ? senha.valor : '••••••••••' }}</code>
-                    <geo-icon-button [icon]="senhaVisivel()[i] ? 'pi pi-eye-slash' : 'pi pi-eye'" size="icon-sm"
+                    <geo-icon-button [icon]="senhaVisivel()[i] ? 'eye-off' : 'eye'" size="icon-sm"
                       [label]="senhaVisivel()[i] ? 'Ocultar senha' : 'Mostrar senha'" (pressed)="alternarSenha(i)"></geo-icon-button>
-                    <geo-icon-button icon="pi pi-copy" size="icon-sm" label="Copiar senha" (pressed)="copiarSenha(senha.valor)"></geo-icon-button>
+                    <geo-icon-button icon="copy" size="icon-sm" label="Copiar senha" (pressed)="copiarSenha(senha.valor)"></geo-icon-button>
                   </div>
                 }
               </div>

@@ -17,7 +17,8 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 /**
  * Ícone de traço do GEO (Lucide). Aceita o nome Lucide (`name="check"`) e, durante a migração,
  * a classe PrimeIcons (`name="pi pi-check"`). Sem `label` o ícone é decorativo (aria-hidden);
- * com `label` ele é anunciado. Tamanho e espessura vêm dos tokens `--geo-icon-*`.
+ * com `label` ele é anunciado. Tamanho e espessura vêm dos tokens `--geo-icon-*`; com a classe
+ * `geo-icon--texto` o ícone acompanha o tamanho do texto ao redor (1em).
  */
 @Component({
   selector: 'geo-icon',

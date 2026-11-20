@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { GeoIconButtonComponent } from '@geo/ui';
+import { GeoIconButtonComponent, GeoIconComponent } from '@geo/ui';
 import { FocoPainel } from '../../../core/models/assistente.models';
 import { CopilotoPainelService } from './copiloto-painel.service';
 
@@ -10,6 +10,7 @@ import { CopilotoPainelService } from './copiloto-painel.service';
 @Component({
   selector: 'app-copiloto-gatilho',
   standalone: true,
+  imports: [GeoIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (painel.disponivelParaUsuario()) {
@@ -23,7 +24,7 @@ import { CopilotoPainelService } from './copiloto-painel.service';
     >
       <img src="icons/bussola.svg" alt="" aria-hidden="true" />
       <span class="gatilho__texto">{{ painel.aberto() ? 'Ocultar Bússola' : 'Perguntar à Bússola' }}</span>
-      <i class="pi pi-compass" aria-hidden="true"></i>
+      <geo-icon class="geo-icon--texto" name="compass"></geo-icon>
     </button>
     }
   `,
@@ -48,7 +49,7 @@ import { CopilotoPainelService } from './copiloto-painel.service';
         border-color var(--geo-duration-fast) var(--geo-ease-standard);
     }
     .gatilho img { width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--geo-brand-soft); object-fit: contain; }
-    .gatilho i { font-size: 0.75rem; }
+    .gatilho geo-icon { font-size: 0.75rem; }
     .gatilho:hover { background: var(--geo-brand-soft); border-color: var(--geo-brand); }
     .gatilho:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .gatilho:active { transform: translateY(1px); }
@@ -74,7 +75,7 @@ export class CopilotoGatilhoComponent {
   template: `
     @if (painel.disponivelParaUsuario()) {
       <geo-icon-button
-        icon="pi pi-compass"
+        icon="compass"
         size="icon-sm"
         [label]="rotulo()"
         (pressed)="perguntar()"

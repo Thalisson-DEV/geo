@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { GeoStatusComponent } from '@geo/ui';
+import { GeoStatusComponent, GeoIconComponent } from '@geo/ui';
 import { GeoAsyncStateComponent, GeoCalloutComponent } from '@geo/ui/feedback';
 import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../../../core/models/assistente.models';
 
 @Component({
   selector: 'app-copiloto-boas-vindas',
   standalone: true,
-  imports: [GeoStatusComponent, GeoCalloutComponent, GeoAsyncStateComponent],
+  imports: [GeoIconComponent, GeoStatusComponent, GeoCalloutComponent, GeoAsyncStateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="boas-vindas" aria-labelledby="copiloto-boas-vindas-titulo">
@@ -17,7 +17,7 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
       </p>
 
       @if (contexto(); as ctx) {
-        <geo-callout tone="info" icon="pi-map-marker" title="Contexto desta conversa" [dense]="true">
+        <geo-callout tone="info" icon="map-pin" title="Contexto desta conversa" [dense]="true">
           Você abriu a Bússola a partir de {{ ctx.rotulo || ctx.pagina || ctx.entidadeTipo }}. Perguntas como
           “analise isto” usam esse contexto.
         </geo-callout>
@@ -25,7 +25,7 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
 
       @if (capacidades(); as cap) {
         @if (!cap.disponivel) {
-          <geo-callout tone="warning" icon="pi-exclamation-triangle" title="Bússola indisponível" [dense]="true">
+          <geo-callout tone="warning" icon="triangle-alert" title="Bússola indisponível" [dense]="true">
             {{ cap.motivoIndisponibilidade || 'O provedor de IA não está configurado neste ambiente.' }}
           </geo-callout>
         }
@@ -50,12 +50,12 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
         </div>
         @if (continuar(); as conversa) {
           <button type="button" class="continuar" (click)="abrirConversa.emit(conversa.id)">
-            <i class="pi pi-history continuar__icone" aria-hidden="true"></i>
+            <geo-icon class="geo-icon--texto continuar__icone" name="history"></geo-icon>
             <span class="continuar__texto">
               <span class="continuar__rotulo">Continuar de onde parou</span>
               <strong class="continuar__titulo">{{ conversa.titulo }}</strong>
             </span>
-            <i class="pi pi-arrow-right continuar__seta" aria-hidden="true"></i>
+            <geo-icon class="geo-icon--texto continuar__seta" name="arrow-right"></geo-icon>
           </button>
         }
         @if (cap.sugestoes.length) {
@@ -64,14 +64,14 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
             @for (sugestao of cap.sugestoes.slice(0, 6); track sugestao.titulo) {
               <li>
                 <button type="button" class="sugestao" [disabled]="!cap.disponivel" (click)="escolher.emit(sugestao.pergunta)">
-                  <i [class]="sugestao.icone + ' sugestao__icone'" aria-hidden="true"></i>
+                  <geo-icon class="geo-icon--texto sugestao__icone" [name]="sugestao.icone"></geo-icon>
                   <span class="sugestao__texto">
                     <strong>{{ sugestao.titulo }}</strong>
                     @if (sugestao.descricao) {
                       <span class="sugestao__descricao">{{ sugestao.descricao }}</span>
                     }
                   </span>
-                  <i class="pi pi-arrow-up-right sugestao__seta" aria-hidden="true"></i>
+                  <geo-icon class="geo-icon--texto sugestao__seta" name="arrow-up-right"></geo-icon>
                 </button>
               </li>
             }
@@ -219,18 +219,18 @@ export class CopilotoBoasVindasComponent {
     const tipos = new Set((cap?.ferramentas ?? []).map((ferramenta) => ferramenta.tipo));
     const disponivel = (habilitada: boolean) => !!cap?.disponivel && habilitada;
     return [
-      { label: 'Consultar dados do GEO', icon: 'pi pi-database', disponivel: disponivel(['CATALOG', 'DATA', 'SQL'].some((tipo) => tipos.has(tipo))) },
-      { label: 'Analisar resultados', icon: 'pi pi-chart-line', disponivel: disponivel(tipos.has('ANALYSIS')) },
-      { label: 'Indicar caminhos', icon: 'pi pi-compass', disponivel: disponivel(tipos.has('NAVIGATION')) },
-      { label: 'Dashboards', icon: 'pi pi-objects-column', disponivel: disponivel(tipos.has('ARTIFACT')) },
-      { label: 'Relatórios PDF', icon: 'pi pi-file-pdf', disponivel: disponivel(tipos.has('REPORT')) },
-      { label: 'Planilhas', icon: 'pi pi-file-excel', disponivel: disponivel(tipos.has('EXPORT')) },
-      { label: 'Leitura de arquivos', icon: 'pi pi-paperclip', disponivel: disponivel(tipos.has('FILE')) },
-      { label: 'Python', icon: 'pi pi-microchip-ai', disponivel: disponivel(!!cap?.python) },
-      { label: 'Pesquisa web', icon: 'pi pi-globe', disponivel: disponivel(!!cap?.pesquisaWeb) },
-      { label: 'Leitura de páginas', icon: 'pi pi-external-link', disponivel: disponivel(!!cap?.leituraWeb) },
-      { label: 'Competências', icon: 'pi pi-sparkles', disponivel: disponivel(!!cap?.competencias?.length) },
-      { label: 'Alterar dados do GEO', icon: 'pi pi-pencil', disponivel: disponivel(tipos.has('WRITE')) },
+      { label: 'Consultar dados do GEO', icon: 'database', disponivel: disponivel(['CATALOG', 'DATA', 'SQL'].some((tipo) => tipos.has(tipo))) },
+      { label: 'Analisar resultados', icon: 'chart-line', disponivel: disponivel(tipos.has('ANALYSIS')) },
+      { label: 'Indicar caminhos', icon: 'compass', disponivel: disponivel(tipos.has('NAVIGATION')) },
+      { label: 'Dashboards', icon: 'columns-3', disponivel: disponivel(tipos.has('ARTIFACT')) },
+      { label: 'Relatórios PDF', icon: 'file-text', disponivel: disponivel(tipos.has('REPORT')) },
+      { label: 'Planilhas', icon: 'file-spreadsheet', disponivel: disponivel(tipos.has('EXPORT')) },
+      { label: 'Leitura de arquivos', icon: 'paperclip', disponivel: disponivel(tipos.has('FILE')) },
+      { label: 'Python', icon: 'cpu', disponivel: disponivel(!!cap?.python) },
+      { label: 'Pesquisa web', icon: 'globe', disponivel: disponivel(!!cap?.pesquisaWeb) },
+      { label: 'Leitura de páginas', icon: 'external-link', disponivel: disponivel(!!cap?.leituraWeb) },
+      { label: 'Competências', icon: 'sparkles', disponivel: disponivel(!!cap?.competencias?.length) },
+      { label: 'Alterar dados do GEO', icon: 'pencil', disponivel: disponivel(tipos.has('WRITE')) },
     ];
   });
 

@@ -8,11 +8,11 @@
       (click)="alternar()"
     >
       @if (emAndamento()) {
-        <i class="pi pi-spinner etapas__giro" aria-hidden="true"></i>
+        <geo-icon class="geo-icon--texto etapas__giro" name="loader-circle"></geo-icon>
       } @else if (falhas() && !concluidaComSucesso()) {
-        <i class="pi pi-exclamation-circle etapas__icone--aviso" aria-hidden="true"></i>
+        <geo-icon class="geo-icon--texto etapas__icone--aviso" name="circle-alert"></geo-icon>
       } @else {
-        <i class="pi pi-check-circle etapas__icone--ok" aria-hidden="true"></i>
+        <geo-icon class="geo-icon--texto etapas__icone--ok" name="circle-check"></geo-icon>
       }
       <span class="etapas__resumo">
         @if (emAndamento()) {
@@ -22,43 +22,43 @@
       </span>
       @if (falhas() && !emAndamento()) {
         @if (concluidaComSucesso()) {
-          <geo-status tone="neutral" icon="pi-info-circle">
+          <geo-status tone="neutral" icon="info">
             {{ falhas() }} {{ falhas() === 1 ? 'erro contornado' : 'erros contornados' }}
           </geo-status>
         } @else {
-          <geo-status tone="warning" icon="pi-exclamation-triangle">
+          <geo-status tone="warning" icon="triangle-alert">
             {{ falhas() }} {{ falhas() === 1 ? 'etapa com erro' : 'etapas com erro' }}
           </geo-status>
         }
       }
-      <i class="pi etapas__seta" [class.pi-chevron-up]="aberta()" [class.pi-chevron-down]="!aberta()" aria-hidden="true"></i>
+      <geo-icon class="geo-icon--texto etapas__seta" [name]="aberta() ? 'chevron-up' : 'chevron-down'"></geo-icon>
     </button>
 
     @if (aberta()) {
       <ol class="etapas__lista" [id]="idLista">
         @for (observacao of observacoes(); track $index) {
           <li class="etapa etapa--observacao">
-            <i class="pi pi-comment etapa__icone" aria-hidden="true"></i>
+            <geo-icon class="geo-icon--texto etapa__icone" name="message-square"></geo-icon>
             <p class="etapa__observacao">{{ observacao }}</p>
           </li>
         }
         @for (etapa of etapas(); track etapa.id) {
           <li class="etapa" [attr.data-status]="etapa.status">
             <span class="etapa__marcador" aria-hidden="true">
-              <i [class]="icone(etapa.tipo)"></i>
+              <geo-icon class="geo-icon--texto" [name]="icone(etapa.tipo)"></geo-icon>
             </span>
             <div class="etapa__corpo">
               <div class="etapa__linha">
                 <span class="etapa__rotulo">{{ etapa.rotulo }}</span>
                 @switch (etapa.status) {
                   @case ('executando') {
-                    <span class="etapa__estado"><i class="pi pi-spinner etapas__giro" aria-hidden="true"></i><span class="geo-sr-only">em execução</span></span>
+                    <span class="etapa__estado"><geo-icon class="geo-icon--texto etapas__giro" name="loader-circle"></geo-icon><span class="geo-sr-only">em execução</span></span>
                   }
                   @case ('ok') {
-                    <span class="etapa__estado etapa__estado--ok"><i class="pi pi-check" aria-hidden="true"></i><span class="geo-sr-only">concluída</span></span>
+                    <span class="etapa__estado etapa__estado--ok"><geo-icon class="geo-icon--texto" name="check"></geo-icon><span class="geo-sr-only">concluída</span></span>
                   }
                   @default {
-                    <span class="etapa__estado etapa__estado--erro"><i class="pi pi-times" aria-hidden="true"></i><span class="geo-sr-only">com erro</span></span>
+                    <span class="etapa__estado etapa__estado--erro"><geo-icon class="geo-icon--texto" name="x"></geo-icon><span class="geo-sr-only">com erro</span></span>
                   }
                 }
               </div>
@@ -82,7 +82,7 @@
                   @for (arquivo of etapa.arquivos; track arquivo.id) {
                     <li>
                       <button type="button" class="etapa__arquivo" (click)="baixarArquivo.emit(arquivoAtual()(arquivo))">
-                        <i class="pi pi-download" aria-hidden="true"></i>{{ arquivo.nome }}
+                        <geo-icon class="geo-icon--texto" name="download"></geo-icon>{{ arquivo.nome }}
                       </button>
                     </li>
                   }
@@ -171,7 +171,7 @@
         }
         @if (emAndamento() && !atual()) {
           <li class="etapa etapa--pensando">
-            <span class="etapa__marcador" aria-hidden="true"><i class="pi pi-compass"></i></span>
+            <span class="etapa__marcador" aria-hidden="true"><geo-icon class="geo-icon--texto" name="compass"></geo-icon></span>
             <span class="etapa__rotulo">Analisando e decidindo o próximo passo…</span>
           </li>
         }

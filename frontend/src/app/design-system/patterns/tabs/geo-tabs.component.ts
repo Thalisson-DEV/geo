@@ -8,6 +8,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { GeoTabPanelDirective, GeoTabValue } from './geo-tab-panel.directive';
+import { GeoIconComponent } from '../../icons/geo-icon.component';
 
 export interface GeoTabItem {
   value: GeoTabValue;
@@ -20,7 +21,7 @@ export interface GeoTabItem {
 @Component({
   selector: 'geo-tabs',
   standalone: true,
-  imports: [NgTemplateOutlet, Tabs, TabList, Tab, TabPanels, TabPanel],
+  imports: [NgTemplateOutlet, Tabs, TabList, Tab, TabPanels, TabPanel, GeoIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'geo-tabs' },
   styles: `
@@ -67,7 +68,7 @@ export interface GeoTabItem {
           <p-tab [value]="tab.value" [disabled]="tab.disabled || false">
             <span class="geo-tabs__label">
               @if (tab.icon) {
-                <i [class]="tab.icon" aria-hidden="true"></i>
+                <geo-icon class="geo-icon--texto" [name]="tab.icon" />
               }
               <span>{{ tab.label }}</span>
               @if (tab.badge !== undefined) {

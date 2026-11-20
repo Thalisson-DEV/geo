@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTone, GeoIconComponent } from '@geo/ui';
 import { GeoCalloutComponent, NotificationService } from '@geo/ui/feedback';
 import {
   AcaoCartao,
@@ -28,14 +28,14 @@ interface LinkRegistro {
 
 /** Ícone do módulo no cabeçalho do cartão. */
 const ICONE_MODULO: Record<string, string> = {
-  'Pessoas e estrutura': 'pi-users',
-  'Acessos': 'pi-key',
-  'Almoxarifado': 'pi-box',
-  'Financeiro': 'pi-wallet',
-  'Descontos': 'pi-percentage',
-  'Chamados': 'pi-comments',
-  'Obras': 'pi-building',
-  'Segurança do trabalho': 'pi-shield',
+  'Pessoas e estrutura': 'users',
+  'Acessos': 'key-round',
+  'Almoxarifado': 'package',
+  'Financeiro': 'wallet',
+  'Descontos': 'percent',
+  'Chamados': 'messages-square',
+  'Obras': 'building-2',
+  'Segurança do trabalho': 'shield',
 };
 
 /**
@@ -45,7 +45,7 @@ const ICONE_MODULO: Record<string, string> = {
 @Component({
   selector: 'app-copiloto-cartao-cadastro',
   standalone: true,
-  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoCalloutComponent, CopilotoCampoCadastroComponent],
+  imports: [GeoIconComponent, GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoCalloutComponent, CopilotoCampoCadastroComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './copiloto-cartao-cadastro.component.html',
   styleUrl: './copiloto-cartao-cadastro.component.css',
@@ -82,7 +82,7 @@ export class CopilotoCartaoCadastroComponent {
   protected readonly status = computed(() => this.acao().status);
   protected readonly pendente = computed(() => this.status() === 'PENDENTE');
   protected readonly lote = computed(() => (this.previa()?.registros.length ?? 0) > 1);
-  protected readonly icone = computed(() => 'pi ' + (ICONE_MODULO[this.previa()?.modulo ?? ''] ?? 'pi-file-edit'));
+  protected readonly icone = computed(() => 'pi ' + (ICONE_MODULO[this.previa()?.modulo ?? ''] ?? 'file-pen'));
 
   /** Registro aberto no lote: começa no primeiro que tem pendência. */
   protected readonly aberto = linkedSignal<number>(() => {
@@ -100,19 +100,19 @@ export class CopilotoCartaoCadastroComponent {
       case 'CONFIRMADA': {
         const falhas = this.acao().resultado?.falhas ?? 0;
         return falhas
-          ? { tom: 'warning', texto: 'Gravado em parte', icone: 'pi pi-exclamation-circle' }
-          : { tom: 'success', texto: this.previa()?.modo === 'EDITAR' ? 'Atualizado' : 'Cadastrado', icone: 'pi pi-check' };
+          ? { tom: 'warning', texto: 'Gravado em parte', icone: 'circle-alert' }
+          : { tom: 'success', texto: this.previa()?.modo === 'EDITAR' ? 'Atualizado' : 'Cadastrado', icone: 'check' };
       }
       case 'FALHOU':
-        return { tom: 'danger', texto: 'Não gravado', icone: 'pi pi-times-circle' };
+        return { tom: 'danger', texto: 'Não gravado', icone: 'circle-x' };
       case 'REJEITADA':
-        return { tom: 'neutral', texto: 'Cancelado', icone: 'pi pi-ban' };
+        return { tom: 'neutral', texto: 'Cancelado', icone: 'ban' };
       case 'EXPIRADA':
-        return { tom: 'neutral', texto: 'Sem efeito', icone: 'pi pi-clock' };
+        return { tom: 'neutral', texto: 'Sem efeito', icone: 'clock' };
       default:
         return this.previa()?.pronta
-          ? { tom: 'info', texto: 'Pronto para confirmar', icone: 'pi pi-check-circle' }
-          : { tom: 'warning', texto: 'Falta completar', icone: 'pi pi-pencil' };
+          ? { tom: 'info', texto: 'Pronto para confirmar', icone: 'circle-check' }
+          : { tom: 'warning', texto: 'Falta completar', icone: 'pencil' };
     }
   });
 

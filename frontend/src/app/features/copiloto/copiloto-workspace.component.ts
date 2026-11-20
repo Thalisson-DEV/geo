@@ -15,7 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
-import { GeoButtonComponent, GeoIconButtonComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoIconComponent } from '@geo/ui';
 import { GeoAsyncStateComponent, GeoCalloutComponent } from '@geo/ui/feedback';
 import { AssistenteContexto } from '../../core/models/assistente.models';
 import { CopilotoStore } from './copiloto.store';
@@ -81,7 +81,7 @@ function salvarLarguraLocal(chave: string, largura: number | null): void {
 @Component({
   selector: 'app-copiloto-workspace',
   standalone: true,
-  imports: [
+  imports: [GeoIconComponent, 
     NgTemplateOutlet,
     GeoButtonComponent,
     GeoIconButtonComponent,

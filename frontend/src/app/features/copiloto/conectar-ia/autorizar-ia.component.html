@@ -1,5 +1,5 @@
 <main class="autorizar">
-  <geo-icon-button class="autorizar__tema" variant="outline" [icon]="escuro() ? 'pi pi-moon' : 'pi pi-sun'"
+  <geo-icon-button class="autorizar__tema" variant="outline" [icon]="escuro() ? 'moon' : 'sun'"
     [label]="escuro() ? 'Usar tema claro' : 'Usar tema escuro'" (pressed)="alternarTema()"></geo-icon-button>
 
   <section class="autorizar__cartao" [attr.aria-busy]="carregando()" aria-labelledby="autorizar-titulo">
@@ -12,9 +12,9 @@
       <geo-async-state state="loading" title="Conferindo o pedido de conexão"></geo-async-state>
     } @else if (erro()) {
       <h1 id="autorizar-titulo">Não deu para conectar</h1>
-      <geo-callout tone="danger" icon="pi pi-times-circle">{{ erro() }}</geo-callout>
+      <geo-callout tone="danger" icon="circle-x">{{ erro() }}</geo-callout>
       <p class="autorizar__nota">Volte ao seu assistente e tente conectar de novo. Se continuar, avise o administrador do GEO.</p>
-      <geo-button variant="outline" icon="pi pi-home" label="Ir para o GEO" [fluid]="true" (pressed)="irParaInicio()"></geo-button>
+      <geo-button variant="outline" icon="house" label="Ir para o GEO" [fluid]="true" (pressed)="irParaInicio()"></geo-button>
     } @else if (previa(); as p) {
       <div class="autorizar__titulo">
         <h1 id="autorizar-titulo"><strong>{{ p.aplicativo }}</strong> quer se conectar ao GEO</h1>
@@ -37,14 +37,14 @@
 
       <div class="autorizar__listas">
         <div>
-          <h2><i class="pi pi-check-circle" aria-hidden="true"></i>Vai poder</h2>
+          <h2><geo-icon class="geo-icon--texto" name="circle-check"></geo-icon>Vai poder</h2>
           <ul>
             <li>Consultar o que você já vê no GEO, como estoque, solicitações e obras.</li>
             @if (escrever()) { <li>Cadastrar, alterar e aprovar o que o seu perfil já pode.</li> }
           </ul>
         </div>
         <div>
-          <h2><i class="pi pi-ban" aria-hidden="true"></i>Não vai poder</h2>
+          <h2><geo-icon class="geo-icon--texto" name="ban"></geo-icon>Não vai poder</h2>
           <ul>
             <li>Ver nada além do seu perfil.</li>
             @if (!escrever()) { <li>Cadastrar, alterar ou aprovar nada.</li> }
@@ -59,7 +59,7 @@
       }
 
       <div class="autorizar__acoes">
-        <geo-button label="Autorizar" icon="pi pi-check" [fluid]="true" [loading]="enviando()" (pressed)="decidir(true)"></geo-button>
+        <geo-button label="Autorizar" icon="check" [fluid]="true" [loading]="enviando()" (pressed)="decidir(true)"></geo-button>
         <geo-button variant="ghost" label="Agora não" [fluid]="true" [disabled]="enviando()" (pressed)="decidir(false)"></geo-button>
       </div>
 

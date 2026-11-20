@@ -18,7 +18,8 @@ import {
   GeoTabItem,
   GeoTabPanelDirective,
   GeoTabsComponent,
-  NotificationService
+  NotificationService,
+  GeoIconComponent
 } from '@geo/ui';
 import { ConexaoIa, ConexaoIaInfo } from '../../../core/models/conexoes-ia.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -45,7 +46,7 @@ function visiveis(lista: ConexaoIa[], comDesconectadas: boolean): ConexaoIa[] {
   selector: 'app-conectar-ia',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [GeoIconComponent, 
     NgTemplateOutlet,
     GeoButtonComponent,
     GeoCalloutComponent,
@@ -103,8 +104,8 @@ export class ConectarIaComponent {
   protected readonly podeEscrever = computed(() => !!this.info()?.podeEscrever);
 
   protected readonly abas = computed<GeoTabItem[]>(() => [
-    { value: 'minhas', label: 'Suas conexões', icon: 'pi pi-user', badge: this.carregandoMinhas() ? undefined : this.minhas().length - this.desconectadasMinhas() },
-    { value: 'empresa', label: 'Da empresa', icon: 'pi pi-building' }
+    { value: 'minhas', label: 'Suas conexões', icon: 'user', badge: this.carregandoMinhas() ? undefined : this.minhas().length - this.desconectadasMinhas() },
+    { value: 'empresa', label: 'Da empresa', icon: 'building-2' }
   ]);
 
   protected readonly estadoMinhas = computed<GeoContentState>(() =>

@@ -26,7 +26,7 @@ describe('GeoCalloutComponent', () => {
 
     const icone = (fixture.nativeElement as HTMLElement).querySelector('.geo-callout__icon');
     expect(icone?.getAttribute('aria-hidden')).toBe('true');
-    expect(icone?.querySelector('i')?.className).toContain('pi-info-circle');
+    expect(icone?.querySelector('geo-icon')?.getAttribute('data-icon')).toBe('info');
   });
 
   it('permite rótulo e ícone próprios sem perder o tom semântico', async () => {
@@ -39,6 +39,6 @@ describe('GeoCalloutComponent', () => {
     const host = fixture.nativeElement as HTMLElement;
     expect(host.getAttribute('data-tone')).toBe('brand');
     expect(host.textContent).toContain('Regra de ouro');
-    expect(host.querySelector('.geo-callout__icon i')?.className).toContain('pi-star');
+    expect(host.querySelector('.geo-callout__icon geo-icon')?.getAttribute('data-icon')).toBe('star');
   });
 });

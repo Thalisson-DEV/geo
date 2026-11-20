@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
-import { GeoButtonComponent, GeoIconButtonComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoIconComponent } from '@geo/ui';
 import { GeoAsyncStateComponent } from '@geo/ui/feedback';
 import { GeoTextInputComponent } from '@geo/ui/forms';
 import { GeoConfirmationService } from '@geo/ui/overlays';
@@ -9,18 +9,18 @@ import { GrupoConversas } from '../copiloto.store';
 @Component({
   selector: 'app-copiloto-conversas',
   standalone: true,
-  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent, GeoTextInputComponent],
+  imports: [GeoIconComponent, GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent, GeoTextInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="conversas" aria-label="Conversas da Bússola">
       @if (mobile()) {
         <div class="conversas__cabecalho">
           <strong>Conversas</strong>
-          <geo-icon-button icon="pi pi-times" label="Voltar à conversa" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
+          <geo-icon-button icon="x" label="Voltar à conversa" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
         </div>
       }
       <div class="conversas__topo">
-        <geo-button icon="pi pi-plus" label="Nova conversa" [fluid]="true" (pressed)="nova.emit()"></geo-button>
+        <geo-button icon="plus" label="Nova conversa" [fluid]="true" (pressed)="nova.emit()"></geo-button>
         <geo-text-input
           label="Buscar conversas"
           inputId="copiloto-busca"
@@ -40,7 +40,7 @@ import { GrupoConversas } from '../copiloto.store';
             title="Não foi possível carregar o histórico"
             [description]="erro() || undefined"
             actionLabel="Tentar novamente"
-            actionIcon="pi pi-refresh"
+            actionIcon="refresh-cw"
             (action)="recarregar.emit()"
           ></geo-async-state>
         } @else if (!grupos().length) {
@@ -81,39 +81,39 @@ import { GrupoConversas } from '../copiloto.store';
                       >
                         <span class="item__linha">
                           @if (conversa.fixada) {
-                            <i class="pi pi-thumbtack item__origem" aria-hidden="true"></i>
+                            <geo-icon class="geo-icon--texto item__origem" name="pin"></geo-icon>
                             <span class="geo-sr-only">Fixada:</span>
                           }
                           @if (conversa.origem === 'DASHBOARD') {
-                            <i class="pi pi-objects-column item__origem" aria-hidden="true" title="Iniciada em um dashboard"></i>
+                            <geo-icon class="geo-icon--texto item__origem" name="columns-3" title="Iniciada em um dashboard"></geo-icon>
                             <span class="geo-sr-only">Iniciada em um dashboard:</span>
                           }
                           <span class="item__titulo">{{ conversa.titulo }}</span>
                         </span>
                         @if (conversa.emAndamento) {
                           <span class="item__andamento">
-                            <i class="pi pi-spinner item__giro" aria-hidden="true"></i>
+                            <geo-icon class="geo-icon--texto item__giro" name="loader-circle"></geo-icon>
                             Respondendo{{ andamento(conversa) }}
                           </span>
                         }
                       </button>
                       <span class="item__acoes">
                         <geo-icon-button
-                          icon="pi pi-thumbtack"
+                          icon="pin"
                           size="icon-sm"
                           [label]="(conversa.fixada ? 'Desafixar ' : 'Fixar no topo ') + conversa.titulo"
                           [tooltip]="conversa.fixada ? 'Desafixar' : 'Fixar no topo'"
                           (pressed)="fixar.emit({ id: conversa.id, fixada: !conversa.fixada })"
                         ></geo-icon-button>
                         <geo-icon-button
-                          icon="pi pi-pencil"
+                          icon="pencil"
                           size="icon-sm"
                           [label]="'Renomear ' + conversa.titulo"
                           tooltip="Renomear"
                           (pressed)="iniciarEdicao(conversa)"
                         ></geo-icon-button>
                         <geo-icon-button
-                          icon="pi pi-trash"
+                          icon="trash-2"
                           size="icon-sm"
                           variant="ghost"
                           [label]="'Excluir ' + conversa.titulo"
