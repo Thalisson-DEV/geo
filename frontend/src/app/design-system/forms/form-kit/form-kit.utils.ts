@@ -69,3 +69,59 @@ export async function geoValidateForm(form: AbstractControl, root: ParentNode = 
   geoFocusFirstInvalid(root);
   return false;
 }
+
+/** Erro de campo do ProblemDetail (RFC 9457, extensão `errors`). */
+export interface GeoServerFieldError {
+  field: string;
+  message: string;
+  code?: string;
+}
+
+/**
+ * Lê os erros por campo de uma resposta ProblemDetail. Aceita o formato do contrato
+ * (`errors: [{ field, message, code }]`) e os legados (`fieldErrors: { campo: { message } }`,
+ * `erros: { campo: 'mensagem' }`).
+ */
+export function geoServerFieldErrors(error: unknown): GeoServerFieldError[] {
+  const corpo = (error as { error?: unknown } | null)?.error ?? error;
+  if (!corpo || typeof corpo !== 'object') return [];
+  const problema = corpo as {
+    errors?: unknown;
+    fieldErrors?: Record<string, { message?: string; code?: string }>;
+    erros?: Record<string, string>;
+  };
+  if (Array.isArray(problema.errors)) {
+    return problema.errors
+      .filter((e): e is GeoServerFieldError => !!e && typeof e.field === 'string' && typeof e.message === 'string')
+      .map(({ field, message, code }) => ({ field, message, code }));
+  }
+  if (problema.fieldErrors && typeof problema.fieldErrors === 'object') {
+    return Object.entries(problema.fieldErrors).map(([field, valor]) => ({
+      field,
+      message: valor?.message ?? 'Valor inválido.',
+      code: valor?.code
+    }));
+  }
+  if (problema.erros && typeof problema.erros === 'object') {
+    return Object.entries(problema.erros).map(([field, message]) => ({ field, message: String(message) }));
+  }
+  return [];
+}
+
+/**
+ * Marca no formulário os erros por campo devolvidos pelo backend (400/422 com `errors[]`).
+ * O caminho do campo é o mesmo do FormControl (`endereco.cep`). A mensagem aparece no
+ * <geo-form-field> como erro `servidor` e some quando o usuário edita o campo.
+ * Devolve quantos campos foram marcados (0 = mostre o `detail` num toast).
+ */
+export function geoApplyServerErrors(form: AbstractControl, error: unknown): number {
+  let marcados = 0;
+  for (const { field, message } of geoServerFieldErrors(error)) {
+    const control = form.get(field);
+    if (!control) continue;
+    control.setErrors({ ...(control.errors ?? {}), servidor: message });
+    control.markAsTouched();
+    marcados++;
+  }
+  return marcados;
+}

@@ -8,3 +8,4 @@ export * from './list-state';
 export * from './list-shortcuts';
 export * from './import-drawer';
 export * from './pdf-canvas';
+export * from './filter-bar';

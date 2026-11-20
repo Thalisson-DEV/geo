@@ -24,7 +24,8 @@
     "test:a11y": "playwright test --grep axe",
     "test:visual": "playwright test --grep baseline",
     "test:visual:update": "playwright test --grep baseline --update-snapshots",
-    "verify:design-system": "npm run ds:check && npm test -- --watch=false && npm run test:e2e && npm run build"
+    "verify:design-system": "npm run ds:check && npm test -- --watch=false && npm run test:e2e && npm run build",
+    "api:gen": "node tools/api-gen.mjs"
   },
   "prettier": {
     "printWidth": 100,

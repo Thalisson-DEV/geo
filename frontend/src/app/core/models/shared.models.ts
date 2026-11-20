@@ -36,8 +36,10 @@ export interface ProblemDetails {
   status?: number;
   detail?: string;
   instance?: string;
-  errors?: { [key: string]: string[] };
+  /** Contrato (RFC 9457): `[{ field, message, code }]`. O formato antigo (mapa) segue aceito. */
+  errors?: { field: string; message: string; code?: string }[] | { [key: string]: string[] };
   erros?: Record<string, string>;
+  code?: string;
   retryAfter?: number;
 }
 
@@ -46,10 +48,20 @@ export function getErrorMessage(error: any): string {
 
   const problem = error?.error as ProblemDetails;
 
-  if (problem?.errors) {
-    const firstKey = Object.keys(problem.errors)[0];
-    if (firstKey && problem.errors[firstKey].length > 0) {
-      return `${firstKey}: ${problem.errors[firstKey][0]}`;
+  // Contrato: lista de erros por campo. A mensagem do backend já diz o que corrigir; o nome
+  // técnico do campo não ajuda quem lê o toast.
+  if (Array.isArray(problem?.errors) && problem.errors.length > 0) {
+    const [primeiro, ...outros] = problem.errors;
+    if (primeiro?.message) {
+      return outros.length > 0
+        ? `${primeiro.message} (e mais ${outros.length} ${outros.length === 1 ? 'campo' : 'campos'})`
+        : primeiro.message;
+    }
+  } else if (problem?.errors && !Array.isArray(problem.errors)) {
+    const mapa = problem.errors as { [key: string]: string[] };
+    const firstKey = Object.keys(mapa)[0];
+    if (firstKey && mapa[firstKey].length > 0) {
+      return `${firstKey}: ${mapa[firstKey][0]}`;
     }
   }
 
