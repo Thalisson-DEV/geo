@@ -74,10 +74,10 @@ type FiltroOrigem = OrigemAvaliacao | null;
           [breadcrumb]="[{ label: 'Admin' }, { label: 'Sistema' }, { label: 'Avaliação do app' }]"
           description="O que quem usa o GEO, no web e no app de campo, está achando do sistema."
         >
+          @if (podeGerenciar() && campanha()?.aberta) {
+            <geo-button actions label="Encerrar pesquisa" icon="pi pi-stop-circle" variant="secondary" (pressed)="encerrar()" />
+          }
           @if (podeGerenciar()) {
-            @if (campanha()?.aberta) {
-              <geo-button actions label="Encerrar pesquisa" icon="pi pi-stop-circle" variant="secondary" (pressed)="encerrar()" />
-            }
             <geo-button actions label="Nova pesquisa" icon="pi pi-plus" (pressed)="abrirNova()" />
           }
         </geo-page-header>

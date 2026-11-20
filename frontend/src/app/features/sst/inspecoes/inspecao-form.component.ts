@@ -335,27 +335,31 @@ interface Inspecionado {
                 <div class="flex flex-col divide-y divide-[var(--geo-border)]">
                   @for (pergunta of grupo.perguntas; track pergunta.id; let pi = $index) {
                     @if (!soNaoConformes() || temNaoConforme(pergunta)) {
-                    <div class="px-4 md:px-5 py-4 md:py-5 bg-[var(--geo-surface)] hover:bg-[var(--geo-surface-subtle)] transition-colors">
+                    <div class="px-4 md:px-5 py-3 bg-[var(--geo-surface)] hover:bg-[var(--geo-surface-subtle)] transition-colors">
                       @if (isObjetivo(pergunta.tipoResposta)) {
-                        <div class="flex flex-col gap-4">
-                          <div class="flex flex-col gap-2.5">
-                            <div class="flex items-start gap-2">
-                              <span class="text-[12px] md:text-sm font-medium text-[var(--geo-foreground)] leading-snug">
+                        <div class="flex flex-col gap-3">
+                          <div class="flex flex-col gap-2" [class.pergunta-em-linha]="opcoesEmLinha(pergunta)">
+                            <div class="flex items-start gap-2 min-w-0">
+                              <span class="text-sm font-medium text-[var(--geo-foreground)] leading-snug">
                                 {{ pi + 1 }}. {{ pergunta.enunciado }}
                                 @if (pergunta.obrigatoria) { <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span> }
                               </span>
                             </div>
                             @if (pergunta.orientacao) {
-                              <span class="ml-4 -mt-1 text-xs text-[var(--geo-foreground-subtle)] flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
+                              <span class="pergunta-orientacao ml-4 -mt-1 text-xs text-[var(--geo-foreground-subtle)] flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
                             }
-                            <!-- Opções: checklist lado a lado; demais em coluna -->
-                            <div class="flex ml-4" [ngClass]="ehChecklist(pergunta) ? 'flex-row flex-wrap gap-1.5' : 'flex-col gap-0.5'" role="group" [attr.aria-label]="pergunta.enunciado">
+                            <!-- Opções curtas lado a lado (segmentado); listas longas em coluna -->
+                            <div class="pergunta-opcoes flex ml-4" [ngClass]="opcoesEmLinha(pergunta) ? 'flex-row flex-wrap gap-1.5' : 'flex-col gap-0.5'" [attr.role]="pergunta.tipoResposta === 'MULTIPLA_ESCOLHA' ? 'radiogroup' : 'group'" [attr.aria-label]="pergunta.enunciado">
                               @for (opcao of pergunta.opcoes; track opcao.id) {
-                                <button type="button" (click)="toggleOpcao(pergunta, opcao.id, opcao.geraDesvio)" [attr.aria-pressed]="isOpcaoSelecionada(pergunta.id, opcao.id)"
-                                  [ngClass]="ehChecklist(pergunta) ? 'checklist-opcao' : ''"
-                                  class="group flex items-start gap-2.5 text-left py-2 px-2 -mx-1.5 rounded-md transition-colors"
+                                <button type="button" (click)="toggleOpcao(pergunta, opcao.id, opcao.geraDesvio)"
+                                  [attr.role]="pergunta.tipoResposta === 'MULTIPLA_ESCOLHA' ? 'radio' : null"
+                                  [attr.aria-checked]="pergunta.tipoResposta === 'MULTIPLA_ESCOLHA' ? isOpcaoSelecionada(pergunta.id, opcao.id) : null"
+                                  [attr.aria-pressed]="pergunta.tipoResposta === 'MULTIPLA_ESCOLHA' ? null : isOpcaoSelecionada(pergunta.id, opcao.id)"
+                                  [class.checklist-opcao]="opcoesEmLinha(pergunta)"
+                                  class="group flex items-start gap-2 text-left py-1.5 px-2 -mx-1.5 rounded-md transition-colors"
                                   [ngClass]="isOpcaoSelecionada(pergunta.id, opcao.id) ? (opcao.geraDesvio ? 'text-[var(--geo-danger-text)] font-medium bg-[var(--geo-danger-soft)]' : 'text-[var(--geo-brand-text)] font-medium bg-[var(--geo-brand-soft)]') : 'text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-subtle)]'">
-                                  <div class="w-3.5 h-3.5 mt-0.5 rounded-sm border shrink-0 flex-none"
+                                  <div class="w-3.5 h-3.5 mt-0.5 border shrink-0 flex-none"
+                                      [class.rounded-full]="pergunta.tipoResposta === 'MULTIPLA_ESCOLHA'" [class.rounded-sm]="pergunta.tipoResposta !== 'MULTIPLA_ESCOLHA'"
                                       [ngClass]="boxClass(pergunta.id, opcao.id, opcao.geraDesvio)">
                                   </div>
                                   <span class="text-xs leading-snug">{{ opcao.texto }}</span>
@@ -483,7 +487,7 @@ interface Inspecionado {
                     } @else {
                       <div class="flex flex-col gap-3">
                         <div class="flex items-start gap-2">
-                          <span class="text-xs font-medium text-[var(--geo-foreground)] leading-snug">
+                          <span class="text-sm font-medium text-[var(--geo-foreground)] leading-snug">
                             {{ pi + 1 }}. {{ pergunta.enunciado }}
                             @if (pergunta.obrigatoria) { <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span> }
                           </span>
@@ -491,7 +495,7 @@ interface Inspecionado {
                         @if (pergunta.orientacao) {
                           <span class="ml-4 -mt-1.5 text-xs text-[var(--geo-foreground-subtle)] flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
                         }
-                        <div class="ml-4 md:ml-6 mt-1">
+                        <div class="ml-4">
                           @if (pergunta.tipoResposta === 'TEXTO') {
                             <textarea pTextarea [(ngModel)]="respostas[pergunta.id].valorTexto" rows="2" placeholder="Digite sua resposta..." class="doc-textarea w-full md:max-w-2xl bg-[var(--geo-surface)] focus:bg-[var(--geo-surface-subtle)] transition-colors"></textarea>
                           }
@@ -518,18 +522,17 @@ interface Inspecionado {
     </div>
 
     @if (formulario() && podePreencherChecklist()) {
-      <div class="fixed inset-x-0 bottom-0 z-30 px-4 pb-4 pt-6 pointer-events-none from-white via-white to-transparent dark:to-transparent md:inset-x-auto md:right-12 md:bottom-6 md:p-0 md:bg-none md:flex md:flex-col md:items-end">
+      <!-- Barra de ações presa ao rodapé da área de conteúdo: não cobre as opções do checklist. -->
+      <div class="insp-acoes">
         <!-- O motivo fica visível e o botão continua clicável: desabilitado em silêncio,
              o inspetor clicava, nada acontecia e ele recarregava achando que tinha lançado. -->
         @if (motivoBloqueioLancamento(); as motivo) {
-          <p class="pointer-events-auto mb-2 flex items-start gap-2 rounded-lg border border-[var(--geo-warning-border)] bg-[var(--geo-warning-soft)] px-3 py-2 text-xs font-medium text-[var(--geo-warning-text)] md:max-w-xs" role="status">
-            <i class="pi pi-exclamation-triangle mt-0.5 text-xs" aria-hidden="true"></i>
+          <p class="insp-acoes__motivo" role="status">
+            <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
             <span>{{ motivo }}</span>
           </p>
         }
-        <span class="pointer-events-auto block md:inline-block">
-          <p-button [label]="isModoEdicao() ? 'Salvar alterações' : 'Registrar inspeção'" icon="pi pi-check-circle" [loading]="saving()" [disabled]="saving() || !!evidenciasUpload?.enviando()" (onClick)="lancar()"></p-button>
-        </span>
+        <p-button [label]="isModoEdicao() ? 'Salvar alterações' : 'Registrar inspeção'" icon="pi pi-check-circle" [loading]="saving()" [disabled]="saving() || !!evidenciasUpload?.enviando()" (onClick)="lancar()"></p-button>
       </div>
     }
 
@@ -643,7 +646,16 @@ interface Inspecionado {
   `,
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
+    .insp-acoes { position: sticky; bottom: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .5rem 1rem; margin-top: 1rem; padding: .625rem 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm), 0 1.5rem 0 var(--geo-canvas); }
+    .insp-acoes__motivo { display: flex; flex: 1 1 18rem; align-items: flex-start; gap: .5rem; margin: 0; color: var(--geo-warning-text); font-size: var(--geo-font-caption); font-weight: 500; }
+    .insp-acoes__motivo .pi { margin-top: .15rem; }
     .checklist-opcao { margin-left: 0; margin-right: 0; padding-left: .75rem; padding-right: .75rem; border: 1px solid var(--p-content-border-color); align-items: center; }
+    /* Pergunta e opções curtas na mesma linha em telas largas: o checklist vira uma grade de leitura rápida. */
+    @media (min-width: 1024px) {
+      .pergunta-em-linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 1.5rem; row-gap: .25rem; align-items: center; }
+      .pergunta-em-linha .pergunta-orientacao { grid-column: 1; grid-row: 2; margin-top: 0; }
+      .pergunta-em-linha .pergunta-opcoes { grid-column: 2; grid-row: 1; margin-left: 0; justify-content: flex-end; }
+    }
     .desvio-box { border-color: var(--geo-border); border-left-color: var(--geo-border-strong); background: var(--geo-surface-subtle); }
     .desvio-box[data-tone='warning'] { border-left-color: var(--geo-warning); }
     .desvio-box[data-tone='danger'] { border-left-color: var(--geo-danger); }
@@ -1172,6 +1184,12 @@ export class InspecaoFormComponent implements OnInit {
   protected ehChecklist(p: PerguntaResponse): boolean {
     return p.tipoResposta === 'MULTIPLA_ESCOLHA' && p.opcoes.length <= 3 && p.opcoes.some((o) => o.geraDesvio)
       && p.opcoes.some((o) => this.normalizar(o.texto) === 'conforme');
+  }
+
+  /** Visual: opções curtas e poucas ficam lado a lado (segmentado); listas longas seguem em coluna. */
+  protected opcoesEmLinha(p: PerguntaResponse): boolean {
+    return this.ehChecklist(p)
+      || (p.tipoResposta === 'MULTIPLA_ESCOLHA' && p.opcoes.length <= 5 && p.opcoes.every((o) => o.texto.trim().length <= 24));
   }
 
   protected temNaoConforme(p: PerguntaResponse): boolean {

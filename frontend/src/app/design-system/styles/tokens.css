@@ -132,6 +132,10 @@
     --geo-font-label: 0.8571rem;
     --geo-font-body: 0.9286rem;
     --geo-font-title: 1rem;
+    /* Tabelas: dado em 12px e cabeçalho/linha secundária em 11,5px — um degrau abaixo do texto
+       corrido, para a grade não pesar mais que os rótulos e títulos ao redor. */
+    --geo-font-table: 0.8571rem;
+    --geo-font-table-meta: 0.8214rem;
     --geo-font-size-xs: var(--geo-font-caption);
     --geo-font-size-sm: var(--geo-font-control);
 
@@ -334,6 +338,8 @@
     --geo-control-height-md: 40px;
     --geo-control-height-lg: 44px;
     --geo-table-row-height: 44px;
+    --geo-font-table: 0.9286rem;
+    --geo-font-table-meta: 0.8571rem;
     --geo-font-control: 1rem;
     --geo-font-body: 1rem;
   }

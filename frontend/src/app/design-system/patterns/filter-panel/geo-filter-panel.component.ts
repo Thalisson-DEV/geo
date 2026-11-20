@@ -110,7 +110,8 @@ const FIELD_SELECTOR =
 
     h2 {
       color: var(--geo-foreground);
-      font-size: var(--geo-font-title);
+      font-size: var(--geo-text-body);
+      font-weight: var(--geo-font-weight-semibold, 600);
     }
 
     p {

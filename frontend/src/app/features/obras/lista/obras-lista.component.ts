@@ -21,6 +21,8 @@ import {
   GeoMultiSelectComponent,
   GeoNumberInputComponent,
   GeoPageHeaderComponent,
+  GeoRowAction,
+  GeoRowActionsComponent,
   GeoRowActionsDirective,
   GeoSelectComponent,
   GeoSelectOption,
@@ -137,6 +139,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
     GeoMultiSelectComponent,
     GeoNumberInputComponent,
     GeoPageHeaderComponent,
+    GeoRowActionsComponent,
     GeoRowActionsDirective,
     GeoSelectComponent,
     GeoStatusComponent,
@@ -288,21 +291,8 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
           }
         </ng-template>
         <ng-template geoRowActions let-row>
-          <span class="geo-table-actions">
-            <geo-icon-button icon="pi pi-cart-plus" [label]="'Solicitar materiais para ' + row.numero" size="icon-sm" (pressed)="solicitarMateriais(row)"></geo-icon-button>
-            @if (podeCriarEncerramento) {
-              <geo-icon-button icon="pi pi-flag" [label]="'Nova solicitação de encerramento da obra ' + row.numero" size="icon-sm" (pressed)="novoEncerramento(row)"></geo-icon-button>
-            }
-            @if (podeDevolver) {
-              <geo-icon-button icon="pi pi-undo" [label]="'Devolver materiais de ' + row.numero" size="icon-sm" (pressed)="devolvendoObra.set(row.id)"></geo-icon-button>
-            }
-            @if (podeEscrever) {
-              <geo-icon-button icon="pi pi-pencil" [label]="'Editar obra ' + row.numero" size="icon-sm" (pressed)="editarObra(row)"></geo-icon-button>
-              <geo-icon-button icon="pi pi-sync" [label]="'Alterar status da obra ' + row.numero" size="icon-sm" (pressed)="abrirAlteracaoStatus(row)"></geo-icon-button>
-              <geo-icon-button icon="pi pi-ban" [label]="'Desativar obra ' + row.numero" size="icon-sm" (pressed)="desativarObra(row)"></geo-icon-button>
-            }
-            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da obra ' + row.numero" size="icon-sm" (pressed)="showLogs(row)"></geo-icon-button>
-          </span>
+          <geo-row-actions [row]="row" [actions]="acoesLinha" [maxVisible]="2" [label]="'Ações da obra ' + row.numero"
+            (actionSelected)="executarAcaoLinha($event.action.id, $event.row)"></geo-row-actions>
         </ng-template>
       </geo-data-table>
     </div>
@@ -731,6 +721,29 @@ export class ObrasListComponent {
   /** A ficha abre em outra aba para não perder o recorte da carteira. */
   protected visualizarObra(obra: ObraResumoResponse): void {
     window.open(this.router.serializeUrl(this.router.createUrlTree(['/obras', obra.id])), '_blank');
+  }
+
+  /** Ações da linha: as duas mais usadas como ícone; o resto no menu "Mais ações". */
+  protected readonly acoesLinha: GeoRowAction<ObraResumoResponse>[] = [
+    { id: 'materiais', label: 'Solicitar materiais', icon: 'pi pi-cart-plus' },
+    { id: 'editar', label: 'Editar obra', icon: 'pi pi-pencil', visible: this.podeEscrever },
+    { id: 'status', label: 'Alterar status', icon: 'pi pi-sync', visible: this.podeEscrever },
+    { id: 'encerramento', label: 'Solicitar encerramento', icon: 'pi pi-flag', visible: this.podeCriarEncerramento },
+    { id: 'devolver', label: 'Devolver materiais', icon: 'pi pi-undo', visible: this.podeDevolver },
+    { id: 'historico', label: 'Histórico de alterações', icon: 'pi pi-history' },
+    { id: 'desativar', label: 'Desativar obra', icon: 'pi pi-ban', variant: 'destructive', visible: this.podeEscrever }
+  ];
+
+  protected executarAcaoLinha(id: string, obra: ObraResumoResponse): void {
+    switch (id) {
+      case 'materiais': return this.solicitarMateriais(obra);
+      case 'editar': return this.editarObra(obra);
+      case 'status': return this.abrirAlteracaoStatus(obra);
+      case 'encerramento': return this.novoEncerramento(obra);
+      case 'devolver': return this.devolvendoObra.set(obra.id);
+      case 'historico': return this.showLogs(obra);
+      case 'desativar': void this.desativarObra(obra); return;
+    }
   }
 
   protected solicitarMateriais(obra: ObraResumoResponse): void {

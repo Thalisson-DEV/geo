@@ -12,7 +12,7 @@ seguras foram implementadas na hora (ver PROGRESS.md).
 | O5 | 71 controllers | DTO de listagem igual ao de detalhe: listagens trafegam campos que a tabela não mostra. | Separar `XxxRow` (plano, só colunas) de `XxxDetail`. | médio | alto |
 | O6 | Carteira de obras (`/obras`) | 18 colunas na tabela. **Parcialmente feito:** seletor de colunas persistido + 10 colunas padrão. Falta reordenar colunas. | Reordenação por arrastar no seletor de colunas do `geo-data-table`. | médio | médio |
 | O7 | Rótulos de dados em maiúsculas (status de obra, processos, bases) | Os cadastros gravam nomes em CAIXA ALTA; a interface não consegue apresentá-los em caixa de frase. | Normalizar a exibição no backend (campo `nomeExibicao`) ou migração de dados combinada com o cliente. | médio | médio |
-| O8 | Frota — ordens de serviço | Até 3 selos na coluna Situação alargam a tabela e empurram a Descrição para fora. | Selos secundários (prazo, parado) só com ícone + tooltip, ou coluna "Alertas". | médio | baixo |
+| O8 | Frota — ordens de serviço | ~~Até 3 selos na coluna Situação alargam a tabela.~~ **Feito (20/11):** sinais secundários só com ícone + title/texto para leitor de tela; Oficina e Condutor com largura mínima. | — | — | — |
 | O9 | Frota — 40 listagens P2/P3 | Ainda sem o ajuste de texto em 1 linha (linhas altas). | Aplicar `AJUSTE_TEXTO_FROTA` (já existe em `features/frota/shared/frota-lista.ts`) e revisar células custom. | alto | médio |
 | O10 | Almoxarifado — detalhes de solicitação (`/solicitacoes-tecnicas/:id`, `/solicitacoes/:id`) | 117 e 104 classes Tailwind com `!`, layout antigo. | Migrar para o padrão de detalhe do @geo/ui. | alto | alto |
 | O11 | DP — detalhe do desconto (`/dp/descontos/:id`) | 76 classes `!`; botões validar/baixar/rejeitar com cor forçada. | `geo-button` com variantes + `geo-form-drawer`. | alto | médio |
@@ -24,6 +24,11 @@ seguras foram implementadas na hora (ver PROGRESS.md).
 | O17 | Abrir ficha/nota a partir de listas (obras, comercial, eventos) | `window.open` em nova aba. | Abrir na mesma aba, com Ctrl+clique para nova aba. | médio | baixo |
 | O18 | Formulários de inspeção e evento (SST) e financeiro | `p-*` crus com `ngModel`; stepper feito à mão com `p-stepper`. | Migrar para `geo-form-*` e criar `geo-stepper` no `@geo/ui`. | médio | alto |
 | O19 | Dashboards (inspeções SST, descontos) | Cores de gráfico em hex/rgba sem variante escura. | Ler a paleta do `ThemeTokens` (já usado no dashboard de eventos). | médio | baixo |
-| O20 | Listagens RH/IAM | "Editar" em texto + ícones repetidos em toda linha. | Clique na linha + menu "⋯", como em /obras. | médio | médio |
+| O20 | Listagens RH/IAM | "Editar" em texto + ícones repetidos em toda linha. | `geo-row-actions` agora tem `[maxVisible]` com menu "Mais ações" (aplicado em /obras: 7 ícones → 2 + menu). Migrar as demais listagens para ele. | médio | baixo |
 | O21 | /bussola | Grade de sugestões passa por baixo do compositor em telas de 900px. | Rolagem própria ou 4 sugestões. | médio | baixo |
 | O22 | `geo-data-table` | `textFit` não corta células com template próprio; telas repetem CSS. | Já existe `.geo-cell-clamp`; aplicar corte automático ao conteúdo do `geoCell` quando houver `textFit`. | médio | baixo |
+
+## Rodada de avaliação (20/11, tarde)
+- Tabelas: o dado estava em 13px (texto corrido) enquanto rótulos e cabeçalhos estavam em 12px; na `main` era ~11px. Novo token `--geo-font-table` (12px) e `--geo-font-table-meta` (11,5px) no `geo-data-table`, no `p-table` cru e nas células que fixavam `text-sm`.
+- Checklist da inspeção (SST): opções curtas viraram segmentado na mesma linha da pergunta (9 perguntas numa tela, antes ~3), marcador redondo para escolha única com `role=radio`, e a barra "Registrar inspeção" deixou de flutuar sobre as opções (barra fixa no rodapé do formulário).
+- Corrigidos 2 botões que não eram projetados no cabeçalho (NG8011 em evento SST e avaliações) e um import sem uso. Build sem avisos.

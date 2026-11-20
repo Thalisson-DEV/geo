@@ -176,7 +176,7 @@
 
   .geo-cell-muted {
     display: block;
-    font-size: var(--geo-font-caption);
+    font-size: var(--geo-font-table-meta);
     color: var(--geo-foreground-muted);
   }
 

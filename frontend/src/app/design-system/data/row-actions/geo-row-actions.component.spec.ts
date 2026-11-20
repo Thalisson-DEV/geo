@@ -50,4 +50,40 @@ describe('GeoRowActionsComponent', () => {
     expect(buttons).toHaveLength(1);
     expect((buttons[0] as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it('com maxVisible, mantém as primeiras ações como ícone e manda o resto para "Mais ações"', async () => {
+    await TestBed.configureTestingModule({ imports: [GeoRowActionsComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(GeoRowActionsComponent<Row>);
+    const selected = vi.fn();
+    fixture.componentRef.setInput('row', { id: 1, locked: false });
+    fixture.componentRef.setInput('maxVisible', 1);
+    fixture.componentRef.setInput('actions', [
+      { id: 'edit', label: 'Editar', icon: 'pi pi-pencil' },
+      { id: 'log', label: 'Histórico', icon: 'pi pi-history' },
+      { id: 'off', label: 'Desativar', icon: 'pi pi-ban', variant: 'destructive' }
+    ] satisfies GeoRowAction<Row>[]);
+    fixture.componentInstance.actionSelected.subscribe(selected);
+    fixture.detectChanges();
+
+    const labels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((b) => (b as HTMLButtonElement).getAttribute('aria-label'));
+    expect(labels).toEqual(['Editar', 'Mais ações']);
+    const menu = (fixture.componentInstance as unknown as { overflow: () => { label: string; command: () => void }[] }).overflow();
+    expect(menu.map((i) => i.label)).toEqual(['Histórico', 'Desativar']);
+    menu[1].command();
+    expect(selected).toHaveBeenCalledWith(expect.objectContaining({ action: expect.objectContaining({ id: 'off' }) }));
+  });
+
+  it('uma única ação excedente fica inline, sem menu', async () => {
+    await TestBed.configureTestingModule({ imports: [GeoRowActionsComponent] }).compileComponents();
+    const fixture = TestBed.createComponent(GeoRowActionsComponent<Row>);
+    fixture.componentRef.setInput('row', { id: 1, locked: false });
+    fixture.componentRef.setInput('maxVisible', 1);
+    fixture.componentRef.setInput('actions', [
+      { id: 'edit', label: 'Editar', icon: 'pi pi-pencil' },
+      { id: 'log', label: 'Histórico', icon: 'pi pi-history' }
+    ] satisfies GeoRowAction<Row>[]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('button')).toHaveLength(2);
+    expect(fixture.nativeElement.textContent).not.toContain('Mais ações');
+  });
 });

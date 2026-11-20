@@ -619,7 +619,7 @@
     border-color: var(--geo-border);
     background: var(--geo-surface-subtle);
     color: var(--geo-foreground-muted);
-    font-size: var(--geo-font-caption);
+    font-size: var(--geo-font-table-meta);
     font-weight: var(--geo-font-weight-medium);
     letter-spacing: 0;
     text-transform: none;
@@ -628,7 +628,22 @@
   .geo-table.p-datatable .p-datatable-tbody > tr > td {
     border-color: var(--geo-border);
     color: var(--geo-foreground-muted);
-    font-size: var(--geo-font-control);
+    font-size: var(--geo-font-table);
+  }
+
+  /* Ação destrutiva no menu "Mais ações" do geo-row-actions. */
+  .p-menu .geo-menu-item--danger .p-menu-item-label,
+  .p-menu .geo-menu-item--danger .p-menu-item-icon {
+    color: var(--geo-danger-text);
+  }
+
+  /* p-table cru (telas ainda não migradas para geo-data-table): mesma escala de tabela. */
+  .p-datatable .p-datatable-table {
+    font-size: var(--geo-font-table);
+  }
+
+  .p-datatable .p-datatable-thead > tr > th {
+    font-size: var(--geo-font-table-meta);
   }
 
   /*

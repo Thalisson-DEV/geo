@@ -18,6 +18,8 @@
         <geo-button actions variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
         @if (podeEditar()) {
           <geo-button actions variant="outline" icon="pi pi-pencil" label="Editar" (pressed)="editar()"></geo-button>
+        }
+        @if (podeEditar()) {
           <geo-button actions variant="outline" icon="pi pi-times-circle" label="Cancelar registro" (pressed)="abrir('cancelamento')"></geo-button>
         }
         @if (canWrite()) {

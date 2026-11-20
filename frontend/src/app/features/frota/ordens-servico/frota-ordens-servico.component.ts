@@ -109,11 +109,14 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
     .os-visoes .pi { font-size: var(--geo-font-caption); }
     @media (max-width: 40rem) { .os-visoes { width: 100%; } .os-visoes button { flex: 1; justify-content: center; } }
     /* Descrição e itens em poucas linhas: a preventiva traz o roteiro inteiro, que fica na ficha. */
-    .os-resumo { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-width: 14rem; max-width: 28rem; }
+    .os-resumo { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-width: 11rem; max-width: 22rem; }
     .os-resumo--1 { -webkit-line-clamp: 1; line-clamp: 1; }
     /* Linha densa (padrão da carteira de obras): datas, rótulos e selos numa linha só. */
     .os-linha { display: block; white-space: nowrap; }
     .os-selos { flex-wrap: nowrap; }
+    .os-sinal { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: var(--geo-radius-sm); font-size: var(--geo-font-table); cursor: help; }
+    .os-sinal[data-tone='danger'] { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
+    .os-sinal[data-tone='warning'] { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
   `,
   template: `
     <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarOs()" (newRequested)="formularioAberto.set(true)">
@@ -279,14 +282,15 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
         <ng-template geoCell="situacao" let-row>
           <span class="geo-cell-chips os-selos">
             <geo-status [tone]="tomSituacaoOs(row)">{{ rotuloSituacaoOs(row) }}</geo-status>
+            <!-- Sinais secundários só com ícone (texto no title e para leitor de tela): a situação fica legível e a coluna não empurra as outras. -->
             @if (row.atrasada) {
-              <geo-status tone="danger" icon="pi-clock">Prazo estourado</geo-status>
+              <span class="os-sinal" data-tone="danger" title="Prazo estourado"><i class="pi pi-clock" aria-hidden="true"></i><span class="geo-sr-only">Prazo estourado</span></span>
             }
             @if (row.paradaEmCurso) {
-              <geo-status tone="danger" emphasis="outline" icon="pi-stop-circle">Veículo parado</geo-status>
+              <span class="os-sinal" data-tone="danger" title="Veículo parado"><i class="pi pi-stop-circle" aria-hidden="true"></i><span class="geo-sr-only">Veículo parado</span></span>
             }
             @if (row.temRepeticao) {
-              <geo-status tone="warning" icon="pi-replay">Repetição</geo-status>
+              <span class="os-sinal" data-tone="warning" title="Repetição: o mesmo item voltou a dar problema"><i class="pi pi-replay" aria-hidden="true"></i><span class="geo-sr-only">Repetição</span></span>
             }
           </span>
         </ng-template>
@@ -418,8 +422,8 @@ export class FrotaOrdensServicoComponent {
     { key: 'criticidade', header: 'Criticidade', type: 'custom', priority: 1, sortField: 'criticidade', value: (r) => r.criticidade, display: (r) => ROTULO_CRITICIDADE[r.criticidade] },
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, sortField: 'situacao', value: (r) => r.situacao, display: (r) => ROTULO_SITUACAO_OS[r.situacao] },
     { key: 'descricao', header: 'Descrição', type: 'custom', value: (r) => r.descricao, display: (r) => r.descricao },
-    { key: 'oficina', header: 'Oficina', display: (r) => r.oficina },
-    { key: 'condutor', header: 'Condutor', display: (r) => r.condutor ?? '—' },
+    { key: 'oficina', header: 'Oficina', width: '9rem', display: (r) => r.oficina },
+    { key: 'condutor', header: 'Condutor', width: '9rem', display: (r) => r.condutor ?? '—' },
     { key: 'execucao', header: 'Execução', type: 'custom', value: (r) => r.fimReal ?? r.inicioReal ?? r.agendadaPara, display: (r) => r.fimReal ?? r.inicioReal ?? r.agendadaPara ?? '' },
     { key: 'situacaoAprovacao', header: 'Orçamento', type: 'custom', value: (r) => r.situacaoAprovacao, display: (r) => ROTULO_APROVACAO[r.situacaoAprovacao] }
   ];

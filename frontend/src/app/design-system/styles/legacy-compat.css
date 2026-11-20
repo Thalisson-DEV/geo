@@ -17,4 +17,13 @@
   .custom-table {
     --geo-legacy-compatible: 1;
   }
+
+  /*
+   * Células com template próprio que fixaram text-sm/text-base (13px) ficavam maiores que a
+   * escala da tabela. Dentro do corpo da tabela elas herdam a fonte da tabela.
+   */
+  .geo-data-table__table tbody td :is(.text-sm, .text-base, .text-\[13px\], .text-\[14px\]),
+  .p-datatable-tbody > tr > td :is(.text-sm, .text-base, .text-\[13px\], .text-\[14px\]) {
+    font-size: inherit;
+  }
 }
