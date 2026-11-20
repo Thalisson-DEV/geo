@@ -95,7 +95,7 @@ function rotuloDia(dia: string): string {
   ],
   template: `
     <div class="geo-page">
-      <geo-page-header title="Programação" icon="pi pi-calendar"
+      <geo-page-header title="Histórico da programação" icon="pi pi-calendar"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Programação', route: '/obras/programacao' }, { label: 'Histórico' }]"
         description="Criações, edições, reprogramações, cancelamentos e exclusões: o que mudou, antes e depois, quem e por quê."></geo-page-header>
 

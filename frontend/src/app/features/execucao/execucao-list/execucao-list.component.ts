@@ -169,13 +169,20 @@ function inicioPadrao(): string {
         (adjustFilters)="painel.expandAndFocus()"
         (clearFilters)="lista.reset()"
         (rowActivate)="verNota($event)"
+        [hiddenColumns]="colunasOcultasPadrao"
+        [columnPicker]="true"
       >
         <geo-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></geo-button>
         <ng-template geoCell="nota" let-row>
           <span class="nota-cel">
-            @if (row.referenciaNota) { <span class="geo-cell-strong">{{ row.referenciaNota }}</span> }
+            @if (row.referenciaNota) {
+              <span class="geo-cell-strong">{{ row.referenciaNota }}</span>
+            } @else {
+              <!-- Sem nº oficial: a referência provisória (ou o início do id) ainda distingue uma nota da outra. -->
+              <span class="geo-cell-strong" [title]="'Referência provisória da nota'">{{ row.referenciaProvisoria || 'Prov. ' + row.id.slice(0, 8) }}</span>
+            }
             @if (row.aguardandoNumeroOficial) {
-              <geo-status tone="warning" icon="pi-clock">Sem nº oficial</geo-status>
+              <geo-status tone="neutral" icon="pi-clock">Sem nº oficial</geo-status>
             } @else if (tipoDe(row); as tipo) {
               <geo-status [tone]="tipo.tom" [icon]="tipo.icone">{{ tipo.rotulo }}</geo-status>
             }
@@ -347,9 +354,11 @@ export class ExecucaoListComponent {
     { key: 'faturado', header: 'Faturado', type: 'currency', sortField: 'valorTotalFaturado', value: (e) => e.valorTotalFaturado },
     // Na exportação, deixa claro que a nota não é mais como foi lançada.
     { key: 'alteracoes', header: 'Alterações', priority: 3, sortField: 'totalAlteracoes', value: (e) => e.totalAlteracoes,
-      display: (e) => (e.alterada ? `Alterada (${e.totalAlteracoes}x)` : 'Como lançada') }
+      display: (e) => (e.alterada ? (e.totalAlteracoes === 1 ? '1 alteração' : `${e.totalAlteracoes} alterações`) : '—') }
   ];
-  protected readonly rotulo = (e: ExecucaoComercialResponse) => e.referenciaNota;
+  /** Padrão enxuto para a ação da linha caber em 1280–1440px; o usuário reexibe em "Colunas". */
+  protected readonly colunasOcultasPadrao = ['tipoNota', 'alteracoes'];
+  protected readonly rotulo = (e: ExecucaoComercialResponse) => e.referenciaNota || e.referenciaProvisoria || 'Nota sem número';
 
   constructor() {
     // Quantas notas vão no arquivo: recontado a cada ajuste do recorte, só com o drawer aberto.

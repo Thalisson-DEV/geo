@@ -112,7 +112,7 @@ function inicioPadrao(): string {
         title="Turnos"
         mode="server"
         storageKey="execucao-turnos"
-        searchPlaceholder="Equipe, placa ou quem abriu"
+        searchPlaceholder="Equipe ou placa"
         rowActionLabel="Relatório"
         rowActionIcon="pi pi-external-link"
         noResultsTitle="Nenhum turno encontrado com esse recorte."
@@ -263,9 +263,9 @@ export class TurnoListComponent {
 
   protected readonly colunas: GeoDataTableColumn<TurnoConsulta>[] = [
     { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, width: '11rem', value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
-    { key: 'abertura', header: 'Abertura', type: 'custom', priority: 1, sortField: 'dataInicio', value: (t) => t.dataInicio, display: (t) => new Date(t.dataInicio).toLocaleString('pt-BR') },
+    { key: 'abertura', header: 'Abertura', type: 'custom', priority: 1, width: '9.5rem', sortField: 'dataInicio', value: (t) => t.dataInicio, display: (t) => new Date(t.dataInicio).toLocaleString('pt-BR') },
     { key: 'fechamento', header: 'Fechamento', type: 'custom', sortField: 'dataFim', value: (t) => t.dataFim, display: (t) => (t.dataFim ? new Date(t.dataFim).toLocaleString('pt-BR') : 'Em aberto') },
-    { key: 'duracao', header: 'Duração', value: (t) => t.duracaoMinutos, display: (t) => duracao(t.duracaoMinutos) },
+    { key: 'duracao', header: 'Duração', align: 'end', value: (t) => t.duracaoMinutos, display: (t) => duracao(t.duracaoMinutos) },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (t) => t.status, display: (t) => situacaoDoTurno(t).rotulo },
     { key: 'notas', header: 'Notas', type: 'integer', value: (t) => t.notas },
     { key: 'producao', header: 'Produção', type: 'currency', value: (t) => t.producao },

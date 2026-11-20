@@ -250,12 +250,12 @@ export class TurnosObraComponent {
 
   protected readonly colunas: GeoDataTableColumn<TurnoObraLinha>[] = [
     { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, width: '11rem', sortField: 'equipe', value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
-    { key: 'abertura', header: 'Abertura', type: 'custom', priority: 1, sortField: 'dataInicio', value: (t) => t.dataInicio, display: (t) => new Date(t.dataInicio).toLocaleString('pt-BR') },
+    { key: 'abertura', header: 'Abertura', type: 'custom', priority: 1, width: '9.5rem', sortField: 'dataInicio', value: (t) => t.dataInicio, display: (t) => new Date(t.dataInicio).toLocaleString('pt-BR') },
     { key: 'fechamento', header: 'Fechamento', type: 'custom', sortField: 'dataFim', value: (t) => t.dataFim, display: (t) => (t.dataFim ? new Date(t.dataFim).toLocaleString('pt-BR') : 'Em aberto') },
-    { key: 'duracao', header: 'Duração', sortField: 'duracao', value: (t) => t.duracaoMinutos, display: (t) => duracao(t.duracaoMinutos) },
+    { key: 'duracao', header: 'Duração', align: 'end', sortField: 'duracao', value: (t) => t.duracaoMinutos, display: (t) => duracao(t.duracaoMinutos) },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (t) => t.status, display: (t) => situacaoDoTurno(t).rotulo },
     { key: 'obras', header: 'Obras', type: 'custom', value: (t) => t.obras.join(', '), display: (t) => t.obras.join(', ') },
-    { key: 'meta', header: 'Realizado × meta', type: 'custom', sortField: 'meta', value: (t) => t.realizado, display: (t) => (t.percentualMeta != null ? `${formatarMoeda(t.realizado)} (${percentual(t.percentualMeta)})` : formatarMoeda(t.realizado)) },
+    { key: 'meta', header: 'Realizado × meta', type: 'custom', align: 'end', sortField: 'meta', value: (t) => t.realizado, display: (t) => (t.percentualMeta != null ? `${formatarMoeda(t.realizado)} (${percentual(t.percentualMeta)})` : formatarMoeda(t.realizado)) },
     { key: 'registros', header: 'Registros', type: 'custom', value: (t) => t.ocorrencias, display: (t) => `${t.semRelatorio ? 'Sem relatório; ' : ''}${t.ocorrencias} ocorrências; ${t.aprs} APRs` }
   ];
   protected readonly rotulo = (t: TurnoObraLinha) => t.codigoEquipe ?? 'equipe removida';

@@ -151,10 +151,10 @@ interface Arraste {
     .tempo__texto small { overflow: hidden; font-size: var(--geo-font-caption); text-overflow: ellipsis; }
     .tempo__barra--corte-inicio { border-left-style: dashed; }
     .tempo__barra--corte-fim { border-right-style: dashed; }
-    .tempo__barra[data-situacao='PROGRAMADA'] { border-color: var(--geo-info); background: var(--geo-info-soft); color: var(--geo-info-text); }
-    .tempo__barra[data-situacao='ATRASADA'] { border-color: var(--geo-danger); background: var(--geo-danger-soft); color: var(--geo-danger-text); }
-    .tempo__barra[data-situacao='EM_ANDAMENTO'] { border-color: var(--geo-warning); background: var(--geo-warning-soft); color: var(--geo-warning-text); }
-    .tempo__barra[data-situacao='CONCLUIDA'] { border-color: var(--geo-success); background: var(--geo-success-soft); color: var(--geo-success-text); }
+    .tempo__barra[data-situacao='PROGRAMADA'] { border-color: var(--geo-border-strong); border-left: 3px solid var(--geo-info); background: var(--geo-surface); color: var(--geo-foreground); }
+    .tempo__barra[data-situacao='ATRASADA'] { border-color: var(--geo-border-strong); border-left: 3px solid var(--geo-danger); background: var(--geo-surface); color: var(--geo-foreground); }
+    .tempo__barra[data-situacao='EM_ANDAMENTO'] { border-color: var(--geo-border-strong); border-left: 3px solid var(--geo-warning); background: var(--geo-surface); color: var(--geo-foreground); }
+    .tempo__barra[data-situacao='CONCLUIDA'] { border-color: var(--geo-border-strong); border-left: 3px solid var(--geo-success); background: var(--geo-surface); color: var(--geo-foreground); }
     .tempo__barra[data-situacao='CANCELADA'] { border-color: var(--geo-border); border-style: dashed; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); }
     .tempo__barra[data-situacao='CANCELADA'] strong { text-decoration: line-through; }
   `]
