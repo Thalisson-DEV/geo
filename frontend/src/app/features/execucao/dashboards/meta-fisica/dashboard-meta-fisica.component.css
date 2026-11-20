@@ -82,7 +82,7 @@ button.mf-celula:active { transform: translateY(1px); }
 .mf-celula__valor { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); font-variant-numeric: tabular-nums; }
 .mf-celula__valor strong { font-size: 1rem; color: var(--geo-foreground); }
 .mf-celula__barra { position: relative; overflow: visible; }
-.mf-celula__barra > span { background: var(--mf-tom) !important; }
+.dash-progress__track.mf-celula__barra > span { background: var(--mf-tom); }
 .mf-celula__marca {
   position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px;
   background: var(--geo-foreground);

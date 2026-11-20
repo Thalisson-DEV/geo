@@ -8,6 +8,34 @@
   </div>
 } @else if (obra(); as o) {
   <div class="obra">
+    <!-- Barra da ficha: voltar à carteira à esquerda; ações da obra à direita, a primária por último -->
+    <div class="obra-acoes" role="toolbar" aria-label="Ações da obra">
+      <geo-button variant="ghost" size="sm" icon="pi pi-arrow-left" label="Obras" (pressed)="voltar()"></geo-button>
+      <span class="obra-acoes__grupo">
+        <app-analisar-com-copiloto origem="Detalhe da obra" tipo="obra" [entidade]="o.id" [rotulo]="o.numero" [filtros]="{ obra: o.id }" size="sm" variant="ghost" label="Bússola"
+          pergunta="Faça um resumo desta obra: situação, prazo, carteira, materiais solicitados e pendências."></app-analisar-com-copiloto>
+        @if (podePlanejar) {
+          <geo-button variant="outline" size="sm" icon="pi pi-map" label="Planejar" (pressed)="planejar()"></geo-button>
+        }
+        @if (podeDevolver) {
+          <geo-button variant="outline" size="sm" icon="pi pi-undo" label="Devolver materiais" (pressed)="devolvendo.set(true)"></geo-button>
+        }
+        @if (!o.statusConcluida) {
+          <geo-button variant="outline" size="sm" icon="pi pi-cart-plus" label="Solicitar materiais" (pressed)="solicitarMateriais()"></geo-button>
+        }
+        @if (podeCriarEncerramento) {
+          <geo-button variant="outline" size="sm" icon="pi pi-flag" label="Encerramento" (pressed)="novoEncerramento()"></geo-button>
+        }
+        <geo-button variant="outline" size="sm" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
+        @if (acoesAtualizar().length) {
+          <span class="obra-acoes__menu" (click)="menuAtualizar.toggle($event)">
+            <geo-button size="sm" icon="pi pi-chevron-down" label="Atualizar obra"></geo-button>
+          </span>
+          <p-menu #menuAtualizar [model]="acoesAtualizar()" [popup]="true" appendTo="body"></p-menu>
+        }
+      </span>
+    </div>
+
     <!-- Cabeçalho: identidade, situação e prazo -->
     <section class="obra-hero" aria-labelledby="obra-titulo">
       <div class="obra-hero__identidade">
@@ -510,38 +538,6 @@
       </aside>
     </div>
 
-    <!-- Ações da obra: fixas no canto inferior direito, como nos demais relatórios -->
-    <div class="obra-acoes fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50" role="toolbar" aria-label="Ações da obra">
-      <geo-button variant="outline" size="sm" icon="pi pi-arrow-left" label="VOLTAR" (pressed)="voltar()"
-        className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
-      @if (podePlanejar) {
-        <geo-button variant="outline" size="sm" icon="pi pi-map" label="PLANEJAR" (pressed)="planejar()"
-          className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
-      }
-      <app-analisar-com-copiloto origem="Detalhe da obra" tipo="obra" [entidade]="o.id" [rotulo]="o.numero" [filtros]="{ obra: o.id }" size="sm" variant="outline" label="COPILOTO"
-        className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"
-        pergunta="Faça um resumo desta obra: situação, prazo, carteira, materiais solicitados e pendências."></app-analisar-com-copiloto>
-      @if (podeDevolver) {
-        <geo-button variant="outline" size="sm" icon="pi pi-undo" label="DEVOLVER MATERIAIS" (pressed)="devolvendo.set(true)"
-          className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
-      }
-      @if (!o.statusConcluida) {
-        <geo-button variant="outline" size="sm" icon="pi pi-cart-plus" label="SOLICITAR MATERIAIS" (pressed)="solicitarMateriais()"
-          className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
-      }
-      @if (podeCriarEncerramento) {
-        <geo-button variant="outline" size="sm" icon="pi pi-flag" label="ENCERRAMENTO" (pressed)="novoEncerramento()"
-          className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
-      }
-      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"
-        styleClass="!rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
-      @if (acoesAtualizar().length) {
-        <span (click)="menuAtualizar.toggle($event)">
-          <geo-button size="sm" icon="pi pi-chevron-up" label="Atualizar obra"></geo-button>
-        </span>
-        <p-menu #menuAtualizar [model]="acoesAtualizar()" [popup]="true" appendTo="body"></p-menu>
-      }
-    </div>
   </div>
 
   <!-- Drawer: status operacional -->

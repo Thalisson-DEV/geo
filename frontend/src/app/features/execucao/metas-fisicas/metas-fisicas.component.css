@@ -34,7 +34,7 @@
 .mf-tabela thead th { font-weight: 600; color: var(--geo-foreground-muted); }
 .mf-tabela tbody th { font-weight: 600; color: var(--geo-foreground); }
 .mf-tabela tbody tr:last-child th, .mf-tabela tbody tr:last-child td { border-bottom: 0; }
-.mf-num { text-align: right !important; font-variant-numeric: tabular-nums; }
+.mf-tabela .mf-num, .mf-num { text-align: right; font-variant-numeric: tabular-nums; }
 .mf-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 @media (max-width: 40rem) {

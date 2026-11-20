@@ -68,7 +68,6 @@ import { SolicitacaoMaterialTecnicaService } from '../../../core/services/solici
 import { DevolucaoTecnicaFormComponent } from '../../almoxarifado/solicitacoes-material/devolucao-tecnica-form/devolucao-tecnica-form.component';
 import { NovaSolicitacaoTecnicaDrawerComponent } from '../../almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-tecnica-drawer.component';
 import { ObraFormComponent } from '../form/obra-form.component';
-import { ButtonModule } from 'primeng/button';
 import { CargaSaldoObra, ObraMateriaisComponent } from './obra-materiais.component';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AnalisarComCopilotoComponent } from '../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
@@ -135,7 +134,6 @@ interface MarcoPrazo {
     ObraFormComponent,
     NovaSolicitacaoTecnicaDrawerComponent,
     DatePipe,
-    ButtonModule,
     ObraMateriaisComponent,
     ProgramacaoDetalheComponent,
     RouterLink,

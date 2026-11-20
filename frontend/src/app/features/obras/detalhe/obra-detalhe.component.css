@@ -15,54 +15,60 @@
 .obra {
   max-width: 88rem;
   margin: 0 auto;
-  padding: 1rem 1rem 7rem;
+  padding: 0 1rem 2rem;
 }
 
 @media (min-width: 768px) {
   .obra {
-    padding: 1.5rem 2rem 6rem;
+    padding: 0 1.25rem 2rem;
   }
 }
 
-/* ── Ações fixas no canto inferior direito ──────────────────────── */
-
-/* Mesmo padrão da barra flutuante dos relatórios de saldo e de movimentação. */
-:host {
-  --report-action-strong-bg: var(--geo-foreground);
-  --report-action-strong-bg-hover: var(--geo-foreground-muted);
-}
-
-:host-context(.app-dark),
-:host-context(.dark) {
-  --report-action-strong-bg: var(--geo-surface-muted);
-  --report-action-strong-bg-hover: var(--geo-border-strong);
-}
+/* ── Barra da ficha (a página abre em tela cheia, sem o shell) ──── */
 
 .obra-acoes {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--geo-border);
+  background: var(--geo-canvas, var(--geo-surface-subtle));
+}
+
+.obra-acoes__grupo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
-  max-width: calc(100vw - 3rem);
+  gap: 0.5rem;
+}
+
+.obra-acoes__menu {
+  display: inline-flex;
 }
 
 /* ── Cabeçalho ──────────────────────────────────────────────────── */
 
 .obra-hero {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 1rem;
-  padding: 1.5rem;
+  padding: 1rem 1.25rem;
   border: 1px solid var(--geo-border);
   border-radius: var(--geo-radius-lg);
-  background:
-    radial-gradient(120% 140% at 100% 0%, var(--geo-brand-soft) 0%, transparent 55%),
-    var(--geo-surface);
-  box-shadow: var(--geo-shadow-sm);
+  background: var(--geo-surface);
 }
 
 @media (min-width: 1024px) {
   .obra-hero {
     grid-template-columns: minmax(0, 1.6fr) minmax(20rem, 1fr);
     align-items: start;
-    padding: 1.75rem 2rem;
   }
 }
 
@@ -70,8 +76,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
-  margin: 0 0 0.375rem;
-  color: var(--geo-brand);
+  margin: 0 0 0.25rem;
+  color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
   font-weight: 600;
   letter-spacing: 0;
@@ -79,9 +85,9 @@
 }
 
 .obra-hero__titulo {
-  margin: 0 0 0.875rem;
+  margin: 0 0 0.625rem;
   color: var(--geo-foreground);
-  font-size: clamp(1.25rem, 1rem + 1.2vw, 1.875rem);
+  font-size: 1.375rem;
   font-weight: 600;
   line-height: 1.2;
 }
@@ -116,8 +122,8 @@
   display: flex;
   gap: 0.5rem;
   padding: 0.625rem 0.75rem;
-  border-left: 3px solid var(--geo-brand);
-  border-radius: var(--geo-radius-sm);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
   background: var(--geo-surface-subtle);
   color: var(--geo-foreground);
 }
@@ -126,11 +132,11 @@
 
 .obra-prazo {
   display: grid;
-  gap: 0.875rem;
-  padding: 1rem 1.125rem;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
   border: 1px solid var(--geo-border);
-  border-radius: var(--geo-radius-lg);
-  background: var(--geo-surface);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
 }
 
 .obra-prazo__topo {
@@ -244,13 +250,13 @@
 /* ── Indicadores ────────────────────────────────────────────────── */
 
 .obra-kpis {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 /* ── Pontos de atenção ─────────────────────────────────────────── */
 
 .obra-atencao {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .obra-atencao__cabecalho {
@@ -258,9 +264,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  padding-left: 0.75rem;
-  border-left: 2px solid var(--geo-brand);
+  margin-bottom: 0.5rem;
 }
 
 .obra-atencao__cabecalho h2 {
@@ -283,7 +287,7 @@
   color: var(--geo-brand);
   font: inherit;
   font-size: var(--geo-font-caption);
-  font-weight: 650;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -306,20 +310,21 @@
 .obra-atencao__lista {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* Cartão neutro: a severidade fica só no ícone (o título já diz o que é). */
 .obra-destaque {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.875rem;
-  border: 1px solid var(--tom, var(--geo-border));
+  gap: 0.625rem;
+  padding: 0.75rem;
+  border: 1px solid var(--geo-border);
   border-radius: var(--geo-radius-lg);
-  background: var(--tom-fundo, var(--geo-surface));
+  background: var(--geo-surface);
   color: var(--geo-foreground);
 }
 
@@ -350,12 +355,12 @@
 .obra-destaque__icone {
   display: inline-grid;
   flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   place-items: center;
-  border: 1px solid currentColor;
   border-radius: var(--geo-radius-md);
-  color: var(--tom-texto);
+  background: var(--tom-fundo, var(--geo-surface-muted));
+  color: var(--tom-texto, var(--geo-foreground-muted));
 }
 
 .obra-destaque__corpo {
@@ -372,8 +377,8 @@
 
 .obra-destaque__texto {
   font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
   line-height: 1.45;
-  opacity: 0.9;
 }
 
 .obra-destaque__acao {
@@ -407,11 +412,10 @@
 
 .obra-card {
   min-width: 0;
-  padding: 1.125rem 1.25rem 1.25rem;
+  padding: 1rem 1.25rem;
   border: 1px solid var(--geo-border);
   border-radius: var(--geo-radius-lg);
   background: var(--geo-surface);
-  box-shadow: var(--geo-shadow-sm);
 }
 
 .obra-card--sutil {
@@ -452,7 +456,7 @@
 }
 
 .obra-card__cabecalho h2 > .pi {
-  color: var(--geo-brand);
+  color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
 }
 
@@ -617,7 +621,7 @@
 .obra-lista__titulo {
   color: var(--geo-foreground);
   font-size: var(--geo-font-body);
-  font-weight: 650;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -699,8 +703,8 @@ a.obra-lista__titulo:hover,
   height: 2.25rem;
   place-items: center;
   border-radius: var(--geo-radius-sm);
-  background: var(--geo-brand-soft);
-  color: var(--geo-brand);
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .obra-anexo__texto {
@@ -863,7 +867,7 @@ a.obra-lista__titulo:hover,
 .obra-linha-tempo__titulo {
   color: var(--geo-foreground);
   font-size: var(--geo-font-body);
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .obra-linha-tempo__titulo .pi {
@@ -937,8 +941,8 @@ a.obra-lista__titulo:hover,
   text-align: right;
 }
 
-.obra-registro__emissao {
-  display: none !important;
+.obra-registro > .obra-registro__emissao {
+  display: none;
 }
 
 /* Pré-visualização */
@@ -1005,7 +1009,7 @@ a.obra-lista__titulo:hover,
   .obra-destaque__acao,
   .obra-atencao__mais,
   .obra-mapa {
-    display: none !important;
+    display: none;
   }
 
   .obra-hero,
@@ -1020,15 +1024,15 @@ a.obra-lista__titulo:hover,
   }
 
   .obra-destaque {
-    border-color: var(--p-zinc-300) !important;
-    background: var(--p-surface-0) !important;
+    border-color: var(--p-zinc-300);
+    background: var(--p-surface-0);
   }
 
   .obra-corpo {
     grid-template-columns: 1fr;
   }
 
-  .obra-registro__emissao {
-    display: flex !important;
+  .obra-registro > .obra-registro__emissao {
+    display: flex;
   }
 }

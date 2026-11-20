@@ -12,7 +12,8 @@ import {
   GeoPageHeaderComponent,
   GeoSelectComponent,
   GeoSelectOption,
-  GeoStatusComponent
+  GeoStatusComponent,
+  GeoTone
 } from '@geo/ui';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -20,7 +21,8 @@ import { BarraGantt, EquipePainelProgramacao, PainelProgramacao } from '../../..
 import { AuthService } from '../../../core/services/auth.service';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { RhService } from '../../../core/services/rh.service';
-import { DashboardInsightPanelComponent, DashboardMetricCardComponent } from '../../../shared/components/dashboard/dashboard-ui.components';
+import { DashboardMetricCardComponent, InsightTone } from '../../../shared/components/dashboard/dashboard-ui.components';
+import { DashboardVisaoGerencialComponent, LeituraGerencial, VereditoGerencial } from '../../../shared/components/dashboard/dashboard-visao-gerencial.component';
 import { dataIso } from '../../../shared/listagem/listagem';
 import { formatarMoeda, parseDataBrParaDate } from '../obras-ui';
 import { ProgramacaoDetalheComponent } from './programacao-detalhe.component';
@@ -47,6 +49,11 @@ const SEMANA_CURTA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
  * Painel da programação para o gestor: se o que foi programado virou execução, o que mudou e por quê, quem está
  * ocupado ou livre nos próximos dias e o que falta programar. Cada número leva à agenda, ao histórico ou ao detalhe.
  */
+const TOM_LEITURA: Record<InsightTone, GeoTone> = { critical: 'danger', warning: 'warning', positive: 'success', neutral: 'info' };
+const ROTULO_VEREDITO: Record<GeoTone, string> = {
+  danger: 'Agir agora', warning: 'Acompanhar', success: 'Em dia', info: 'Contexto', brand: 'Contexto', neutral: 'Contexto'
+};
+
 @Component({
   selector: 'app-programacao-painel',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,7 +67,7 @@ const SEMANA_CURTA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
     GeoPageHeaderComponent,
     GeoSelectComponent,
     GeoStatusComponent,
-    DashboardInsightPanelComponent,
+    DashboardVisaoGerencialComponent,
     DashboardMetricCardComponent,
     ProgramacaoDetalheComponent,
     ProgramarDrawerComponent
@@ -114,6 +121,30 @@ export class ProgramacaoPainelComponent {
     const d = this.d();
     return d ? gerarLeituras(d) : [];
   });
+
+  /** Veredito do período no formato da visão gerencial dos dashboards (mesma peça do dashboard operacional). */
+  protected readonly veredito = computed<VereditoGerencial>(() => {
+    const d = this.d();
+    const primeira = this.leituras()[0];
+    const tom = primeira ? TOM_LEITURA[primeira.tone] : 'success';
+    return {
+      tom,
+      rotulo: ROTULO_VEREDITO[tom],
+      titulo: primeira ? 'O que pede atenção na programação' : 'Programação sem pontos de atenção',
+      texto: d ? `De ${d.inicio} a ${d.fim}: ${d.totais.programacoes} programações ativas em ${d.totais.equipes} equipes.` : ''
+    };
+  });
+
+  protected readonly leiturasGerenciais = computed<LeituraGerencial[]>(() =>
+    this.leituras().map((l, i) => ({
+      id: `${l.destino}-${i}`,
+      tom: TOM_LEITURA[l.tone],
+      icone: 'pi ' + l.icon,
+      titulo: l.title,
+      texto: l.description,
+      acao: { rotulo: l.action, alvo: { dimension: 'painel', value: l.destino } }
+    }))
+  );
 
   protected readonly serieTempo = computed(() => {
     const d = this.d();
@@ -270,11 +301,6 @@ export class ProgramacaoPainelComponent {
     const nome = this.d()?.bases[evento.index]?.base;
     const base = this.bases().find((b) => b.label === nome);
     if (base) this.definirBase(base.value);
-  }
-
-  protected acionarLeitura(indice: number): void {
-    const leitura = this.leituras()[indice];
-    if (leitura) this.rolarPara(`painel-${leitura.destino}`);
   }
 
   protected rolarPara(id: string): void {

@@ -45,6 +45,7 @@ import { MetasFisicasService } from '../../../core/services/metas-fisicas.servic
 import { RhService } from '../../../core/services/rh.service';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { OPCOES_STATUS, dataIso, dataLocal, paginaPadrao } from '../../../shared/listagem/listagem';
+import { AJUSTE_TEXTO_LISTAGEM } from '../../obras/obras-ui';
 
 type Modo = 'MENSAL' | 'PARCIAL';
 
@@ -117,7 +118,7 @@ function plural(n: number, um: string, varios: string): string {
         </div>
       </geo-filter-panel>
 
-      <geo-data-table
+      <geo-data-table [textFit]="ajusteTexto"
         title="Metas"
         mode="server"
         storageKey="execucao-metas-fisicas"
@@ -328,6 +329,7 @@ function plural(n: number, um: string, varios: string): string {
   `
 })
 export class MetasFisicasComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly metas = inject(MetasFisicasService);
   private readonly execucao = inject(ExecucaoService);
   private readonly rh = inject(RhService);

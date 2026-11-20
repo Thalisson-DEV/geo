@@ -26,7 +26,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { RhService } from '../../../core/services/rh.service';
 import { dataIso } from '../../../shared/listagem/listagem';
-import { formatarMoeda, parseDataBrParaDate } from '../obras-ui';
+import { formatarMoeda, parseDataBrParaDate, AJUSTE_TEXTO_LISTAGEM } from '../obras-ui';
 import { ProgramacaoDetalheComponent } from './programacao-detalhe.component';
 import { ProgramarDrawerComponent } from './programar-drawer.component';
 import { ArrasteProgramacao, ProgramacaoLinhaTempoComponent } from './programacao-linha-tempo.component';
@@ -174,8 +174,13 @@ function dataDaUrl(valor: string | null): Date | null {
         <section class="prog-atrasadas" aria-label="Atrasadas de períodos anteriores">
           <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
           <span>{{ atrasadasAntes().length === 1 ? 'Uma programação de antes deste período segue atrasada:' : atrasadasAntes().length + ' programações de antes deste período seguem atrasadas:' }}</span>
-          @for (a of atrasadasAntes(); track a.id) {
+          @for (a of atrasadasVisiveis(); track a.id) {
             <button type="button" [title]="a.tituloObra" (click)="abrir(a.id)">#{{ a.numero }} · {{ a.numeroObra }} · até {{ a.fim }}</button>
+          }
+          @if (atrasadasAntes().length > ATRASADAS_VISIVEIS) {
+            <button type="button" class="prog-atrasadas__mais" [attr.aria-expanded]="todasAtrasadas()" (click)="todasAtrasadas.set(!todasAtrasadas())">
+              {{ todasAtrasadas() ? 'Mostrar menos' : 'Ver todas (' + atrasadasAntes().length + ')' }}
+            </button>
           }
         </section>
       }
@@ -218,7 +223,7 @@ function dataDaUrl(valor: string | null): Date | null {
       @if (estado().erro; as mensagem) {
         <geo-async-state state="error" title="Não foi possível carregar a programação" [description]="mensagem"></geo-async-state>
       } @else if (visao === 'tabela') {
-        <geo-data-table
+        <geo-data-table [textFit]="ajusteTexto"
           title="Programações"
           storageKey="obras-programacao"
           exportFileName="programacoes"
@@ -309,9 +314,11 @@ function dataDaUrl(valor: string | null): Date | null {
     .prog-kpis { margin-bottom: 1rem; }
     button.geo-kpi { width: 100%; font: inherit; text-align: left; color: inherit; }
     button.geo-kpi[aria-pressed='true'] { box-shadow: inset 0 0 0 2px var(--geo-danger); }
-    .prog-atrasadas { display: flex; flex-wrap: wrap; gap: 0.375rem 0.5rem; align-items: center; margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-danger); border-radius: var(--geo-radius-md); background: var(--geo-danger-soft); color: var(--geo-danger-text); font-size: var(--geo-font-control); }
-    .prog-atrasadas button { padding: 0.125rem 0.5rem; border: 1px solid currentColor; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: var(--geo-font-caption); font-weight: 600; cursor: pointer; }
-    .prog-atrasadas button:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+    .prog-atrasadas { display: flex; flex-wrap: wrap; gap: 0.375rem 0.5rem; align-items: center; margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font-size: var(--geo-font-control); }
+    .prog-atrasadas > .pi { color: var(--geo-danger-text); }
+    .prog-atrasadas button { padding: 0.125rem 0.5rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-sm); background: var(--geo-surface-subtle); color: var(--geo-foreground); font: inherit; font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; cursor: pointer; }
+    .prog-atrasadas button:hover { border-color: var(--geo-border-strong); background: var(--geo-surface-muted); }
+    .prog-atrasadas .prog-atrasadas__mais { border-color: transparent; background: none; color: var(--geo-brand); font-weight: 600; }
     .prog-atrasadas button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .prog-barra { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; margin-bottom: 0.75rem; }
     .prog-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
@@ -324,7 +331,7 @@ function dataDaUrl(valor: string | null): Date | null {
     .prog-periodo__titulo { min-width: 13rem; margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-title); font-weight: 600; text-align: center; }
     .prog-periodo geo-button { margin-left: 0.5rem; }
     .prog-busca { width: 16rem; margin-left: auto; }
-    .prog-card { overflow: hidden; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
+    .prog-card { overflow: hidden; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
     .prog-dica { display: flex; gap: 0.375rem; align-items: center; margin: 0; padding: 0.5rem 0.75rem 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .prog-atalhos { margin-bottom: 0.75rem; }
     .prog-contagem { display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -372,6 +379,7 @@ function dataDaUrl(valor: string | null): Date | null {
   `]
 })
 export class ProgramacaoComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly rota = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(ObrasProgramacaoService);
@@ -475,6 +483,13 @@ export class ProgramacaoComponent {
     this.linhasDoPeriodo()
       .filter((linha) => this.atendeEquipe(linha.idEquipe, linha.supervisor, linha.coordenador))
       .map((linha) => ({ ...linha, programacoes: linha.programacoes.filter((p) => atendeFiltrosBarra(p, this.filtrosBarra())) }))
+  );
+
+  /** Quantas atrasadas de antes do período aparecem antes de "Ver todas": o aviso não empurra a agenda para baixo. */
+  protected readonly ATRASADAS_VISIVEIS = 8;
+  protected readonly todasAtrasadas = signal(false);
+  protected readonly atrasadasVisiveis = computed(() =>
+    this.todasAtrasadas() ? this.atrasadasAntes() : this.atrasadasAntes().slice(0, this.ATRASADAS_VISIVEIS)
   );
 
   protected readonly atrasadasAntes = computed(() => {

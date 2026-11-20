@@ -7,7 +7,7 @@
 .pp-recorte__campos { display: grid; flex: 1 1 36rem; grid-template-columns: repeat(4, minmax(9rem, 1fr)); gap: 0.5rem 0.75rem; max-width: 52rem; }
 
 .pp-conteudo[aria-busy='true'] { opacity: 0.7; transition: opacity 150ms ease; }
-.pp-conteudo app-dashboard-insight-panel { display: block; margin-bottom: 1.25rem; }
+.pp-conteudo app-dashboard-visao-gerencial { display: block; margin-bottom: 1rem; }
 .pp-metricas { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .pp-icone { margin-right: 0.25rem; color: var(--geo-brand); font-size: var(--geo-font-caption); }
 [tabindex='-1']:focus { outline: none; }

@@ -165,8 +165,10 @@
   font-size: var(--geo-font-size-xs, 0.75rem);
 }
 
-.fx-num {
-  text-align: right !important;
+.fx-num,
+.fx-tabela th.fx-num,
+.fx-tabela td.fx-num {
+  text-align: right;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }

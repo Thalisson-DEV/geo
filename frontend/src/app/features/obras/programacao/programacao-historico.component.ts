@@ -23,7 +23,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { EventoProgramacao, TipoEventoProgramacao } from '../../../core/models/obras-programacao.models';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { LIMITE_EXPORTACAO, dataIso, dataLocal, exportacaoPadrao, paginaPadrao } from '../../../shared/listagem/listagem';
-import { formatarDataHora } from '../obras-ui';
+import { formatarDataHora, AJUSTE_TEXTO_LISTAGEM } from '../obras-ui';
 import { ProgramacaoDetalheComponent } from './programacao-detalhe.component';
 import { MudancaEvento, TIPO_EVENTO, lerEvento } from './programacao.logic';
 
@@ -197,7 +197,7 @@ function rotuloDia(dia: string): string {
           }
         </section>
       } @else {
-        <geo-data-table
+        <geo-data-table [textFit]="ajusteTexto"
           title="Eventos"
           mode="server"
           storageKey="obras-programacao-historico"
@@ -250,7 +250,7 @@ function rotuloDia(dia: string): string {
     .hist-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
     .hist-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .hist-visoes .pi { font-size: var(--geo-font-caption); }
-    .hist-card { padding: 1rem 1.25rem 1.25rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
+    .hist-card { padding: 1rem 1.25rem 1.25rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
     .hist-card__topo { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
     .hist-busca { width: min(28rem, 100%); }
     .hist-card__total { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; }
@@ -288,6 +288,7 @@ function rotuloDia(dia: string): string {
   `]
 })
 export class ProgramacaoHistoricoComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly api = inject(ObrasProgramacaoService);
   private readonly rota = inject(ActivatedRoute);
   private readonly router = inject(Router);

@@ -33,9 +33,7 @@
   } @else if (d(); as p) {
     @let t = p.totais;
     <div class="pp-conteudo" [attr.aria-busy]="estado().carregando">
-      <app-dashboard-insight-panel headingId="painel-leituras" eyebrow="Leitura do período" title="O que pede atenção na programação"
-        [description]="'De ' + p.inicio + ' a ' + p.fim + ': ' + t.programacoes + ' programações ativas em ' + t.equipes + ' equipes.'"
-        [insights]="leituras()" [actionable]="true" (actionSelected)="acionarLeitura($event)"></app-dashboard-insight-panel>
+      <app-dashboard-visao-gerencial [veredito]="veredito()" [leituras]="leiturasGerenciais()" (abrir)="rolarPara('painel-' + $event.value)"></app-dashboard-visao-gerencial>
 
       <section class="dash-metrics pp-metricas" aria-label="Indicadores do período">
         <app-dashboard-metric-card label="Cumprimento" icon="pi-check-circle"

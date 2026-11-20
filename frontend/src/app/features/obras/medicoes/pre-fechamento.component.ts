@@ -37,6 +37,7 @@ import {
   pendenciasLevantamento,
   situacaoLevantamento
 } from './medicoes.logic';
+import { AJUSTE_TEXTO_LISTAGEM } from '../obras-ui';
 
 /**
  * Pré-fechamento do levantamento: por obra em aberto, o que foi lançado no planejamento, o que falta (ponto ou vão sem
@@ -120,7 +121,7 @@ import {
         </div>
       </section>
 
-      <geo-data-table title="Obras" storageKey="obras-pre-fechamento" exportFileName="pre-fechamento"
+      <geo-data-table [textFit]="ajusteTexto" title="Obras" storageKey="obras-pre-fechamento" exportFileName="pre-fechamento"
         searchPlaceholder="Obra, título, município ou levantador" rowActionLabel="Abrir planejamento" rowActionIcon="pi pi-map"
         noResultsTitle="Nenhuma obra encontrada com essa busca."
         [columns]="colunas" [rows]="linhas()" [rowKey]="chave" [rowLabel]="rotulo" [state]="estado()"
@@ -199,6 +200,7 @@ import {
   `
 })
 export class PreFechamentoComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly api = inject(ObrasMedicoesService);
   private readonly router = inject(Router);
   private readonly notificacoes = inject(NotificationService);

@@ -28,7 +28,7 @@ import { LIMITE_EXPORTACAO, dataIso, dataLocal } from '../../../shared/listagem/
 import { duracao, percentual } from '../../execucao/dashboards/execucao-dashboards.utils';
 import { RecorteDashboardService } from '../../execucao/dashboards/recorte-dashboard.service';
 import { situacaoDoTurno } from '../../execucao/turno-list/turno-list.utils';
-import { formatarMoeda } from '../obras-ui';
+import { formatarMoeda, AJUSTE_TEXTO_LISTAGEM } from '../obras-ui';
 import { horasTotais } from './turnos-obra.logic';
 
 const STATUS: GeoSelectOption<StatusTurnoObra | null>[] = [
@@ -132,7 +132,7 @@ function inicioPadrao(): string {
         </div>
       </section>
 
-      <geo-data-table title="Turnos" mode="server" storageKey="obras-turnos" exportFileName="turnos-obras"
+      <geo-data-table [textFit]="ajusteTexto" title="Turnos" mode="server" storageKey="obras-turnos" exportFileName="turnos-obras"
         searchPlaceholder="Equipe, placa, quem abriu ou obra" rowActionLabel="Ver turno" rowActionIcon="pi pi-angle-right"
         noResultsTitle="Nenhum turno encontrado com esse recorte."
         [columns]="colunas" [rows]="resultado.rows()" [totalRecords]="resultado.total()" [rowLabel]="rotulo" [state]="resultado.state()"
@@ -143,7 +143,7 @@ function inicioPadrao(): string {
         (lazyLoad)="lista.load($event)" (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()" (rowActivate)="ver($event)">
         <ng-template geoCell="equipe" let-row>
           <span class="geo-cell-strong">{{ row.codigoEquipe || 'Equipe removida' }}</span>
-          <span class="geo-cell-muted">{{ local(row) }}</span>
+          <span class="geo-cell-muted turno-local" [title]="local(row)">{{ local(row) }}</span>
         </ng-template>
         <ng-template geoCell="abertura" let-row>
           <span>{{ row.dataInicio | date: 'dd/MM/yyyy HH:mm' }}</span>
@@ -194,12 +194,14 @@ function inicioPadrao(): string {
     </app-ajuda-listagem>
   `,
   styles: `
-    .turnos-kpis { margin-bottom: 1rem; }
+    .geo-kpis.turnos-kpis { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); margin-bottom: 1rem; }
     .turnos-meta { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; }
     .turnos-registros { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+    .turno-local { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   `
 })
 export class TurnosObraComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly api = inject(ObrasTurnosService);
   private readonly router = inject(Router);
   protected readonly recorte = inject(RecorteDashboardService);
@@ -247,7 +249,7 @@ export class TurnosObraComponent {
   });
 
   protected readonly colunas: GeoDataTableColumn<TurnoObraLinha>[] = [
-    { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, sortField: 'equipe', value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
+    { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, width: '11rem', sortField: 'equipe', value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
     { key: 'abertura', header: 'Abertura', type: 'custom', priority: 1, sortField: 'dataInicio', value: (t) => t.dataInicio, display: (t) => new Date(t.dataInicio).toLocaleString('pt-BR') },
     { key: 'fechamento', header: 'Fechamento', type: 'custom', sortField: 'dataFim', value: (t) => t.dataFim, display: (t) => (t.dataFim ? new Date(t.dataFim).toLocaleString('pt-BR') : 'Em aberto') },
     { key: 'duracao', header: 'Duração', sortField: 'duracao', value: (t) => t.duracaoMinutos, display: (t) => duracao(t.duracaoMinutos) },

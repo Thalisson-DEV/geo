@@ -154,14 +154,14 @@ describe('ObraDetalheComponent', () => {
     expect(el.querySelector('.obra-atencao')!.textContent).toContain('Classe de tensão não informada');
     expect(el.querySelector('.obra-atencao')!.textContent).not.toContain('Informar tensão');
     expect(el.querySelector('.obra-acoes')!.textContent).not.toContain('Atualizar obra');
-    expect(el.querySelector('.obra-acoes')!.textContent).toContain('SOLICITAR MATERIAIS');
+    expect(el.querySelector('.obra-acoes')!.textContent).toContain('Solicitar materiais');
   });
 
-  it('as ações ficam na barra flutuante e "Atualizar obra" reúne o que muda a obra', async () => {
+  it('as ações ficam na barra da ficha e "Atualizar obra" reúne o que muda a obra', async () => {
     const el = await abrir();
     const barra = el.querySelector('.obra-acoes')!;
-    expect(barra.textContent).toContain('VOLTAR');
-    expect(barra.textContent).toContain('IMPRIMIR');
+    expect(barra.textContent).toContain('Obras');
+    expect(barra.textContent).toContain('Imprimir');
     expect(barra.textContent).toContain('Atualizar obra');
     const itens = tela.acoesAtualizar().map((i: MenuItem) => i.label);
     expect(itens).toEqual(['Registrar status', 'Editar carteira', 'Editar cadastro e equipes', 'Adicionar anexo', 'Vincular subprojeto']);
@@ -169,7 +169,7 @@ describe('ObraDetalheComponent', () => {
 
   it('obra concluída não oferece solicitar materiais nem vincular subprojeto', async () => {
     const el = await abrir({ ...mockObra, statusConcluida: true, dataFimEfetiva: '01/06/2026' } as ObraResponse);
-    expect(el.querySelector('.obra-acoes')!.textContent).not.toContain('SOLICITAR MATERIAIS');
+    expect(el.querySelector('.obra-acoes')!.textContent).not.toContain('Solicitar materiais');
     expect(tela.acoesAtualizar().map((i: MenuItem) => i.label)).not.toContain('Vincular subprojeto');
     expect(el.textContent).toContain('Concluída em 01/06/2026');
   });

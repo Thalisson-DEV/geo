@@ -198,3 +198,10 @@ export const CSV_TEMPLATE_OBRAS =
   'Numero Obra;Titulo;Nota Obra;Descricao;Data Inicio;Data Previsao Fim;Valor Projeto;Processo;Centro Custo;Base Operacional;Municipio;Supervisor;Coordenador;Latitude;Longitude;Status Obra;Agente Responsavel;Codigos Equipes\n' +
   '1228694;REDE PEDAGOGICA REMANSO (CONCESSIONARIA);12345;Obra de ampliacao de rede;03/11/2025;30/11/2025;150000.00;Obras;CC-01;Remanso;Remanso;JOAO SILVA PEREIRA;CARLOS EDUARDO OLIVEIRA;-9.439007;-41.968228;PLANEJADA;MARLOS PEREIRA;EQ-01,EQ-02\n';
 
+
+/**
+ * Ajuste de texto das listagens de Obras e Execução (padrão da carteira de obras): colunas com
+ * largura mínima e texto numa linha só; o completo fica no title da célula e a tabela rola na
+ * horizontal. Células com template próprio (geoCell) não são cortadas.
+ */
+export const AJUSTE_TEXTO_LISTAGEM = { minColumnWidth: '7.5rem', maxLines: 1 } as const;

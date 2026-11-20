@@ -29,7 +29,7 @@ import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.serv
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { LIMITE_EXPORTACAO, dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { RecorteDashboardService } from '../../execucao/dashboards/recorte-dashboard.service';
-import { formatarMoeda } from '../obras-ui';
+import { formatarMoeda, AJUSTE_TEXTO_LISTAGEM } from '../obras-ui';
 import { MedicaoDetalheDrawerComponent } from './medicao-detalhe-drawer.component';
 import { MedirObraDrawerComponent } from './medir-obra-drawer.component';
 import {
@@ -138,7 +138,7 @@ const STATUS: GeoSelectOption<StatusMedicao>[] = [
 
       <geo-tabs [value]="aba()" (valueChange)="trocarAba($any($event))" [tabs]="abas()" ariaLabel="Medições">
         <ng-template geoTabPanel="a-medir">
-          <geo-data-table title="Obras a medir" storageKey="obras-a-medir" exportFileName="obras-a-medir"
+          <geo-data-table [textFit]="ajusteTexto" title="Obras a medir" storageKey="obras-a-medir" exportFileName="obras-a-medir"
             searchPlaceholder="Obra, título ou município" [rowActionLabel]="podeGerar ? 'Medir' : 'Ver serviços'" rowActionIcon="pi pi-calculator"
             noResultsTitle="Nenhuma obra encontrada com essa busca."
             [columns]="colunasAMedir" [rows]="aMedir()" [rowKey]="chaveObra" [rowLabel]="rotuloObra" [state]="estadoAMedir()"
@@ -158,7 +158,7 @@ const STATUS: GeoSelectOption<StatusMedicao>[] = [
         </ng-template>
 
         <ng-template geoTabPanel="geradas">
-          <geo-data-table title="Medições geradas" mode="server" storageKey="obras-medicoes" exportFileName="medicoes-obras"
+          <geo-data-table [textFit]="ajusteTexto" title="Medições geradas" mode="server" storageKey="obras-medicoes" exportFileName="medicoes-obras"
             searchPlaceholder="Número da medição (#12), obra ou título" rowActionLabel="Ver medição" rowActionIcon="pi pi-angle-right"
             noResultsTitle="Nenhuma medição encontrada com esse recorte."
             [columns]="colunasGeradas" [rows]="resultado.rows()" [totalRecords]="resultado.total()" [rowLabel]="rotuloMedicao" [state]="resultado.state()"
@@ -211,6 +211,7 @@ const STATUS: GeoSelectOption<StatusMedicao>[] = [
   `
 })
 export class MedicoesComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly api = inject(ObrasMedicoesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);

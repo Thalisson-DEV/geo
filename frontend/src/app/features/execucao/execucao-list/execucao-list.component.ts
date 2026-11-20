@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -49,6 +50,7 @@ import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { RecorteDashboardService } from '../dashboards/recorte-dashboard.service';
 import { STATUS_EXECUCAO } from './execucao-list.utils';
 import { NumeroOficialDialogComponent } from './numero-oficial-dialog.component';
+import { AJUSTE_TEXTO_LISTAGEM } from '../../obras/obras-ui';
 
 /** As notas exportam bem mais que o padrão das listagens: o mês inteiro cabe numa planilha. */
 const LIMITE_EXPORTACAO_NOTAS = 30_000;
@@ -83,6 +85,7 @@ function inicioPadrao(): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     FormsModule,
     GeoAutocompleteComponent,
     GeoBooleanControlComponent,
@@ -142,7 +145,7 @@ function inicioPadrao(): string {
         </div>
       </geo-filter-panel>
 
-      <geo-data-table
+      <geo-data-table [textFit]="ajusteTexto"
         title="Execuções"
         mode="server"
         storageKey="execucao-comercial"
@@ -170,7 +173,7 @@ function inicioPadrao(): string {
         <geo-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></geo-button>
         <ng-template geoCell="nota" let-row>
           <span class="nota-cel">
-            <span class="geo-cell-strong">{{ row.referenciaNota }}</span>
+            @if (row.referenciaNota) { <span class="geo-cell-strong">{{ row.referenciaNota }}</span> }
             @if (row.aguardandoNumeroOficial) {
               <geo-status tone="warning" icon="pi-clock">Sem nº oficial</geo-status>
             } @else if (tipoDe(row); as tipo) {
@@ -181,6 +184,9 @@ function inicioPadrao(): string {
             }
           </span>
         </ng-template>
+        <!-- Código da equipe e data com hora sempre inteiros (sem reticências) -->
+        <ng-template geoCell="equipe" let-row><span class="cel-inteira">{{ row.equipe?.codigo ?? '—' }}</span></ng-template>
+        <ng-template geoCell="lancamento" let-row><span class="cel-inteira">{{ row.dataLancamento | date: 'dd/MM/yyyy HH:mm' }}</span></ng-template>
         <ng-template geoCell="status" let-row>
           <geo-status [tone]="status(row.statusExecucao)?.tom ?? 'neutral'" [icon]="$safeNavigationMigration(status(row.statusExecucao)?.icone?.replace('pi ', ''))">
             {{ status(row.statusExecucao)?.rotulo ?? row.statusExecucao }}
@@ -252,10 +258,12 @@ function inicioPadrao(): string {
     </app-ajuda-listagem>
   `,
   styles: `
+    .cel-inteira { white-space: nowrap; font-variant-numeric: tabular-nums; }
     .nota-cel { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
   `
 })
 export class ExecucaoListComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly execucoes = inject(ExecucaoService);
   private readonly router = inject(Router);
   private readonly notificacoes = inject(NotificationService);
@@ -329,11 +337,12 @@ export class ExecucaoListComponent {
 
   protected readonly colunas: GeoDataTableColumn<ExecucaoComercialResponse>[] = [
     { key: 'nota', header: 'Nota', type: 'custom', priority: 1, sortField: 'referenciaNota', value: (e) => e.referenciaNota, display: (e) => e.referenciaNota },
-    { key: 'tipoNota', header: 'Lançamento', priority: 2, sortField: 'tipoNota', value: (e) => e.tipoNota, display: (e) => TIPOS_NOTA[e.tipoNota]?.rotulo ?? 'Comum' },
+    { key: 'tipoNota', header: 'Tipo de nota', priority: 2, sortField: 'tipoNota', value: (e) => e.tipoNota, display: (e) => TIPOS_NOTA[e.tipoNota]?.rotulo ?? 'Comum' },
     { key: 'tipoServico', header: 'Tipo de serviço', priority: 1, value: (e) => e.tipoServico?.descricao, display: (e) => rotuloTipoServico(e.tipoServico) },
     // A nota guarda só o id da equipe: o backend não ordena pelo código.
-    { key: 'equipe', header: 'Equipe', priority: 1, value: (e) => e.equipe?.codigo, display: (e) => e.equipe?.codigo ?? '—' },
-    { key: 'lancamento', header: 'Lançamento', type: 'custom', sortField: 'dataLancamento', value: (e) => e.dataLancamento, display: (e) => new Date(e.dataLancamento).toLocaleString('pt-BR') },
+    { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, value: (e) => e.equipe?.codigo, display: (e) => e.equipe?.codigo ?? '—' },
+    { key: 'lancamento', header: 'Lançamento', type: 'custom', sortField: 'dataLancamento', value: (e) => e.dataLancamento,
+      display: (e) => new Date(e.dataLancamento).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).replace(',', '') },
     { key: 'status', header: 'Status', type: 'custom', sortField: 'statusExecucao', value: (e) => e.statusExecucao, display: (e) => STATUS_EXECUCAO[e.statusExecucao]?.rotulo ?? e.statusExecucao },
     { key: 'faturado', header: 'Faturado', type: 'currency', sortField: 'valorTotalFaturado', value: (e) => e.valorTotalFaturado },
     // Na exportação, deixa claro que a nota não é mais como foi lançada.

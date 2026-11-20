@@ -37,6 +37,7 @@ import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { duracao, percentual } from '../dashboards/execucao-dashboards.utils';
 import { RecorteDashboardService } from '../dashboards/recorte-dashboard.service';
 import { situacaoDoTurno } from './turno-list.utils';
+import { AJUSTE_TEXTO_LISTAGEM } from '../../obras/obras-ui';
 
 const STATUS: GeoSelectOption<StatusTurno | null>[] = [
   { label: 'Todos', value: null },
@@ -107,7 +108,7 @@ function inicioPadrao(): string {
         </div>
       </geo-filter-panel>
 
-      <geo-data-table
+      <geo-data-table [textFit]="ajusteTexto"
         title="Turnos"
         mode="server"
         storageKey="execucao-turnos"
@@ -143,7 +144,7 @@ function inicioPadrao(): string {
         <geo-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></geo-button>
         <ng-template geoCell="equipe" let-row>
           <span class="geo-cell-strong">{{ row.codigoEquipe || 'Equipe removida' }}</span>
-          <span class="geo-cell-muted">{{ local(row) }}</span>
+          <span class="geo-cell-muted turno-local" [title]="local(row)">{{ local(row) }}</span>
         </ng-template>
         <ng-template geoCell="abertura" let-row>
           <span>{{ row.dataInicio | date: 'dd/MM/yyyy HH:mm' }}</span>
@@ -164,7 +165,7 @@ function inicioPadrao(): string {
         <ng-template geoCell="meta" let-row>
           @if (row.percentualMetaDiaria !== null) {
             <geo-status [tone]="faixa(row.percentualMetaDiaria)" icon="pi-chart-line">{{ percentual(row.percentualMetaDiaria) }}</geo-status>
-            <span class="geo-cell-muted">de {{ row.metaDiaria | currency: 'BRL' }}</span>
+            <span class="geo-cell-muted turno-nowrap">de {{ row.metaDiaria | currency: 'BRL' }}</span>
           } @else {
             <span class="geo-cell-muted">Sem meta</span>
           }
@@ -209,9 +210,14 @@ function inicioPadrao(): string {
         <p class="help-text-desc">Turno aberto há mais de um dia aparece em amarelo: quase sempre a equipe esqueceu de fechar.</p>
       </div>
     </app-ajuda-listagem>
+  `,
+  styles: `
+    .turno-local { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .turno-nowrap { white-space: nowrap; }
   `
 })
 export class TurnoListComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly dashboard = inject(DashboardService);
   private readonly router = inject(Router);
   private readonly notificacoes = inject(NotificationService);
@@ -256,7 +262,7 @@ export class TurnoListComponent {
   private readonly recorteExportacao = computed(() => this.paraApi(this.exp(), this.expBusca()));
 
   protected readonly colunas: GeoDataTableColumn<TurnoConsulta>[] = [
-    { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
+    { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, width: '11rem', value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
     { key: 'abertura', header: 'Abertura', type: 'custom', priority: 1, sortField: 'dataInicio', value: (t) => t.dataInicio, display: (t) => new Date(t.dataInicio).toLocaleString('pt-BR') },
     { key: 'fechamento', header: 'Fechamento', type: 'custom', sortField: 'dataFim', value: (t) => t.dataFim, display: (t) => (t.dataFim ? new Date(t.dataFim).toLocaleString('pt-BR') : 'Em aberto') },
     { key: 'duracao', header: 'Duração', value: (t) => t.duracaoMinutos, display: (t) => duracao(t.duracaoMinutos) },

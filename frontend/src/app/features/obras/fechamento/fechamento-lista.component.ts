@@ -74,6 +74,7 @@ import {
   textoPrazo,
   tipoFechamento
 } from './fechamento-ui';
+import { AJUSTE_TEXTO_LISTAGEM } from '../obras-ui';
 
 type Prazo = 'NO_PRAZO' | 'VENCE_EM_BREVE' | 'ATRASADO';
 type Visao = 'tabela' | 'kanban' | 'calendario';
@@ -238,7 +239,7 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
           <app-fechamento-calendario #calendario [filtros]="filtroVisao()" (abrir)="abrir($event)"></app-fechamento-calendario>
         }
         @default {
-          <geo-data-table
+          <geo-data-table [textFit]="ajusteTexto"
             title="Solicitações de encerramento"
             mode="server"
             storageKey="obras-fechamento-lista-v5"
@@ -368,6 +369,7 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
   `
 })
 export class FechamentoListaComponent {
+  protected readonly ajusteTexto = AJUSTE_TEXTO_LISTAGEM;
   private readonly service = inject(FechamentoObraService);
   private readonly obras = inject(ObrasService);
   private readonly almoxarifado = inject(AlmoxarifadoService);
