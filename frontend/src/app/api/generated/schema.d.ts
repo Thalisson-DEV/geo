@@ -25021,11 +25021,6 @@ export interface components {
             alterada?: boolean;
             /**
              * @deprecated
-             * @description Use longitude.
-             */
-            longitudeInicio?: number;
-            /**
-             * @deprecated
              * @description Use latitude.
              */
             latitudeInicio?: number;
@@ -25035,6 +25030,11 @@ export interface components {
              * @description Use dataLancamento.
              */
             dataInicio?: string;
+            /**
+             * @deprecated
+             * @description Use longitude.
+             */
+            longitudeInicio?: number;
         };
         ExecucaoMaterialResponse: {
             /** Format: uuid */
