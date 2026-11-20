@@ -29,7 +29,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaAbastecimentoService } from '../../../core/services/frota-abastecimento.service';
 import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { acessoFrota } from '../shared/frota-acesso';
-import { LIMITE_EXPORTACAO_FROTA, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
+import { AJUSTE_TEXTO_FROTA, LIMITE_EXPORTACAO_FROTA, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
 import { FiltrosAbastecimento, OPCOES_ALERTA, OPCOES_ORIGEM, SITUACOES_ABASTECIMENTO } from './frota-abastecimentos-filtros';
 import { ICONE_SITUACAO, TOM_SITUACAO, haQuantoTempo, moeda } from './frota-abastecimento.util';
 
@@ -79,10 +79,12 @@ const TEXTOS: Record<ModoLista, { titulo: string; vazio: string; vazioDescricao:
     GeoStatusComponent
   ],
   styles: `
-    .alertas { display: flex; flex-wrap: wrap; gap: 0.25rem; }
-    .posto { display: inline-flex; align-items: center; gap: 0.375rem; }
-    .posto .pi { color: var(--geo-brand); font-size: 0.8125rem; }
-    .espera { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    /* Linha densa (padrão da carteira de obras): selos e datas numa linha só. */
+    .alertas { display: flex; flex-wrap: nowrap; gap: 0.25rem; }
+    .posto { display: inline-flex; align-items: center; gap: 0.375rem; white-space: nowrap; }
+    .posto .pi { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .espera { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); white-space: nowrap; }
+    .linha { display: block; white-space: nowrap; }
   `,
   template: `
     <div class="geo-form-stack">
@@ -110,11 +112,11 @@ const TEXTOS: Record<ModoLista, { titulo: string; vazio: string; vazioDescricao:
         [stateTitle]="resultado.error() ? 'Não foi possível carregar os abastecimentos' : textos().vazio"
         [stateDescription]="resultado.error() ?? textos().vazioDescricao"
         noResultsTitle="Nenhum abastecimento com esse recorte." [filtered]="ativos() > 0"
-        [exportRows]="exportar" [exportLimit]="limiteExportacao"
+        [exportRows]="exportar" [exportLimit]="limiteExportacao" [textFit]="ajusteTexto"
         [(query)]="lista.query" [(page)]="lista.page" [(pageSize)]="lista.pageSize" [(sort)]="lista.sort" (lazyLoad)="lista.load($event)"
         (clearFilters)="f.reset()" [rowClickable]="true" (rowActivate)="abrir.emit($event.id)">
         <ng-template geoCell="solicitadoEm" let-row>
-          {{ row.solicitadoEm | date: 'dd/MM HH:mm' }}
+          <span class="linha">{{ row.solicitadoEm | date: 'dd/MM HH:mm' }}</span>
           @if (modo() === 'aprovar' || modo() === 'liberar') {
             <span class="espera">{{ espera(row.solicitadoEm) }}</span>
           }
@@ -205,6 +207,7 @@ export class FrotaAbastecimentosListaComponent {
   protected readonly dataIso = dataIso;
   protected readonly dataLocal = dataLocal;
   protected readonly limiteExportacao = LIMITE_EXPORTACAO_FROTA;
+  protected readonly ajusteTexto = AJUSTE_TEXTO_FROTA;
   protected readonly aprovando = signal<string | null>(null);
   protected readonly textos = computed(() => TEXTOS[this.modo()]);
 

@@ -38,10 +38,11 @@ import { ICONE_FATURA, TOM_FATURA, moeda, rotuloFatura, textoDiferenca } from '.
   ],
   styleUrls: ['./frota-abastecimento-detalhe-drawer.component.css'],
   styles: `
-    .fat-linha { grid-template-columns: 2rem minmax(0, 1fr) 7rem !important; cursor: pointer; }
+    /* Três classes: vence a grade da tabela de itens entregues (inclusive no celular) sem !important. */
+    .dd-tabela .dd-tabela__linha.fat-linha { grid-template-columns: 2rem minmax(0, 1fr) 7rem; cursor: pointer; }
     .fat-linha--fora { background: var(--geo-surface-subtle); }
     .fat-linha--fora .dd-material strong { color: var(--geo-foreground-muted); }
-    .fat-cab { grid-template-columns: 2rem minmax(0, 1fr) 7rem !important; }
+    .dd-tabela .dd-tabela__linha.fat-cab { grid-template-columns: 2rem minmax(0, 1fr) 7rem; }
     .fat-acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
     .fat-diferenca--ok strong { color: var(--geo-success-text, var(--geo-success)); }
     .fat-diferenca--aviso strong { color: var(--geo-warning-text); }

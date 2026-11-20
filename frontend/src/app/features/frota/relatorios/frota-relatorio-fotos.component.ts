@@ -32,7 +32,7 @@ export interface FotoRelatorio {
     .foto__quadro img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
     .foto__selo { position: absolute; top: 0.375rem; left: 0.375rem; display: inline-flex; align-items: center; gap: 0.25rem;
       padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--geo-surface); font-size: var(--geo-font-caption); font-weight: 600;
-      box-shadow: var(--geo-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.1)); }
+      box-shadow: var(--geo-shadow-sm); }
     .foto__selo[data-tom='success'] { color: var(--geo-success-text); }
     .foto__selo[data-tom='danger'] { color: var(--geo-danger-text); }
     .foto__selo[data-tom='warning'] { color: var(--geo-warning-text); }

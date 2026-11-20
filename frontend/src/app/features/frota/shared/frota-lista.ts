@@ -11,6 +11,12 @@ import { PaginaFrota } from '../../../core/services/frota.service';
  */
 export const LIMITE_EXPORTACAO_FROTA = 2000;
 
+/**
+ * Ajuste de texto das listagens da frota (padrão da carteira de obras): colunas com largura mínima
+ * e texto numa linha só; o completo fica no title da célula e a tabela rola na horizontal.
+ */
+export const AJUSTE_TEXTO_FROTA = { minColumnWidth: '7.5rem', maxLines: 1 } as const;
+
 /** Busca o recorte inteiro (até o limite) para o CSV do `geo-data-table` em modo servidor. */
 export function exportacaoFrota<T>(
   buscar: (pagina: PaginaFrota) => Observable<PagedResponse<T>>,

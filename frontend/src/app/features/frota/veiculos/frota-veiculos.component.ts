@@ -37,7 +37,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaChecklistService } from '../../../core/services/frota-checklist.service';
 import { FrotaService } from '../../../core/services/frota.service';
 import { acessoFrota } from '../shared/frota-acesso';
-import { LIMITE_EXPORTACAO_FROTA, OPCOES_CADASTRO, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
+import { AJUSTE_TEXTO_FROTA, LIMITE_EXPORTACAO_FROTA, OPCOES_CADASTRO, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
 import { FrotaVeiculoFormComponent } from './frota-veiculo-form.component';
 import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
 
@@ -58,6 +58,11 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
     GeoStatusComponent,
     FrotaVeiculoFormComponent
   ],
+  styles: `
+    /* Linha densa (padrão da carteira de obras): modelo, condutor e selos numa linha só. */
+    .vei-linha { display: block; max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .vei-selos { flex-wrap: nowrap; white-space: nowrap; }
+  `,
   template: `
     <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarVeiculo()" (newRequested)="formularioAberto.set(true)">
       <geo-page-header
@@ -97,6 +102,7 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
         storageKey="frota-veiculos"
         exportFileName="frota-veiculos"
         rowActionLabel="Abrir ficha"
+        [textFit]="ajusteTexto"
         searchPlaceholder="Placa, chassi ou renavam"
         [emptyActionLabel]="acesso.editarVeiculo() ? 'Novo veículo' : undefined"
         [columns]="colunas"
@@ -134,7 +140,7 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
         <ng-template geoCell="uso" let-row>
           @if (row.uso; as u) {
             <span class="geo-cell-num">{{ u.km | number: '1.0-0' }} km</span>
-            <span class="geo-cell-chips">
+            <span class="geo-cell-chips vei-selos">
               @if (u.rodaPouco) { <geo-status tone="warning" icon="pi-arrow-down-right">Roda pouco</geo-status> }
               @if (u.diasForaExpediente) {
                 <geo-status tone="warning" icon="pi-moon">{{ contar(u.diasForaExpediente, 'dia', 'dias') }} fora do expediente</geo-status>
@@ -146,13 +152,15 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
         </ng-template>
         <ng-template geoCell="placa" let-row>
           <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
-          <span class="geo-cell-muted">{{ row.fabricante }} {{ row.modelo }}{{ row.anoModelo ? ' · ' + row.anoModelo : '' }}</span>
+          <span class="geo-cell-muted vei-linha" [title]="(row.fabricante ?? '') + ' ' + (row.modelo ?? '')">{{ row.fabricante }} {{ row.modelo }}{{ row.anoModelo ? ' · ' + row.anoModelo : '' }}</span>
         </ng-template>
         <ng-template geoCell="situacao" let-row>
-          <geo-status [tone]="tomSituacao[row.situacao]" [icon]="iconeSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</geo-status>
-          @if (!row.ativo) {
-            <geo-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado</geo-status>
-          }
+          <span class="geo-cell-chips vei-selos">
+            <geo-status [tone]="tomSituacao[row.situacao]" [icon]="iconeSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</geo-status>
+            @if (!row.ativo) {
+              <geo-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado</geo-status>
+            }
+          </span>
         </ng-template>
         <ng-template geoCell="kmAtual" let-row>
           @if (row.kmAtual != null) {
@@ -163,13 +171,13 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
         </ng-template>
         <ng-template geoCell="condutorAtual" let-row>
           @if (row.condutorAtual) {
-            {{ row.condutorAtual }}
+            <span class="vei-linha" [title]="row.condutorAtual">{{ row.condutorAtual }}</span>
           } @else {
             <span class="geo-cell-muted">Sem condutor</span>
           }
         </ng-template>
         <ng-template geoCell="pendencias" let-row>
-          <span class="geo-cell-chips">
+          <span class="geo-cell-chips vei-selos">
             @if (row.documentosVencidos) {
               <geo-status tone="danger" icon="pi-file">{{ contar(row.documentosVencidos, 'doc. vencido', 'docs. vencidos') }}</geo-status>
             }
@@ -285,6 +293,7 @@ export class FrotaVeiculosComponent {
   protected readonly chave = (r: VeiculoFrotaResumo) => r.idVeiculo;
   protected readonly rotulo = (r: VeiculoFrotaResumo) => `Veículo ${r.placa}`;
   protected readonly limiteExportacao = LIMITE_EXPORTACAO_FROTA;
+  protected readonly ajusteTexto = AJUSTE_TEXTO_FROTA;
   protected readonly exportar = exportacaoFrota(
     (pagina) => this.frota.listarVeiculos(this.filtro(), pagina),
     () => this.lista.request()

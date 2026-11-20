@@ -49,7 +49,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
 import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { acessoFrota } from '../shared/frota-acesso';
-import { LIMITE_EXPORTACAO_FROTA, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
+import { AJUSTE_TEXTO_FROTA, LIMITE_EXPORTACAO_FROTA, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
 import { FrotaOrdemServicoFormComponent } from './frota-ordem-servico-form.component';
 import { colunasPlanilhaOs } from './frota-ordem-servico.util';
 import { baixarPlanilha } from '../shared/frota-planilha';
@@ -109,8 +109,11 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
     .os-visoes .pi { font-size: var(--geo-font-caption); }
     @media (max-width: 40rem) { .os-visoes { width: 100%; } .os-visoes button { flex: 1; justify-content: center; } }
     /* Descrição e itens em poucas linhas: a preventiva traz o roteiro inteiro, que fica na ficha. */
-    .os-resumo { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; max-width: 28rem; }
+    .os-resumo { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; min-width: 14rem; max-width: 28rem; }
     .os-resumo--1 { -webkit-line-clamp: 1; line-clamp: 1; }
+    /* Linha densa (padrão da carteira de obras): datas, rótulos e selos numa linha só. */
+    .os-linha { display: block; white-space: nowrap; }
+    .os-selos { flex-wrap: nowrap; }
   `,
   template: `
     <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarOs()" (newRequested)="formularioAberto.set(true)">
@@ -240,6 +243,7 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
         storageKey="frota-ordens-servico"
         exportFileName="frota-ordens-servico"
         rowActionLabel="Abrir OS"
+        [textFit]="ajusteTexto"
         searchPlaceholder="Número, placa, descrição ou oficina"
         [emptyActionLabel]="acesso.editarOs() ? 'Abrir OS' : undefined"
         [columns]="colunas"
@@ -265,15 +269,15 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
         (rowActivate)="abrir($event)"
       >
         <ng-template geoCell="numero" let-row>
-          <span class="geo-cell-strong">{{ rotuloOs(row.numero) }} · {{ identificacao(row) }}</span>
+          <span class="geo-cell-strong os-linha">{{ rotuloOs(row.numero) }} · {{ identificacao(row) }}</span>
           <span class="geo-cell-muted os-resumo os-resumo--1" [title]="row.itens.join(', ')">{{ row.itens.join(', ') }}</span>
         </ng-template>
-        <ng-template geoCell="abertaEm" let-row>{{ row.abertaEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+        <ng-template geoCell="abertaEm" let-row><span class="os-linha">{{ row.abertaEm | date: 'dd/MM/yyyy HH:mm' }}</span></ng-template>
         <ng-template geoCell="criticidade" let-row>
           <geo-status [tone]="tomCriticidade[row.criticidade]">{{ rotuloCriticidade[row.criticidade] }}</geo-status>
         </ng-template>
         <ng-template geoCell="situacao" let-row>
-          <span class="geo-cell-chips">
+          <span class="geo-cell-chips os-selos">
             <geo-status [tone]="tomSituacaoOs(row)">{{ rotuloSituacaoOs(row) }}</geo-status>
             @if (row.atrasada) {
               <geo-status tone="danger" icon="pi-clock">Prazo estourado</geo-status>
@@ -287,16 +291,16 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
           </span>
         </ng-template>
         <ng-template geoCell="descricao" let-row>
-          <span class="geo-cell-muted os-resumo" [title]="row.descricao">{{ row.descricao }}</span>
+          <span class="geo-cell-muted os-resumo os-resumo--1" [title]="row.descricao">{{ row.descricao }}</span>
         </ng-template>
         <ng-template geoCell="execucao" let-row>
           @switch (row.situacao) {
-            @case ('AGENDADA') { {{ row.agendadaPara | date: 'dd/MM/yyyy HH:mm' }} }
+            @case ('AGENDADA') { <span class="os-linha">{{ row.agendadaPara | date: 'dd/MM/yyyy HH:mm' }}</span> }
             @case ('EM_ANDAMENTO') {
-              Desde {{ row.inicioReal | date: 'dd/MM HH:mm' }}
-              @if (row.previsaoTermino) { <span class="geo-cell-muted">Previsão {{ row.previsaoTermino | date: 'dd/MM HH:mm' }}</span> }
+              <span class="os-linha">Desde {{ row.inicioReal | date: 'dd/MM HH:mm' }}</span>
+              @if (row.previsaoTermino) { <span class="geo-cell-muted os-linha">Previsão {{ row.previsaoTermino | date: 'dd/MM HH:mm' }}</span> }
             }
-            @case ('CONCLUIDA') { {{ row.fimReal | date: 'dd/MM/yyyy HH:mm' }} }
+            @case ('CONCLUIDA') { <span class="os-linha">{{ row.fimReal | date: 'dd/MM/yyyy HH:mm' }}</span> }
             @default { <span class="geo-cell-muted">—</span> }
           }
         </ng-template>
@@ -423,6 +427,7 @@ export class FrotaOrdensServicoComponent {
   protected readonly chave = (r: OrdemServico) => r.id;
   protected readonly rotulo = (r: OrdemServico) => `${rotuloOs(r.numero)} do veículo ${r.placa}`;
   protected readonly limiteExportacao = LIMITE_EXPORTACAO_FROTA;
+  protected readonly ajusteTexto = AJUSTE_TEXTO_FROTA;
   protected readonly exportar = exportacaoFrota(
     (pagina) => this.frota.listarOrdensServico(this.filtro(), pagina),
     () => this.lista.request()

@@ -89,7 +89,7 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
     .sp__foto-imagem img { width: 100%; height: 100%; object-fit: cover; }
     a.sp__foto-imagem:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
     .sp__ref { position: absolute; top: 0.5rem; left: 0.5rem; padding: 0.1rem 0.45rem; border-radius: var(--geo-radius-sm, 0.375rem);
-      background: var(--geo-surface); font-size: var(--geo-font-caption); font-weight: 600; box-shadow: var(--geo-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.1)); }
+      background: var(--geo-surface); font-size: var(--geo-font-caption); font-weight: 600; box-shadow: var(--geo-shadow-sm); }
     .sp__foto-corpo { display: grid; gap: 0.375rem; align-content: start; padding: 0.75rem; font-size: var(--geo-font-caption); }
     .sp__foto-topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.375rem; }
     .sp__foto-topo strong { font-size: var(--geo-font-caption); min-width: 0; }
