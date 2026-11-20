@@ -98,6 +98,7 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "runnerConfig": true,
+            "setupFiles": ["src/test-setup.ts"],
             "exclude": [
               "src/app/shared/components/chatbot/**/*.spec.ts",
               "src/app/core/utils/assistente-presentation.util.spec.ts"
