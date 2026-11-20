@@ -78,8 +78,8 @@ describe('App', () => {
     const itens = Object.fromEntries((solicitacoes?.items ?? []).map((item) => [item.label, item.routerLink]));
     expect(itens).toEqual(expect.objectContaining({
       'Nova Devolução': '/almoxarifado/solicitacoes-tecnicas/devolucao',
-      Kanban: '/almoxarifado/solicitacoes-tecnicas/kanban',
-      Calendário: '/almoxarifado/solicitacoes-tecnicas/calendario'
+      Quadro: '/almoxarifado/solicitacoes-tecnicas/kanban',
+      'Calendário de saques': '/almoxarifado/solicitacoes-tecnicas/calendario'
     }));
   });
 
