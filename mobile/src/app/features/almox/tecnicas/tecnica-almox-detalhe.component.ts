@@ -135,7 +135,7 @@ const MINIMO_MOTIVO = 5;
       </div>
 
       @if (rede.isOnline() && temAcao()) {
-        <footer class="geo-rodape-acoes">
+        <footer class="geo-rodape-acoes" data-acao-fixa>
           @if (pode('ESTORNAR') && estornaveis().length) {
             <button type="button" class="geo-btn geo-btn--neutro" (click)="abrirEstorno()" [disabled]="executando()"><geo-icone nome="desfazer" [tamanho]="18" />Estornar</button>
           }

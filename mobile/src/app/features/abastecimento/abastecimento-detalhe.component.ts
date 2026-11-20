@@ -151,7 +151,7 @@ interface ItemTela {
       <div class="geo-respiro"></div>
 
       @if (acoes().registrar || acoes().cancelar) {
-        <footer class="geo-rodape-acoes">
+        <footer class="geo-rodape-acoes" data-acao-fixa>
           @if (acoes().cancelar) {
             <button type="button" class="geo-btn" [class.geo-btn--neutro]="acoes().registrar" [class.geo-btn--perigo]="!acoes().registrar"
               (click)="abrirCancelamento()">Cancelar pedido</button>

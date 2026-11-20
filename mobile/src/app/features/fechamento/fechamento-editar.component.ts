@@ -57,7 +57,7 @@ const SEM_RESPONSAVEL = '';
     </div>
 
     @if (det()) {
-      <footer class="rodape">
+      <footer class="rodape" data-acao-fixa>
         <button type="button" class="geo-btn geo-btn--principal principal" (click)="salvar()" [disabled]="enviando() || !rede.isOnline()">
           {{ enviando() ? 'Salvando…' : !rede.isOnline() ? 'Sem internet' : 'Salvar alterações' }}</button>
       </footer>

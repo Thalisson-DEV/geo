@@ -29,7 +29,7 @@ const ICONES: Record<string, NomeIcone> = { success: 'check', error: 'alerta', w
   styles: [`
     :host { display: contents; }
     .pilha { position: fixed; left: var(--geo-nav-lateral); right: 0; z-index: 100; display: grid; justify-items: center; gap: var(--geo-e2); pointer-events: none;
-      padding: 0 var(--geo-e3); bottom: calc(var(--geo-barra-abas) + var(--geo-safe-base) + var(--geo-e3)); }
+      padding: 0 var(--geo-e3); bottom: calc(var(--geo-barra-abas) + var(--geo-rodape-acao) + var(--geo-safe-base) + var(--geo-e3)); }
     .aviso { pointer-events: auto; width: min(100%, 520px); display: flex; align-items: center; gap: var(--geo-e3); min-height: 52px;
       padding: var(--geo-e2) var(--geo-e2) var(--geo-e2) var(--geo-e4); border-radius: 14px; background: var(--geo-inverso); color: var(--geo-inverso-texto);
       box-shadow: var(--geo-sombra-flutuante); font: 500 .9375rem/1.35 var(--geo-fonte); animation: subir 220ms var(--geo-curva); cursor: pointer; }

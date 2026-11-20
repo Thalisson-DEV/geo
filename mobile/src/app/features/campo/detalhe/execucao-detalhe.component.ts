@@ -149,7 +149,7 @@ interface MaterialLinha {
       }
 
       @if (podeAlterar() || podeDesfazer()) {
-        <footer class="acoes">
+        <footer class="acoes" data-acao-fixa>
           @if (podeDesfazer()) { <button type="button" class="geo-btn geo-btn--neutro" (click)="confirmarDesfazer.set(true)">Desfazer</button> }
           @if (podeAlterar()) {
             <button type="button" class="geo-btn geo-btn--principal corrigir" (click)="alterar()">
@@ -158,7 +158,7 @@ interface MaterialLinha {
           }
         </footer>
       } @else if (podeEditar() || podeDescartar() || incerto()) {
-        <footer class="acoes">
+        <footer class="acoes" data-acao-fixa>
           @if (incerto()) {
             <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="conferir()" [disabled]="conferindo()">
               <geo-icone nome="atualizar" [tamanho]="18" />{{ conferindo() ? 'Conferindo…' : 'Conferir no servidor' }}

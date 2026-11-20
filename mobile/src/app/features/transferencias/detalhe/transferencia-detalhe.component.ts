@@ -83,7 +83,7 @@ interface ItemEnriquecido {
       <div class="geo-respiro"></div>
 
       @if (showActionsFooter()) {
-        <footer class="geo-rodape-acoes">
+        <footer class="geo-rodape-acoes" data-acao-fixa>
           @if (canDiscard()) { <button type="button" class="geo-btn geo-btn--perigo" (click)="abrirDescarte()">Descartar</button> }
           @if (isResultadoIncerto()) {
             <button type="button" class="geo-btn geo-btn--principal" (click)="reconciliar()" [disabled]="isReconciling()">

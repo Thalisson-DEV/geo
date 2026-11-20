@@ -1,58 +1,41 @@
-# GEMINI.md — Contexto de Agente: Nexo Field App
+# App de campo GEO (`mobile/`) — instruções para agentes
 
-> **Instruções para o Agente (Gemini CLI):** Este arquivo é seu contexto primário de desenvolvimento. Leia-o integralmente antes de iniciar qualquer tarefa. Toda decisão técnica e de design deve ser validada contra as regras aqui definidas. A documentação completa da API REST do backend está em **`/docs/`** — consulte-a sempre que precisar de contratos de endpoint, DTOs ou regras de negócio.
+Leia também o `CLAUDE.md` e o `AGENTS.md` da raiz. O plano em andamento está nas changes OpenSpec
+`identidade-visual-app-campo` (redesign) e `execucao-campo-obras` (Obras offline).
 
 ---
 
 ## 🎯 1. Identidade do Projeto
 
-**Nome:** Nexo Field App (`geo-field-app`)
-**Propósito:** Aplicação PWA Angular consumida exclusivamente por **encarregados de equipes de campo** (supervisores operacionais) da empresa. Eles atuam em campo, frequentemente sem conexão de rede estável, e precisam registrar execuções, lançar solicitações de materiais e consultar dados operacionais.
-
-**Relacionamento com o backend:** Este app é um **cliente** do sistema backend Nexo (Gestão Operacional). O backend é um Monolith Modular (Spring Boot 4, Java 21, PostgreSQL 17.5) com API RESTful documentada via Swagger. A URL base da API deve ser configurável por ambiente (`environment.ts`).
-
-**Audiência primária:** Encarregados de equipes de campo — usuários com baixa tolerância a complexidade de interface, operando em tablets Android em ambiente externo (sol, luvas, pressa).
+**Nome:** GEO Campo (projeto Angular `geo-field-app-tmp`). Produto white label: nenhum nome, logo ou mascote de empresa.
+**Propósito:** PWA usado por **encarregados de equipes de campo** e pelo **perfil administrativo** (SST, almoxarifado, técnico de
+obras). Em campo o aparelho fica sem sinal por horas: tudo o que a equipe lança precisa funcionar offline e sincronizar depois.
+**Aparelhos:** ~70% tablet (deitado e em pé), também celular; Android e iPhone. Distribuição como PWA, sem loja.
+**Diretriz do produto:** tudo o que puder ser facilitado para a equipe de campo deve ser facilitado — o app diz o próximo passo,
+pré-preenche o que o sistema já sabe e nunca trava por falta de rede.
 
 ---
 
-## 📱 2. Filosofia de UI/UX — App Nativo, Não Website
+## 📱 2. UI/UX — padrão de mercado para apps de campo
 
-Esta é a regra mais importante de design: **a aplicação deve parecer e se comportar como um app Android nativo**, nunca como um website responsivo.
+Material 3 e diretrizes da Apple, com a marca GEO do web e **escala de toque** (a regra "densidade compacta" é só do web).
 
-### Mandamentos de UX
-- **Bottom Navigation Bar** sempre visível (exceto tela de login). Nunca use menus laterais (drawer) como navegação principal.
-- **Touch targets mínimos de 56dp** (equivalente a ~56px em dispositivos tablet). Botões e itens de lista devem ser fáceis de tocar com luvas.
-- **Sem hover states** como indicador primário de ação — use `active` e `focus-visible`.
-- **Feedback tátil imediato:** todo toque deve ter feedback visual instantâneo (ripple effect, escala, cor).
-- **Gestos nativos:** suporte a swipe para voltar em flows lineares onde aplicável.
-- **Loading states** são obrigatórios em toda operação assíncrona — use skeletons, nunca spinners centrais que bloqueiam toda a tela.
-- **Formulários curtos por tela** — divida formulários longos em steps/wizard, não em scrolls imensos.
-- **Tipografia grande:** mínimo `16px` para corpo de texto, `14px` para labels secundários.
-
-### Paleta Visual e Identidade
-- **Tema:** Industrial/Utilitário com toques de energia (referência: apps de logística como Lalamove, apps de inspeção industrial).
-- **Primária:** Azul corporativo — `#0052A5` (azul corporativo).
-- **Acento:** Âmbar operacional — `#F59E0B` (sinalização de atenção, alertas, badges offline).
-- **Superfície:** Cinza escuro profundo `#111827` para dark mode (padrão), `#F9FAFB` para light.
-- **Sucesso:** `#10B981`, **Erro:** `#EF4444`, **Aviso:** `#F59E0B`.
-- **Modo padrão:** Light mode (condições de campo, brilho externo).
-- **CSS Custom Properties:** Toda cor deve usar variáveis CSS definidas em `styles/tokens.scss`.
-
-### Layout Padrão de Tela
-```
-┌─────────────────────────────────┐
-│  [Status Bar Area]              │ ← 24px safe area top
-├─────────────────────────────────┤
-│  [App Header]                   │ ← 56px: título da tela + ações contextuais
-├─────────────────────────────────┤
-│                                 │
-│  [Content Area]                 │ ← flex-grow, overflow-y: auto
-│  (scroll interno)               │
-│                                 │
-├─────────────────────────────────┤
-│  [Bottom Navigation]            │ ← 64px + safe-area-inset-bottom
-└─────────────────────────────────┘
-```
+- **Navegação:** 3 a 5 destinos por perfil. Abas embaixo no celular e no tablet em pé; **barra lateral** (navigation rail) no
+  tablet deitado (≥ 900 × 600 px), com a marca no topo. Telas de lançamento e detalhe ocupam a tela toda, sem navegação.
+- **Coluna de conteúdo:** no tablet a tela fica numa coluna centralizada (`--geo-conteudo-max`); elementos fixos usam
+  `--geo-nav-lateral` e `--geo-recuo-coluna` para se alinhar a ela.
+- **Toque:** alvos ≥ 48 px (botão principal 52–56 px; quando o visual é menor, estenda a área com pseudo-elemento); corpo de 15 px,
+  campos com fonte ≥ 16 px (sem zoom no iOS); `:hover` só em `@media (hover: hover) and (pointer: fine)`; retorno no `:active`.
+- **Um botão principal por tela**, ao alcance do polegar. Faixa de ação fixa no pé leva `data-acao-fixa` (o toast sobe acima dela).
+- **Folhas inferiores** no lugar de diálogos; formulários longos em passos; **desfazer** no lugar de "tem certeza?" para ações
+  reversíveis; skeleton (`role="status"`) em vez de spinner; estado de envio sempre visível.
+- **Cores e tipo:** só tokens de `src/styles/geo-tokens.scss` (nomes em português: `--geo-fundo`, `--geo-texto`, `--geo-destaque`…)
+  com a paleta do web (zinc + azul 600), Inter empacotada no app (`styles/_fonte.scss`), peso máximo 600. Verde, âmbar e texto
+  terciário ficam um tom mais escuros que no web (≥ 4,5:1 sob sol); contorno de controle usa `--geo-borda-campo` (≥ 3:1).
+- **Temas:** claro por padrão (decisão do produto), escuro, "Sistema" e alto contraste (modo sol), em qualquer combinação.
+- **Ícones:** Lucide pelo `<geo-icone>` (`src/app/ui/icone.component.ts`), traço 1,75; ícone novo = importar do `lucide` e mapear.
+- **Componentes:** os do `src/app/ui/` (sem PrimeNG no app). Toda mudança visual termina com screenshots claro/escuro em celular,
+  tablet em pé e deitado (`e2e/support/redesign-shots.spec.ts` → `docs/redesign/mobile/`) e revisão do `ui-reviewer`.
 
 ---
 
@@ -60,93 +43,30 @@ Esta é a regra mais importante de design: **a aplicação deve parecer e se com
 
 | Tecnologia | Versão | Papel |
 |---|---|---|
-| Angular | 20.x | Framework principal (Standalone Components) |
-| TypeScript | 5.5+ | Linguagem base |
-| Angular PWA (`@angular/pwa`) | latest | Service Worker, manifest, offline shell |
-| Dexie.js | 4.x | Wrapper IndexedDB tipado para dados offline |
-| RxJS | 7.x | Programação reativa, streams de dados |
-| Angular Signals | nativo | Estado reativo local e global (sem NgRx) |
-| Tailwind CSS | 3.x | Utilitários de estilo base |
-| SCSS | — | Customizações, tokens de design, animações |
-| Angular Animations | nativo | Transições de tela, micro-interações |
+| Angular | 22 (standalone, signals, **zoneless**, OnPush) | Framework |
+| TypeScript | 6.0 | Linguagem |
+| `@angular/service-worker` | 22 | PWA, cache offline |
+| Dexie | 4 | IndexedDB (fila, rascunhos, sessão) |
+| `lucide` | 1.x | Ícones |
+| `@fontsource-variable/inter` | 5 | Fonte (só subconjuntos latinos) |
+| Vitest (modo navegador, Chromium) + Playwright | — | Testes unitários e e2e |
 
-### Decisões Arquiteturais Firmes
-- **Sem NgRx ou BehaviorSubject complexos:** Use **Angular Signals** (`signal`, `computed`, `effect`) como mecanismo de estado. Para estado global, use `Injectable({ providedIn: 'root' })` com signals.
-- **Standalone Components:** Sem `NgModule`. Todo componente, diretiva e pipe deve ser `standalone: true`.
-- **Lazy Loading por Rota:** Cada módulo de feature deve ser carregado via `loadComponent()` ou `loadChildren()`.
-- **Functional Guards:** Use `CanActivateFn` e `CanMatchFn`.
-- **HTTP Client:** Use o `HttpClient` do Angular com `provideHttpClient(withInterceptors([...]))`.
-- **Sem jQuery, sem Bootstrap.**
+- Sem `zone.js`, `@angular/animations`, Tailwind, NgRx ou PrimeNG. Transições por CSS com os tokens de movimento.
+- Estado com `signal`/`computed`/`effect`; `inject()`; rotas lazy; guards funcionais.
+- Os bancos IndexedDB (`ces-field-db`, `ces-field-sessao`), o cache dos documentos do veículo e as travas entre abas mantêm o nome
+  antigo de propósito (marcador `renomear-geo: manter`); as chaves do `localStorage` migram para `geo_*` na abertura
+  (`core/migracao/`).
 
 ---
 
 ## 📁 4. Estrutura de Diretórios
 
-```
-geo-field-app/
-├── docs/                          ← 📌 DOCUMENTAÇÃO DA API (não modificar)
-│   ├── iam.md
-│   ├── rh.md
-│   ├── comercial.md
-│   ├── logistica.md
-│   └── ...
-├── src/
-│   ├── app/
-│   │   ├── core/                  ← Singleton services, guards, interceptors
-│   │   │   ├── auth/
-│   │   │   │   ├── auth.service.ts
-│   │   │   │   ├── auth.guard.ts
-│   │   │   │   └── token.service.ts
-│   │   │   ├── http/
-│   │   │   │   ├── auth.interceptor.ts
-│   │   │   │   ├── offline.interceptor.ts
-│   │   │   │   └── error.interceptor.ts
-│   │   │   ├── sync/
-│   │   │   │   ├── sync.service.ts         ← Orquestra sync online/offline
-│   │   │   │   ├── outbox.service.ts       ← Fila de operações pendentes
-│   │   │   │   └── connectivity.service.ts ← Navigator.onLine + eventos
-│   │   │   └── db/
-│   │   │       ├── app-db.ts               ← Definição Dexie (schema)
-│   │   │       └── db.service.ts           ← Facade para operações DB
-│   │   ├── shared/                ← Componentes reutilizáveis
-│   │   │   ├── components/
-│   │   │   │   ├── app-header/
-│   │   │   │   ├── bottom-nav/
-│   │   │   │   ├── status-badge/
-│   │   │   │   ├── offline-banner/
-│   │   │   │   ├── skeleton-loader/
-│   │   │   │   ├── empty-state/
-│   │   │   │   ├── confirmation-dialog/
-│   │   │   │   └── sync-indicator/
-│   │   │   ├── directives/
-│   │   │   │   ├── ripple.directive.ts
-│   │   │   │   └── long-press.directive.ts
-│   │   │   └── pipes/
-│   │   │       ├── relative-time.pipe.ts
-│   │   │       └── status-label.pipe.ts
-│   │   ├── features/
-│   │   │   ├── auth/              ← Login screen
-│   │   │   ├── dashboard/         ← Tela inicial com atalhos
-│   │   │   ├── solicitacoes/      ← Solicitações de material
-│   │   │   ├── campo/             ← Execuções e eventos de campo
-│   │   │   └── perfil/            ← Perfil do encarregado
-│   │   ├── app.routes.ts
-│   │   ├── app.config.ts
-│   │   └── app.component.ts
-│   ├── styles/
-│   │   ├── tokens.scss            ← CSS Custom Properties (cores, espaçamento)
-│   │   ├── typography.scss
-│   │   ├── animations.scss
-│   │   └── global.scss
-│   ├── environments/
-│   │   ├── environment.ts
-│   │   └── environment.prod.ts
-│   ├── manifest.webmanifest
-│   └── ngsw-config.json           ← Service Worker config
-├── GEMINI.md                      ← Este arquivo
-├── PLANNING.md
-└── angular.json
-```
+- `src/app/core/` — serviços (auth, sync/fila, db, sessão/rascunhos, plataforma/tema, turno, campo, frota, sst, almox, fechamento)
+- `src/app/ui/` — componentes base do app (`geo-*`): barra de abas/lateral, barra de topo, folha, lista e chips, seletor,
+  segmentado, quantidade, leitor de código, assinatura, status de envio, indicador de rede, ícone
+- `src/app/features/<area>/` — telas
+- `src/styles/` — `geo-tokens.scss` (tokens), `_fonte.scss`, `_reset.scss`, `geo-base.scss` (primitivas globais)
+- `e2e/` — Playwright (caracterização, piloto, fase4, sw, a11y, visual; `support/` com o mock da API e geradores de screenshot)
 
 ---
 
@@ -161,6 +81,14 @@ geo-field-app/
   - O `TokenService` expõe um `signal<string | null>` para o token atual.
 - **Interceptor de autenticação (`auth.interceptor.ts`):** Adiciona o header `Authorization: Bearer <token>` em todas as requisições ao domínio da API.
 - **Guard de autenticação (`auth.guard.ts`):** Protege todas as rotas exceto `/login`. Redireciona para `/login` se não autenticado.
+
+### 5.1.1 Sessão em campo (regra que não se quebra)
+- **Quem entrou só volta ao login tocando em "Sair".** Token vencido, falta de internet (inclusive 4G bloqueado ou Wi-Fi sem saída, quando `navigator.onLine` mente) e erro do servidor nunca mandam para `/login`: o `authGuard` e a retomada a frio aceitam qualquer sessão local.
+- A tela `/login` tem o `loginGuard`: com sessão no aparelho segue para `volta` (ou `/hoje`) e, sem token, tenta o cookie antes. O Android reabre o app instalado na última página carregada, não pelo ícone; sem o guarda, quem tinha entrado pelo login via o formulário em toda reabertura. A abertura pelo ícone (`retomadaGuard`) também tenta o cookie antes de mandar ao login.
+- O token de acesso (~1h) é renovado sozinho por `POST /v1/auth/refresh` com o cookie HttpOnly `geo_sessao` (`AuthService.renovarToken`, uma renovação por vez entre abas). O `authInterceptor` renova e repete a requisição; ele fica **depois** do `errorInterceptor` na cadeia.
+- `SESSAO_INVALIDA` só marca `reautenticacaoNecessaria`: o app continua, a fila espera e o shell mostra o aviso "Entre novamente para enviar" (`geo-aviso-sessao`). O login só abre se a pessoa tocar em "Entrar".
+- A renovação respeita o `ConnectivityService` (não sai pelo 4G bloqueado) e é tentada ao reabrir o app e quando a rede volta.
+- Garantias cobertas por `e2e/piloto/sessao-campo.spec.ts` e `e2e/sw/sessao-offline.spec.ts` (modo avião + token vencido com o service worker real).
 
 ### 5.2 Dados Sensíveis no IndexedDB
 - Dados armazenados offline no IndexedDB **não devem incluir** campos criptografados brutos do backend (ex: CPF em texto claro).
@@ -258,7 +186,7 @@ export class ConnectivityService {
 
 ### 6.5 OfflineBanner Component
 - Exibir banner persistente no topo do content area quando `isOnline() === false`.
-- Cor âmbar (`#F59E0B`), ícone de nuvem cortada, texto "Modo Offline — alterações serão sincronizadas quando a conexão retornar".
+- Tom de atenção (`--geo-atencao`, `--geo-atencao-suave`), ícone `sem_rede`, texto "Modo Offline — alterações serão sincronizadas quando a conexão retornar".
 
 ### 6.6 Service Worker (ngsw-config.json)
 - Cache de assets estáticos: `prefetch` para shell do app.
@@ -273,11 +201,11 @@ export class ConnectivityService {
 - Tela limpa, sem bottom nav.
 - Logo no topo.
 - Campos: **Login** e **Senha** (consultar `/docs/iam.md` para o contrato).
-- Ao submeter: chama `AuthService.login()` → armazena token → `initialSync()` → navega para `/dashboard`.
+- Ao submeter: chama `AuthService.login()` → armazena token → `initialSync()` → navega para `/hoje`.
 - Exibir erro de credenciais inválidas (HTTP 401) de forma clara.
 - Enquanto carrega o sync inicial, exibir tela de loading com progresso (ex: "Carregando equipe...", "Carregando municípios...").
 
-### 7.2 Feature: Dashboard (`/dashboard`)
+### 7.2 Feature: Hoje (`/hoje`; `/dashboard` redireciona)
 - Header: "Bom dia, [Nome do Encarregado] 👷" + nome da equipe.
 - **Cards de resumo rápido:**
   - Solicitações pendentes (count de itens no outbox com status PENDENTE)
@@ -322,13 +250,19 @@ Registro de execuções operacionais e eventos de campo.
 - Histórico dos últimos 7 dias.
 - Status badge de sync em cada item.
 
-**Nova Execução (wizard):**
-- Step 1: Tipo de execução / processo de negócio (dados locais).
-- Step 2: Localização (município, base operacional — dados locais).
-- Step 3: Membros da equipe envolvidos (dados locais).
-- Step 4: Materiais consumidos (opcional, deduzido do estoque local).
-- Step 5: Observações e evidências (texto; upload de foto é fase futura).
-- Step 6: Revisão e confirmação.
+**Abertura do turno (`/turno/abrir`):**
+- O líder (responsável da equipe) confere o veículo e as pessoas antes de começar e pode trocar a placa e incluir/tirar parceiros. As mudanças vão junto com `POST /api/v1/turnos/abrir` (`idVeiculo`, `idsColaboradores`).
+- Composição, opções e meta do ciclo vêm de `GET /api/v1/turnos/minha-equipe/composicao` e ficam salvas no aparelho.
+
+**Lançar execução (etapa única, sem "iniciar/finalizar"):**
+- Passo 1: número da nota + localização coletada automaticamente pelo GPS (funciona offline). Não existe município.
+- Passo 2: serviços (ações). Passo 3: materiais — "Meu saldo" ou "Outros materiais".
+- Material fora do saldo pode ser aplicado: o saldo da equipe apenas fica negativo e o app avisa o encarregado para informar o gestor. Não existe pendência para tratar.
+- Retirada: o material retirado em campo vai no veículo (entra como sucata no estoque da equipe) e é devolvido quando a equipe puder.
+- No desktop, ao entregar material para a equipe, o almoxarifado vê um aviso nos materiais com saldo negativo nessa equipe (informativo, não trava a entrega).
+- Passo 4: conferir e lançar. A execução vai para o outbox e é enviada quando houver conexão.
+
+**Meta do ciclo:** a meta é cadastrada no GEO por janela — ciclo comercial (dia 26 a 25 do mês seguinte, nomeado pelo mês em que termina) para as equipes do processo comercial, ou mês civil para as demais. A composição (`metaDoCiclo`) traz a janela, o valor, a meta diária e o faturamento que o servidor já recebeu. A tela Hoje mostra, além da meta do dia, o cartão do ciclo: realizado (servidor + lançamentos ainda só no aparelho), percentual, quanto falta, quanto fazer por dia útil restante e se a equipe está no ritmo. Passado o fim do ciclo sem sincronizar, o cartão pede sincronização em vez de mostrar números velhos.
 
 **Consultar `/docs/campo.md` ou o endpoint equivalente** na documentação da API.
 
@@ -473,10 +407,13 @@ export const routes: Routes = [
 
 ## 🧪 11. Qualidade e Testes
 
-- **Unit tests:** Jasmine/Karma para services críticos (`AuthService`, `SyncService`, `OutboxService`).
-- **Não escreva testes para componentes UI** na fase inicial — priorize serviços de negócio.
-- **Linting:** ESLint com regras Angular. Todos os arquivos devem passar em `ng lint` antes de commit.
-- **Build de produção:** `ng build --configuration production`. Verifique bundle size regularmente.
+- Unitários: `npm test` (Vitest em Chromium headless; os testes usam IndexedDB, Web Locks e Blob reais). Um arquivo:
+  `npx ng test --watch=false --include <caminho>.spec.ts`.
+- e2e: `npx playwright test e2e/characterization e2e/piloto e2e/fase4 e2e/sw e2e/a11y --project=android` (build antes: `npm run build`).
+- Visual: `npx playwright test e2e/visual` (referências em `e2e/visual/telas.spec.ts-snapshots`).
+- Há 9 falhas de e2e conhecidas e anteriores ao redesign (navegação e turno de caracterização desatualizados; rolagem em
+  `retomada.spec.ts:72`); não as trate como regressão nova.
+- Build de produção: `npm run build`. Verifique o tamanho do bundle ao adicionar dependência.
 
 ---
 

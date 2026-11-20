@@ -148,7 +148,7 @@ const TITULOS = ['Origem e destino', 'Materiais', 'Conferir'];
       }
     </div>
 
-    <footer class="rodape">
+    <footer class="rodape" data-acao-fixa>
       @if (passo() > 1) { <button type="button" class="geo-btn geo-btn--neutro" (click)="passo.set(passo() - 1)">Voltar</button> }
       <button type="button" class="geo-btn geo-btn--principal principal" (click)="avancar()" [disabled]="enviando() || carregando()">
         @if (passo() === 3) { {{ enviando() ? 'Salvando…' : (editId() ? 'Salvar correção' : 'Enviar pedido') }} }

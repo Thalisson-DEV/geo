@@ -78,7 +78,7 @@ interface ItemMovimentar { id: string; codigo: string; descricao: string; unidad
     </div>
 
     @if (det()) {
-      <footer class="rodape">
+      <footer class="rodape" data-acao-fixa>
         <button type="button" class="geo-btn geo-btn--principal principal" (click)="confirmar()" [disabled]="enviando() || !marcados() || !rede.isOnline()">
           {{ enviando() ? 'Movimentando…' : !rede.isOnline() ? 'Sem internet' : confirmando() ? 'Toque de novo para confirmar' : 'Confirmar movimentação' }}</button>
       </footer>

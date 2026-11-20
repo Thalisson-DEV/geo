@@ -289,7 +289,7 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
       </section>
     </div>
 
-    <footer class="rodape">
+    <footer class="rodape" data-acao-fixa>
       @if (passo() > 1) { <button type="button" class="geo-btn geo-btn--neutro" (click)="passo.set(passo() - 1)" [disabled]="enviando()">Voltar</button> }
       <button type="button" class="geo-btn principal" [class.geo-btn--perigo]="ultimo() && tipo === 'saida'" [class.geo-btn--principal]="!(ultimo() && tipo === 'saida')"
         (click)="avancar()" [disabled]="enviando() || conferindoSeries() || (ultimo() && !rede.isOnline())">

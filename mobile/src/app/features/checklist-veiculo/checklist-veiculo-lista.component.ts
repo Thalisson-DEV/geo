@@ -191,7 +191,7 @@ type CargaServidor = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
       </button>
     </ng-template>
 
-    <div class="doca">
+    <div class="doca" data-acao-fixa>
       @if (rascunho()) {
         <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="continuar()"><geo-icone nome="retomar" />Continuar checklist</button>
       } @else {

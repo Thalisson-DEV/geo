@@ -25,11 +25,13 @@ export const PERIODOS: { valor: PeriodFilter; rotulo: string; curto: string }[] 
 @Component({
   selector: 'geo-chips',
   standalone: true,
+  imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="chips" role="radiogroup" [attr.aria-label]="rotulo()">
       @for (o of opcoes(); track o.valor) {
         <button type="button" role="radio" class="chip" [attr.aria-checked]="valor() === o.valor" (click)="valor.set(o.valor)">
+          @if (valor() === o.valor) { <geo-icone nome="check" [tamanho]="16" /> }
           {{ o.rotulo }}
           @if (contagem()[o.valor]; as n) { <span class="geo-num conta">{{ n }}</span> }
         </button>
@@ -38,12 +40,15 @@ export const PERIODOS: { valor: PeriodFilter; rotulo: string; curto: string }[] 
   `,
   styles: [`
     :host { display: block; }
-    .chips { display: flex; gap: var(--geo-e2); overflow-x: auto; padding: var(--geo-e3) var(--geo-e4) var(--geo-e1); scrollbar-width: none;
+    .chips { display: flex; gap: var(--geo-e2); overflow-x: auto; padding: var(--geo-e3) var(--geo-e4) var(--geo-e2); scrollbar-width: none;
       overscroll-behavior-x: contain; }
     .chips::-webkit-scrollbar { display: none; }
-    .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--geo-r-pilula);
+    /* 40 px visíveis, 48 px de toque (o pseudo-elemento estende 4 px para cima e para baixo). */
+    .chip { position: relative; flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--geo-r-pilula);
+      -webkit-user-select: none; user-select: none; touch-action: manipulation;
       border: 1px solid var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-2); font: 500 .875rem/1 var(--geo-fonte); cursor: pointer; }
-    .chip[aria-checked='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; }
+    .chip::before { content: ''; position: absolute; inset: -4px 0; }
+    .chip[aria-checked='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; padding-left: 10px; }
     .conta { font-weight: 600; }
   `],
 })

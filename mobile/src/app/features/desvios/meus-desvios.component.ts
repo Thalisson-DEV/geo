@@ -133,7 +133,7 @@ const ABAS: readonly { value: AbaDesvio; label: string }[] = [
     }
 
     @if (modoSelecao() && selectedCount()) {
-      <footer class="geo-rodape-acoes">
+      <footer class="geo-rodape-acoes" data-acao-fixa>
         <button type="button" class="geo-btn geo-btn--principal" (click)="abrirTratamentoEmMassa()">Tratar {{ selectedCount() }} {{ selectedCount() === 1 ? 'desvio' : 'desvios' }}</button>
       </footer>
     }

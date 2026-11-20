@@ -323,7 +323,7 @@ const PREFIXO_BRUTO = 'bruto:';
       }
     </div>
 
-    <footer class="rodape">
+    <footer class="rodape" data-acao-fixa>
       @if (currentStep() > 1) {
         <button type="button" class="geo-btn geo-btn--neutro" (click)="voltarPasso()">Voltar</button>
       }

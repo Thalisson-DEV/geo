@@ -126,7 +126,7 @@ type Folha = 'mais' | 'reserva' | 'cancelar' | 'pendencia';
       </div>
 
       @if (rede.isOnline() && (principal() || temMais())) {
-        <footer class="geo-rodape-acoes">
+        <footer class="geo-rodape-acoes" data-acao-fixa>
           @if (temMais()) { <button type="button" class="geo-btn geo-btn--neutro" (click)="folha.set('mais')"><geo-icone nome="mais_opcoes" [tamanho]="18" />Mais ações</button> }
           @if (principal() === 'movimentar') {
             <button type="button" class="geo-btn geo-btn--principal principal" (click)="irPara('movimentar')"><geo-icone nome="transferencia" [tamanho]="18" />Movimentar</button>

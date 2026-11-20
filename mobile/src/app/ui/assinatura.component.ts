@@ -43,7 +43,7 @@ import { IconeComponent } from './icone.component';
   styles: [`
     :host { display: block; }
     .cartao { width: 100%; display: grid; gap: var(--geo-e2); padding: var(--geo-e3) var(--geo-e4); min-height: 148px; box-sizing: border-box;
-      border: 1.5px dashed var(--geo-linha-forte); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); text-align: left;
+      border: 1.5px dashed var(--geo-borda-campo); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); text-align: left;
       color: var(--geo-texto); cursor: pointer; font: inherit; transition: border-color var(--geo-m-entrar); }
     .cartao:active { background: var(--geo-superficie-2); }
     .cartao.feita { border-style: solid; border-color: var(--geo-ok); }

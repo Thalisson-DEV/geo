@@ -117,7 +117,7 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
           <p class="geo-faixa-estado geo-faixa-estado--erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" /><span>{{ erro }}</span></p>
         }
         <div class="geo-respiro"></div>
-        <footer class="geo-rodape-acoes">
+        <footer class="geo-rodape-acoes" data-acao-fixa>
           <button type="button" class="geo-btn geo-btn--neutro" [disabled]="salvando()" (click)="reprovando.set(true)">Reprovar</button>
           <button type="button" class="geo-btn geo-btn--principal" [disabled]="salvando() || !rede.isOnline()" (click)="aprovar()">
             <geo-icone nome="check" [tamanho]="18" />{{ salvando() ? 'Aprovando…' : rede.isOnline() ? 'Aprovar' : 'Sem internet' }}</button>

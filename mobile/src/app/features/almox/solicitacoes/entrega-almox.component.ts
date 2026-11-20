@@ -194,7 +194,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
     </div>
 
     @if (det()) {
-      <footer class="rodape">
+      <footer class="rodape" data-acao-fixa>
         @if (passo() > 1) { <button type="button" class="geo-btn geo-btn--neutro" (click)="passo.set(passo() - 1)" [disabled]="enviando()">Voltar</button> }
         <button type="button" class="geo-btn geo-btn--principal principal" (click)="avancar()" [disabled]="enviando() || (passo() === 4 && !rede.isOnline())">
           @if (passo() === 4) { {{ enviando() ? 'Registrando…' : rede.isOnline() ? 'Confirmar entrega' : 'Sem internet' }} }

@@ -103,7 +103,7 @@ export class AppShellComponent implements AfterViewInit {
     ];
   });
   readonly rotas = computed(() => this.abas().map(a => a.rota));
-  /** Tablet deitado (≥ 900 px): navegação em barra lateral; abaixo disso, abas embaixo. */
+  /** Tablet deitado (≥ 900 × 600 px): navegação em barra lateral; abaixo disso, abas embaixo. */
   private readonly largo = signal(consultaLargo()?.matches ?? false);
   readonly modoNavegacao = computed<ModoNavegacao>(() => (this.largo() ? 'lateral' : 'inferior'));
   readonly mostrarAbas = computed(() => TELAS_DE_TOPO.test(this.url()));
@@ -237,7 +237,8 @@ export class AppShellComponent implements AfterViewInit {
 
 function consultaLargo(): MediaQueryList | null {
   try {
-    return typeof matchMedia === 'function' ? matchMedia('(min-width: 900px)') : null;
+    // Altura mínima: celular deitado (≈ 915×412) não comporta a barra lateral e continua com abas embaixo.
+    return typeof matchMedia === 'function' ? matchMedia('(min-width: 900px) and (min-height: 600px)') : null;
   } catch {
     return null;
   }

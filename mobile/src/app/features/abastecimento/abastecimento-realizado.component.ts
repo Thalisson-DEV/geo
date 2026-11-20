@@ -185,7 +185,7 @@ const TITULOS: Record<Passo, string> = { valores: 'Litros e valores', fotos: 'Fo
     </div>
 
     @if (pedido() && realizado()) {
-      <footer class="rodape">
+      <footer class="rodape" data-acao-fixa>
         @if (indice() > 0) { <button type="button" class="geo-btn geo-btn--neutro" (click)="voltar()">Voltar</button> }
         <button type="button" class="geo-btn geo-btn--principal principal" (click)="avancar()" [disabled]="salvando() || preparandoFoto()">
           @if (passo() === 'revisao') { {{ salvando() ? 'Salvando…' : 'Registrar abastecimento' }} }

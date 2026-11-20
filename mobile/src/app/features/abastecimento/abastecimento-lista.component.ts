@@ -74,7 +74,7 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Indica
       <div class="geo-respiro"></div>
     </div>
 
-    <div class="doca">
+    <div class="doca" data-acao-fixa>
       @if (rascunho()) {
         <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="novo()"><geo-icone nome="retomar" />Continuar pedido</button>
       } @else {

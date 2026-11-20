@@ -134,7 +134,7 @@ interface RascunhoTurno {
     </div>
 
     @if (composicao()) {
-      <footer class="rodape">
+      <footer class="rodape" data-acao-fixa>
         @if (!rede.isOnline()) {
           <p class="sem-rede"><geo-icone nome="sem_rede" [tamanho]="16" />Abrir o turno precisa de internet. A conferência fica salva.</p>
         }

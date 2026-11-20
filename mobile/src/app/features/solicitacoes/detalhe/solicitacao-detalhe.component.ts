@@ -70,7 +70,7 @@ interface ItemEnriquecido {
       <div class="geo-respiro"></div>
 
       @if (showActionsFooter()) {
-        <footer class="geo-rodape-acoes">
+        <footer class="geo-rodape-acoes" data-acao-fixa>
           @if (isResultadoIncerto()) {
             <button type="button" class="geo-btn geo-btn--principal" (click)="reconciliar()" [disabled]="isReconciling()">
               <geo-icone nome="atualizar" [tamanho]="18" />{{ isReconciling() ? 'Conferindo…' : 'Conferir no servidor' }}

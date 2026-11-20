@@ -79,7 +79,7 @@ export interface OpcaoSeletor {
     .busca input:focus { outline: none; }
     .lista { background: var(--geo-fundo); }
     .lista .geo-linha:disabled { opacity: .5; }
-    .caixa { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
+    .caixa { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--geo-borda-campo); display: grid; place-items: center; color: transparent; flex: none; }
     .caixa.marcada { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
     .rodape { padding: var(--geo-e3) var(--geo-e4) 0; }
   `],

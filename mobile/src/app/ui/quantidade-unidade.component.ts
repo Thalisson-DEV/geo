@@ -32,7 +32,7 @@ import { IconeComponent } from './icone.component';
     :host { display: block; }
     .qu { display: flex; align-items: center; gap: var(--geo-e2); flex-wrap: wrap; justify-content: flex-end; }
     .unidades { display: inline-flex; gap: 4px; }
-    .un { min-width: 48px; min-height: 44px; padding: 0 var(--geo-e3); border: 1.5px solid var(--geo-linha-forte); border-radius: var(--geo-r-pilula);
+    .un { min-width: 48px; min-height: 44px; padding: 0 var(--geo-e3); border: 1.5px solid var(--geo-borda-campo); border-radius: var(--geo-r-pilula);
       background: transparent; color: var(--geo-texto); font: 600 .875rem/1 var(--geo-fonte); cursor: pointer; }
     .un[aria-checked='true'] { border-color: var(--geo-destaque); background: var(--geo-destaque-suave); color: var(--geo-destaque); }
     .un:focus-visible { outline: 2px solid var(--geo-destaque); outline-offset: 2px; }

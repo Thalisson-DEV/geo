@@ -22,7 +22,9 @@ import { IconeComponent } from './icone.component';
       .pilula:not(.off) { width: 36px; padding: 0; justify-content: center; }
       .pilula:not(.off) .texto { display: none; }
     }
-    .pilula { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: var(--geo-r-pilula);
+    /* 36 px visíveis, 48 px de toque. */
+    .pilula::before { content: ''; position: absolute; inset: -6px; }
+    .pilula { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: var(--geo-r-pilula);
       border: 1px solid var(--geo-linha); background: var(--geo-superficie); color: var(--geo-texto-2);
       font: 500 .8125rem/1 var(--geo-fonte); white-space: nowrap; cursor: pointer; }
     .pilula.off { color: var(--geo-atencao); border-color: transparent; background: var(--geo-atencao-suave); }

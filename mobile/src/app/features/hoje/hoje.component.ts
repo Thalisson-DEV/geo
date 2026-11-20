@@ -288,7 +288,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
     </div>
 
     @if (auth.isCampo() || !auth.podeAcessarAlmoxarifado()) {
-    <div class="doca">
+    <div class="doca" data-acao-fixa>
       @if (!auth.isCampo()) {
         <a class="geo-btn geo-btn--principal geo-btn--bloco" routerLink="/inspecoes/nova"><geo-icone nome="mais" />Nova inspeção</a>
       } @else if (turno.turnoAtivo()) {

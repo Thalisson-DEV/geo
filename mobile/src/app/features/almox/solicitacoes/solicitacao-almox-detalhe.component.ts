@@ -147,7 +147,7 @@ const MINIMO = 5;
       </div>
 
       @if (podeGerir() && (podeAprovar() || podeRejeitar() || podeEntregar() || podeEstornar())) {
-        <footer class="geo-rodape-acoes">
+        <footer class="geo-rodape-acoes" data-acao-fixa>
           @if (podeEstornar() && !podeEntregar()) {
             <button type="button" class="geo-btn geo-btn--neutro" (click)="abrirEstorno()"><geo-icone nome="desfazer" [tamanho]="18" />Estornar</button>
           }

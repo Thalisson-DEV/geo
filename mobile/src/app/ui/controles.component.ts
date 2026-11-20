@@ -24,7 +24,7 @@ import { IconeComponent, NomeIcone } from './icone.component';
   `,
   styles: [`
     :host { display: inline-flex; }
-    .caixa { display: inline-flex; align-items: center; border: 1px solid var(--geo-linha-forte); border-radius: var(--geo-r-pilula); }
+    .caixa { display: inline-flex; align-items: center; border: 1px solid var(--geo-borda-campo); border-radius: var(--geo-r-pilula); }
     .b { width: 44px; height: 44px; border: 0; background: transparent; color: var(--geo-destaque); display: grid; place-items: center;
       border-radius: 50%; cursor: pointer; }
     .b:active:not(:disabled) { background: var(--geo-destaque-suave); }
@@ -86,7 +86,8 @@ export interface OpcaoSegmento<T extends string = string> {
     <div class="trilho" role="radiogroup" [attr.aria-label]="rotulo()" [style.grid-template-columns]="colunas()">
       @for (o of opcoes(); track o.valor) {
         <button type="button" role="radio" [attr.aria-checked]="o.valor === valor()" (click)="valor.set(o.valor)">
-          @if (o.icone) { <geo-icone [nome]="o.icone" [tamanho]="18" /> }
+          @if (o.valor === valor()) { <geo-icone nome="check" [tamanho]="18" /> }
+          @else if (o.icone) { <geo-icone [nome]="o.icone" [tamanho]="18" /> }
           {{ o.rotulo }}
         </button>
       }
@@ -94,12 +95,16 @@ export interface OpcaoSegmento<T extends string = string> {
   `,
   styles: [`
     :host { display: block; }
-    .trilho { display: grid; background: var(--geo-superficie-2); border-radius: var(--geo-r-pilula); padding: 3px; gap: 2px; }
-    button { min-height: 40px; border: 0; border-radius: var(--geo-r-pilula); background: transparent; color: var(--geo-texto-2);
-      font: 500 .875rem/1.1 var(--geo-fonte); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+    /* Botão segmentado (Material 3): contorno, divisórias e o selecionado com fundo de destaque + check. */
+    .trilho { display: grid; border: 1px solid var(--geo-borda-campo); border-radius: var(--geo-r-pilula); overflow: hidden; }
+    button { min-height: var(--geo-alvo); border: 0; border-left: 1px solid var(--geo-borda-campo); background: var(--geo-superficie);
+      color: var(--geo-texto); font: 500 .875rem/1.1 var(--geo-fonte); display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 0 var(--geo-e2); cursor: pointer; -webkit-user-select: none; user-select: none; touch-action: manipulation;
       transition: background-color var(--geo-m-entrar) var(--geo-curva), color var(--geo-m-entrar); }
-    button[aria-checked='true'] { background: var(--geo-superficie); color: var(--geo-texto); font-weight: 600;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
+    button:first-child { border-left: 0; }
+    button:active { background: var(--geo-superficie-2); }
+    button[aria-checked='true'] { background: var(--geo-destaque-suave); color: var(--geo-destaque); font-weight: 600; }
+    button:focus-visible { outline: 2px solid var(--geo-destaque); outline-offset: -3px; }
   `],
 })
 export class SegmentadoComponent<T extends string = string> {

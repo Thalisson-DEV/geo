@@ -146,7 +146,7 @@ function comEscolhido(opcoes: OpcaoSeletor[], valor: string | null, rotulo: stri
       </section>
     </div>
 
-    <footer class="rodape">
+    <footer class="rodape" data-acao-fixa>
       @if (passo() > 1) { <button type="button" class="geo-btn geo-btn--neutro" (click)="voltarPasso()" [disabled]="enviando()">Voltar</button> }
       @if (passo() < passos.length) {
         <button type="button" class="geo-btn geo-btn--principal principal" (click)="avancar()">Continuar</button>

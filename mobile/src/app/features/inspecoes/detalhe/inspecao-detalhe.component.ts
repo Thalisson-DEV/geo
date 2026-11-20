@@ -141,7 +141,7 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
       <div class="geo-respiro"></div>
 
       @if (showActionsFooter()) {
-        <footer class="geo-rodape-acoes">
+        <footer class="geo-rodape-acoes" data-acao-fixa>
           @if (canDiscard()) { <button type="button" class="geo-btn geo-btn--perigo" (click)="abrirFolha('descartar')">Descartar</button> }
           @if (isResultadoIncerto()) {
             <button type="button" class="geo-btn geo-btn--principal" (click)="abrirFolha('reenviar')" [disabled]="isRetrying()">

@@ -69,7 +69,8 @@ export type ModoNavegacao = 'inferior' | 'lateral';
     :host(.lateral) .barra { height: 100%; grid-auto-flow: row; grid-auto-rows: max-content; grid-auto-columns: auto;
       align-content: start; justify-items: stretch; gap: var(--geo-e3);
       border-top: 0; border-right: 1px solid var(--geo-linha);
-      padding: calc(var(--geo-e4) + var(--geo-safe-topo)) 0 calc(var(--geo-e4) + var(--geo-safe-base)); }
+      padding: calc(var(--geo-e4) + var(--geo-safe-topo)) 0 calc(var(--geo-e4) + var(--geo-safe-base)) env(safe-area-inset-left, 0px);
+      overflow-y: auto; }
     :host(.lateral) .marca { display: block; justify-self: center; margin-bottom: var(--geo-e4); border-radius: 11px; }
     :host(.lateral) .aba { min-height: 64px; padding-top: 0; }
   `],

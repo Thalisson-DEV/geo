@@ -147,7 +147,7 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
       </section>
     </div>
 
-    <footer class="rodape">
+    <footer class="rodape" data-acao-fixa>
       @if (currentStep() > 1) { <button type="button" class="geo-btn geo-btn--neutro" (click)="prevStep()">Voltar</button> }
       <button type="button" class="geo-btn geo-btn--principal principal" (click)="nextStep()" [disabled]="isSubmitting()">
         @if (currentStep() === 4) { {{ isSubmitting() ? 'Salvando…' : 'Confirmar transferência' }} }

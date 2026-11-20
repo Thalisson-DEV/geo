@@ -443,7 +443,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
       }
     </div>
 
-    <footer class="rodape">
+    <footer class="rodape" data-acao-fixa>
       @if (passo() > passoInicial()) {
         <button type="button" class="geo-btn geo-btn--neutro" (click)="voltarPasso()">Voltar</button>
       }

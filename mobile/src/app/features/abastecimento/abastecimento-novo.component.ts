@@ -243,7 +243,7 @@ const CATEGORIAS: CategoriaProduto[] = ['COMBUSTIVEL', 'ARLA', 'OLEO', 'FLUIDO']
     </div>
 
     @if (catalogo() && frota() && registro()) {
-      <footer class="rodape">
+      <footer class="rodape" data-acao-fixa>
         @if (indice() > 0) { <button type="button" class="geo-btn geo-btn--neutro" (click)="voltar()">Voltar</button> }
         <button type="button" class="geo-btn geo-btn--principal principal" (click)="avancar()" [disabled]="salvando() || preparandoFoto() || bloqueado()">
           @if (passo() === 'revisao') { {{ salvando() ? 'Salvando…' : 'Enviar pedido' }} }

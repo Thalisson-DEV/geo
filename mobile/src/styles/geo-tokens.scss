@@ -13,6 +13,8 @@
   --geo-superficie-2: #EEEEF0;
   --geo-linha: #E4E4E7;           // zinc-200
   --geo-linha-forte: #D4D4D8;     // zinc-300
+  // Contorno de controle (campo, caixa, segmentado): ≥ 3:1 com o fundo (WCAG 1.4.11), visível sob sol
+  --geo-borda-campo: #71717A;     // zinc-500
   --geo-veu: rgba(9, 9, 11, .40);
 
   // Cor — texto
@@ -89,6 +91,8 @@
 
   // Estrutura
   --geo-barra-abas: 64px;
+  // Altura da faixa de ação fixa da tela (botão principal no pé): o toast sobe acima dela.
+  --geo-rodape-acao: 0px;
   --geo-barra-topo: 56px;
   // Barra lateral de navegação (tablet deitado): o shell liga com html[data-nav='lateral'].
   --geo-nav-lateral: 0px;
@@ -100,10 +104,15 @@
   --geo-safe-base: env(safe-area-inset-bottom, 0px);
 }
 
-// Tablet deitado: navegação vira barra lateral, sem barra de abas embaixo.
+// Tablet deitado: navegação vira barra lateral, sem barra de abas embaixo (soma o recorte do iPhone deitado).
 :root[data-nav='lateral'] {
-  --geo-nav-lateral: 88px;
+  --geo-nav-lateral: calc(88px + env(safe-area-inset-left, 0px));
   --geo-barra-abas: 0px;
+}
+
+// Tela com faixa de ação fixa (marcada com data-acao-fixa): toasts e avisos sobem acima dela.
+:root:has([data-acao-fixa]) {
+  --geo-rodape-acao: 80px;
 }
 
 @mixin tema-escuro {
@@ -113,6 +122,7 @@
   --geo-superficie-2: #27272A;    // zinc-800
   --geo-linha: #27272A;
   --geo-linha-forte: #3F3F46;     // zinc-700
+  --geo-borda-campo: #8E8E97;
   --geo-veu: rgba(0, 0, 0, .55);
   --geo-texto: #F4F4F5;           // zinc-100
   --geo-texto-2: #A1A1AA;         // zinc-400
@@ -147,6 +157,7 @@
   --geo-superficie-2: #F4F4F5;
   --geo-linha: #52525B;
   --geo-linha-forte: #09090B;
+  --geo-borda-campo: #09090B;
   --geo-texto: #000000;
   --geo-texto-2: #27272A;
   --geo-texto-3: #3F3F46;
@@ -154,6 +165,31 @@
   --geo-ok: #14532D;
   --geo-atencao: #78350F;
   --geo-erro: #7F1D1D;
+}
+
+// Sol forte no tema escuro: preto puro, texto branco, linhas claras e destaque que lê sobre preto.
+:root[data-tema='escuro'][data-contraste='alto'] {
+  --geo-fundo: #000000;
+  --geo-superficie: #0A0A0A;
+  --geo-superficie-2: #18181B;
+  --geo-linha: #A1A1AA;
+  --geo-linha-forte: #E4E4E7;
+  --geo-borda-campo: #E4E4E7;
+  --geo-texto: #FFFFFF;
+  --geo-texto-2: #E4E4E7;
+  --geo-texto-3: #D4D4D8;
+  --geo-destaque: #93C5FD;
+  --geo-destaque-texto: #000000;
+  --geo-destaque-suave: #172554;
+  --geo-destaque-pressionado: #BFDBFE;
+  --geo-ok: #86EFAC;
+  --geo-ok-suave: #052E16;
+  --geo-atencao: #FCD34D;
+  --geo-atencao-suave: #422006;
+  --geo-erro: #FCA5A5;
+  --geo-erro-suave: #450A0A;
+  --geo-inverso: #FFFFFF;
+  --geo-inverso-texto: #000000;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -218,7 +218,7 @@ const MAX_CONFERIR = 30;
     .busca input:focus { outline: none; }
     .escolher { margin: 0; max-height: 34dvh; overflow-y: auto; background: var(--geo-fundo); }
     .escolher .geo-linha { min-height: 52px; }
-    .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
+    .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--geo-borda-campo); display: grid; place-items: center; color: transparent; flex: none; }
     [aria-checked='true'] > .caixa { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
     .resultado { display: flex; align-items: center; gap: var(--geo-e2); margin: 0; padding: var(--geo-e2) var(--geo-e3); border-radius: var(--geo-r-campo);
       font: 600 .8125rem/1.35 var(--geo-fonte); background: var(--geo-superficie-2); overflow-wrap: anywhere; }
