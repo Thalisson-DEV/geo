@@ -189,7 +189,7 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
         </ng-template>
         <ng-template geoCell="situacao" let-row>
           <geo-status [tone]="tom(row.situacao)" [icon]="iconeSituacao[row.situacao]">{{ row.situacaoRotulo }}</geo-status>
-          <span class="geo-cell-muted">{{ row.diasNaSituacao }} dia(s) nesta situação</span>
+          <span class="geo-cell-muted">{{ row.diasNaSituacao }} {{ row.diasNaSituacao === 1 ? 'dia' : 'dias' }} nesta situação</span>
           @if (row.motivoPendencia) {
             <span class="geo-cell-muted" [title]="row.motivoPendencia"><i class="pi pi-comment" aria-hidden="true"></i> {{ row.motivoPendencia }}</span>
           }

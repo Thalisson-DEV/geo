@@ -21,7 +21,34 @@
       (selecionada)="abrirSolicitacao($event)"
     />
 
-    <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
+    <div class="max-w-6xl mx-auto print:max-w-full pb-8 print:pb-0 rise print:animate-none">
+
+      <!-- Ações no topo (sem barra flutuante): navegação e impressão primeiro, a decisão por último. -->
+      <div class="barra-acoes flex items-center justify-end flex-wrap gap-2 mb-4 print:hidden" role="toolbar" aria-label="Ações da solicitação">
+        <p-button icon="pi pi-arrow-left" label="Voltar" severity="secondary" [outlined]="true" (onClick)="voltar()"
+          styleClass="hidden md:inline-flex"></p-button>
+        <p-button icon="pi pi-print" label="Imprimir" severity="secondary" [outlined]="true" (onClick)="imprimir()"
+          styleClass="hidden md:inline-flex"></p-button>
+        @if (item.acoes.podeEditar) {
+          <p-button icon="pi pi-pencil" label="Editar" severity="secondary" [outlined]="true" (onClick)="editar()"></p-button>
+        }
+        @if (item.acoes.podeCancelar) {
+          <p-button icon="pi pi-ban" label="Cancelar solicitação" severity="danger" [outlined]="true" (onClick)="abrirAcao('CANCELAR')"></p-button>
+        }
+        @if (item.acoes.podeSubmeter) {
+          <p-button icon="pi pi-send" label="Enviar para aprovação" [loading]="processando()" (onClick)="submeter()"></p-button>
+        }
+        @if (item.acoes.podeDesfazerDecisao && podeDecidir) {
+          <p-button icon="pi pi-undo" label="Desfazer decisão" severity="warn" [outlined]="true" (onClick)="abrirAcao('DESFAZER')"></p-button>
+        }
+        @if (item.acoes.podeDecidir && podeDecidir) {
+          <p-button icon="pi pi-times" label="Rejeitar" severity="danger" [outlined]="true" (onClick)="abrirAcao('REJEITAR')"></p-button>
+          <p-button icon="pi pi-check" label="Aprovar" (onClick)="abrirAcao('APROVAR')"></p-button>
+        }
+        @if (item.acoes.podeDecidir && !podeDecidir) {
+          <geo-status tone="warning" icon="pi-lock">Sem permissão para decidir</geo-status>
+        }
+      </div>
 
       <!-- 1. CABEÇALHO CORPORATIVO -->
       <div class="grid grid-cols-3 items-center border-b border-slate-200 dark:border-slate-800 pb-6 mb-6 print:border-slate-300 print:pb-3 print:mb-3" aria-label="Cabeçalho institucional">
@@ -338,7 +365,7 @@
       <div class="mb-8 print:hidden">
         <p-accordion [value]="historicoAberto()" (valueChange)="historicoAberto.set($event)">
           <p-accordion-panel value="historico">
-            <p-accordion-header class="!box-border">
+            <p-accordion-header class="box-border">
               <div class="flex items-center justify-between w-full gap-3 min-w-0 pr-2">
                 <div class="flex items-center gap-2.5 min-w-0">
                   <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
@@ -380,40 +407,6 @@
           Documento emitido eletronicamente via Sistema GEO · Financeiro
         </div>
       </footer>
-    </div>
-
-    <!-- 11. AÇÕES FLUTUANTES: navegação e impressão à esquerda, a decisão por último. -->
-    <!-- No celular só ficam as ações sobre a solicitação; voltar e imprimir são do navegador. -->
-    <div class="barra-acoes fixed inset-x-0 bottom-0 px-4 pb-4 pt-6 md:inset-x-auto md:bottom-8 md:right-12 md:p-0 flex items-center justify-end flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
-      <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
-      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
-      @if (item.acoes.podeEditar) {
-        <p-button icon="pi pi-pencil" label="EDITAR" (onClick)="editar()"
-          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
-      }
-      @if (item.acoes.podeCancelar) {
-        <p-button icon="pi pi-ban" label="CANCELAR SOLICITAÇÃO" (onClick)="abrirAcao('CANCELAR')"
-          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-danger)] !text-[var(--geo-danger-text)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-soft)] cursor-pointer"></p-button>
-      }
-      @if (item.acoes.podeSubmeter) {
-        <p-button icon="pi pi-send" label="ENVIAR PARA APROVAÇÃO" [loading]="processando()" (onClick)="submeter()"
-          styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"></p-button>
-      }
-      @if (item.acoes.podeDesfazerDecisao && podeDecidir) {
-        <p-button icon="pi pi-undo" label="DESFAZER DECISÃO" (onClick)="abrirAcao('DESFAZER')"
-          styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"></p-button>
-      }
-      @if (item.acoes.podeDecidir && podeDecidir) {
-        <p-button icon="pi pi-times" label="REJEITAR" (onClick)="abrirAcao('REJEITAR')"
-          styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"></p-button>
-        <p-button icon="pi pi-check" label="APROVAR" (onClick)="abrirAcao('APROVAR')"
-          styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"></p-button>
-      }
-      @if (item.acoes.podeDecidir && !podeDecidir) {
-        <geo-status tone="warning" icon="pi-lock">Sem permissão para decidir</geo-status>
-      }
     </div>
 
     <app-solicitacao-decisao-drawer [(visivel)]="drawerAberto" [acao]="acao()" [solicitacao]="item"

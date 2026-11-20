@@ -75,6 +75,11 @@ const PRIORIDADES: GeoSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Toda
     AjudaListagemComponent,
     ChamadoNovoDrawerComponent
   ],
+  styles: [`
+    /* Células em uma linha (como /obras): o texto completo fica no title. */
+    .cel-linha { display: block; max-width: var(--cel-max, 18rem); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cel-nowrap { white-space: nowrap; }
+  `],
   template: `
     <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="!modoCentral" (newRequested)="novo()">
       <geo-page-header
@@ -134,6 +139,7 @@ const PRIORIDADES: GeoSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Toda
         [filtered]="lista.filtered()"
         [exportRows]="exportar"
         [exportLimit]="limiteExportacao"
+        [textFit]="ajusteTexto"
         [(page)]="lista.page"
         [(pageSize)]="lista.pageSize"
         [(sort)]="lista.sort"
@@ -144,22 +150,22 @@ const PRIORIDADES: GeoSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Toda
         (emptyAction)="novo()"
         (rowActivate)="abrir($event)"
       >
-        <ng-template geoCell="protocolo" let-row><span class="geo-cell-strong">{{ row.protocolo }}</span></ng-template>
+        <ng-template geoCell="protocolo" let-row><span class="geo-cell-strong cel-nowrap">{{ row.protocolo }}</span></ng-template>
         <ng-template geoCell="assunto" let-row>
-          <span>{{ row.assunto }}</span>
-          <span class="geo-cell-muted">{{ row.topico?.nome }}</span>
+          <span class="cel-linha" style="--cel-max: 16rem" [title]="row.assunto">{{ row.assunto }}</span>
+          <span class="geo-cell-muted cel-linha" style="--cel-max: 16rem" [title]="row.topico?.nome ?? ''">{{ row.topico?.nome }}</span>
         </ng-template>
         <ng-template geoCell="atendimento" let-row>
-          <span>{{ row.equipeAtendimento?.nome }}</span>
+          <span class="cel-linha" style="--cel-max: 10rem" [title]="row.equipeAtendimento?.nome ?? ''">{{ row.equipeAtendimento?.nome }}</span>
           @if (modoCentral) {
-            <span class="geo-cell-muted">{{ nomeUsuario(row.usuarioResponsavelId) }}</span>
+            <span class="geo-cell-muted cel-linha" style="--cel-max: 10rem">{{ nomeUsuario(row.usuarioResponsavelId) }}</span>
           }
         </ng-template>
         <ng-template geoCell="prioridade" let-row>
           <geo-status [tone]="prioridadeTom(row.prioridade)" icon="pi-flag">{{ prioridadeLabel(row.prioridade) }}</geo-status>
         </ng-template>
         <ng-template geoCell="status" let-row>
-          <geo-status [tone]="statusTom(row.status)" [icon]="statusIcone(row.status)">{{ statusLabel(row.status) }}</geo-status>
+          <geo-status class="cel-nowrap" [tone]="statusTom(row.status)" [icon]="statusIcone(row.status)">{{ statusLabel(row.status) }}</geo-status>
         </ng-template>
         <ng-template geoCell="prazo" let-row>
           <geo-status [tone]="prazoTom(row)" [icon]="prazoIcon(row)" emphasis="outline">{{ prazoLabel(row) }}</geo-status>
@@ -275,6 +281,8 @@ export class ChamadosListaComponent implements OnInit {
     { key: 'ultima', header: 'Última interação', type: 'date', sortField: 'dataUltimaInteracao', value: (c) => c.dataUltimaInteracao }
   ];
   protected readonly rotulo = (c: Chamado) => c.protocolo;
+  /** Linhas de uma linha só (como /obras): o texto longo fica no title da célula. */
+  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 1 } as const;
 
   constructor() {
     this.service.listarTopicosAtivos().subscribe({ next: (t) => this.topicos.set(t), error: () => undefined });

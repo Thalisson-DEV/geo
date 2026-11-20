@@ -401,6 +401,7 @@ export class DashboardFinanceiroComponent implements OnInit {
   protected readonly rotuloItemRanking = (i: RankingFinanceiroItem) => nomeDoItem(i);
   protected readonly pendenciaDe = (p: unknown) => p as PendenciaFinanceira;
   protected readonly umaCasa = umaCasa;
+  protected readonly plural = plural;
   protected readonly Math = Math;
 
   // ------------------------------------------------------------------ análise detalhada
@@ -725,13 +726,13 @@ export class DashboardFinanceiroComponent implements OnInit {
             }),
             metricaPainel('corteNaAprovacao', 'Cortado ao aprovar', d.valores.corteNaAprovacao, 'moeda', { descricao: `${formatarPercentual(d.valores.percentualCorte)} das aprovadas` }),
             metricaPainel('filaDecisao', 'Pedidos esperando decisão (histórico)', fila.quantidade, 'inteiro', {
-              descricao: `${formatarMoeda(fila.valor)} parados; o mais antigo há ${fila.maisAntigoDias} dia(s); ${fila.acimaDoEscalonamento} há mais de 15 dias`
+              descricao: `${formatarMoeda(fila.valor)} parados; o mais antigo há ${plural(fila.maisAntigoDias, 'dia', 'dias')}; ${fila.acimaDoEscalonamento} há mais de 15 dias`
             }),
             metricaPainel('p90DiasAteDecisao', 'P90 de dias até a decisão', d.ciclo.p90DiasAteDecisao, 'dias', {
-              descricao: `mediana ${d.ciclo.medianaDiasAteDecisao.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} dia(s)`
+              descricao: `mediana ${umaCasa(d.ciclo.medianaDiasAteDecisao)} ${d.ciclo.medianaDiasAteDecisao === 1 ? 'dia' : 'dias'}`
             }),
             metricaPainel('valorVencido', 'Vencido e sem comprovante', d.valores.valorVencido, 'moeda', {
-              descricao: `${d.valores.quantidadeVencida} despesa(s) vencidas; ${formatarMoeda(d.valores.valorAVencer)} vencem nos próximos 30 dias`
+              descricao: `${plural(d.valores.quantidadeVencida, 'despesa vencida', 'despesas vencidas')}; ${formatarMoeda(d.valores.valorAVencer)} vencem nos próximos 30 dias`
             }),
             metricaPainel('coberturaFiscal', 'Aprovadas com nota ou boleto', d.conformidade.coberturaFiscal, 'percentual', {
               descricao: `${d.conformidade.aprovadasSemDocumentoFiscal} sem documento fiscal (${formatarMoeda(d.conformidade.valorSemDocumentoFiscal)}); ${d.conformidade.aguardandoConferencia} documentos esperando conferência`

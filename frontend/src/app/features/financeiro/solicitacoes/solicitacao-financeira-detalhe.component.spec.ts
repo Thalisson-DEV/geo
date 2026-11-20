@@ -177,13 +177,13 @@ describe('SolicitacaoFinanceiraDetalheComponent', () => {
   it('oferece aprovar e rejeitar só a quem tem alçada', async () => {
     await montar(base, [], []);
 
-    expect(texto()).not.toContain('APROVAR');
+    expect(texto()).not.toContain('Aprovar');
     expect(texto()).toContain('Sem permissão para decidir');
   });
 
   it('oferece desfazer a decisão de uma aprovada e chama o serviço com o motivo', async () => {
     await montar(aprovada);
-    expect(texto()).toContain('DESFAZER DECISÃO');
+    expect(texto()).toContain('Desfazer decisão');
 
     component.abrirAcao('DESFAZER');
     component.confirmar({ acao: 'DESFAZER', texto: 'Fornecedor trocou a proposta', valorAprovado: null });

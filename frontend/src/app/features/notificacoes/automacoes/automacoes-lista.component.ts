@@ -58,7 +58,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
       </geo-page-header>
 
       @if (aprovacoes().length) {
-        <geo-callout tone="warning" [dense]="true"><span>{{ aprovacoes().length }} aprovação(ões) aguardando você.</span>
+        <geo-callout tone="warning" [dense]="true"><span>{{ aprovacoes().length }} {{ aprovacoes().length === 1 ? 'aprovação' : 'aprovações' }} aguardando você.</span>
           @for (a of aprovacoes().slice(0, 3); track a.id) {
             <a class="aut-link" [routerLink]="['/notificacoes/automacoes/aprovacoes', a.id]">{{ a.titulo }}</a>
           }

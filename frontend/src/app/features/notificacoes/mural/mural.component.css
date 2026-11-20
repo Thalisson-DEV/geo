@@ -121,31 +121,23 @@
   border: 1px solid var(--geo-border);
   border-radius: var(--geo-radius-lg);
   background: var(--geo-surface);
-  box-shadow: var(--geo-shadow-sm);
-  transition: border-color var(--geo-duration-normal) var(--geo-ease-standard), box-shadow var(--geo-duration-normal) var(--geo-ease-standard),
-    transform var(--geo-duration-normal) var(--geo-ease-standard);
+  transition: border-color var(--geo-duration-normal) var(--geo-ease-standard), box-shadow var(--geo-duration-normal) var(--geo-ease-standard);
   animation: mu-entra 280ms var(--geo-ease-standard) both;
 }
 
-.mu-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 3px;
-  background: var(--mu-tom);
-}
-
+/* Sem sombra em repouso nem faixa colorida: o tipo aparece no ícone e no rótulo. */
 .mu-card:hover {
-  border-color: color-mix(in srgb, var(--mu-tom) 40%, var(--geo-border));
-  box-shadow: var(--geo-shadow-md);
-  transform: translateY(-1px);
+  border-color: var(--geo-border-strong);
+  box-shadow: var(--geo-shadow-sm);
 }
 
+.mu-card:focus-within {
+  border-color: var(--geo-border-strong);
+}
+
+/* Destaque: borda um pouco mais forte, sem degradê. */
 .mu-card--destaque {
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--mu-tom) 10%, transparent), transparent 60%),
-    var(--geo-surface);
-  border-color: color-mix(in srgb, var(--mu-tom) 30%, var(--geo-border));
+  border-color: var(--geo-border-strong);
 }
 
 .mu-card__topo {

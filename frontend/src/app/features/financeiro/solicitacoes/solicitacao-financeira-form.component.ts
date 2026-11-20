@@ -5,12 +5,12 @@ import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { DividerModule } from 'primeng/divider';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectModule } from 'primeng/select';
 import { StepperModule } from 'primeng/stepper';
 import { distinctUntilChanged, filter } from 'rxjs';
+import { GeoButtonComponent, GeoPageHeaderComponent } from '@geo/ui';
 import {
   CampoFormulario,
   CompraVinculada,
@@ -55,7 +55,8 @@ interface RascunhoSolicitacaoFinanceira {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    BreadcrumbModule,
+    GeoButtonComponent,
+    GeoPageHeaderComponent,
     ButtonModule,
     DividerModule,
     ProgressSpinnerModule,
@@ -66,29 +67,25 @@ interface RascunhoSolicitacaoFinanceira {
   ],
   template: `
     <div class="flex flex-col gap-4 pb-28">
-      <div class="flex justify-between items-center">
-        <p-breadcrumb [model]="breadcrumbItems" styleClass="!bg-transparent !border-0 !p-0"></p-breadcrumb>
-        <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary"
-          (onClick)="voltar()" styleClass="!text-slate-400 dark:!text-slate-400 !text-[10px] !font-medium"></p-button>
-      </div>
+      <geo-page-header
+        [title]="activeStep() === 5 ? 'Solicitação enviada' : (editando() ? 'Editar' : 'Nova') + ' solicitação de ' + (tipo === 'COMPRA' ? 'compra' : 'pagamento')"
+        [icon]="tipo === 'COMPRA' ? 'pi pi-shopping-cart' : 'pi pi-credit-card'"
+        [description]="activeStep() === 5 ? 'A solicitação foi registrada e encaminhada para aprovação.' : 'Escolha o modelo, preencha os dados, revise e anexe os documentos antes de enviar.'"
+      >
+        <geo-button actions variant="secondary" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+      </geo-page-header>
       @if (loading()) {
         <div class="form-shell max-w-4xl w-full mx-auto min-h-96 flex flex-col items-center justify-center gap-3">
           <p-progress-spinner strokeWidth="3" [style]="{ width: '36px', height: '36px' }" />
-          <span class="text-[11px] text-slate-400 dark:text-slate-500">Preparando o formulário...</span>
+          <span class="text-xs text-slate-400 dark:text-slate-500">Preparando o formulário...</span>
         </div>
       } @else {
         <div class="form-shell max-w-4xl w-full mx-auto">
           <div class="form-shell__header">
-            <div class="flex items-center gap-2 mb-1">
-              <i [class]="(tipo === 'COMPRA' ? 'pi pi-shopping-cart' : 'pi pi-credit-card') + ' text-primary-700 dark:text-primary-400 text-xs'"></i>
-              <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                {{ activeStep() === 5 ? 'Solicitação concluída' : (editando() ? 'Editar' : 'Nova') + ' solicitação de ' + (tipo === 'COMPRA' ? 'compra' : 'pagamento') }}
-              </span>
-            </div>
-            <h1 class="text-base md:text-lg font-bold text-slate-800 dark:text-slate-100">
+            <h2 class="form-shell__titulo">
               {{ activeStep() === 5 ? 'Solicitação enviada com sucesso!' : (schema()?.titulo || 'Selecione o formulário adequado') }}
-            </h1>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+            </h2>
+            <p class="form-shell__descricao">
               {{ activeStep() === 5 ? 'A solicitação foi registrada no sistema e encaminhada para aprovação.' : (schema()?.descricao || 'Os campos serão carregados conforme o modelo escolhido.') }}
             </p>
           </div>
@@ -103,7 +100,7 @@ interface RascunhoSolicitacaoFinanceira {
                       <span class="step-circle" [ngClass]="value <= activeStep() ? 'step-active' : 'step-inactive'">
                         <i class="pi pi-file-edit text-xs"></i>
                       </span>
-                      <span class="step-label" [ngClass]="value <= activeStep() ? 'text-primary-600 dark:text-primary-400 font-bold' : 'text-slate-400 dark:text-slate-500 font-medium'">1. Modelo</span>
+                      <span class="step-label" [ngClass]="value <= activeStep() ? 'step-label--ativo' : 'step-label--inativo'">1. Modelo</span>
                     </button>
                   </ng-template>
                 </p-step>
@@ -114,7 +111,7 @@ interface RascunhoSolicitacaoFinanceira {
                       <span class="step-circle" [ngClass]="value <= activeStep() ? 'step-active' : 'step-inactive'">
                         <i class="pi pi-pencil text-xs"></i>
                       </span>
-                      <span class="step-label" [ngClass]="value <= activeStep() ? 'text-primary-600 dark:text-primary-400 font-bold' : 'text-slate-400 dark:text-slate-500 font-medium'">2. Dados</span>
+                      <span class="step-label" [ngClass]="value <= activeStep() ? 'step-label--ativo' : 'step-label--inativo'">2. Dados</span>
                     </button>
                   </ng-template>
                 </p-step>
@@ -125,7 +122,7 @@ interface RascunhoSolicitacaoFinanceira {
                       <span class="step-circle" [ngClass]="value <= activeStep() ? 'step-active' : 'step-inactive'">
                         <i class="pi pi-check text-xs"></i>
                       </span>
-                      <span class="step-label" [ngClass]="value <= activeStep() ? 'text-primary-600 dark:text-primary-400 font-bold' : 'text-slate-400 dark:text-slate-500 font-medium'">3. Revisão</span>
+                      <span class="step-label" [ngClass]="value <= activeStep() ? 'step-label--ativo' : 'step-label--inativo'">3. Revisão</span>
                     </button>
                   </ng-template>
                 </p-step>
@@ -136,7 +133,7 @@ interface RascunhoSolicitacaoFinanceira {
                       <span class="step-circle" [ngClass]="value <= activeStep() ? 'step-active' : 'step-inactive'">
                         <i class="pi pi-paperclip text-xs"></i>
                       </span>
-                      <span class="step-label" [ngClass]="value <= activeStep() ? 'text-primary-600 dark:text-primary-400 font-bold' : 'text-slate-400 dark:text-slate-500 font-medium'">4. Documentos</span>
+                      <span class="step-label" [ngClass]="value <= activeStep() ? 'step-label--ativo' : 'step-label--inativo'">4. Documentos</span>
                     </button>
                   </ng-template>
                 </p-step>
@@ -146,7 +143,7 @@ interface RascunhoSolicitacaoFinanceira {
                       <span class="step-circle" [ngClass]="value <= activeStep() ? 'step-active' : 'step-inactive'">
                         <i class="pi pi-check-circle text-xs"></i>
                       </span>
-                      <span class="step-label" [ngClass]="value <= activeStep() ? 'text-primary-600 dark:text-primary-400 font-bold' : 'text-slate-400 dark:text-slate-500 font-medium'">5. Conclusão</span>
+                      <span class="step-label" [ngClass]="value <= activeStep() ? 'step-label--ativo' : 'step-label--inativo'">5. Conclusão</span>
                     </button>
                   </ng-template>
                 </p-step>
@@ -157,33 +154,32 @@ interface RascunhoSolicitacaoFinanceira {
                   <ng-template #content>
                     <div class="flex flex-col gap-5 mt-6">
                       <div class="section-marker">
-                        <i class="pi pi-file-edit text-primary-600 dark:text-primary-400 text-sm"></i>
-                        <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm tracking-tight">1. Modelo do Formulário</span>
+                        <i class="pi pi-file-edit section-icon"></i>
+                        <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm">1. Modelo do Formulário</span>
                       </div>
                       <div class="flex flex-col gap-1.5 md:pl-5">
-                        <label class="text-[11px] font-medium text-slate-700 dark:text-slate-200">Modelo do formulário <span class="text-red-500 font-bold">*</span></label>
+                        <label class="text-xs font-medium text-slate-700 dark:text-slate-200">Modelo do formulário <span class="text-red-500 font-bold">*</span></label>
                         <p-select [(ngModel)]="varianteSelecionada" [options]="variantes()"
                           optionLabel="titulo" optionValue="id" [filter]="true" filterBy="titulo,descricao"
-                          placeholder="Selecione o tipo de solicitação" class="w-full w-full"
+                          placeholder="Selecione o tipo de solicitação" class="w-full"
                           size="small" [fluid]="true" appendTo="body">
                           <ng-template #item let-variante>
                             <div class="flex flex-col py-1">
-                              <span class="text-[11px] font-medium text-slate-700 dark:text-slate-200">
+                              <span class="text-xs font-medium text-slate-700 dark:text-slate-200">
                                 {{ variante.titulo }}
                                 @if (variante.padrao) { <span class="ml-1" [ngClass]="tipo === 'COMPRA' ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">(Padrão)</span> }
                               </span>
-                              <span class="text-[9px] text-slate-400 dark:text-slate-500">{{ variante.descricao || variante.codigo }}</span>
+                              <span class="text-xs text-slate-400 dark:text-slate-500">{{ variante.descricao || variante.codigo }}</span>
                             </div>
                           </ng-template>
                         </p-select>
-                        <span class="text-[9px] text-slate-400 dark:text-slate-500 italic">
+                        <span class="text-xs text-slate-400 dark:text-slate-500 italic">
                           Escolha o modelo que melhor representa a necessidade.
                         </span>
                       </div>
                       <div class="flex justify-end mt-4">
                         <p-button label="Próximo" icon="pi pi-arrow-right" iconPos="right"
-                          [disabled]="!varianteSelecionada()" (onClick)="avancarModelo()"
-                          styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !py-2.5 !px-6 !font-bold !text-[11px]"></p-button>
+                          [disabled]="!varianteSelecionada()" (onClick)="avancarModelo()"></p-button>
                       </div>
                     </div>
                   </ng-template>
@@ -193,23 +189,23 @@ interface RascunhoSolicitacaoFinanceira {
                   <ng-template #content>
                     <div class="mt-6">
                       <div class="section-marker mb-4">
-                        <i class="pi pi-pencil text-primary-600 dark:text-primary-400 text-sm"></i>
-                        <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm tracking-tight">2. Preenchimento dos Dados</span>
+                        <i class="pi pi-pencil section-icon"></i>
+                        <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm">2. Preenchimento dos Dados</span>
                       </div>
 
                       @if (compraVinculada(); as compra) {
-                        <div class="mt-2 mb-5 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 flex items-center justify-between gap-4 md:ml-5">
+                        <div class="mt-2 mb-5 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 flex items-center justify-between gap-4 md:ml-5">
                           <div>
                             <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">
                               Origem: compra #{{ compra.numero }}
                             </span>
-                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                               Os dados herdados vieram dela. O valor é apenas uma sugestão — ajuste se o
                               pagamento for diferente do que foi autorizado.
                             </p>
                           </div>
                           <div class="text-right shrink-0">
-                            <span class="text-[9px] text-slate-400 uppercase">Autorizado na compra</span>
+                            <span class="text-xs text-slate-400">Autorizado na compra</span>
                             <p class="text-sm font-bold text-slate-800 dark:text-slate-100">{{ compra.valorAprovado | currency:'BRL' }}</p>
                           </div>
                         </div>
@@ -224,11 +220,9 @@ interface RascunhoSolicitacaoFinanceira {
                       }
                       <div class="flex justify-between mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
                         <p-button label="Voltar" icon="pi pi-arrow-left" [text]="true"
-                          [disabled]="editando()" (onClick)="voltarModelo()"
-                          styleClass="!text-primary-700 dark:!text-primary-400 !font-bold !text-[11px]"></p-button>
+                          [disabled]="editando()" (onClick)="voltarModelo()"></p-button>
                         <p-button label="Revisar" icon="pi pi-arrow-right" iconPos="right"
-                          (onClick)="irParaRevisao()"
-                          styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !py-2.5 !px-6 !font-bold !text-[11px]"></p-button>
+                          (onClick)="irParaRevisao()"></p-button>
                       </div>
                     </div>
                   </ng-template>
@@ -238,8 +232,8 @@ interface RascunhoSolicitacaoFinanceira {
                   <ng-template #content>
                     <div class="mt-6 flex flex-col gap-6">
                       <div class="section-marker">
-                        <i class="pi pi-eye text-primary-600 dark:text-primary-400 text-sm"></i>
-                        <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm tracking-tight">3. Revisão do Preenchimento</span>
+                        <i class="pi pi-eye section-icon"></i>
+                        <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm">3. Revisão do Preenchimento</span>
                       </div>
 
                       @for (grupo of gruposParaRevisao(); track grupo.grupo) {
@@ -252,23 +246,23 @@ interface RascunhoSolicitacaoFinanceira {
                               @if (valorResumo(campo); as valor) {
                                 <div class="review-card"
                                   [class.md:col-span-2]="campo.tipoCampo === 'TEXTO_LONGO'">
-                                  <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 break-words leading-tight">{{ campo.rotulo }}</span>
-                                  <p class="text-[11px] text-slate-700 dark:text-slate-200 font-medium whitespace-pre-wrap mt-1">{{ valor }}</p>
+                                  <span class="text-xs font-medium text-slate-500 dark:text-slate-400 break-words leading-tight">{{ campo.rotulo }}</span>
+                                  <p class="text-xs text-slate-700 dark:text-slate-200 font-medium whitespace-pre-wrap mt-1">{{ valor }}</p>
                                 </div>
                               }
                             }
                           </div>
                         </div>
                       }
-                      <div class="bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 flex items-start gap-2.5">
-                        <i class="pi pi-info-circle text-primary-700 dark:text-primary-400 text-xs mt-0.5"></i>
-                        <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">Primeiro criaremos o rascunho. Na próxima etapa você poderá incluir orçamentos, nota fiscal, boleto, fotos e outros documentos antes do envio.</p>
+                      <div class="bg-slate-50 dark:bg-slate-800/50 p-3.5 rounded-lg border border-slate-100 dark:border-slate-800 flex items-start gap-2.5">
+                        <i class="pi pi-info-circle text-zinc-500 dark:text-zinc-400 text-xs mt-0.5"></i>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Primeiro criaremos o rascunho. Na próxima etapa você poderá incluir orçamentos, nota fiscal, boleto, fotos e outros documentos antes do envio.</p>
                       </div>
                       <div class="flex justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                         <p-button label="Voltar" icon="pi pi-arrow-left" [text]="true"
-                          (onClick)="activeStep.set(2)" styleClass="!text-primary-700 dark:!text-primary-400 !font-bold !text-[11px]"></p-button>
+                          (onClick)="activeStep.set(2)"></p-button>
                         <p-button label="Salvar e ir para anexos" icon="pi pi-paperclip" [loading]="saving()"
-                          (onClick)="salvar()" styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !py-2.5 !px-8 !font-bold !text-[11px]"></p-button>
+                          (onClick)="salvar()"></p-button>
                       </div>
                     </div>
                   </ng-template>
@@ -279,17 +273,17 @@ interface RascunhoSolicitacaoFinanceira {
                     @if (solicitacao; as rascunho) {
                       <div class="mt-6">
                         <div class="section-marker mb-4">
-                          <i class="pi pi-paperclip text-primary-600 dark:text-primary-400 text-sm"></i>
-                          <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm tracking-tight">4. Documentos e Comprovantes</span>
+                          <i class="pi pi-paperclip section-icon"></i>
+                          <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm">4. Documentos e Comprovantes</span>
                         </div>
 
-                        <div class="border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
+                        <div class="border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-3 mb-6 flex items-start gap-3">
                           <i class="pi pi-check-circle text-emerald-600 dark:text-emerald-400 text-sm mt-0.5"></i>
                           <div>
                             <p class="text-xs font-bold text-slate-700 dark:text-slate-200">
                               Rascunho #{{ rascunho.numero }} salvo
                             </p>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                               Anexe o que já tiver em mãos. A nota fiscal e o boleto podem ser adicionados depois, mesmo após a aprovação.
                             </p>
                           </div>
@@ -300,12 +294,10 @@ interface RascunhoSolicitacaoFinanceira {
 
                         <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 mt-8 pt-5 border-t border-slate-100 dark:border-slate-800">
                           <p-button label="Continuar depois" icon="pi pi-save" [text]="true"
-                            (onClick)="abrirDetalhe()"
-                            styleClass="!text-slate-500 dark:!text-slate-400 !font-bold !text-[11px]"></p-button>
+                            (onClick)="abrirDetalhe()"></p-button>
                           @if (rascunho.acoes.podeSubmeter) {
                             <p-button label="Enviar para aprovação" icon="pi pi-send"
-                              [loading]="saving()" (onClick)="submeter()"
-                              styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !py-2.5 !px-8 !font-bold !text-[11px]"></p-button>
+                              [loading]="saving()" (onClick)="submeter()"></p-button>
                           }
                         </div>
                       </div>
@@ -318,18 +310,18 @@ interface RascunhoSolicitacaoFinanceira {
                     @if (solicitacao; as sol) {
                       <div class="mt-6 flex flex-col gap-6">
                         <div
-                          class="p-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/40 dark:bg-emerald-950/20 flex flex-col items-center text-center gap-3"
+                          class="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 flex flex-col items-center text-center gap-3"
                         >
                           <div
-                            class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/50 dark:text-emerald-400 flex items-center justify-center text-xl"
+                            class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 flex items-center justify-center text-lg"
                           >
                             <i class="pi pi-check"></i>
                           </div>
                           <div>
-                            <h2 class="text-base font-semibold text-emerald-900 dark:text-emerald-200">
+                            <h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                               Solicitação #{{ sol.numero }} enviada com sucesso!
                             </h2>
-                            <p class="text-xs text-emerald-700 dark:text-emerald-400 mt-1 max-w-md">
+                            <p class="text-[13px] text-zinc-600 dark:text-zinc-400 mt-1 max-w-md">
                               A solicitação de {{ tipo === 'COMPRA' ? 'compra' : 'pagamento' }} foi finalizada e encaminhada para o fluxo de aprovação.
                             </p>
                           </div>
@@ -337,10 +329,10 @@ interface RascunhoSolicitacaoFinanceira {
 
                         <div class="flex flex-col gap-3">
                           <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">Resumo da Solicitação</span>
-                          <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div class="p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div class="flex items-center gap-3">
                               <span
-                                class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300 text-base"
+                                class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 text-base"
                               >
                                 <i [class]="tipo === 'COMPRA' ? 'pi pi-shopping-cart' : 'pi pi-credit-card'"></i>
                               </span>
@@ -348,7 +340,7 @@ interface RascunhoSolicitacaoFinanceira {
                                 <p class="text-xs font-semibold text-slate-800 dark:text-slate-100">
                                   {{ sol.formulario.titulo }} <span class="font-normal text-slate-500 dark:text-slate-400">(#{{ sol.numero }})</span>
                                 </p>
-                                <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-400 dark:text-slate-500">
+                                <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-400 dark:text-slate-500">
                                   <span>ID: {{ idCurto(sol.id) }}</span>
                                   @if (sol.valor) {
                                     <span>·</span>
@@ -361,10 +353,9 @@ interface RascunhoSolicitacaoFinanceira {
                               label="Abrir Detalhe"
                               icon="pi pi-arrow-right"
                               iconPos="right"
-                              size="small"
+                              
                               severity="primary"
                               (onClick)="abrirDetalhe()"
-                              styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !py-2 !px-4 !font-bold !text-[11px]"
                             />
                           </div>
                         </div>
@@ -375,18 +366,16 @@ interface RascunhoSolicitacaoFinanceira {
                             icon="pi pi-plus"
                             [text]="true"
                             severity="secondary"
-                            size="small"
+                            
                             (onClick)="novaSolicitacao()"
-                            styleClass="!text-primary-700 dark:!text-primary-400 !font-bold !text-[11px]"
                           />
                           <p-button
                             label="Voltar para a Lista"
                             icon="pi pi-list"
-                            size="small"
+                            
                             severity="secondary"
                             [outlined]="true"
                             (onClick)="voltar()"
-                            styleClass="!text-slate-600 dark:!text-slate-300 !font-bold !text-[11px]"
                           />
                         </div>
                       </div>
@@ -401,29 +390,27 @@ interface RascunhoSolicitacaoFinanceira {
     </div>
   `,
   styles: [`
-    .form-shell { background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--p-zinc-100); }
-    :host-context(.app-dark) .form-shell, :host-context(.dark) .form-shell { background: var(--p-zinc-900) !important; border-color: var(--p-zinc-700) !important; }
-    .form-shell__header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--p-zinc-100); display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
-    :host-context(.app-dark) .form-shell__header, :host-context(.dark) .form-shell__header { border-bottom-color: var(--p-zinc-700) !important; }
-    .form-shell__body { padding: 1.5rem; }
-    @media (min-width: 768px) { .form-shell__header, .form-shell__body { padding-left: 2rem; padding-right: 2rem; } }
-    .step-button { background: transparent; border: 0; display: inline-flex; flex-direction: column; align-items: center; gap: 0.375rem; cursor: pointer; padding: 0.25rem 0.5rem; }
+    /* Cores por token (--geo-*): claro e escuro sem regra por tema. Card só com borda. */
+    .form-shell { background: var(--geo-surface); border-radius: var(--geo-radius-lg); border: 1px solid var(--geo-border); }
+    .form-shell__header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--geo-border); display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+    .form-shell__titulo { margin: 0; color: var(--geo-foreground); font-size: 1rem; font-weight: 600; }
+    .form-shell__descricao { margin: 0; color: var(--geo-foreground-muted); font-size: 13px; }
+    .form-shell__body { padding: 1.25rem 1.5rem; }
+    .step-button { background: transparent; border: 0; display: inline-flex; flex-direction: column; align-items: center; gap: 0.375rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: var(--geo-radius-md); }
+    .step-button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .step-button:disabled { cursor: default; }
-    .step-circle { border-radius: 9999px; border-width: 2px; width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s; }
-    .step-active { background: var(--p-primary-600); color: white; border-color: var(--p-primary-600); }
-    :host-context(.app-dark) .step-active, :host-context(.dark) .step-active { background: var(--p-primary-700) !important; border-color: var(--p-primary-700) !important; color: var(--p-surface-0) !important; }
-    .step-inactive { border-color: var(--p-zinc-200); color: var(--p-zinc-400); background: transparent; }
-    :host-context(.app-dark) .step-inactive, :host-context(.dark) .step-inactive { border-color: var(--p-zinc-700) !important; color: var(--p-zinc-500) !important; background: var(--p-zinc-900) !important; }
-    .step-label { font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; }
-    .section-marker { display: flex; align-items: center; gap: 0.5rem; border-left: 2px solid var(--p-primary-500); padding-left: 0.75rem; margin-bottom: 0.75rem; }
-    :host-context(.app-dark) .section-marker, :host-context(.dark) .section-marker { border-left-color: var(--p-primary-400) !important; }
-    .section-marker span { color: var(--p-zinc-700); font-size: 13px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
-    :host-context(.app-dark) .section-marker span, :host-context(.dark) .section-marker span { color: var(--p-zinc-100) !important; }
-    .review-card { border: 1px solid var(--p-zinc-100); border-radius: 0.5rem; background: #f8fafc80; padding: 0.65rem 0.75rem; }
-    :host-context(.app-dark) .review-card, :host-context(.dark) .review-card { border-color: var(--p-zinc-700) !important; background: rgba(15, 23, 42, 0.8) !important; }
-    .review-card > span { color: var(--p-zinc-400); font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; }
-    :host-context(.app-dark) .review-card > span, :host-context(.dark) .review-card > span { color: var(--p-zinc-400) !important; }
-    :host-context(.app-dark) .review-card p, :host-context(.dark) .review-card p { color: var(--p-surface-0) !important; }
+    .step-circle { border-radius: 9999px; border: 1px solid; width: 1.75rem; height: 1.75rem; display: inline-flex; align-items: center; justify-content: center; transition: background-color var(--geo-duration-normal, 150ms), border-color var(--geo-duration-normal, 150ms); }
+    .step-active { background: var(--geo-brand); color: var(--geo-brand-foreground); border-color: var(--geo-brand); }
+    .step-inactive { border-color: var(--geo-border-strong); color: var(--geo-foreground-subtle); background: var(--geo-surface); }
+    .step-label { font-size: var(--geo-font-caption); font-weight: 500; text-transform: none; }
+    .step-label--ativo { color: var(--geo-foreground); font-weight: 600; }
+    .step-label--inativo { color: var(--geo-foreground-subtle); }
+    .section-marker { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .section-marker span { color: var(--geo-foreground); font-size: 1rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
+    .section-icon { color: var(--geo-foreground-muted); font-size: 1rem; }
+    .review-card { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); padding: 0.625rem 0.75rem; }
+    .review-card > span { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 500; text-transform: none; }
+    .review-card p { color: var(--geo-foreground); }
   `]
 })
 export class SolicitacaoFinanceiraFormComponent {

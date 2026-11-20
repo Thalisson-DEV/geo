@@ -106,14 +106,14 @@ export function formatarDuracao(ms: number | null): string {
                   @if (i.tipo === 'gatilho') { <span class="aut-node-eyebrow">QUANDO COMEÇA</span> }
                   <span class="aut-node-title">{{ titulo(i) }}</span>
                   @if (subtitulo(i); as s) { <span class="aut-node-sub" [title]="s">{{ s }}</span> }
-                  @if (i.tipo === 'passo' && i.recolhido) { <span class="aut-node-sub aut-node-count">{{ i.filhos }} ação(ões) dentro</span> }
+                  @if (i.tipo === 'passo' && i.recolhido) { <span class="aut-node-sub aut-node-count">{{ i.filhos }} {{ i.filhos === 1 ? 'ação' : 'ações' }} dentro</span> }
                 </span>
                 <span class="aut-node-badges">
                   @if (especDe(i)?.ia) { <span class="aut-tag">IA</span> }
                   @if (!execucao()) {
                     @if (problemas().get(i.id); as p) {
                       @if (p.erros || p.avisos) {
-                        <span class="aut-issue" [attr.data-severity]="p.erros ? 'error' : 'warning'" [title]="p.erros ? p.erros + ' erro(s)' : p.avisos + ' aviso(s)'">
+                        <span class="aut-issue" [attr.data-severity]="p.erros ? 'error' : 'warning'" [title]="p.erros ? p.erros + (p.erros === 1 ? ' erro' : ' erros') : p.avisos + (p.avisos === 1 ? ' aviso' : ' avisos')">
                           <i class="pi pi-exclamation-circle" aria-hidden="true"></i>{{ p.erros || p.avisos }}
                         </span>
                       }

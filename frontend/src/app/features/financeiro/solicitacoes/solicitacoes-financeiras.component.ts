@@ -175,6 +175,11 @@ const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
     GeoTextInputComponent,
     AjudaListagemComponent
   ],
+  styles: [`
+    /* Células em uma linha (como /obras): o texto completo fica no title. */
+    .cel-linha { display: block; max-width: var(--cel-max, 18rem); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cel-nowrap { white-space: nowrap; }
+  `],
   template: `
     <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeCriar()" (newRequested)="novo()">
       <geo-page-header
@@ -253,6 +258,7 @@ const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
         [stateTitle]="resultado.error() ? 'Não foi possível carregar as solicitações' : modo === 'aprovacao' ? 'Nada aguardando aprovação' : 'Nenhuma solicitação por aqui'"
         [stateDescription]="resultado.error() ?? (modo === 'aprovacao' ? 'A fila está zerada.' : 'As solicitações de compra e pagamento aparecem aqui.')"
         [filtered]="lista.filtered()"
+        [textFit]="ajusteTexto"
         [(page)]="lista.page"
         [(pageSize)]="lista.pageSize"
         [(sort)]="lista.sort"
@@ -268,13 +274,13 @@ const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
           <geo-status [tone]="tom(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</geo-status>
         </ng-template>
         <ng-template geoCell="solicitacao" let-row>
-          <span>{{ valorExibicao(row, 'descricao') || row.formulario?.titulo }}</span>
+          <span class="cel-linha" style="--cel-max: 22rem" [title]="valorExibicao(row, 'descricao') || row.formulario?.titulo || ''">{{ valorExibicao(row, 'descricao') || row.formulario?.titulo }}</span>
           <span class="geo-cell-muted">{{ row.formulario?.tipoSolicitacao === 'COMPRA' ? 'Compra' : 'Pagamento' }}</span>
         </ng-template>
         <ng-template geoCell="fornecedor" let-row>
-          <span>{{ fornecedorLabel(row) }}</span>
+          <span class="cel-linha" style="--cel-max: 16rem" [title]="fornecedorLabel(row)">{{ fornecedorLabel(row) }}</span>
           @if (fornecedorRazaoSocial(row); as razao) {
-            <span class="geo-cell-muted" [title]="razao">{{ razao }}</span>
+            <span class="geo-cell-muted cel-linha" style="--cel-max: 16rem" [title]="razao">{{ razao }}</span>
           }
           @if (fornecedorEhNaoCadastrado(row)) {
             <geo-status tone="warning" icon="pi-exclamation-triangle" emphasis="outline">Não cadastrado</geo-status>
@@ -407,6 +413,8 @@ export class SolicitacoesFinanceirasComponent {
     { label: this.tipoAtual() === 'COMPRA' ? 'Compras' : this.tipoAtual() === 'PAGAMENTO' ? 'Pagamentos' : 'Todas' }
   ]);
 
+  /** Linhas de uma linha só (como /obras): o texto longo fica no title da célula. */
+  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 1 } as const;
   protected readonly colunas: GeoDataTableColumn<SolicitacaoFinanceira>[] = [
     { key: 'numero', header: 'Número', type: 'custom', priority: 1, sortField: 'numero', value: (s) => s.numero, display: (s) => `#${s.numero}` },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, value: (s) => s.status, display: (s) => this.rotuloStatus(s.status) },

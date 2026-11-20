@@ -323,7 +323,8 @@ export class MuralComponent {
   }
 
   protected dia(valor: string | null): string {
-    return formatarDataHora(valor).split(' ')[0];
+    // Só a data: o formato de data e hora pode vir como "30/10/2026, 19:23" ou "30/10/2026 19:23".
+    return formatarDataHora(valor).split(/[ ,]/)[0];
   }
 
   protected icone(tipo: TipoComunicado): string {

@@ -13,13 +13,13 @@
   border: 1px solid var(--geo-border); border-bottom: 0; border-radius: var(--geo-radius-md) var(--geo-radius-md) 0 0; background: var(--geo-surface-subtle);
 }
 .aut-mail-tool {
-  display: inline-flex !important; align-items: center; justify-content: center; width: var(--geo-control-height-sm); height: var(--geo-control-height-sm);
+  display: inline-flex; align-items: center; justify-content: center; width: var(--geo-control-height-sm); height: var(--geo-control-height-sm);
   border-radius: var(--geo-radius-sm); color: var(--geo-foreground); font-size: var(--geo-font-body);
 }
-.aut-mail-tool:hover { background: var(--geo-surface-muted) !important; }
+.aut-mail-tool:hover { background: var(--geo-surface-muted); }
 .aut-mail-colors { display: inline-flex; gap: 0.25rem; padding: 0 0.25rem; }
 .aut-mail-swatch {
-  width: 1.125rem !important; height: 1.125rem; border-radius: var(--geo-radius-sm); border: 1px solid var(--geo-border-strong) !important;
+  width: 1.125rem; height: 1.125rem; border-radius: var(--geo-radius-sm); border: 1px solid var(--geo-border-strong);
   cursor: pointer;
 }
 .aut-mail-swatch:hover { outline: 2px solid var(--geo-brand); outline-offset: 1px; }

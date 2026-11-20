@@ -103,34 +103,27 @@ const ACOES_FECHADAS: AcoesDocumento = {
   styles: `
     .step-circle {
       border-radius: 9999px;
-      border-width: 2px;
-      width: 2rem;
-      height: 2rem;
+      border: 1px solid;
+      width: 1.75rem;
+      height: 1.75rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s;
     }
     .step-active {
-      border-color: var(--p-primary-700, var(--p-blue-700));
-      background-color: var(--p-primary-700, var(--p-blue-700));
-      color: var(--p-surface-0);
+      border-color: var(--geo-brand);
+      background-color: var(--geo-brand);
+      color: var(--geo-brand-foreground);
     }
     .step-inactive {
-      border-color: var(--p-zinc-300);
-      background-color: var(--p-surface-0);
-      color: var(--p-zinc-400);
-    }
-    :host-context(.app-dark) .step-inactive,
-    :host-context(.dark) .step-inactive {
-      border-color: var(--p-zinc-700) !important;
-      background-color: var(--p-zinc-900) !important;
-      color: var(--p-zinc-500) !important;
+      border-color: var(--geo-border-strong);
+      background-color: var(--geo-surface);
+      color: var(--geo-foreground-subtle);
     }
     .step-label {
       font-size: var(--geo-font-caption);
       font-weight: 500;
-      letter-spacing: 0.025em;
+      letter-spacing: 0;
       text-transform: none;
     }
   `,

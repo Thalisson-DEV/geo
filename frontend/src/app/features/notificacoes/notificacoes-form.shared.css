@@ -1,35 +1,21 @@
-/* Padrão de formulário em etapas do GEO — módulo de notificações e comunicações. */
+/* Padrão de formulário em etapas do GEO — módulo de notificações e comunicações.
+ * Cores só por token (--geo-*): resolvem claro e escuro sem regra por tema nem !important.
+ * Card só com borda; acento azul só na etapa atual, na seleção e no foco. */
 
 .form-shell {
-  background: var(--p-surface-0);
-  border: 1px solid var(--p-zinc-100);
-  border-radius: 1rem;
+  background: var(--geo-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
   overflow: hidden;
-}
-:host-context(.app-dark) .form-shell,
-:host-context(.dark) .form-shell {
-  background: var(--p-zinc-900) !important;
-  border-color: var(--p-zinc-800) !important;
 }
 
 .form-shell__header {
-  padding: 1.5rem 1.25rem;
-  border-bottom: 1px solid var(--p-zinc-100);
-}
-:host-context(.app-dark) .form-shell__header,
-:host-context(.dark) .form-shell__header {
-  border-bottom-color: var(--p-zinc-800) !important;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--geo-border);
 }
 
 .form-shell__body {
-  padding: 1.5rem 1.25rem;
-}
-@media (min-width: 768px) {
-  .form-shell__header,
-  .form-shell__body {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
+  padding: 1.25rem 1.5rem;
 }
 
 /* Stepper */
@@ -41,212 +27,133 @@
   align-items: center;
   gap: 0.375rem;
   cursor: pointer;
+  border-radius: var(--geo-radius-md);
 }
+.step-button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
 .step-button:disabled { cursor: default; }
 
 .step-circle {
   border-radius: 9999px;
-  border-width: 2px;
-  width: 2rem;
-  height: 2rem;
+  border: 1px solid;
+  width: 1.75rem;
+  height: 1.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s;
 }
 
 .step-active {
-  background: var(--p-primary-600);
-  color: var(--p-surface-0) !important;
-  border-color: var(--p-primary-600);
-}
-:host-context(.app-dark) .step-active,
-:host-context(.dark) .step-active {
-  background: var(--p-primary-700) !important;
-  border-color: var(--p-primary-700) !important;
-  color: var(--p-surface-0) !important;
+  background: var(--geo-brand);
+  color: var(--geo-brand-foreground);
+  border-color: var(--geo-brand);
 }
 
 .step-inactive {
-  border-color: var(--p-zinc-200);
-  color: var(--p-zinc-400);
-  background: transparent;
-}
-:host-context(.app-dark) .step-inactive,
-:host-context(.dark) .step-inactive {
-  border-color: var(--p-zinc-700) !important;
-  color: var(--p-zinc-500) !important;
-  background: var(--p-zinc-900) !important;
+  border-color: var(--geo-border-strong);
+  color: var(--geo-foreground-subtle);
+  background: var(--geo-surface);
 }
 
 .step-label {
   font-size: var(--geo-font-caption);
-  font-weight: 600;
+  font-weight: 500;
   text-transform: none;
   letter-spacing: 0;
 }
-:host-context(.app-dark) .step-label.text-primary-600,
-:host-context(.dark) .step-label.text-primary-600 { color: var(--p-primary-700) !important; }
-:host-context(.app-dark) .step-label.text-slate-400,
-:host-context(.dark) .step-label.text-slate-400 { color: var(--p-zinc-500) !important; }
+.step-label.text-primary-600 { color: var(--geo-foreground); font-weight: 600; }
+.step-label.text-slate-400 { color: var(--geo-foreground-subtle); }
 
 /* Campos */
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 0.25rem;
 }
 .field > label,
 label.filter-label {
-  color: var(--p-zinc-500);
-  font-size: var(--geo-font-caption);
-  font-weight: 600;
+  color: var(--geo-foreground);
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: 0;
-  text-transform: capitalize;
-}
-:host-context(.app-dark) .field > label,
-:host-context(.dark) .field > label,
-:host-context(.app-dark) label.filter-label,
-:host-context(.dark) label.filter-label {
-  color: var(--p-primary-700) !important;
+  text-transform: none;
 }
 
 .field-meta {
   display: flex;
   min-height: 1rem;
   justify-content: space-between;
-  color: var(--p-zinc-400);
+  color: var(--geo-foreground-subtle);
   font-size: var(--geo-font-caption);
 }
-:host-context(.app-dark) .field-meta,
-:host-context(.dark) .field-meta { color: var(--p-zinc-500) !important; }
 
 .field-help {
-  color: var(--p-zinc-400);
+  color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
-  font-style: italic;
-}
-:host-context(.app-dark) .field-help,
-:host-context(.dark) .field-help { color: var(--p-zinc-500) !important; }
-
-.form-error { color: var(--p-red-500); font-size: var(--geo-font-caption); }
-:host-context(.app-dark) .form-error,
-:host-context(.dark) .form-error { color: var(--p-red-400) !important; }
-
-:host-context(.app-dark) .field .p-inputtext,
-:host-context(.dark) .field .p-inputtext,
-:host-context(.app-dark) textarea,
-:host-context(.dark) textarea,
-:host-context(.app-dark) .field .p-select,
-:host-context(.dark) .field .p-select {
-  background-color: var(--p-zinc-900) !important;
-  border-color: var(--p-zinc-700) !important;
-  color: var(--p-surface-0) !important;
 }
 
-:host-context(.app-dark) .field .p-inputtext:focus,
-:host-context(.dark) .field .p-inputtext:focus,
-:host-context(.app-dark) textarea:focus,
-:host-context(.dark) textarea:focus,
-:host-context(.app-dark) .field .p-select:focus,
-:host-context(.dark) .field .p-select:focus {
-  border-color: var(--p-primary-700) !important;
-  box-shadow: 0 0 0 1px var(--p-primary-700) !important;
-}
+.form-error { color: var(--geo-danger-text); font-size: var(--geo-font-caption); }
 
 /* Seções */
 .section-marker {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-left: 2px solid var(--p-primary-500);
-  padding-left: 0.75rem;
   margin-bottom: 0.75rem;
 }
-:host-context(.app-dark) .section-marker,
-:host-context(.dark) .section-marker { border-left-color: var(--p-primary-700) !important; }
 
 .section-marker span {
-  color: var(--p-zinc-700);
-  font-size: var(--geo-font-caption);
-  font-weight: 500;
+  color: var(--geo-foreground);
+  font-size: 1rem;
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
 }
-:host-context(.app-dark) .section-marker span,
-:host-context(.dark) .section-marker span {
-  color: var(--p-primary-700) !important;
-  font-weight: 600 !important;
-}
 
 .review-card {
-  border: 1px solid var(--p-zinc-100);
-  border-radius: 0.5rem;
-  background: #f8fafc80;
-  padding: 0.65rem 0.75rem;
-}
-:host-context(.app-dark) .review-card,
-:host-context(.dark) .review-card {
-  border-color: var(--p-zinc-700) !important;
-  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
+  padding: 0.625rem 0.75rem;
 }
 
 .review-card > span {
-  color: var(--p-zinc-400);
+  color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
-  font-weight: 600;
+  font-weight: 500;
   text-transform: none;
 }
-:host-context(.app-dark) .review-card > span,
-:host-context(.dark) .review-card > span { color: var(--p-primary-700) !important; }
 
 .review-card p {
   margin-top: 0.25rem;
-  color: var(--p-zinc-700);
-  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground);
+  font-size: 13px;
   line-height: 1.25rem;
 }
-:host-context(.app-dark) .review-card p,
-:host-context(.dark) .review-card p { color: var(--p-surface-0) !important; }
 
-/* Choice Cards */
+/* Cartões de escolha */
 .choice-card {
   display: flex;
-  gap: 0.65rem;
+  gap: 0.625rem;
   align-items: flex-start;
   text-align: left;
-  border: 1px solid var(--p-zinc-200);
-  border-radius: 0.75rem;
-  background: var(--p-surface-0);
-  padding: 0.75rem 0.85rem;
-  transition: all 0.2s;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
+  padding: 0.75rem;
+  transition: border-color var(--geo-duration-normal) var(--geo-ease-standard), background-color var(--geo-duration-normal) var(--geo-ease-standard);
   cursor: pointer;
   width: 100%;
 }
-:host-context(.app-dark) .choice-card,
-:host-context(.dark) .choice-card {
-  border-color: var(--p-zinc-700) !important;
-  background: var(--p-zinc-900) !important;
-}
 .choice-card:hover {
-  border-color: var(--p-primary-300);
-  background: var(--p-primary-50);
+  border-color: var(--geo-border-strong);
+  background: var(--geo-surface-subtle);
 }
-:host-context(.app-dark) .choice-card:hover,
-:host-context(.dark) .choice-card:hover {
-  border-color: var(--p-primary-700) !important;
-  background: color-mix(in srgb, var(--p-primary-700) 8%, transparent) !important;
-}
-.choice-card--active {
-  border-color: var(--p-primary-500);
-  background: var(--p-primary-50);
-  box-shadow: 0 0 0 1px var(--p-primary-500) inset;
-}
-:host-context(.app-dark) .choice-card--active,
-:host-context(.dark) .choice-card--active {
-  border-color: var(--p-primary-700) !important;
-  background: color-mix(in srgb, var(--p-primary-700) 12%, transparent) !important;
-  box-shadow: 0 0 0 1px var(--p-primary-700) inset !important;
+.choice-card:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+.choice-card--active,
+.choice-card--active:hover {
+  border-color: var(--geo-brand);
+  background: var(--geo-brand-soft);
+  box-shadow: 0 0 0 1px var(--geo-brand) inset;
 }
 
 .choice-card__icon {
@@ -255,37 +162,21 @@ label.filter-label {
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 0.5rem;
-  border: 1px solid var(--p-zinc-200);
-  background: var(--p-zinc-50);
-  color: var(--p-zinc-500);
+  border-radius: var(--geo-radius-md);
+  border: 1px solid var(--geo-border);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
   flex-shrink: 0;
 }
-:host-context(.app-dark) .choice-card__icon,
-:host-context(.dark) .choice-card__icon {
-  border-color: var(--p-zinc-700) !important;
-  background: var(--p-zinc-800) !important;
-  color: var(--p-zinc-400) !important;
-}
 .choice-card--active .choice-card__icon {
-  border-color: var(--p-primary-200);
-  background: var(--p-surface-0);
-  color: var(--p-primary-600);
-}
-:host-context(.app-dark) .choice-card--active .choice-card__icon,
-:host-context(.dark) .choice-card--active .choice-card__icon {
-  border-color: var(--p-primary-700) !important;
-  background: var(--p-zinc-900) !important;
-  color: var(--p-primary-700) !important;
+  border-color: var(--geo-brand);
+  background: var(--geo-surface);
+  color: var(--geo-brand-text);
 }
 
-.choice-card__title { color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 600; }
-:host-context(.app-dark) .choice-card__title,
-:host-context(.dark) .choice-card__title { color: var(--p-surface-0) !important; }
+.choice-card__title { color: var(--geo-foreground); font-size: 13px; font-weight: 600; }
 
-.choice-card__desc { display: block; margin-top: 0.15rem; color: var(--p-zinc-400); font-size: var(--geo-font-caption); line-height: 1.1rem; }
-:host-context(.app-dark) .choice-card__desc,
-:host-context(.dark) .choice-card__desc { color: var(--p-zinc-400) !important; }
+.choice-card__desc { display: block; margin-top: 0.125rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); line-height: 1.1rem; }
 
 /* Repetíveis */
 .repeat-row {
@@ -293,53 +184,31 @@ label.filter-label {
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.5rem;
-  border: 1px solid var(--p-zinc-100);
-  border-radius: 0.75rem;
-  background: #f8fafc99;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
   padding: 0.75rem;
-}
-:host-context(.app-dark) .repeat-row,
-:host-context(.dark) .repeat-row {
-  border-color: var(--p-zinc-700) !important;
-  background: rgba(15, 23, 42, 0.8) !important;
 }
 
 .repeat-empty {
-  border: 1px dashed var(--p-zinc-200);
-  border-radius: 0.625rem;
+  border: 1px dashed var(--geo-border-strong);
+  border-radius: var(--geo-radius-md);
   padding: 1.25rem;
   text-align: center;
-  color: var(--p-zinc-400);
+  color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
-}
-:host-context(.app-dark) .repeat-empty,
-:host-context(.dark) .repeat-empty {
-  border-color: var(--p-zinc-700) !important;
-  color: var(--p-zinc-500) !important;
-  background: var(--p-zinc-900) !important;
 }
 
-/* Chips */
+/* Variáveis inseríveis */
 .var-chip {
-  border: 1px solid var(--p-zinc-200);
-  border-radius: 0.375rem;
-  background: var(--p-surface-0);
-  padding: 0.1rem 0.375rem;
-  font-family: ui-monospace, monospace;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface);
+  padding: 0.125rem 0.375rem;
+  font-family: var(--geo-font-family-mono);
   font-size: var(--geo-font-caption);
-  color: var(--p-primary-600);
+  color: var(--geo-brand-text);
   cursor: pointer;
 }
-:host-context(.app-dark) .var-chip,
-:host-context(.dark) .var-chip {
-  border-color: var(--p-zinc-700) !important;
-  background: var(--p-zinc-800) !important;
-  color: var(--p-primary-700) !important;
-}
-.var-chip:hover { border-color: var(--p-primary-300); background: var(--p-primary-50); }
-:host-context(.app-dark) .var-chip:hover,
-:host-context(.dark) .var-chip:hover {
-  border-color: var(--p-primary-700) !important;
-  background: color-mix(in srgb, var(--p-primary-700) 12%, transparent) !important;
-}
-
+.var-chip:hover { border-color: var(--geo-border-strong); background: var(--geo-surface-subtle); }
+.var-chip:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }

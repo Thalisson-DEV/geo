@@ -77,29 +77,6 @@
 .kv-link:hover { text-decoration: underline; }
 .kv-link:focus-visible { outline: none; box-shadow: var(--geo-focus-ring); border-radius: var(--geo-radius-sm, 0.25rem); }
 
-/* Barra de ações: no celular ocupa a largura, com fundo para não sobrepor o texto. */
-.barra-acoes {
-  background: linear-gradient(to top, var(--geo-surface) 70%, transparent);
-}
-
-@media (min-width: 768px) {
-  .barra-acoes {
-    background: none;
-  }
-}
-
-:host-context(.app-dark) .barra-acoes,
-:host-context(.dark) .barra-acoes {
-  background: linear-gradient(to top, var(--geo-canvas) 70%, transparent);
-}
-
-@media (min-width: 768px) {
-  :host-context(.app-dark) .barra-acoes,
-  :host-context(.dark) .barra-acoes {
-    background: none;
-  }
-}
-
 @media print {
   .resumo, .resumo--destaque, .resumo--sucesso, .bloco {
     border-color: var(--p-zinc-300) !important;

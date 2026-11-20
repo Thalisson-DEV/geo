@@ -37,21 +37,20 @@ interface LinhaPreferencia extends PreferenciaNotificacaoResponse {
   template: `
     <div class="flex flex-col gap-4 pb-12">
       <div class="flex items-center justify-between">
-        <p-breadcrumb [model]="breadcrumb" styleClass="!bg-transparent !border-0 !p-0"></p-breadcrumb>
+        <p-breadcrumb [model]="breadcrumb"></p-breadcrumb>
         <p-button
           icon="pi pi-question-circle"
           [text]="true"
           severity="secondary"
           pTooltip="Ajuda"
           (onClick)="helpDialog.show()"
-          styleClass="!text-slate-400"
         ></p-button>
       </div>
 
       <div class="flex flex-wrap items-end justify-between gap-3">
         <div class="flex flex-col">
           <h1 class="text-base font-bold text-slate-800 app-dark:text-white dark:text-white">Preferências de notificação</h1>
-          <p class="text-[11px] text-slate-500 app-dark:text-slate-400 dark:text-slate-400">
+          <p class="text-xs text-slate-500 app-dark:text-slate-400 dark:text-slate-400">
             Escolha por onde quer ser avisado em cada assunto do sistema.
           </p>
         </div>
@@ -62,7 +61,6 @@ interface LinhaPreferencia extends PreferenciaNotificacaoResponse {
               icon="pi pi-undo"
               [text]="true"
               (onClick)="desfazer()"
-              styleClass="!text-slate-500 app-dark:!text-slate-300 dark:!text-slate-300 !font-bold !text-[10px]"
             ></p-button>
           }
           <p-button
@@ -71,7 +69,6 @@ interface LinhaPreferencia extends PreferenciaNotificacaoResponse {
             [disabled]="!alterado()"
             [loading]="salvando()"
             (onClick)="salvar()"
-            styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !py-2.5 !px-8 !font-bold !text-[10px]"
           ></p-button>
         </div>
       </div>
@@ -108,11 +105,11 @@ interface LinhaPreferencia extends PreferenciaNotificacaoResponse {
         </span>
       </div>
 
-      <div class="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:!border-slate-800 dark:bg-slate-900">
-        <div class="hidden items-center gap-4 border-b border-slate-100 bg-slate-50/50 px-5 py-3 md:flex dark:!border-slate-800 dark:!bg-slate-800/50">
-          <span class="flex-grow text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-400">Assunto</span>
-          <span class="w-24 text-center text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-400">No sistema</span>
-          <span class="w-24 text-center text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-400">Por e-mail</span>
+      <div class="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div class="hidden items-center gap-4 border-b border-slate-100 bg-slate-50/50 px-5 py-3 md:flex dark:border-slate-800 dark:bg-slate-800/50">
+          <span class="flex-grow text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-400">Assunto</span>
+          <span class="w-24 text-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-400">No sistema</span>
+          <span class="w-24 text-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-400">Por e-mail</span>
         </div>
 
         @if (carregando()) {
@@ -126,14 +123,14 @@ interface LinhaPreferencia extends PreferenciaNotificacaoResponse {
             @for (linha of linhas(); track linha.categoria) {
               <div class="flex flex-wrap items-center gap-4 px-5 py-4">
                 <div class="flex min-w-0 flex-grow items-center gap-3">
-                  <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-100 dark:!bg-slate-800 dark:border-slate-700">
-                    <i [class]="linha.icone" class="text-sm text-slate-400 dark:!text-slate-300"></i>
+                  <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-100 dark:bg-slate-800 dark:border-slate-700">
+                    <i [class]="linha.icone" class="text-sm text-slate-400 dark:text-slate-300"></i>
                   </div>
                   <span class="truncate text-xs font-medium text-slate-700 dark:text-white">{{ linha.categoriaRotulo }}</span>
                 </div>
 
                 <div class="flex w-24 items-center justify-center gap-2">
-                  <span class="text-[9px] uppercase tracking-wider text-slate-400 md:hidden">Sistema</span>
+                  <span class="text-xs uppercase tracking-wider text-slate-400 md:hidden">Sistema</span>
                   <p-toggleswitch
                     [(ngModel)]="linha.inApp"
                     (ngModelChange)="marcarAlteracao()"
@@ -142,7 +139,7 @@ interface LinhaPreferencia extends PreferenciaNotificacaoResponse {
                 </div>
 
                 <div class="flex w-24 items-center justify-center gap-2">
-                  <span class="text-[9px] uppercase tracking-wider text-slate-400 md:hidden">E-mail</span>
+                  <span class="text-xs uppercase tracking-wider text-slate-400 md:hidden">E-mail</span>
                   <span
                     [pTooltip]="linha.permiteEmail ? '' : 'Marcações são avisos internos da aplicação.'"
                     tooltipPosition="left"

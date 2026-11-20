@@ -117,7 +117,7 @@ type Aba = 'params' | 'config' | 'saidas';
                       <div class="aut-grid2">
                         <label class="aut-field"><span class="geo-field__label">Vezes</span>
                           <input class="p-inputtext geo-prime-control" type="number" min="1" max="10" [value]="retry(n).count" (input)="mudarRetry(n, { count: +$any($event.target).value || 1 })" /></label>
-                        <label class="aut-field"><span class="geo-field__label">Intervalo (s)</span>
+                        <label class="aut-field"><span class="geo-field__label">Intervalo (segundos)</span>
                           <input class="p-inputtext geo-prime-control" type="number" min="1" max="3600" [value]="retry(n).interval_seconds" (input)="mudarRetry(n, { interval_seconds: +$any($event.target).value || 30 })" /></label>
                       </div>
                     }

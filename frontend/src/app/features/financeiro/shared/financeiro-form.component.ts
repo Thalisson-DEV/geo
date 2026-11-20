@@ -73,8 +73,8 @@ import {
       @for (grupo of gruposVisiveis(); track grupo.grupo; let indice = $index) {
         <section class="flex flex-col">
           <div class="section-marker">
-            <i [class]="icone(grupo.grupo) + ' text-primary-600 dark:text-primary-400 text-sm mr-1'"></i>
-            <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm tracking-tight">{{ indice + 1 }}. {{ grupo.rotulo }}</span>
+            <i [class]="icone(grupo.grupo) + ' section-icon'" aria-hidden="true"></i>
+            <span>{{ indice + 1 }}. {{ grupo.rotulo }}</span>
           </div>
 
           @if (grupo.grupo === 'FORNECEDOR' && temEscolhaDeFornecedor()) {
@@ -84,15 +84,15 @@ import {
               necessários; aqui a pessoa escolhe o caminho e só ele aparece.
             -->
             <div class="md:pl-5 mb-4">
-              <div class="p-3.5 bg-slate-50/80 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col gap-2">
-                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200">
+              <div class="fornecedor-escolha">
+                <span class="fornecedor-escolha__pergunta">
                   Este fornecedor já está cadastrado?
                 </span>
                 <p-selectbutton [ngModel]="modoFornecedor()" [ngModelOptions]="{ standalone: true }"
                   (ngModelChange)="trocarModoFornecedor($event)" [options]="opcoesFornecedor"
                   optionLabel="rotulo" optionValue="valor" [allowEmpty]="false"
-                  size="small" styleClass="w-full booleano-toggle" />
-                <span class="field-help text-[9px] text-slate-400 dark:text-slate-400 italic">
+                  styleClass="booleano-toggle" />
+                <span class="field-help">
                   {{ modoFornecedor() === 'CADASTRADO'
                     ? 'Escolha na lista de fornecedores já homologados pelo financeiro.'
                     : 'Digite o nome. O financeiro completa o cadastro e homologa depois.' }}
@@ -104,10 +104,10 @@ import {
           <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:pl-5">
             @for (campo of grupo.campos; track campo.chave) {
               <div class="field" [ngClass]="larguraDe(campo)">
-                <label [for]="campo.chave" class="text-[11px] font-medium text-slate-700 dark:text-slate-200 leading-snug break-words">
+                <label [for]="campo.chave" class="break-words">
                   {{ campo.rotulo }}
                   @if (campo.obrigatorio) {
-                    <span class="text-red-500 font-bold">*</span>
+                    <span class="obrigatorio" aria-hidden="true">*</span>
                   }
                 </label>
 
@@ -115,51 +115,51 @@ import {
                   @case ('TEXTO') {
                     <input pInputText [id]="campo.chave" [formControl]="controle(campo)"
                       [placeholder]="campo.placeholder || ''" [attr.maxlength]="campo.restricoes?.tamanhoMaximo"
-                      class="w-full" size="small" />
+                      class="w-full" />
                   }
                   @case ('TEXTO_LONGO') {
                     <textarea pTextarea [id]="campo.chave" [formControl]="controle(campo)"
                       [placeholder]="campo.placeholder || ''" [attr.maxlength]="campo.restricoes?.tamanhoMaximo"
-                      rows="3" class="w-full resize-y !text-xs min-h-[60px]"></textarea>
+                      rows="3" class="w-full resize-y"></textarea>
                   }
                   @case ('INTEIRO') {
                     <p-inputnumber [inputId]="campo.chave" [formControl]="controle(campo)"
                       [useGrouping]="false" [minFractionDigits]="0" [maxFractionDigits]="0"
                       [min]="campo.restricoes?.valorMinimo ?? undefined"
                       [max]="campo.restricoes?.valorMaximo ?? undefined"
-                      size="small" class="w-full w-full" [fluid]="true"></p-inputnumber>
+                      class="w-full" [fluid]="true"></p-inputnumber>
                   }
                   @case ('DECIMAL') {
                     <p-inputnumber [inputId]="campo.chave" [formControl]="controle(campo)"
                       mode="decimal" locale="pt-BR" [minFractionDigits]="0" [maxFractionDigits]="4"
                       [min]="campo.restricoes?.valorMinimo ?? undefined"
                       [max]="campo.restricoes?.valorMaximo ?? undefined"
-                      size="small" class="w-full w-full" [fluid]="true"></p-inputnumber>
+                      class="w-full" [fluid]="true"></p-inputnumber>
                   }
                   @case ('MOEDA') {
                     <p-inputnumber [inputId]="campo.chave" [formControl]="controle(campo)"
                       mode="currency" currency="BRL" locale="pt-BR"
                       [min]="campo.restricoes?.valorMinimo ?? undefined"
                       [max]="campo.restricoes?.valorMaximo ?? undefined"
-                      size="small" class="w-full w-full" [fluid]="true"></p-inputnumber>
+                      class="w-full" [fluid]="true"></p-inputnumber>
                   }
                   @case ('DATA') {
                     <p-datepicker [inputId]="campo.chave" [formControl]="controle(campo)"
                       dateFormat="dd/mm/yy" [showIcon]="true" iconDisplay="input" [showClear]="true"
                       [showButtonBar]="true" placeholder="DD/MM/AAAA"
-                      size="small" class="w-full w-full" [fluid]="true" appendTo="body"></p-datepicker>
+                      class="w-full" [fluid]="true" appendTo="body"></p-datepicker>
                   }
                   @case ('BOOLEANO') {
                     <p-selectbutton [formControl]="controle(campo)" [options]="opcoesSimNao"
                       optionLabel="rotulo" optionValue="valor" [allowEmpty]="false"
-                      size="small" styleClass="w-full booleano-toggle" [ariaLabelledBy]="campo.chave"></p-selectbutton>
+                      styleClass="booleano-toggle" [ariaLabelledBy]="campo.chave"></p-selectbutton>
                   }
                   @case ('SELECAO_UNICA') {
                     <p-select [inputId]="campo.chave" [formControl]="controle(campo)"
                       [options]="campo.opcoes" optionLabel="rotulo" optionValue="valor"
                       [placeholder]="campo.placeholder || 'Selecione...'"
                       [showClear]="!campo.obrigatorio" [filter]="campo.opcoes.length > 8"
-                      filterBy="rotulo" size="small" class="w-full w-full" [fluid]="true" appendTo="body"></p-select>
+                      filterBy="rotulo" class="w-full" [fluid]="true" appendTo="body"></p-select>
                   }
                   @case ('REFERENCIA') {
                     @if (ehReferenciaColaborador(campo)) {
@@ -191,7 +191,7 @@ import {
                         [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true"
                         emptyMessage="Nenhum cadastro encontrado"
                         emptyFilterMessage="Nenhum cadastro encontrado"
-                        size="small" class="w-full w-full" [fluid]="true" appendTo="body"
+                        class="w-full" [fluid]="true" appendTo="body"
                         (onShow)="carregarReferencia(campo)"
                         (onFilter)="filtrarReferencia(campo, $event)"
                         (onLazyLoad)="carregarMaisReferencia(campo)"></p-select>
@@ -209,7 +209,7 @@ import {
                 }
                 @if (somenteLeitura().has(campo.chave)) {
                   <span class="field-help">
-                    <i class="pi pi-lock text-[8px] mr-1"></i>Herdado da compra vinculada.
+                    <i class="pi pi-lock mr-1" aria-hidden="true"></i>Herdado da compra vinculada.
                   </span>
                 }
               </div>
@@ -220,131 +220,38 @@ import {
     </div>
   `,
   styles: [`
+    /* Cores por token (--geo-*): já resolvem claro/escuro sem regra por tema. */
     .section-marker {
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      border-left: 2px solid var(--p-primary-500);
-      padding-left: 0.75rem;
-      margin-bottom: 0.875rem;
-    }
-    :host-context(.app-dark) .section-marker,
-    :host-context(.dark) .section-marker {
-      border-left-color: var(--p-primary-400) !important;
+      margin-bottom: 0.75rem;
     }
     .section-marker span {
-      color: var(--p-zinc-700);
-      font-size: 13px;
+      color: var(--geo-foreground);
+      font-size: 1rem;
       font-weight: 600;
-      letter-spacing: -0.01em;
+      letter-spacing: 0;
       text-transform: none;
     }
-    :host-context(.app-dark) .section-marker span,
-    :host-context(.dark) .section-marker span {
-      color: var(--p-zinc-100) !important;
-    }
-    .field { display: flex; flex-direction: column; gap: 0.375rem; }
-    .field > label { color: var(--p-zinc-600); font-size: var(--geo-font-caption); font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
-    :host-context(.app-dark) .field > label,
-    :host-context(.dark) .field > label {
-      color: var(--p-zinc-300) !important;
-    }
-    .field-meta { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--p-zinc-400); font-size: var(--geo-font-caption); min-height: 0.75rem; }
-    :host-context(.app-dark) .field-meta,
-    :host-context(.dark) .field-meta {
-      color: var(--p-zinc-500) !important;
-    }
+    .field { display: flex; flex-direction: column; gap: 0.25rem; }
+    .field > label { color: var(--geo-foreground); font-size: 13px; font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
+    .field-meta { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); min-height: 0.75rem; }
     .field-meta:empty { display: none; }
-    .field-help { color: var(--p-zinc-400); font-size: var(--geo-font-caption); font-style: italic; line-height: 1.3; }
-    :host-context(.app-dark) .field-help,
-    :host-context(.dark) .field-help {
-      color: var(--p-zinc-400) !important;
+    .field-help { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); line-height: 1.3; }
+    .form-error { color: var(--geo-danger-text); font-size: var(--geo-font-caption); }
+    .fornecedor-escolha {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md, 6px);
+      background: var(--geo-surface-subtle);
     }
-    .form-error { color: var(--p-red-500); font-size: var(--geo-font-caption); }
-    :host-context(.app-dark) .form-error,
-    :host-context(.dark) .form-error {
-      color: var(--p-red-400) !important;
-    }
-    :host ::ng-deep {
-      .field .p-inputtext,
-      .field .p-select,
-      .field .p-inputnumber,
-      .field .p-datepicker {
-        width: 100%;
-        font-size: var(--geo-font-caption);
-      }
-      .booleano-toggle.p-selectbutton {
-        display: flex;
-        width: 100%;
-        gap: 0.25rem;
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-      }
-      .booleano-toggle .p-togglebutton {
-        flex: 1 1 0;
-        font-size: var(--geo-font-caption);
-        font-weight: 600;
-        letter-spacing: 0;
-        text-transform: none;
-        border-radius: 0.5rem !important;
-        padding: 0.5rem 0.75rem !important;
-        min-height: 2.25rem !important;
-        transition: all 0.2s ease-in-out;
-        border: 1px solid var(--p-zinc-200) !important;
-        background: var(--p-zinc-50) !important;
-        color: var(--p-zinc-500) !important;
-      }
-      .booleano-toggle .p-togglebutton:not(.p-togglebutton-checked):hover {
-        background: var(--p-zinc-100) !important;
-        color: var(--p-zinc-800) !important;
-        border-color: var(--p-zinc-300) !important;
-      }
-      .booleano-toggle .p-togglebutton.p-togglebutton-checked,
-      .booleano-toggle .p-togglebutton[data-p-checked="true"],
-      .booleano-toggle .p-togglebutton[aria-pressed="true"] {
-        background: var(--p-primary-600, var(--p-blue-600)) !important;
-        border-color: var(--p-primary-600, var(--p-blue-600)) !important;
-        color: var(--p-surface-0) !important;
-        box-shadow: none !important;
-      }
-      .booleano-toggle .p-togglebutton.p-togglebutton-checked *,
-      .booleano-toggle .p-togglebutton[data-p-checked="true"] *,
-      .booleano-toggle .p-togglebutton[aria-pressed="true"] * {
-        color: var(--p-surface-0) !important;
-      }
-      .ng-invalid.ng-touched .p-inputtext,
-      input.ng-invalid.ng-touched,
-      textarea.ng-invalid.ng-touched {
-        border-color: var(--p-red-400);
-      }
-    }
-    :host-context(.app-dark) :host ::ng-deep,
-    :host-context(.dark) :host ::ng-deep {
-      .booleano-toggle .p-togglebutton {
-        background: var(--p-zinc-800) !important;
-        border-color: var(--p-zinc-700) !important;
-        color: var(--p-zinc-400) !important;
-      }
-      .booleano-toggle .p-togglebutton:not(.p-togglebutton-checked):hover {
-        background: var(--p-zinc-700) !important;
-        color: var(--p-zinc-50) !important;
-        border-color: var(--p-zinc-600) !important;
-      }
-      .booleano-toggle .p-togglebutton.p-togglebutton-checked,
-      .booleano-toggle .p-togglebutton[data-p-checked="true"],
-      .booleano-toggle .p-togglebutton[aria-pressed="true"] {
-        background: var(--p-primary-600, var(--p-blue-600)) !important;
-        border-color: var(--p-primary-500, var(--p-blue-500)) !important;
-        color: var(--p-surface-0) !important;
-        box-shadow: none !important;
-      }
-      .booleano-toggle .p-togglebutton.p-togglebutton-checked *,
-      .booleano-toggle .p-togglebutton[data-p-checked="true"] *,
-      .booleano-toggle .p-togglebutton[aria-pressed="true"] * {
-        color: var(--p-surface-0) !important;
-      }
-    }
+    .fornecedor-escolha__pergunta { color: var(--geo-foreground); font-size: 13px; font-weight: 500; }
+    .section-icon { color: var(--geo-foreground-muted); font-size: 1rem; }
+    .obrigatorio { color: var(--geo-danger-text); font-weight: 600; }
   `]
 })
 export class FinanceiroFormComponent {

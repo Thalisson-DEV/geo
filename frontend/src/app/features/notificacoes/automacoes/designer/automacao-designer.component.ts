@@ -76,7 +76,7 @@ function iguais(a: unknown, b: unknown): boolean {
           <geo-icon-button icon="pi pi-refresh" label="Refazer" variant="ghost" size="icon-sm" [disabled]="!futuro().length" (pressed)="refazer()"></geo-icon-button>
           <span style="position:relative">
             <geo-button size="sm" aria-haspopup="dialog" [variant]="erros() ? 'destructive' : 'ghost'" [icon]="erros() || avisos() ? 'pi pi-exclamation-circle' : 'pi pi-check-circle'"
-              [label]="erros() || avisos() ? (erros() ? erros() + ' erro(s)' : '') + (erros() && avisos() ? ' · ' : '') + (avisos() ? avisos() + ' aviso(s)' : '') : 'Fluxo verificado'"
+              [label]="erros() || avisos() ? (erros() ? erros() + (erros() === 1 ? ' erro' : ' erros') : '') + (erros() && avisos() ? ' · ' : '') + (avisos() ? avisos() + (avisos() === 1 ? ' aviso' : ' avisos') : '') : 'Fluxo verificado'"
               (pressed)="verificadorAberto.set(!verificadorAberto())"></geo-button>
             @if (verificadorAberto()) {
               <div class="aut-popover" style="right:0;top:calc(100% + 6px)" role="dialog" aria-label="Verificador do fluxo">

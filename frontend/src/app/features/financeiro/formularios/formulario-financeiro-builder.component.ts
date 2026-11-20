@@ -55,23 +55,23 @@ interface BlocoBuilder extends GrupoDeCampos {
 
     <div class="flex flex-col gap-4 pb-28">
       <div class="flex justify-between items-center">
-        <p-breadcrumb [model]="breadcrumb" styleClass="!bg-transparent !border-0 !p-0" />
+        <p-breadcrumb [model]="breadcrumb" />
         <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary"
-          (onClick)="voltar()" styleClass="!text-slate-400 !text-[10px] !font-medium" />
+          (onClick)="voltar()" />
       </div>
 
       @if (loading()) {
-        <p-skeleton height="26rem" class="!rounded-2xl" />
+        <p-skeleton height="26rem" />
       } @else if (schema(); as doc) {
         <div class="form-shell max-w-4xl w-full mx-auto">
           <!-- CABEÇALHO: editado em linha, como no formulário de inspeção -->
           <div class="form-shell__header">
             <div class="flex items-center gap-2 mb-5">
               <i class="pi pi-file-edit text-primary-600 dark:text-primary-400 text-xs"></i>
-              <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                 Formulário de {{ doc.tipoSolicitacao === 'COMPRA' ? 'compra' : 'pagamento' }}
               </span>
-              <code class="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded px-1.5 py-0.5">{{ doc.codigo }}</code>
+              <code class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded px-1.5 py-0.5">{{ doc.codigo }}</code>
               @if (doc.padrao) { <geo-status [tone]="doc.tipoSolicitacao === 'COMPRA' ? 'success' : 'warning'" icon="pi-star-fill">Padrão</geo-status> }
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -88,7 +88,7 @@ interface BlocoBuilder extends GrupoDeCampos {
             </div>
             <label class="flex items-center gap-2 mt-4 cursor-pointer w-fit">
               <p-checkbox [binary]="true" size="small" [(ngModel)]="padrao" (onChange)="salvarDados()" />
-              <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                 Sugerir esta variante por padrão
               </span>
             </label>
@@ -99,11 +99,11 @@ interface BlocoBuilder extends GrupoDeCampos {
             @for (bloco of blocos(); track bloco.grupo; let bi = $index) {
               <div class="flex flex-col gap-4">
                 <div class="section-marker">
-                  <span class="text-[11px] font-medium text-slate-400">{{ numero(bi + 1) }}</span>
+                  <span class="text-xs font-medium text-slate-400">{{ numero(bi + 1) }}</span>
                   <span class="text-slate-800 dark:text-slate-100 font-bold text-xs md:text-sm tracking-tight flex-grow">
                     <i [class]="icone(bloco.grupo) + ' mr-2 text-primary-600 dark:text-primary-400 text-sm'"></i>{{ bloco.rotulo }}
                   </span>
-                  <span class="text-[9px] text-slate-400">
+                  <span class="text-xs text-slate-400">
                     {{ bloco.campos.length }} {{ bloco.campos.length === 1 ? 'campo' : 'campos' }}
                   </span>
                 </div>
@@ -112,7 +112,7 @@ interface BlocoBuilder extends GrupoDeCampos {
                   @for (campo of bloco.campos; track campo.id; let ci = $index) {
                     <div class="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/40 px-4 py-4 flex flex-col gap-3">
                       <div class="flex items-start gap-3">
-                        <span class="text-[10px] font-medium text-slate-400 mt-2.5 shrink-0">
+                        <span class="text-xs font-medium text-slate-400 mt-2.5 shrink-0">
                           {{ bi + 1 }}.{{ ci + 1 }}
                         </span>
                         <input pInputText class="doc-input flex-grow" [ngModel]="campo.rotulo"
@@ -121,12 +121,11 @@ interface BlocoBuilder extends GrupoDeCampos {
                           [placeholder]="'Pergunta exibida ao usuário'" />
                         <div class="flex items-center gap-0.5 shrink-0">
                           <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" pTooltip="Subir"
-                            [disabled]="ci === 0" (onClick)="mover(bloco, ci, -1)" styleClass="!text-slate-400 !w-7 !h-7" />
+                            [disabled]="ci === 0" (onClick)="mover(bloco, ci, -1)" />
                           <p-button icon="pi pi-chevron-down" [text]="true" [rounded]="true" pTooltip="Descer"
-                            [disabled]="ci === bloco.campos.length - 1" (onClick)="mover(bloco, ci, 1)"
-                            styleClass="!text-slate-400 !w-7 !h-7" />
+                            [disabled]="ci === bloco.campos.length - 1" (onClick)="mover(bloco, ci, 1)" />
                           <p-button icon="pi pi-trash" [text]="true" [rounded]="true" pTooltip="Remover campo"
-                            (onClick)="remover(campo)" styleClass="!text-red-400 !w-7 !h-7" />
+                            (onClick)="remover(campo)" />
                         </div>
                       </div>
 
@@ -134,13 +133,13 @@ interface BlocoBuilder extends GrupoDeCampos {
                         <label class="flex items-center gap-2 h-[30px] cursor-pointer">
                           <p-checkbox [binary]="true" size="small" [ngModel]="campo.obrigatorio"
                             (onChange)="alternarObrigatorio(campo, $event.checked)" />
-                          <span class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">Obrigatória</span>
+                          <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">Obrigatória</span>
                         </label>
-                        <span class="text-[10px] text-slate-400 dark:text-slate-400">
+                        <span class="text-xs text-slate-400 dark:text-slate-400">
                           {{ descreverTipo(campo) }}
                         </span>
                         @if (campo.exibirQuando; as condicao) {
-                          <span class="text-[9px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded px-2 py-1">
+                          <span class="text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded px-2 py-1">
                             <i class="pi pi-eye-slash text-[8px] mr-1"></i>
                             Só aparece se “{{ rotuloDaChave(condicao.campoChave) }}” for
                             {{ traduzir(condicao.valores) }}
@@ -149,7 +148,7 @@ interface BlocoBuilder extends GrupoDeCampos {
                       </div>
 
                       <div class="md:pl-7">
-                        <input pInputText class="doc-input !text-[10px]" [ngModel]="campo.ajuda"
+                        <input pInputText class="doc-input" [ngModel]="campo.ajuda"
                           (ngModelChange)="rascunhoAjuda[campo.id] = $event" (blur)="salvarCampo(campo)"
                           placeholder="Texto de apoio exibido abaixo do campo (opcional)" />
                       </div>
@@ -157,7 +156,7 @@ interface BlocoBuilder extends GrupoDeCampos {
                       @if (campo.opcoes.length) {
                         <div class="md:pl-7 flex flex-wrap gap-1">
                           @for (opcao of campo.opcoes; track opcao.valor) {
-                            <span class="rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 text-[9px] text-slate-600 dark:text-slate-300">
+                            <span class="rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-1 text-xs text-slate-600 dark:text-slate-300">
                               {{ opcao.rotulo }}
                             </span>
                           }
@@ -165,25 +164,24 @@ interface BlocoBuilder extends GrupoDeCampos {
                       }
                     </div>
                   } @empty {
-                    <p class="text-[10px] text-slate-400 italic">Nenhum campo deste assunto ainda.</p>
+                    <p class="text-xs text-slate-400 italic">Nenhum campo deste assunto ainda.</p>
                   }
 
                   @if (bloco.disponiveis.length) {
                     <div class="flex items-center gap-2">
                       <p-select [options]="bloco.disponiveis" optionLabel="rotuloPadrao" optionValue="campoCanonico"
                         [(ngModel)]="escolhaPorBloco[bloco.grupo]" placeholder="Escolha um campo para acrescentar"
-                        class="doc-select flex-grow" size="small" appendTo="body" [filter]="bloco.disponiveis.length > 8"
+                        class="doc-select flex-grow" [fluid]="true" appendTo="body" [filter]="bloco.disponiveis.length > 8"
                         filterBy="rotuloPadrao">
                         <ng-template #item let-item>
                           <div class="flex flex-col py-1">
-                            <span class="text-[11px] font-medium text-slate-700 dark:text-slate-200">{{ item.rotuloPadrao }}</span>
-                            <span class="text-[9px] text-slate-400 dark:text-slate-500">{{ item.chave }} · {{ nomeTipo(item.tipoCampo) }}</span>
+                            <span class="text-xs font-medium text-slate-700 dark:text-slate-200">{{ item.rotuloPadrao }}</span>
+                            <span class="text-xs text-slate-400 dark:text-slate-500">{{ item.chave }} · {{ nomeTipo(item.tipoCampo) }}</span>
                           </div>
                         </ng-template>
                       </p-select>
                       <p-button label="Adicionar" icon="pi pi-plus" size="small" [text]="true"
-                        [disabled]="!escolhaPorBloco[bloco.grupo]" (onClick)="adicionar(bloco.grupo)"
-                        styleClass="!text-primary-700 dark:!text-primary-400 !font-bold !text-[10px]" />
+                        [disabled]="!escolhaPorBloco[bloco.grupo]" (onClick)="adicionar(bloco.grupo)" />
                     </div>
                   }
                 </div>
@@ -194,7 +192,7 @@ interface BlocoBuilder extends GrupoDeCampos {
               <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center">
                 <i class="pi pi-list text-2xl text-slate-300 dark:text-slate-600"></i>
                 <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mt-3">Formulário vazio</h2>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   Comece acrescentando o campo de valor — é ele que a diretoria autoriza.
                 </p>
               </div>
@@ -203,7 +201,7 @@ interface BlocoBuilder extends GrupoDeCampos {
 
           <div class="px-5 md:px-8 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-800/40 flex items-start gap-2">
             <i class="pi pi-info-circle text-primary-700 dark:text-primary-400 text-xs mt-0.5"></i>
-            <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               As alterações são salvas automaticamente. Cada campo já traz do sistema o tipo de resposta,
               as opções e quando deve aparecer — aqui você decide quais entram, em que ordem e como são
               apresentados.
@@ -214,50 +212,15 @@ interface BlocoBuilder extends GrupoDeCampos {
     </div>
   `,
   styles: [`
-    .form-shell { background: var(--p-surface-0); border: 1px solid var(--p-zinc-100); border-radius: 1rem; overflow: hidden; }
-    :host-context(.app-dark) .form-shell, :host-context(.dark) .form-shell { background: var(--p-zinc-900) !important; border-color: var(--p-zinc-800) !important; }
-    .form-shell__header { padding: 1.5rem 1.25rem; border-bottom: 1px solid var(--p-zinc-100); }
-    :host-context(.app-dark) .form-shell__header, :host-context(.dark) .form-shell__header { border-bottom-color: var(--p-zinc-800) !important; }
-    .form-shell__body { padding: 1.5rem 1.25rem; }
-    @media (min-width: 768px) { .form-shell__header, .form-shell__body { padding-left: 2rem; padding-right: 2rem; } }
-    .section-marker {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      border-left: 2px solid var(--p-primary-500);
-      padding-left: 0.75rem;
-      margin-bottom: 0.75rem;
-    }
-    :host-context(.app-dark) .section-marker,
-    :host-context(.dark) .section-marker {
-      border-left-color: var(--p-primary-400) !important;
-    }
-    .section-marker span {
-      color: var(--p-zinc-700);
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      text-transform: none;
-    }
-    :host-context(.app-dark) .section-marker span,
-    :host-context(.dark) .section-marker span {
-      color: var(--p-zinc-100) !important;
-    }
-    .field { display: flex; flex-direction: column; gap: 0.375rem; }
-    .field > label { color: var(--p-zinc-600); font-size: var(--geo-font-caption); font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
-    :host-context(.app-dark) .field > label,
-    :host-context(.dark) .field > label {
-      color: var(--p-zinc-300) !important;
-    }
-    :host ::ng-deep {
-      .doc-input.p-inputtext, .doc-select .p-select-label, .doc-select .p-select-placeholder {
-        font-size: var(--geo-font-caption) !important; font-weight: 500 !important;
-        height: 34px !important; display: flex; align-items: center; border-radius: 6px !important;
-      }
-      .doc-input.p-inputtext { width: 100%; }
-      .doc-select .p-select { width: 100%; height: 34px; border-radius: 6px !important; }
-      .p-breadcrumb .p-menuitem-text { font-size: var(--geo-font-caption); font-weight: 500; color: var(--p-zinc-400); text-transform: none; letter-spacing: 0; }
-    }
+    /* Cores por token (--geo-*): claro e escuro sem regra por tema. */
+    .form-shell { background: var(--geo-surface); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); overflow: hidden; }
+    .form-shell__header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--geo-border); }
+    .form-shell__body { padding: 1.25rem 1.5rem; }
+    .section-marker { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .section-marker span { color: var(--geo-foreground); font-size: 1rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
+    .field { display: flex; flex-direction: column; gap: 0.25rem; }
+    .field > label { color: var(--geo-foreground); font-size: 13px; font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
+    .doc-input { width: 100%; }
   `]
 })
 export class FormularioFinanceiroBuilderComponent {

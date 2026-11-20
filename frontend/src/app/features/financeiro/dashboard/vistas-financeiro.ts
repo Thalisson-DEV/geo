@@ -457,7 +457,7 @@ function vistaFaixaVencimento(a: AlvoAnalise, c: ContextoAnaliseFinanceiro): Vis
     eyebrow: 'Agenda de pagamentos',
     titulo: `${f.rotulo}: ${moeda(f.valor)}`,
     descricao: vencida
-      ? `${plural(f.quantidade, 'despesa aprovada', 'despesas aprovadas')} já vencida(s), sem comprovante. A mais antiga venceu há ${plural(f.diasExtremo, 'dia', 'dias')}.`
+      ? `${plural(f.quantidade, 'despesa aprovada', 'despesas aprovadas')} ${f.quantidade === 1 ? 'já vencida' : 'já vencidas'}, sem comprovante. A mais antiga venceu há ${plural(f.diasExtremo, 'dia', 'dias')}.`
       : `${plural(f.quantidade, 'despesa aprovada', 'despesas aprovadas')} a pagar. A mais próxima vence em ${plural(f.diasExtremo, 'dia', 'dias')}.`,
     icone: vencida ? 'pi pi-exclamation-triangle' : 'pi pi-calendar-clock',
     kpis: [
@@ -565,7 +565,7 @@ function vistaPeriodo(a: AlvoAnalise, c: ContextoAnaliseFinanceiro): VistaAnalis
       { rotulo: 'Pedidos', valor: String(p.abertas), detalhe: moeda(p.valorSolicitado), icone: 'pi pi-shopping-cart' },
       { rotulo: 'Autorizado', valor: moeda(p.valorAprovado), detalhe: `${pct(p.taxaAutorizacao)} do pedido`, tom: 'brand', icone: 'pi pi-check-circle' },
       { rotulo: 'Aprovados · rejeitados', valor: `${p.aprovadas} · ${p.rejeitadas}`, detalhe: `recusado: ${moeda(p.valorRejeitado)}`, icone: 'pi pi-check-square' },
-      { rotulo: 'Sem desfecho', valor: String(p.pendentes), detalhe: `${p.canceladas} cancelado(s)`, tom: p.pendentes ? 'warning' : 'neutral', icone: 'pi pi-hourglass' }
+      { rotulo: 'Sem desfecho', valor: String(p.pendentes), detalhe: plural(p.canceladas, 'cancelado', 'cancelados'), tom: p.pendentes ? 'warning' : 'neutral', icone: 'pi pi-hourglass' }
     ],
     anterior: vizinho(i - 1),
     proximo: vizinho(i + 1),
@@ -597,7 +597,7 @@ function vistaRanking(a: AlvoAnalise, c: ContextoAnaliseFinanceiro): VistaAnalis
     { rotulo: 'Autorizado', valor: moeda(item.valorAprovado), detalhe: `${pct(item.percentualValor)} do autorizado no painel`, tom: 'brand', icone: 'pi pi-check-circle' },
     { rotulo: 'Pedido', valor: moeda(item.valorSolicitado), detalhe: plural(item.quantidade, 'pedido', 'pedidos'), icone: 'pi pi-shopping-cart' },
     { rotulo: 'Esperando decisão', valor: String(item.pendentes), tom: item.pendentes ? 'warning' : 'neutral', icone: 'pi pi-hourglass' },
-    { rotulo: 'Aprovação', valor: item.aprovadas + item.rejeitadas ? pct(item.taxaAprovacao) : '—', detalhe: `${item.aprovadas} aprovado(s) · ${item.rejeitadas} rejeitado(s)`, icone: 'pi pi-thumbs-up' },
+    { rotulo: 'Aprovação', valor: item.aprovadas + item.rejeitadas ? pct(item.taxaAprovacao) : '—', detalhe: `${plural(item.aprovadas, 'aprovado', 'aprovados')} · ${plural(item.rejeitadas, 'rejeitado', 'rejeitados')}`, icone: 'pi pi-thumbs-up' },
     { rotulo: 'Com nota ou boleto', valor: item.aprovadas ? pct(item.percentualComDocumentoFiscal, 0) : '—', tom: item.aprovadas && item.percentualComDocumentoFiscal < LIMIAR.coberturaMinima ? 'warning' : 'neutral', icone: 'pi pi-receipt' },
     { rotulo: 'Ticket médio', valor: formatarMoeda(item.ticketMedio), icone: 'pi pi-tag' }
   ];

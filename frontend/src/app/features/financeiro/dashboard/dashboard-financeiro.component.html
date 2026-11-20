@@ -142,7 +142,7 @@
               <geo-chart kind="bar-stacked" title="Pedidos esperando decisão por tempo de espera" [showTitle]="false" [selectable]="true" selectLabel="Ver os pedidos"
                 [labels]="graficoFila().rotulos" [series]="graficoFila().series" valueFormat="integer" [height]="250" (pointSelect)="abrirFaixaFila($event.index)"></geo-chart>
               <p class="dash-note">
-                Metade das decisões sai em {{ umaCasa(d.ciclo.medianaDiasAteDecisao) }} dia(s);
+                Metade das decisões sai em {{ umaCasa(d.ciclo.medianaDiasAteDecisao) }} {{ d.ciclo.medianaDiasAteDecisao === 1 ? 'dia' : 'dias' }};
                 9 em cada 10, em até {{ umaCasa(d.ciclo.p90DiasAteDecisao) }}.
               </p>
             } @else {
@@ -174,7 +174,8 @@
         <geo-data-table class="fin-tabela" [title]="'Todos os itens · ' + rotuloRanking().toLowerCase()" [storageKey]="'fin-ranking-' + dimensaoRanking()"
           [exportFileName]="'financeiro-por-' + dimensaoRanking()" [columns]="colunasRanking()" [rows]="linhasRanking()" [rowKey]="chaveRanking" [rowLabel]="rotuloItemRanking"
           [searchPlaceholder]="'Filtrar ' + rotuloRanking().toLowerCase()" rowActionLabel="Analisar" (rowActivate)="abrirItemRanking($event)"
-          [state]="linhasRanking().length ? 'ready' : 'empty'" [stateTitle]="'Sem dados de ' + rotuloRanking().toLowerCase() + ' no período'"></geo-data-table>
+          [state]="linhasRanking().length ? 'ready' : 'empty'" [stateTitle]="'Sem dados de ' + rotuloRanking().toLowerCase() + ' no período'"
+          stateDescription="Nenhum valor pedido ou autorizado neste recorte. Amplie o período ou remova filtros."></geo-data-table>
       </section>
 
       <!-- 6. O que vence e o que trava a contabilidade -->
@@ -209,8 +210,8 @@
               [labels]="graficoDocumentos().rotulos" [series]="graficoDocumentos().series" valueFormat="integer"
               [height]="Math.max(180, graficoDocumentos().itens.length * 40 + 50)" (pointSelect)="abrirSituacaoDocumento($event.index)"></geo-chart>
             <p class="dash-note">
-              Espera média de {{ umaCasa(d.conformidade.idadeMediaFilaDias) }} dia(s); o mais antigo está parado há {{ d.conformidade.idadeMaximaFilaDias }}.
-              {{ d.conformidade.duplicados }} arquivo(s) repetido(s), {{ d.conformidade.semIdentificacao }} sem número e {{ d.conformidade.avulsosSemVinculo }} sem pedido correspondente.
+              Espera média de {{ umaCasa(d.conformidade.idadeMediaFilaDias) }} {{ d.conformidade.idadeMediaFilaDias === 1 ? 'dia' : 'dias' }}; o mais antigo está parado há {{ d.conformidade.idadeMaximaFilaDias }}.
+              {{ plural(d.conformidade.duplicados, 'arquivo repetido', 'arquivos repetidos') }}, {{ d.conformidade.semIdentificacao }} sem número e {{ d.conformidade.avulsosSemVinculo }} sem pedido correspondente.
             </p>
           } @else {
             <geo-async-state state="empty" icon="pi pi-folder-open" title="Nenhum documento no recorte"></geo-async-state>
