@@ -1,14 +1,10 @@
+import type { ChartData, ChartDataset } from 'chart.js';
 import { SerieEventosItem } from '../../../core/models/sst-evento.models';
 
-export interface DatasetEvolucao {
-  type: 'bar' | 'line';
-  label: string;
-  data: number[];
-  order: number;
-  [chave: string]: unknown;
-}
+/** Série do gráfico de evolução: barras (total) e linha (com lesão) no mesmo canvas. */
+export type DatasetEvolucao = ChartDataset<'bar' | 'line', number[]>;
 
-export interface DadosGraficoEvolucao {
+export interface DadosGraficoEvolucao extends ChartData<'bar' | 'line', number[], string> {
   labels: string[];
   datasets: DatasetEvolucao[];
 }

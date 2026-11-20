@@ -1,8 +1,9 @@
+import type { ChartData, ChartOptions, TooltipItem } from 'chart.js';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
-import { ChartModule } from 'primeng/chart';
+import { GeoChartCanvasComponent, type GeoChartCanvasSelectEvent } from '@geo/ui';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -81,7 +82,7 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, GeoSelectComponent,
-    CommonModule, DecimalPipe, ChartModule, SkeletonModule, TooltipModule, GeoCellDirective, GeoDataTableComponent, GeoStatusComponent,
+    CommonModule, DecimalPipe, GeoChartCanvasComponent, SkeletonModule, TooltipModule, GeoCellDirective, GeoDataTableComponent, GeoStatusComponent,
     DashboardMetricCardComponent, MapaCorpoLesoesComponent, PiramideBirdComponent, GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent,
     CopilotoPerguntarComponent, DashboardAnaliseComponent, DashboardVisaoGerencialComponent],
   providers: [GeoDrillStateService, NavegacaoAnaliseService],
@@ -98,7 +99,7 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
 
     /* --- Responsive chart --- */
     .dash-chart--responsive { height: clamp(260px, 22vw, 360px); padding-top: .25rem; }
-    .dash-chart--responsive .p-chart { display: block; width: 100%; height: 100%; }
+    .dash-chart--responsive .geo-chart-canvas { display: block; width: 100%; height: 100%; }
     .dash-chart--responsive canvas { width: 100% !important; max-width: 100%; }
 
     /* --- Backlog card grid --- */
@@ -363,7 +364,7 @@ export class DashboardEventosComponent implements OnInit {
   protected dataInicio: Date | null = null;
   protected dataFim: Date | null = null;
   protected filter: DashboardEventosSstFilter = this.filtroVazio();
-  protected serieChartData: unknown;
+  protected serieChartData?: ChartData<'bar' | 'line'>;
   protected readonly serieChartOptions = this.chartOptions();
 
   private readonly chavesDeSelecao: (keyof DashboardEventosSstFilter)[] = [
@@ -532,10 +533,10 @@ export class DashboardEventosComponent implements OnInit {
     this.analise.aprofundar(alvo, this.vistaAnalise()?.titulo ?? '');
   }
 
-  /** Clique numa barra da evolução (p-chart): abre a análise daquele período. */
-  protected onSerieSelect(evento: { element?: unknown }): void {
+  /** Clique numa barra da evolução (geo-chart-canvas): abre a análise daquele período. */
+  protected onSerieSelect(evento: GeoChartCanvasSelectEvent): void {
     const d = this.data();
-    const indice = (evento?.element as { index?: number } | undefined)?.index;
+    const indice = evento.element.index;
     const ponto = d && typeof indice === 'number' ? d.serie[indice] : undefined;
     if (!d || !ponto) return;
     this.analise.abrir(d.granularidade === 'DIA' ? 'dia' : d.granularidade === 'MES' ? 'mes' : 'ano', diaCivil(ponto.data));
@@ -648,7 +649,7 @@ export class DashboardEventosComponent implements OnInit {
     this.serieChartData = montarDadosGraficoEvolucao(data.serie ?? [], cor);
   }
 
-  private chartOptions(): unknown {
+  private chartOptions(): ChartOptions<'bar' | 'line'> {
     return {
       maintainAspectRatio: false,
       responsive: true,
@@ -660,7 +661,7 @@ export class DashboardEventosComponent implements OnInit {
           labels: {
             boxWidth: 12, boxHeight: 12,
             borderRadius: 3, useBorderRadius: true,
-            font: { size: 11, weight: '600' },
+            font: { size: 11, weight: 600 },
             color: '#64748b',
             padding: 16
           }
@@ -669,15 +670,15 @@ export class DashboardEventosComponent implements OnInit {
           mode: 'index', intersect: false,
           backgroundColor: '#0f172a',
           titleColor: '#e2e8f0', bodyColor: '#fff',
-          titleFont: { size: 12, weight: '700' },
+          titleFont: { size: 12, weight: 700 },
           bodyFont: { size: 12 },
-          footerFont: { size: 11, weight: '600' },
+          footerFont: { size: 11, weight: 600 },
           footerColor: '#94a3b8',
           padding: 14, cornerRadius: 10,
           displayColors: true,
           boxPadding: 6,
           callbacks: {
-            footer: (itens: { dataset: { label?: string }; parsed: { y: number } }[]) => {
+            footer: (itens: TooltipItem<'bar' | 'line'>[]) => {
               const total = itens.find((item) => item.dataset.label === 'Total de eventos')?.parsed.y ?? 0;
               const comLesao = itens.find((item) => item.dataset.label === 'Com lesão')?.parsed.y ?? 0;
               return `Sem lesão: ${calcularEventosSemLesao(total, comLesao)}`;
@@ -691,7 +692,7 @@ export class DashboardEventosComponent implements OnInit {
           border: { display: false },
           ticks: {
             color: '#829ab1',
-            font: { size: 11, weight: '500' },
+            font: { size: 11, weight: 500 },
             maxTicksLimit: 10,
             maxRotation: 45,
             autoSkip: true,
@@ -705,7 +706,7 @@ export class DashboardEventosComponent implements OnInit {
           grid: { color: 'rgba(203, 213, 225, 0.3)', drawTicks: false },
           ticks: {
             color: '#94a3b8',
-            font: { size: 11, weight: '500' },
+            font: { size: 11, weight: 500 },
             precision: 0,
             maxTicksLimit: 6,
             padding: 12

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { UIChart } from 'primeng/chart';
+import { GeoChartCanvasComponent } from './chart-canvas.component';
 import { GeoChartComponent, formatGeoChartValue } from './chart.component';
 
 async function criar(inputs: Record<string, unknown>) {
@@ -37,7 +37,7 @@ describe('GeoChartComponent', () => {
       labels: ['Equipe Norte', 'Equipe Sul'],
       series: [{ name: 'Desvios', values: [7, 3] }],
     });
-    const chart = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
+    const chart = fixture.debugElement.query(By.directive(GeoChartCanvasComponent)).componentInstance as GeoChartCanvasComponent;
     expect(chart.type()).toBe('bar');
     expect((chart.options() as { indexAxis: string }).indexAxis).toBe('y');
     const dataset = (chart.data() as { datasets: { backgroundColor: string }[] }).datasets[0];
@@ -45,7 +45,7 @@ describe('GeoChartComponent', () => {
 
     fixture.componentRef.setInput('kind', 'bar-stacked');
     fixture.detectChanges();
-    const empilhado = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
+    const empilhado = fixture.debugElement.query(By.directive(GeoChartCanvasComponent)).componentInstance as GeoChartCanvasComponent;
     expect((empilhado.options() as { scales: { y: { stacked: boolean } } }).scales.y.stacked).toBe(true);
     document.documentElement.style.removeProperty('--geo-chart-1');
   });
@@ -84,7 +84,7 @@ describe('GeoChartComponent', () => {
   it('mostra estado vazio sem canvas quando não há dados', async () => {
     const fixture = await criar({ kind: 'pie', title: 'Composição', labels: [], series: [] });
     expect(fixture.nativeElement.querySelector('.geo-chart__empty')?.getAttribute('role')).toBe('status');
-    expect(fixture.nativeElement.querySelector('p-chart')).toBeNull();
+    expect(fixture.nativeElement.querySelector('geo-chart-canvas')).toBeNull();
     expect(fixture.nativeElement.querySelector('.geo-chart__toggle')).toBeNull();
   });
 
@@ -105,7 +105,7 @@ describe('GeoChartComponent', () => {
     const selecoes: unknown[] = [];
     fixture.componentInstance.pointSelect.subscribe((selecao) => selecoes.push(selecao));
 
-    const chart = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
+    const chart = fixture.debugElement.query(By.directive(GeoChartCanvasComponent)).componentInstance as GeoChartCanvasComponent;
     const onClick = (chart.options() as { onClick: (e: unknown, el: unknown[]) => void }).onClick;
     onClick({}, [{ index: 1, datasetIndex: 0 }]);
     onClick({}, []);
@@ -130,7 +130,7 @@ describe('GeoChartComponent', () => {
       series: [{ name: 'Notas', values: [0, 2] }],
       valueFormat: 'integer',
     });
-    const chart = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
+    const chart = fixture.debugElement.query(By.directive(GeoChartCanvasComponent)).componentInstance as GeoChartCanvasComponent;
     const escalas = (chart.options() as { scales: { y: { ticks: { precision?: number } } } }).scales;
     expect(escalas.y.ticks.precision).toBe(0);
   });
@@ -142,7 +142,7 @@ describe('GeoChartComponent', () => {
       labels: ['A'],
       series: [{ name: 'S', values: [1] }],
     });
-    const chart = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
+    const chart = fixture.debugElement.query(By.directive(GeoChartCanvasComponent)).componentInstance as GeoChartCanvasComponent;
     expect((chart.options() as { onClick?: unknown }).onClick).toBeUndefined();
     expect((chart.options() as { interaction?: unknown }).interaction).toBeUndefined();
     fixture.componentInstance.dataTableVisible.set(true);

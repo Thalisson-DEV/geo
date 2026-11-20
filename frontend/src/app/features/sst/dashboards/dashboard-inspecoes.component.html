@@ -89,9 +89,9 @@
 
           @if (d.serieTemporal.length) {
             <div class="dash-chart dash-chart--drill">
-              <p-chart type="bar" [data]="$any(serieData)" [options]="$any(serieOptions)" height="310px"
+              <geo-chart-canvas type="bar" [data]="serieData" [options]="serieOptions" height="310px"
                 [ariaLabel]="'Realizado por ' + granularidadeLabels[d.granularidade] + '. Use o seletor Detalhar abaixo do gráfico para ver um período.'"
-                (onDataSelect)="onSerieDataSelect($event)" />
+                (dataSelect)="onSerieDataSelect($event)" />
             </div>
             <div class="dash-drill-bar">
               <span class="dash-drill-hint"><i class="pi pi-hand-pointer" aria-hidden="true"></i> Clique numa barra para analisar o período</span>
@@ -314,8 +314,8 @@
             }
           </div>
           @if (distributionRows().length) {
-            <div class="dash-chart dash-chart--short dash-chart--drill"><p-chart type="doughnut" [data]="$any(distribuicaoData)" [options]="$any(distribuicaoOptions)" height="260px"
-              [ariaLabel]="'Distribuição por ' + distributionLabel().toLowerCase() + '. Clique numa fatia para analisar.'" (onDataSelect)="onDistribuicaoSelect($event)" /></div>
+            <div class="dash-chart dash-chart--short dash-chart--drill"><geo-chart-canvas type="doughnut" [data]="distribuicaoData" [options]="distribuicaoOptions" height="260px"
+              [ariaLabel]="'Distribuição por ' + distributionLabel().toLowerCase() + '. Clique numa fatia para analisar.'" (dataSelect)="onDistribuicaoSelect($event)" /></div>
             <p class="dash-drill-hint"><i class="pi pi-hand-pointer" aria-hidden="true"></i> Clique numa fatia para analisar o grupo</p>
           } @else {
             <div class="dash-empty"><i class="pi pi-chart-pie"></i>Sem dados de {{ distributionLabel().toLowerCase() }} no período.</div>

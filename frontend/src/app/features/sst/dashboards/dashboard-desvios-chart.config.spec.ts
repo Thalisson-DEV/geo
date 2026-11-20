@@ -9,9 +9,9 @@ describe('montarDadosTendenciaDesvios', () => {
       { chave: '2026-02', rotulo: 'fev/2026', inicio: '2026-02-01', totalDesvios: 0 }
     ]);
 
-    expect(data['labels']).toEqual(['jan/2026', 'fev/2026']);
-    expect((data['datasets'] as Array<Record<string, unknown>>)[0]['data']).toEqual([14, 0]);
-    expect((data['datasets'] as Array<Record<string, unknown>>)[0]['label']).toBe(
+    expect(data.labels).toEqual(['jan/2026', 'fev/2026']);
+    expect(data.datasets[0].data).toEqual([14, 0]);
+    expect(data.datasets[0].label).toBe(
       'Desvios identificados'
     );
   });
@@ -21,6 +21,6 @@ describe('montarDadosTendenciaDesvios', () => {
       { chave: '2026-01-01', rotulo: '01/01', inicio: '2026-01-01', totalDesvios: 1 }
     ]);
 
-    expect(data['labels']).toEqual(['01/01']);
+    expect(data.labels).toEqual(['01/01']);
   });
 });

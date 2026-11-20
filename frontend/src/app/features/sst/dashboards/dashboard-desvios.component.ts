@@ -1,9 +1,10 @@
+import type { ChartData } from 'chart.js';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { ThemeService } from '../../../core/services/theme.service';
-import { ChartModule } from 'primeng/chart';
+import { GeoChartCanvasComponent, type GeoChartCanvasSelectEvent } from '@geo/ui';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -77,7 +78,7 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent,
-    CommonModule, DecimalPipe, ChartModule, SkeletonModule, TooltipModule, GeoCellDirective, GeoDataTableComponent, GeoStatusComponent,
+    CommonModule, DecimalPipe, GeoChartCanvasComponent, SkeletonModule, TooltipModule, GeoCellDirective, GeoDataTableComponent, GeoStatusComponent,
     DashboardMetricCardComponent, GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent,
     DashboardAnaliseComponent, DashboardVisaoGerencialComponent],
   providers: [GeoDrillStateService, NavegacaoAnaliseService],
@@ -126,7 +127,7 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       width: 100%;
       height: clamp(240px, 30vw, 320px);
     }
-    .dash-chart--responsive .p-chart { display: block; width: 100%; height: 100%; }
+    .dash-chart--responsive .geo-chart-canvas { display: block; width: 100%; height: 100%; }
 
     /* --- Aging Pipeline & Severity Pipeline --- */
     .dash-aging-grid {
@@ -454,7 +455,7 @@ export class DashboardDesviosComponent implements OnInit {
   protected dataInicio: Date | null = null;
   protected dataFim: Date | null = null;
   protected filter: DashboardSstFilter = this.filtroVazio();
-  protected deviationTrendData: unknown;
+  protected deviationTrendData?: ChartData<'line'>;
   protected readonly trendChartOptions = opcoesGraficoTendenciaDesvios();
   private requestId = 0;
 
@@ -615,10 +616,10 @@ export class DashboardDesviosComponent implements OnInit {
     this.analise.aprofundar(alvo, this.vistaAnalise()?.titulo ?? '');
   }
 
-  /** Clique num ponto da tendência (p-chart): abre a análise daquele período. */
-  protected onTendenciaSelect(evento: { element?: unknown }): void {
+  /** Clique num ponto da tendência (geo-chart-canvas): abre a análise daquele período. */
+  protected onTendenciaSelect(evento: GeoChartCanvasSelectEvent): void {
     const d = this.data();
-    const indice = (evento?.element as { index?: number } | undefined)?.index;
+    const indice = evento.element.index;
     const ponto = d && typeof indice === 'number' ? d.tendenciaDesvios[indice] : undefined;
     if (d && ponto) this.analise.abrir(d.granularidade === 'DIA' ? 'dia' : d.granularidade === 'MES' ? 'mes' : 'ano', ponto.inicio);
   }

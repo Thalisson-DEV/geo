@@ -1,10 +1,11 @@
+import type { ChartData, ChartOptions } from 'chart.js';
 import { TendenciaDesviosItem } from '../../../core/models/sst-dashboard.models';
 import { obterPaletaPrimaria } from './dashboard-eventos-chart.config';
 
 export function montarDadosTendenciaDesvios(
   serie: TendenciaDesviosItem[],
   corPrimaria?: string | null
-): Record<string, unknown> {
+): ChartData<'line', number[], string> {
   const paleta = obterPaletaPrimaria(corPrimaria);
 
   return {
@@ -39,7 +40,7 @@ export function montarDadosTendenciaDesvios(
   };
 }
 
-export function opcoesGraficoTendenciaDesvios(): Record<string, unknown> {
+export function opcoesGraficoTendenciaDesvios(): ChartOptions<'line'> {
   return {
     maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },

@@ -1,11 +1,16 @@
+import type { ChartDataset } from 'chart.js';
 import { describe, expect, it, vi } from 'vitest';
 import {
   PALETAS_GRADIENTE_PRIMARIA,
   calcularEventosSemLesao,
   criarGradienteBarra,
   montarDadosGraficoEvolucao,
-  obterPaletaPrimaria
+  obterPaletaPrimaria,
+  type DatasetEvolucao
 } from './dashboard-eventos-chart.config';
+
+/** `pointRadius` só existe no dataset de linha (lesões). */
+const comoLinha = (dataset: DatasetEvolucao) => dataset as ChartDataset<'line', number[]>;
 
 describe('montarDadosGraficoEvolucao', () => {
   const serie = [
@@ -24,14 +29,15 @@ describe('montarDadosGraficoEvolucao', () => {
     expect(comLesao.label).toBe('Com lesão');
     expect(comLesao.type).toBe('line');
     expect(comLesao.data).toEqual([2, 1]);
-    expect(comLesao['pointRadius']).toEqual([4, 4]);
-    expect(comLesao.order).toBeLessThan(total.order);
+    expect(comoLinha(comLesao).pointRadius).toEqual([4, 4]);
+    expect(total.order).toBeDefined();
+    expect(comLesao.order).toBeLessThan(total.order as number);
   });
 
   it('não marca pontos nos dias sem lesão', () => {
     const dados = montarDadosGraficoEvolucao([{ ...serie[0], comLesao: 0 }, serie[1]]);
 
-    expect(dados.datasets[1]['pointRadius']).toEqual([0, 4]);
+    expect(comoLinha(dados.datasets[1]).pointRadius).toEqual([0, 4]);
   });
 
   it('mantém as duas representações distinguíveis mesmo quando os valores coincidem', () => {

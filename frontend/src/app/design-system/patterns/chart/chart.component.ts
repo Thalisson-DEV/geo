@@ -10,9 +10,9 @@ import {
   signal,
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { ChartModule } from 'primeng/chart';
 import type { ChartData, ChartOptions, ChartType, TooltipItem } from 'chart.js';
 import { GeoButtonComponent } from '../../primitives/button';
+import { GeoChartCanvasComponent } from './chart-canvas.component';
 
 export type GeoChartKind =
   | 'bar'
@@ -72,14 +72,14 @@ const KIND_LABEL: Record<GeoChartKind, string> = {
 let chartSequence = 0;
 
 /**
- * Gráfico GEO sobre Chart.js (via `primeng/chart`). Cores vêm dos tokens `--geo-chart-*` (tema claro e
+ * Gráfico GEO sobre Chart.js (via `geo-chart-canvas`). Cores vêm dos tokens `--geo-chart-*` (tema claro e
  * escuro), números no padrão pt-BR, resumo textual para leitores de tela e alternativa em tabela de
  * dados acessível por botão — o gráfico nunca é a única forma de ler a informação.
  */
 @Component({
   selector: 'geo-chart',
   standalone: true,
-  imports: [ChartModule, GeoButtonComponent],
+  imports: [GeoChartCanvasComponent, GeoButtonComponent],
   templateUrl: './chart.component.html',
   styleUrl: './chart.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

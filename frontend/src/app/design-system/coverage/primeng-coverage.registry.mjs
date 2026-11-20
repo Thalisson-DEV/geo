@@ -72,7 +72,6 @@ const styledDirectEntrypoints = [
   'primeng/blockui',
   'primeng/buttongroup',
   'primeng/cascadeselect',
-  'primeng/chart',
   'primeng/chip',
   'primeng/colorpicker',
   'primeng/commandmenu',
@@ -213,6 +212,12 @@ const excludedEntries = [
     rationale:
       'PrimeNG component-implementation base class; extending it would make GEO contracts depend on framework internals rather than the supported component API.'
   })),
+  {
+    entrypoint: 'primeng/chart',
+    disposition: 'excluded',
+    rationale:
+      'Deprecated in PrimeNG 22 (charts move to the paid PrimeUI PRO tier). GEO renders Chart.js directly through geo-chart and geo-chart-canvas in @geo/ui, typed per chart type.'
+  },
   {
     entrypoint: 'primeng/icons/baseicon',
     disposition: 'excluded',

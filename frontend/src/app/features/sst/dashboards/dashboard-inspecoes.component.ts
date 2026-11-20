@@ -1,3 +1,4 @@
+import type { ChartData, ChartDataset, ChartOptions } from 'chart.js';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +9,7 @@ import {
   criarGradienteBarra,
   obterPaletaPrimaria
 } from './dashboard-eventos-chart.config';
-import { ChartModule } from 'primeng/chart';
+import { GeoChartCanvasComponent, type GeoChartCanvasSelectEvent } from '@geo/ui';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -107,7 +108,7 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     GeoBooleanControlComponent, GeoFormDrawerComponent, GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, GeoSelectComponent,
-    CommonModule, DecimalPipe, ChartModule, SkeletonModule, TooltipModule, DashboardMetricCardComponent,
+    CommonModule, DecimalPipe, GeoChartCanvasComponent, SkeletonModule, TooltipModule, DashboardMetricCardComponent,
     GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent, GeoCellDirective, GeoDataTableComponent, GeoMeterComponent, GeoRankBadgeComponent,
     GeoStatusComponent, CopilotoPerguntarComponent, DashboardAnaliseComponent, DashboardVisaoGerencialComponent],
   providers: [GeoDrillStateService, NavegacaoAnaliseService],
@@ -383,11 +384,11 @@ export class DashboardInspecoesComponent implements OnInit {
   protected dataFim: Date | null = null;
   protected filter: DashboardSstFilter = this.filtroVazio();
 
-  protected serieData: unknown;
-  protected serieOptions: unknown;
+  protected serieData?: ChartData<'bar' | 'line'>;
+  protected serieOptions?: ChartOptions<'bar' | 'line'>;
   protected inspetorData: unknown;
   protected inspetorOptions: unknown;
-  protected distribuicaoData: unknown;
+  protected distribuicaoData?: ChartData<'doughnut'>;
   protected readonly distribuicaoOptions = this.donutOptions();
 
   protected showExportDialog = false;
@@ -479,9 +480,9 @@ export class DashboardInspecoesComponent implements OnInit {
     this.router.navigate([], { relativeTo: this.route, queryParams, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
-  /** Clique numa barra/ponto da série (p-chart): abre a análise daquele período. */
-  protected onSerieDataSelect(evento: { element?: unknown }): void {
-    const indice = (evento?.element as { index?: number } | undefined)?.index;
+  /** Clique numa barra/ponto da série (geo-chart-canvas): abre a análise daquele período. */
+  protected onSerieDataSelect(evento: GeoChartCanvasSelectEvent): void {
+    const indice = evento.element.index;
     const ponto = typeof indice === 'number' ? this.data()?.serieTemporal[indice] : undefined;
     if (ponto) this.analisarPeriodo(ponto.inicio);
   }
@@ -493,8 +494,8 @@ export class DashboardInspecoesComponent implements OnInit {
   }
 
   /** Clique numa fatia de "Onde as inspeções aconteceram". */
-  protected onDistribuicaoSelect(evento: { element?: unknown }): void {
-    const indice = (evento?.element as { index?: number } | undefined)?.index;
+  protected onDistribuicaoSelect(evento: GeoChartCanvasSelectEvent): void {
+    const indice = evento.element.index;
     const item = typeof indice === 'number' ? this.distributionRows()[indice] : undefined;
     const grupo = DIMENSAO_GRUPO[this.distributionDimension()];
     if (item && grupo) this.analise.abrir('grupo', `${grupo}~${item.id}`);
@@ -844,7 +845,7 @@ export class DashboardInspecoesComponent implements OnInit {
     const realizado = acumulado ? this.somaCorrida(serie.map((i) => i.realizado)) : serie.map((i) => i.realizado);
     const meta = acumulado ? this.somaCorrida(serie.map((i) => i.meta)) : serie.map((i) => i.meta);
 
-    const datasets: unknown[] = [
+    const datasets: ChartDataset<'bar' | 'line'>[] = [
       acumulado
         ? {
             type: 'line', label: 'Realizado (acumulado)', data: realizado,
@@ -925,7 +926,7 @@ export class DashboardInspecoesComponent implements OnInit {
       plugins: {
         legend: {
           display: true, position: 'top', align: 'end',
-          labels: { boxWidth: 12, boxHeight: 12, borderRadius: 3, useBorderRadius: true, color: '#627d98', font: { size: 11, weight: '600' } }
+          labels: { boxWidth: 12, boxHeight: 12, borderRadius: 3, useBorderRadius: true, color: '#627d98', font: { size: 11, weight: 600 } }
         },
         tooltip: {
           mode: 'index', intersect: false, backgroundColor: '#102a43', titleColor: '#d9e2ec',
@@ -945,7 +946,7 @@ export class DashboardInspecoesComponent implements OnInit {
               return `${((realizado[indice] / alvo) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}% da meta`;
             }
           },
-          footerColor: '#bfdbfe', footerFont: { size: 11, weight: '600' }
+          footerColor: '#bfdbfe', footerFont: { size: 11, weight: 600 }
         }
       },
       scales: {
@@ -1024,7 +1025,7 @@ export class DashboardInspecoesComponent implements OnInit {
     };
   }
 
-  private donutOptions(): unknown {
+  private donutOptions(): ChartOptions<'doughnut'> {
     return {
       maintainAspectRatio: false,
       cutout: '62%',

@@ -73,7 +73,7 @@
     </div>
   } @else {
     <div class="geo-chart__canvas" [class.geo-chart__canvas--selectable]="selectable()" [style.height.px]="height()">
-      <p-chart [type]="chartType()" [data]="data()" [options]="options()" [ariaLabel]="summary()" height="100%"></p-chart>
+      <geo-chart-canvas [type]="chartType()" [data]="data()" [options]="options()" [ariaLabel]="summary()" height="100%"></geo-chart-canvas>
     </div>
   }
 

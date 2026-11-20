@@ -462,7 +462,7 @@
   "src/app/features/dp/descontos/dashboard/dashboard-descontos.component.ts": {
     "cor-literal": 31,
     "icone-primeicons": 2,
-    "primeng-direto": 4
+    "primeng-direto": 3
   },
   "src/app/features/dp/descontos/desconto-form/desconto-form.component.html": {
     "icone-primeicons": 28,
@@ -1593,7 +1593,7 @@
     "cor-literal": 93,
     "icone-primeicons": 6,
     "movimento-literal": 2,
-    "primeng-direto": 3
+    "primeng-direto": 2
   },
   "src/app/features/sst/dashboards/dashboard-eventos-chart.config.ts": {
     "cor-literal": 28
@@ -1608,7 +1608,7 @@
     "icone-primeicons": 3,
     "important": 2,
     "movimento-literal": 1,
-    "primeng-direto": 3
+    "primeng-direto": 2
   },
   "src/app/features/sst/dashboards/dashboard-inspecoes.component.html": {
     "cor-literal": 3,
@@ -1618,7 +1618,7 @@
   "src/app/features/sst/dashboards/dashboard-inspecoes.component.ts": {
     "cor-literal": 47,
     "icone-primeicons": 4,
-    "primeng-direto": 3
+    "primeng-direto": 2
   },
   "src/app/features/sst/dashboards/mapa-corpo-lesoes.component.css": {
     "cor-literal": 60,
@@ -1964,8 +1964,7 @@
     "icone-primeicons": 5
   },
   "src/app/shared/components/chatbot/assistant-rich-content.component.ts": {
-    "cor-literal": 27,
-    "primeng-direto": 1
+    "cor-literal": 27
   },
   "src/app/shared/components/chatbot/chatbot-controls.css": {
     "cor-literal": 10,

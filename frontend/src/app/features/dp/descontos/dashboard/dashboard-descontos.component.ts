@@ -1,9 +1,10 @@
+import type { ChartData, ChartDataset, ChartOptions } from 'chart.js';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { ChartModule } from 'primeng/chart';
+import { GeoChartCanvasComponent } from '@geo/ui';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
@@ -92,6 +93,27 @@ import { atualizarPeriodicamente } from '../../../../shared/components/dashboard
  * com `...` continue tipado — sem isso, `ticks` cai numa assinatura de índice e o
  * compilador exige acesso por colchetes em toda sobrescrita.
  */
+/**
+ * Partes fixas (sem funções) da legenda e do tooltip, espalhadas nas opções de barra, linha e rosca:
+ * por não terem funções, servem para qualquer tipo de gráfico do Chart.js.
+ */
+interface LegendaGrafico {
+  display: boolean;
+  position: 'top';
+  align: 'end';
+  labels: { boxWidth: number; boxHeight: number; usePointStyle: boolean; color: string; font: { size: number } };
+}
+
+interface TooltipGrafico {
+  mode: 'index';
+  intersect: boolean;
+  backgroundColor: string;
+  titleColor: string;
+  bodyColor: string;
+  padding: number;
+  cornerRadius: number;
+}
+
 interface EixoChart {
   ticks: Record<string, unknown>;
   [chave: string]: unknown;
@@ -129,7 +151,7 @@ const CORES_CATEGORICAS = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule, DecimalPipe, ChartModule, SkeletonModule, TableModule, TooltipModule,
+    CommonModule, DecimalPipe, GeoChartCanvasComponent, SkeletonModule, TableModule, TooltipModule,
     DashboardInsightPanelComponent, DashboardMetricCardComponent, GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent,
     DashboardDrillComponent, GeoIconButtonComponent, GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent,
     GeoPageHeaderComponent, GeoSelectComponent
@@ -441,20 +463,20 @@ export class DashboardDescontosComponent implements OnInit {
   protected dataFim: Date | null = null;
   protected filter: DescontoDashboardFilter = this.filtroVazio();
 
-  protected serieData: unknown;
-  protected serieOptions: unknown;
-  protected funilData: unknown;
-  protected funilOptions: unknown;
-  protected statusData: unknown;
-  protected statusChartOptions: unknown;
-  protected envelhecimentoData: unknown;
-  protected envelhecimentoOptions: unknown;
-  protected motivoData: unknown;
-  protected motivoOptions: unknown;
-  protected tipoEquipamentoData: unknown;
-  protected tipoEquipamentoOptions: unknown;
-  protected cicloData: unknown;
-  protected cicloOptions: unknown;
+  protected serieData?: ChartData<'bar' | 'line'>;
+  protected serieOptions?: ChartOptions<'bar' | 'line'>;
+  protected funilData?: ChartData<'bar'>;
+  protected funilOptions?: ChartOptions<'bar'>;
+  protected statusData?: ChartData<'doughnut'>;
+  protected statusChartOptions?: ChartOptions<'doughnut'>;
+  protected envelhecimentoData?: ChartData<'bar'>;
+  protected envelhecimentoOptions?: ChartOptions<'bar'>;
+  protected motivoData?: ChartData<'bar'>;
+  protected motivoOptions?: ChartOptions<'bar'>;
+  protected tipoEquipamentoData?: ChartData<'bar'>;
+  protected tipoEquipamentoOptions?: ChartOptions<'bar'>;
+  protected cicloData?: ChartData<'bar'>;
+  protected cicloOptions?: ChartOptions<'bar'>;
 
   // ------------------------------------------------------------------ //
   //  Ciclo de vida
@@ -874,7 +896,7 @@ export class DashboardDescontosComponent implements OnInit {
     const primario = acumulado ? this.somaCorrida(solicitado) : solicitado;
     const secundario = acumulado ? this.somaCorrida(baixado) : baixado;
 
-    const datasets: unknown[] = acumulado
+    const datasets: ChartDataset<'bar' | 'line'>[] = acumulado
       ? [
           {
             type: 'line', label: emValor ? 'Solicitado (acumulado)' : 'Solicitados (acumulado)',
@@ -932,8 +954,8 @@ export class DashboardDescontosComponent implements OnInit {
           ...this.eixoY(),
           ticks: {
             ...this.eixoY().ticks,
-            callback: (valor: number) =>
-              emValor ? formatarMoedaCompacta(valor) : Number(valor).toLocaleString('pt-BR')
+            callback: (valor: number | string) =>
+              emValor ? formatarMoedaCompacta(Number(valor)) : Number(valor).toLocaleString('pt-BR')
           }
         },
         ...(acumulado
@@ -944,7 +966,7 @@ export class DashboardDescontosComponent implements OnInit {
                 grid: { display: false },
                 ticks: {
                   color: COR.pendente, maxTicksLimit: 4, padding: 6,
-                  callback: (valor: number) => `${valor}%`
+                  callback: (valor: number | string) => `${valor}%`
                 }
               }
             })
@@ -999,7 +1021,7 @@ export class DashboardDescontosComponent implements OnInit {
         x: {
           beginAtZero: true, border: { display: false },
           grid: { color: COR.grade, drawTicks: false },
-          ticks: { color: COR.eixo, maxTicksLimit: 5, padding: 6, callback: (v: number) => formatarMoedaCompacta(v) }
+          ticks: { color: COR.eixo, maxTicksLimit: 5, padding: 6, callback: (v: number | string) => formatarMoedaCompacta(Number(v)) }
         },
         y: {
           grid: { display: false }, border: { display: false },
@@ -1073,7 +1095,7 @@ export class DashboardDescontosComponent implements OnInit {
               return faixa ? `${formatarMoeda(faixa.valor)} em aberto nesta faixa` : '';
             }
           },
-          footerColor: '#bfdbfe', footerFont: { size: 11, weight: '600' }
+          footerColor: '#bfdbfe', footerFont: { size: 11, weight: 600 }
         }
       },
       scales: {
@@ -1166,7 +1188,7 @@ export class DashboardDescontosComponent implements OnInit {
       },
       scales: {
         x: this.eixoX(),
-        y: { ...this.eixoY(), ticks: { ...this.eixoY().ticks, callback: (v: number) => `${v}d` } }
+        y: { ...this.eixoY(), ticks: { ...this.eixoY().ticks, callback: (v: number | string) => `${v}d` } }
       }
     };
   }
@@ -1175,7 +1197,7 @@ export class DashboardDescontosComponent implements OnInit {
   //  Blocos de configuração reaproveitados pelos gráficos
   // ------------------------------------------------------------------ //
 
-  private opcoesBarraHorizontal(detalhe: (indice: number) => string[]): unknown {
+  private opcoesBarraHorizontal(detalhe: (indice: number) => string[]): ChartOptions<'bar'> {
     return {
       indexAxis: 'y',
       maintainAspectRatio: false,
@@ -1193,7 +1215,7 @@ export class DashboardDescontosComponent implements OnInit {
         x: {
           beginAtZero: true, border: { display: false },
           grid: { color: COR.grade, drawTicks: false },
-          ticks: { color: COR.eixo, maxTicksLimit: 5, padding: 6, callback: (v: number) => formatarMoedaCompacta(v) }
+          ticks: { color: COR.eixo, maxTicksLimit: 5, padding: 6, callback: (v: number | string) => formatarMoedaCompacta(Number(v)) }
         },
         y: {
           grid: { display: false }, border: { display: false },
@@ -1203,14 +1225,14 @@ export class DashboardDescontosComponent implements OnInit {
     };
   }
 
-  private legenda(): unknown {
+  private legenda(): LegendaGrafico {
     return {
       display: true, position: 'top', align: 'end',
       labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, color: '#627d98', font: { size: 11 } }
     };
   }
 
-  private tooltip(): Record<string, unknown> {
+  private tooltip(): TooltipGrafico {
     return {
       mode: 'index', intersect: false, backgroundColor: COR.tooltip,
       titleColor: '#d9e2ec', bodyColor: '#fff', padding: 11, cornerRadius: 8

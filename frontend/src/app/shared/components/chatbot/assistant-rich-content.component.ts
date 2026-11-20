@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import type { ChartData, ChartOptions, ChartType, TooltipItem } from 'chart.js';
-import { UIChart } from 'primeng/chart';
+import { GeoChartCanvasComponent } from '@geo/ui';
 
 import {
   AssistenteMensagem,
@@ -17,7 +17,7 @@ import {
 interface RichTextBlock extends Extract<AssistantRenderableBlock, { kind: 'text' }> {}
 
 interface RichVisualizationBlock extends Extract<AssistantRenderableBlock, { kind: 'visualization' }> {
-  chartType: 'bar' | 'line' | 'doughnut' | null;
+  chartType: ChartType | null;
   chartData: ChartData | null;
   chartOptions: ChartOptions | null;
 }
@@ -35,7 +35,7 @@ const CATEGORY_COLORS = [
   selector: 'app-assistant-rich-content',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AssistantMarkdownComponent, UIChart],
+  imports: [AssistantMarkdownComponent, GeoChartCanvasComponent],
   templateUrl: './assistant-rich-content.component.html',
   styleUrl: './assistant-rich-content.component.css'
 })

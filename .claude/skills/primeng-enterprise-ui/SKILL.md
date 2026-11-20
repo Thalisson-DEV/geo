@@ -50,6 +50,11 @@ Leia `references/patterns.md` para os blueprints completos com código.
 - Loading: `[loading]` + template de skeleton nas linhas; vazio: template `emptymessage` com ícone, frase curta e ação.
 - Colunas configuráveis (mostrar/ocultar, ordem) e densidade persistidas por usuário quando a tela tiver > 8 colunas.
 
+**Gráficos**
+- `geo-chart` (`@geo/ui`) para painéis: cores dos tokens, números pt-BR, resumo acessível e tabela de dados.
+- `geo-chart-canvas` (`@geo/ui`) quando precisar do Chart.js cru: genérico no tipo (`type="doughnut"` exige `ChartData<'doughnut'>` e `ChartOptions<'doughnut'>`); evento `(dataSelect)`.
+- Nunca `p-chart`/`primeng/chart`: descontinuado no PrimeNG 22 e excluído no registro de cobertura. Nada de `$any()` para passar dados ao gráfico — tipe o montador.
+
 **Formulários**
 - Grid de 12 colunas (CSS grid), labels acima do campo (13px/500), gap 12×16px.
 - Seções com título `t-section-title` e divisor sutil; formulários longos ganham navegação lateral por âncoras.

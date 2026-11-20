@@ -38,7 +38,7 @@
         } @else if (block.chartType && block.chartData && block.chartOptions) {
           <div class="visualization-chart" aria-hidden="true">
             @defer {
-              <p-chart
+              <geo-chart-canvas
                 [type]="block.chartType"
                 [data]="block.chartData"
                 [options]="block.chartOptions"
