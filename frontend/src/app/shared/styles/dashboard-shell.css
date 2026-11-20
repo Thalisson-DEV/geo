@@ -59,7 +59,7 @@
 .dash-eyebrow {
   display: block;
   margin-bottom: 0.35rem;
-  color: var(--p-primary-600);
+  color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
   font-weight: 600;
   letter-spacing: 0;

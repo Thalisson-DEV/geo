@@ -124,7 +124,7 @@ export class GeoAsyncStateComponent {
         icon: 'pi-inbox',
         tone: 'neutral',
         title: 'Nenhum registro encontrado',
-        description: 'Crie o primeiro registro ou ajuste os filtros aplicados.'
+        description: 'Não há registros para mostrar neste recorte.'
       },
       error: {
         icon: 'pi-exclamation-triangle',

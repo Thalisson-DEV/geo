@@ -144,6 +144,15 @@
   }
 
   /* Células de tabela. */
+  /* Corte em uma linha para células com template próprio (geoCell): o texto inteiro vai no title. */
+  .geo-cell-clamp {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .geo-cell-strong {
     display: block;
     font-weight: 600;
