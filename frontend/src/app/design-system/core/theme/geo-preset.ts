@@ -1,112 +1,194 @@
 import { definePreset } from '@primeuix/themes';
-// Variante compat: o PrimeNG 22 passou a calibrar o Lara para raiz de 16px; a compat mantém os
-// valores do Lara do PrimeNG 21 (a raiz do GEO é 13px, em styles.css). Mantida até jun/2027.
-import Lara from '@primeuix/themes/lara-compat';
-
-/** Escala primária do GEO, derivada do azul do "G" (#2563EB / #1E40AF). */
-export const GEO_PRIMARY = {
-  50: '#eff5ff',
-  100: '#dbe7fe',
-  200: '#bfd4fe',
-  300: '#93b7fd',
-  400: '#6093fa',
-  500: '#3b72f6',
-  600: '#2563eb',
-  700: '#1d4fd8',
-  800: '#1e40af',
-  900: '#1e3a8a',
-  950: '#172554'
-} as const;
-
-/** Neutros do GEO, levemente azulados. */
-export const GEO_NEUTRAL = {
-  0: '#ffffff',
-  50: '#f6f8fb',
-  100: '#eef1f6',
-  200: '#e1e6ee',
-  300: '#cbd2de',
-  400: '#98a2b3',
-  500: '#6b7588',
-  600: '#4b5567',
-  700: '#353e4f',
-  800: '#222a38',
-  900: '#151b26',
-  950: '#0b0f17'
-} as const;
+// Base Aura na variante compat: calibrada para raiz de 14px (a do GEO, em styles.css). O Aura
+// padrão do PrimeNG 22 supõe raiz de 16px; migrar para ele exige revisar as medidas em rem das
+// telas (ver docs/redesign/PROGRESS.md, decisão D1). A PrimeTek mantém as compat até jun/2027.
+import Aura from '@primeuix/themes/aura-compat';
 
 /**
- * Tema oficial do GEO sobre o Lara. A cor primária é fixa para todos os usuários; os
- * componentes do DS consomem os tokens `--geo-*` de `tokens.css`, alinhados a esta escala.
+ * Identidade empresarial compacta do GEO: neutros `zinc`, um único acento (`blue`, o azul da
+ * marca: blue.600 = #2563eb), bordas hairline, sombra só em overlays, raio 6/8/10px.
+ *
+ * Este preset é a fonte única de cor. Os tokens `--geo-*` (styles/tokens.css) são uma camada de
+ * compatibilidade que aponta para as variáveis `--p-*` geradas daqui.
+ *
+ * Cores por esquema: `light-dark(claro, escuro)` no próprio token (o @primeuix/themes 3.x não tem
+ * mais `colorScheme`). A escala `surface` é a mesma nos dois esquemas; o Aura usa os tons 800–950
+ * no escuro.
  */
-/**
- * Primitivos próprios do GEO (`{geo.*}` e `{ink.*}`). O tipo do Lara no @primeuix/themes 3 só
- * lista os primitivos dele, mas o tema continua aceitando chaves novas e gerando --p-geo-* e
- * --p-ink-*, como no 2.x; por isso o objeto entra sem o tipo estreito.
- */
-const PRIMITIVOS_GEO: object = { geo: GEO_PRIMARY, ink: GEO_NEUTRAL };
-
-export const geoPreset = definePreset(Lara, {
-  primitive: PRIMITIVOS_GEO,
+export const geoPreset = definePreset(Aura, {
   semantic: {
-    primary: {
-      50: '{geo.50}',
-      100: '{geo.100}',
-      200: '{geo.200}',
-      300: '{geo.300}',
-      400: '{geo.400}',
-      500: '{geo.500}',
-      600: '{geo.600}',
-      700: '{geo.700}',
-      800: '{geo.800}',
-      900: '{geo.900}',
-      950: '{geo.950}'
-    },
+    transitionDuration: '0.14s',
+    iconSize: '1rem',
     focusRing: {
       width: '2px',
       style: 'solid',
-      color: 'var(--geo-focus-ring)',
-      offset: '2px',
+      color: '{primary.color}',
+      offset: '1px',
       shadow: 'none'
     },
-    // light-dark(claro, escuro): a escala escura do GEO é invertida (surface.0 = ink.950).
+
+    primary: {
+      50: '{blue.50}',
+      100: '{blue.100}',
+      200: '{blue.200}',
+      300: '{blue.300}',
+      400: '{blue.400}',
+      500: '{blue.500}',
+      600: '{blue.600}',
+      700: '{blue.700}',
+      800: '{blue.800}',
+      900: '{blue.900}',
+      950: '{blue.950}',
+      color: 'light-dark({primary.600}, {primary.400})',
+      contrastColor: 'light-dark(#ffffff, {surface.950})',
+      hoverColor: 'light-dark({primary.700}, {primary.300})',
+      activeColor: 'light-dark({primary.800}, {primary.200})'
+    },
+
     surface: {
-      0: 'light-dark(#ffffff, {ink.950})',
-      50: 'light-dark({ink.50}, #0f1420)',
-      100: 'light-dark({ink.100}, #121826)',
-      200: 'light-dark({ink.200}, #1a2232)',
-      300: 'light-dark({ink.300}, #263043)',
-      400: 'light-dark({ink.400}, #35415a)',
-      500: 'light-dark({ink.500}, #8f99ab)',
-      600: 'light-dark({ink.600}, #b4bdcc)',
-      700: 'light-dark({ink.700}, #cbd2de)',
-      800: 'light-dark({ink.800}, #e1e6ee)',
-      900: 'light-dark({ink.900}, #f2f5fa)',
-      950: 'light-dark({ink.950}, #ffffff)'
+      0: '#ffffff',
+      50: '{zinc.50}',
+      100: '{zinc.100}',
+      200: '{zinc.200}',
+      300: '{zinc.300}',
+      400: '{zinc.400}',
+      500: '{zinc.500}',
+      600: '{zinc.600}',
+      700: '{zinc.700}',
+      800: '{zinc.800}',
+      900: '{zinc.900}',
+      950: '{zinc.950}'
+    },
+
+    highlight: {
+      background: 'light-dark({primary.50}, color-mix(in srgb, {primary.400}, transparent 84%))',
+      focusBackground: 'light-dark({primary.100}, color-mix(in srgb, {primary.400}, transparent 76%))',
+      color: 'light-dark({primary.800}, rgba(255,255,255,.92))',
+      focusColor: 'light-dark({primary.900}, rgba(255,255,255,.96))'
+    },
+
+    formField: {
+      paddingX: '0.65rem',
+      paddingY: '0.4rem',
+      sm: { fontSize: '0.9286rem', paddingX: '0.55rem', paddingY: '0.3rem' },
+      lg: { fontSize: '1.0714rem', paddingX: '0.85rem', paddingY: '0.55rem' },
+      borderRadius: '6px',
+      focusRing: { width: '0', style: 'none', color: 'transparent', offset: '0', shadow: 'none' },
+      transitionDuration: '{transition.duration}',
+      background: 'light-dark({surface.0}, {surface.900})',
+      disabledBackground: 'light-dark({surface.100}, {surface.800})',
+      filledBackground: 'light-dark({surface.50}, {surface.800})',
+      filledFocusBackground: 'light-dark({surface.0}, {surface.800})',
+      borderColor: 'light-dark({surface.300}, {surface.700})',
+      hoverBorderColor: 'light-dark({surface.400}, {surface.600})',
+      focusBorderColor: '{primary.color}',
+      invalidBorderColor: 'light-dark({red.500}, {red.300})',
+      color: 'light-dark({surface.900}, {surface.0})',
+      disabledColor: 'light-dark({surface.500}, {surface.400})',
+      placeholderColor: 'light-dark({surface.500}, {surface.400})',
+      invalidPlaceholderColor: 'light-dark({red.600}, {red.400})',
+      floatLabelColor: 'light-dark({surface.500}, {surface.400})',
+      iconColor: 'light-dark({surface.500}, {surface.400})',
+      shadow: 'none'
+    },
+
+    text: {
+      color: 'light-dark({surface.900}, {surface.0})',
+      hoverColor: 'light-dark({surface.950}, {surface.0})',
+      mutedColor: 'light-dark({surface.500}, {surface.400})',
+      hoverMutedColor: 'light-dark({surface.700}, {surface.300})'
+    },
+
+    list: {
+      padding: '0.25rem',
+      gap: '1px',
+      header: { padding: '0.5rem 0.75rem 0.25rem 0.75rem' },
+      option: { padding: '0.4rem 0.6rem', borderRadius: '4px' },
+      optionGroup: { padding: '0.4rem 0.6rem', fontWeight: '600' }
+    },
+
+    content: {
+      borderRadius: '8px',
+      background: 'light-dark({surface.0}, {surface.900})',
+      hoverBackground: 'light-dark({surface.100}, {surface.800})',
+      borderColor: 'light-dark({surface.200}, {surface.800})',
+      color: '{text.color}',
+      hoverColor: '{text.hover.color}'
+    },
+
+    navigation: {
+      list: { padding: '0.25rem', gap: '1px' },
+      item: { padding: '0.4rem 0.6rem', borderRadius: '6px', gap: '0.5rem' },
+      submenuLabel: { padding: '0.5rem 0.6rem 0.25rem', fontWeight: '600' },
+      submenuIcon: { size: '0.875rem' }
+    },
+
+    overlay: {
+      select: {
+        borderRadius: '8px',
+        shadow: '0 4px 16px -2px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06)'
+      },
+      popover: {
+        borderRadius: '8px',
+        padding: '0.75rem',
+        shadow: '0 4px 16px -2px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06)'
+      },
+      modal: {
+        borderRadius: '10px',
+        padding: '1.25rem',
+        shadow: '0 16px 48px -8px rgb(0 0 0 / 0.20)'
+      },
+      navigation: {
+        shadow: '0 4px 16px -2px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06)'
+      }
     }
   },
+
   components: {
-    dialog: {
-      header: {
-        padding: '1.25rem 1.5rem',
-        gap: '0.5rem'
-      },
-      content: {
-        padding: '1.25rem 1.5rem'
-      },
-      footer: {
-        padding: '1.25rem 1.5rem',
-        gap: '0.5rem'
+    button: {
+      root: {
+        borderRadius: '6px',
+        paddingX: '0.85rem',
+        paddingY: '0.4rem',
+        gap: '0.4rem',
+        iconOnlyWidth: '2.2857rem',
+        sm: { fontSize: '0.9286rem', paddingX: '0.65rem', paddingY: '0.3rem', iconOnlyWidth: '2rem' },
+        label: { fontWeight: '500' }
       }
     },
-    // O Lara escreve o detalhe do toast escuro com {surface.0}, que ele supõe branco. Como a
-    // escala escura do GEO é invertida (surface.0 = ink.950), o texto sumia no fundo. O claro
-    // segue o do Lara ({surface.700}).
+    datatable: {
+      headerCell: { padding: '0.45rem 0.75rem', gap: '0.4rem' },
+      columnTitle: { fontWeight: '500' },
+      bodyCell: { padding: '0.4rem 0.75rem' },
+      footerCell: { padding: '0.45rem 0.75rem' },
+      header: { padding: '0.5rem 0.75rem' },
+      footer: { padding: '0.5rem 0.75rem' }
+    },
+    paginator: {
+      root: { padding: '0.25rem 0.5rem', gap: '0.25rem' },
+      navButton: { width: '2rem', height: '2rem', borderRadius: '6px' }
+    },
+    tag: {
+      root: { fontSize: '0.8571rem', fontWeight: '500', padding: '0.15rem 0.45rem', borderRadius: '4px' }
+    },
+    card: {
+      root: { borderRadius: '8px', shadow: 'none' },
+      body: { padding: '1rem', gap: '0.5rem' },
+      title: { fontSize: '1.0714rem', fontWeight: '600' }
+    },
+    dialog: {
+      header: { padding: '1rem 1.25rem 0.5rem' },
+      content: { padding: '0 1.25rem 1rem' },
+      footer: { padding: '0.75rem 1.25rem 1rem', gap: '0.5rem' },
+      title: { fontSize: '1.0714rem', fontWeight: '600' }
+    },
+    drawer: {
+      header: { padding: '1rem 1.25rem' },
+      content: { padding: '0 1.25rem 1.25rem' },
+      title: { fontSize: '1.0714rem', fontWeight: '600' }
+    },
     toast: {
-      info: { detailColor: 'light-dark({surface.700}, {ink.100})' },
-      success: { detailColor: 'light-dark({surface.700}, {ink.100})' },
-      warn: { detailColor: 'light-dark({surface.700}, {ink.100})' },
-      error: { detailColor: 'light-dark({surface.700}, {ink.100})' },
-      secondary: { detailColor: 'light-dark({surface.700}, {ink.100})' }
+      root: { width: '22rem', borderRadius: '8px' }
     }
   }
 });

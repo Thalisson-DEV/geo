@@ -10,6 +10,27 @@
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+/**
+ * Primitivos do preset (`--p-zinc-200`, `--p-blue-600`...): os tokens --geo-* apontam para eles.
+ * Lidos do próprio @primeuix/themes para medir o contraste com os valores reais.
+ */
+const PRIMITIVOS = (() => {
+  try {
+    const require = createRequire(import.meta.url);
+    const caminho = require.resolve('@primeuix/themes/aura-compat');
+    const fonte = readFileSync(caminho.replace(/index\.(mjs|js)$/, 'base/index.mjs'), 'utf8');
+    const mapa = new Map();
+    for (const cor of fonte.matchAll(/([a-z]+):\{50:"#[^}]+\}/g)) {
+      const nome = cor[1];
+      for (const t of cor[0].matchAll(/(\d+):"(#[0-9a-f]{6})"/gi)) mapa.set(`--p-${nome}-${t[1]}`, t[2]);
+    }
+    return mapa;
+  } catch {
+    return new Map();
+  }
+})();
 
 export const CATEGORIAS = [
   'accent', 'border', 'brand', 'canvas', 'chart', 'control', 'danger', 'duration', 'ease',
@@ -68,6 +89,8 @@ export function ehCor(valor) {
 export function resolver(nome, ...mapas) {
   let valor;
   for (const mapa of mapas) if (mapa.has(nome)) { valor = mapa.get(nome); break; }
+  const primitivo = valor?.match(/^var\((--p-[a-z]+-\d+)\)$/);
+  if (primitivo) return PRIMITIVOS.get(primitivo[1]) ?? valor;
   const alias = valor?.match(/^var\((--geo-[a-z0-9-]+)\)$/);
   return alias ? resolver(alias[1], ...mapas) : valor;
 }

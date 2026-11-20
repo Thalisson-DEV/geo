@@ -1,198 +1,189 @@
 /*
- * Tokens do GEO: a única fonte de cor, tipo, forma, elevação, densidade e movimento.
+ * Tokens do GEO — camada de compatibilidade sobre o preset do PrimeNG (core/theme/geo-preset.ts).
+ *
+ * O preset é a fonte única de cor: aqui as cores apontam para as variáveis primitivas `--p-*`
+ * que ele gera (`--p-zinc-200`, `--p-blue-600`...). Primitivos, e não semânticos, porque os
+ * semânticos do PrimeNG 22 trazem `light-dark()` no valor, que chart.js/Leaflet não leem.
+ *
+ * Identidade: empresarial compacta — neutros zinc, um acento (azul da marca), Inter, raiz de
+ * 14px (1rem = 14px), controles de 32px, bordas hairline, sombra só em overlays.
  *
  * Convenção: --geo-<categoria>-<papel>[-<variante>], nomeado pelo papel e nunca pela cor.
- * Todo token declarado em :root tem valor no tema escuro (bloco .app-dark), garantido por
- * tokens.spec.ts. O tema escuro só vale na tela (@media screen): a impressão sai sempre clara.
+ * Todo token de cor em :root tem valor no tema escuro (bloco .app-dark), conferido pelo
+ * `npm run ds:tokens`. O tema escuro só vale na tela (@media screen): a impressão sai clara.
  */
 @layer geo.tokens {
-  @font-face {
-    font-family: 'Manrope';
-    font-style: normal;
-    font-display: swap;
-    font-weight: 200 800;
-    src: url('/fonts/manrope-latin.woff2') format('woff2-variations');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
-      U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-  }
-
-  @font-face {
-    font-family: 'Manrope';
-    font-style: normal;
-    font-display: swap;
-    font-weight: 200 800;
-    src: url('/fonts/manrope-latin-ext.woff2') format('woff2-variations');
-    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
-      U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-  }
-
   :root {
     color-scheme: light;
 
-    /* Superfícies e texto: neutros do GEO, levemente azulados. */
-    --geo-canvas: #f4f6fa;
+    /* Superfícies e texto (zinc). */
+    --geo-canvas: var(--p-zinc-50);
     --geo-surface: #ffffff;
-    --geo-surface-subtle: #f7f9fc;
-    --geo-surface-muted: #eef1f6;
+    --geo-surface-subtle: var(--p-zinc-50);
+    --geo-surface-muted: var(--p-zinc-100);
     --geo-surface-raised: #ffffff;
-    --geo-surface-inverse: #151b26;
-    --geo-foreground: #151b26;
-    --geo-foreground-muted: #4b5567;
-    --geo-foreground-subtle: #626c80;
+    --geo-surface-inverse: var(--p-zinc-900);
+    --geo-foreground: var(--p-zinc-900);
+    --geo-foreground-muted: var(--p-zinc-600);
+    --geo-foreground-subtle: var(--p-zinc-500);
     --geo-foreground-inverse: #ffffff;
-    --geo-border: #e1e6ee;
-    --geo-border-strong: #cbd2de;
+    --geo-border: var(--p-zinc-200);
+    --geo-border-strong: var(--p-zinc-300);
     --geo-border-focus: var(--geo-focus-ring);
 
-    /* Marca: azul do "G". */
-    --geo-brand: #2563eb;
-    --geo-brand-hover: #1d4fd8;
-    --geo-brand-pressed: #1e40af;
-    --geo-brand-soft: #eff5ff;
-    --geo-brand-text: #1d4fd8;
+    /* Acento único: azul da marca (blue.600 = #2563eb). */
+    --geo-brand: var(--p-blue-600);
+    --geo-brand-hover: var(--p-blue-700);
+    --geo-brand-pressed: var(--p-blue-800);
+    --geo-brand-soft: var(--p-blue-50);
+    --geo-brand-text: var(--p-blue-700);
     --geo-brand-foreground: #ffffff;
     --geo-brand-contrast: var(--geo-brand-foreground);
-    --geo-brand-hover-bg: color-mix(in srgb, var(--geo-brand) 8%, transparent);
+    --geo-brand-hover-bg: color-mix(in srgb, var(--p-blue-600) 8%, transparent);
 
     /*
-     * Destaque âmbar: só item ativo, foco, contador de notificações e Bússola.
-     * Nunca preenche botão de ação, link ou status.
+     * "Destaque" deixou de ser uma segunda cor: aponta para o acento. Mantido para não quebrar
+     * consumidores (item ativo, foco, contador de notificações).
      */
-    --geo-accent: #f59e0b;
-    --geo-accent-strong: #d97706;
-    --geo-accent-soft: #fef3c7;
-    --geo-accent-text: #92400e;
-    --geo-focus-ring: #cf6f05;
+    --geo-accent: var(--p-blue-600);
+    --geo-accent-strong: var(--p-blue-700);
+    --geo-accent-soft: var(--p-blue-50);
+    --geo-accent-text: var(--p-blue-700);
+    --geo-focus-ring: var(--p-blue-600);
     --geo-ring: var(--geo-focus-ring);
 
     /* Estados: sólido para preenchimento, -soft para fundo e -text para tinta sobre superfície. */
-    --geo-info: #2563eb;
-    --geo-info-soft: #eff6ff;
-    --geo-info-text: #1d4ed8;
-    --geo-success: #15803d;
-    --geo-success-hover: #166534;
-    --geo-success-soft: #f0fdf4;
-    --geo-success-text: #15803d;
-    --geo-warning: #b45309;
-    --geo-warning-hover: #92400e;
-    --geo-warning-soft: #fffbeb;
-    --geo-warning-text: #b45309;
-    --geo-warning-border: #fcd34d;
-    --geo-danger: #b91c1c;
-    --geo-danger-hover: #991b1b;
-    --geo-danger-soft: #fef2f2;
-    --geo-danger-text: #b91c1c;
-    --geo-danger-border: #fca5a5;
+    --geo-info: var(--p-blue-600);
+    --geo-info-soft: var(--p-blue-50);
+    --geo-info-text: var(--p-blue-700);
+    --geo-success: var(--p-green-700);
+    --geo-success-hover: var(--p-green-800);
+    --geo-success-soft: var(--p-green-50);
+    --geo-success-text: var(--p-green-700);
+    --geo-warning: var(--p-amber-700);
+    --geo-warning-hover: var(--p-amber-800);
+    --geo-warning-soft: var(--p-amber-50);
+    --geo-warning-text: var(--p-amber-700);
+    --geo-warning-border: var(--p-amber-300);
+    --geo-danger: var(--p-red-700);
+    --geo-danger-hover: var(--p-red-800);
+    --geo-danger-soft: var(--p-red-50);
+    --geo-danger-text: var(--p-red-700);
+    --geo-danger-border: var(--p-red-300);
     --geo-danger-foreground: #ffffff;
 
     /* Pódio de rankings (geo-rank-badge): borda, fundo suave e tinta com contraste AA. */
-    --geo-rank-1: #ca8a04;
-    --geo-rank-1-soft: #fef9c3;
-    --geo-rank-1-text: #854d0e;
-    --geo-rank-2: #94a3b8;
-    --geo-rank-2-soft: #f1f5f9;
-    --geo-rank-2-text: #334155;
-    --geo-rank-3: #ea580c;
-    --geo-rank-3-soft: #ffedd5;
-    --geo-rank-3-text: #9a3412;
+    --geo-rank-1: var(--p-yellow-600);
+    --geo-rank-1-soft: var(--p-yellow-100);
+    --geo-rank-1-text: var(--p-yellow-800);
+    --geo-rank-2: var(--p-zinc-400);
+    --geo-rank-2-soft: var(--p-zinc-100);
+    --geo-rank-2-text: var(--p-zinc-700);
+    --geo-rank-3: var(--p-orange-600);
+    --geo-rank-3-soft: var(--p-orange-100);
+    --geo-rank-3-text: var(--p-orange-800);
 
-    /* Menu lateral azul-marinho, igual nos dois temas. */
-    --geo-nav-bg: #0f1d3d;
-    --geo-nav-bg-hover: rgb(255 255 255 / 0.06);
-    --geo-nav-bg-active: rgb(96 147 250 / 0.2);
-    --geo-nav-tile-bg: rgb(255 255 255 / 0.06);
-    --geo-nav-tile-bg-hover: rgb(255 255 255 / 0.1);
-    --geo-nav-tile-bg-active: rgb(251 191 36 / 0.16);
-    --geo-nav-badge-bg: rgb(251 191 36 / 0.16);
-    --geo-nav-fg: #c9d4ea;
-    --geo-nav-fg-muted: #8b9bbd;
-    --geo-nav-fg-active: #ffffff;
-    --geo-nav-indicator: #fbbf24;
-    --geo-nav-border: rgb(255 255 255 / 0.08);
-    --geo-nav-border-strong: rgb(255 255 255 / 0.14);
-    --geo-nav-width: 22rem;
-    --geo-nav-width-collapsed: 4.25rem;
+    /* Menu lateral neutro: o acento aparece só no item ativo. */
+    --geo-nav-bg: var(--p-zinc-50);
+    --geo-nav-bg-hover: color-mix(in srgb, var(--p-zinc-900) 5%, transparent);
+    --geo-nav-bg-active: color-mix(in srgb, var(--p-zinc-900) 8%, transparent);
+    --geo-nav-tile-bg: color-mix(in srgb, var(--p-zinc-900) 5%, transparent);
+    --geo-nav-tile-bg-hover: color-mix(in srgb, var(--p-zinc-900) 8%, transparent);
+    --geo-nav-tile-bg-active: var(--p-blue-50);
+    --geo-nav-badge-bg: var(--p-blue-50);
+    --geo-nav-fg: var(--p-zinc-700);
+    --geo-nav-fg-muted: var(--p-zinc-500);
+    --geo-nav-fg-active: var(--p-zinc-900);
+    --geo-nav-indicator: var(--p-blue-600);
+    --geo-nav-border: var(--p-zinc-200);
+    --geo-nav-border-strong: var(--p-zinc-300);
+    --geo-nav-width: 232px;
+    --geo-nav-width-collapsed: 52px;
+    --geo-nav-topbar-height: 48px;
 
-    /* Tipografia. A raiz é 13px: 1rem = 13px. */
-    --geo-font-family-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-    --geo-font-family-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas, monospace;
+    /* Tipografia. A raiz é 14px: 1rem = 14px. Escala 24/20/18/15/14/13/12. */
+    --geo-font-family-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+      Roboto, sans-serif;
+    --geo-font-family-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas,
+      monospace;
     --geo-font-mono: var(--geo-font-family-mono);
     --geo-font-weight-regular: 400;
     --geo-font-weight-medium: 500;
     --geo-font-weight-semibold: 600;
-    --geo-font-weight-bold: 700;
-    --geo-text-display: 1.846rem;
-    --geo-text-title-1: 1.538rem;
-    --geo-text-title-2: 1.231rem;
-    --geo-text-title-3: 1.077rem;
+    /* Nada acima de 600 na interface: "bold" vira semibold. */
+    --geo-font-weight-bold: 600;
+    --geo-text-display: 1.7143rem;
+    --geo-text-title-1: 1.4286rem;
+    --geo-text-title-2: 1.2857rem;
+    --geo-text-title-3: 1.0714rem;
     --geo-text-body: 1rem;
-    --geo-text-body-sm: 0.923rem;
-    --geo-text-label: 0.846rem;
-    --geo-text-caption: 0.769rem;
-    --geo-text-leading-tight: 1.25;
-    --geo-text-leading-normal: 1.5;
-    --geo-text-tracking-display: -0.02em;
-    /* Tamanhos usados pelos componentes atuais do DS. */
-    --geo-font-caption: 0.6875rem;
-    --geo-font-control: 0.769rem;
+    --geo-text-body-sm: 0.9286rem;
+    --geo-text-label: 0.9286rem;
+    --geo-text-caption: 0.8571rem;
+    --geo-text-leading-tight: 1.3;
+    --geo-text-leading-normal: 1.45;
+    --geo-text-tracking-display: -0.01em;
+    /* Tamanhos usados pelos componentes do DS. */
+    --geo-font-caption: 0.8571rem;
+    --geo-font-control: 0.9286rem;
     --geo-font-label: var(--geo-font-control);
-    --geo-font-body: 0.846rem;
-    --geo-font-title: 1rem;
+    --geo-font-body: 1rem;
+    --geo-font-title: 1.0714rem;
     --geo-font-size-xs: var(--geo-font-caption);
     --geo-font-size-sm: var(--geo-font-control);
 
-    /* Densidade e controles. */
-    --geo-control-height-sm: 1.875rem;
-    --geo-control-height-md: 2.25rem;
-    --geo-control-height-lg: 2.75rem;
-    --geo-touch-target: 2.75rem;
-    --geo-table-row-height: 2.5rem;
+    /* Densidade compacta: controles de 32px, filtros de 28px, linhas de 34px. */
+    --geo-control-height-sm: 28px;
+    --geo-control-height-md: 32px;
+    --geo-control-height-lg: 40px;
+    --geo-touch-target: 44px;
+    --geo-table-row-height: 34px;
 
-    /* Espaçamento (múltiplos de 4px). */
-    --geo-space-1: 0.3077rem;
-    --geo-space-2: 0.6154rem;
-    --geo-space-3: 0.9231rem;
-    --geo-space-4: 1.2308rem;
-    --geo-space-5: 1.8462rem;
-    --geo-space-6: 2.4615rem;
+    /* Espaçamento na grade de 4px. */
+    --geo-space-1: 4px;
+    --geo-space-2: 8px;
+    --geo-space-3: 12px;
+    --geo-space-4: 16px;
+    --geo-space-5: 24px;
+    --geo-space-6: 32px;
 
-    /* Forma: três raios. */
-    --geo-radius-sm: 0.3846rem;
-    --geo-radius-md: 0.6154rem;
-    --geo-radius-lg: 0.9231rem;
-    --geo-radius-xs: var(--geo-radius-sm);
-    --geo-radius-xl: var(--geo-radius-lg);
+    /* Forma: 4 (tag), 6 (controle), 8 (painel), 10 (dialog). */
+    --geo-radius-xs: 4px;
+    --geo-radius-sm: 6px;
+    --geo-radius-md: 6px;
+    --geo-radius-lg: 8px;
+    --geo-radius-xl: 10px;
     --geo-radius-full: 999px;
 
-    /* Elevação: três níveis. */
-    --geo-elevation-1: 0 1px 2px rgb(21 27 38 / 0.06), 0 0 0 1px rgb(21 27 38 / 0.02);
-    --geo-elevation-2: 0 6px 16px -4px rgb(21 27 38 / 0.12), 0 2px 4px rgb(21 27 38 / 0.04);
-    --geo-elevation-3: 0 20px 40px -12px rgb(21 27 38 / 0.24), 0 4px 10px rgb(21 27 38 / 0.06);
+    /* Elevação: painéis em repouso só com borda; sombra em overlays. */
+    --geo-elevation-1: 0 1px 2px rgb(0 0 0 / 0.04);
+    --geo-elevation-2: 0 4px 16px -2px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+    --geo-elevation-3: 0 16px 48px -8px rgb(0 0 0 / 0.2);
     --geo-shadow-sm: var(--geo-elevation-1);
     --geo-shadow-md: var(--geo-elevation-2);
     --geo-shadow-lg: var(--geo-elevation-3);
-    --geo-overlay-backdrop: rgb(11 15 23 / 0.45);
+    --geo-overlay-backdrop: rgb(9 9 11 / 0.4);
 
-    /* Ícones. */
-    --geo-icon-size-sm: 0.9231rem;
-    --geo-icon-size-md: 1.2308rem;
-    --geo-icon-size-lg: 1.5385rem;
+    /* Ícones Lucide: 14px inline, 16px em controles, 20px em destaque. */
+    --geo-icon-size-sm: 1rem;
+    --geo-icon-size-md: 1.1429rem;
+    --geo-icon-size-lg: 1.4286rem;
     --geo-icon-stroke: 1.75;
 
     /*
-     * Movimento. A saída usa cerca de 70% da duração da entrada. Com "reduzir movimento"
-     * (data-motion="reduced"), deslocamentos e escala viram zero e as durações, instantâneas.
+     * Movimento: 120–160ms, ease-out. Com "reduzir movimento" (data-motion="reduced"),
+     * deslocamentos e escala viram zero e as durações, instantâneas.
      */
-    --geo-motion-instant: 90ms;
-    --geo-motion-fast: 140ms;
-    --geo-motion-base: 200ms;
-    --geo-motion-slow: 280ms;
-    --geo-motion-exit: 140ms;
+    --geo-motion-instant: 80ms;
+    --geo-motion-fast: 120ms;
+    --geo-motion-base: 160ms;
+    --geo-motion-slow: 240ms;
+    --geo-motion-exit: 110ms;
     --geo-motion-distance-sm: 4px;
     --geo-motion-distance-md: 6px;
-    --geo-motion-distance-lg: 16px;
+    --geo-motion-distance-lg: 12px;
     --geo-motion-scale-press: 0.98;
-    --geo-motion-scale-enter: 0.97;
+    --geo-motion-scale-enter: 0.98;
     --geo-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
     --geo-ease-in: cubic-bezier(0.4, 0, 1, 1);
     --geo-ease-emphasis: cubic-bezier(0.3, 0, 0, 1);
@@ -200,37 +191,34 @@
     --geo-duration-fast: var(--geo-motion-fast);
     --geo-duration-normal: var(--geo-motion-base);
 
-    /*
-     * Kit de formulário (geo-form-*): UM visual de card/cabeçalho/seção/rodapé para toda a aplicação.
-     * Só aliases dos tokens acima: tema claro/escuro e densidade vêm de graça.
-     */
+    /* Kit de formulário (geo-form-*): só aliases dos tokens acima. */
     --geo-form-card-bg: var(--geo-surface);
     --geo-form-card-border: var(--geo-border);
     --geo-form-card-radius: var(--geo-radius-lg);
-    --geo-form-card-shadow: var(--geo-shadow-sm);
-    --geo-form-card-padding: 1.25rem;
-    --geo-form-section-gap: 1.75rem;
-    --geo-form-field-gap: 1rem;
-    --geo-form-title-size: var(--geo-font-title);
-    --geo-form-section-title-size: 0.875rem;
+    --geo-form-card-shadow: none;
+    --geo-form-card-padding: 16px;
+    --geo-form-section-gap: 24px;
+    --geo-form-field-gap: 12px;
+    --geo-form-title-size: var(--geo-text-title-3);
+    --geo-form-section-title-size: var(--geo-text-title-3);
     --geo-form-label-size: var(--geo-font-control);
     --geo-form-hint-size: var(--geo-font-caption);
     --geo-form-footer-bg: color-mix(in srgb, var(--geo-surface) 94%, transparent);
 
     /*
-     * Paleta categórica de séries (geo-chart). Não comunica estado: a série 1 é a marca e as
+     * Paleta categórica de séries (geo-chart). Não comunica estado: a série 1 é o acento e as
      * demais evitam vermelho/verde para não sugerir sucesso ou erro. A série 8 é para "Outros".
      */
-    --geo-chart-1: #2563eb;
-    --geo-chart-2: #0891b2;
-    --geo-chart-3: #7c3aed;
-    --geo-chart-4: #d97706;
-    --geo-chart-5: #db2777;
-    --geo-chart-6: #0f766e;
-    --geo-chart-7: #c026d3;
-    --geo-chart-8: #64748b;
-    --geo-chart-grid: #e1e6ee;
-    --geo-chart-axis: #626c80;
+    --geo-chart-1: var(--p-blue-600);
+    --geo-chart-2: var(--p-cyan-600);
+    --geo-chart-3: var(--p-violet-600);
+    --geo-chart-4: var(--p-amber-600);
+    --geo-chart-5: var(--p-pink-600);
+    --geo-chart-6: var(--p-teal-700);
+    --geo-chart-7: var(--p-fuchsia-600);
+    --geo-chart-8: var(--p-zinc-500);
+    --geo-chart-grid: var(--p-zinc-200);
+    --geo-chart-axis: var(--p-zinc-600);
   }
 
   @media screen {
@@ -240,83 +228,82 @@
     .dark {
       color-scheme: dark;
 
-      --geo-canvas: #0b0f17;
-      --geo-surface: #121826;
-      --geo-surface-subtle: #0f1420;
-      --geo-surface-muted: #1a2232;
-      --geo-surface-raised: #182031;
-      --geo-surface-inverse: #f2f5fa;
-      --geo-foreground: #f2f5fa;
-      --geo-foreground-muted: #b4bdcc;
-      --geo-foreground-subtle: #8f99ab;
-      --geo-foreground-inverse: #151b26;
-      --geo-border: #263043;
-      --geo-border-strong: #35415a;
+      --geo-canvas: var(--p-zinc-950);
+      --geo-surface: var(--p-zinc-900);
+      --geo-surface-subtle: var(--p-zinc-950);
+      --geo-surface-muted: var(--p-zinc-800);
+      --geo-surface-raised: var(--p-zinc-900);
+      --geo-surface-inverse: var(--p-zinc-100);
+      --geo-foreground: var(--p-zinc-50);
+      --geo-foreground-muted: var(--p-zinc-300);
+      --geo-foreground-subtle: var(--p-zinc-400);
+      --geo-foreground-inverse: var(--p-zinc-900);
+      --geo-border: var(--p-zinc-800);
+      --geo-border-strong: var(--p-zinc-700);
       --geo-border-focus: var(--geo-focus-ring);
 
-      --geo-brand: #6093fa;
-      --geo-brand-hover: #93b7fd;
-      --geo-brand-pressed: #bfd4fe;
-      --geo-brand-soft: rgb(59 114 246 / 0.18);
-      --geo-brand-text: #93b7fd;
-      --geo-brand-foreground: #0b0f17;
+      --geo-brand: var(--p-blue-400);
+      --geo-brand-hover: var(--p-blue-300);
+      --geo-brand-pressed: var(--p-blue-200);
+      --geo-brand-soft: color-mix(in srgb, var(--p-blue-400) 16%, transparent);
+      --geo-brand-text: var(--p-blue-300);
+      --geo-brand-foreground: var(--p-zinc-950);
       --geo-brand-contrast: var(--geo-brand-foreground);
-      --geo-brand-hover-bg: rgb(59 114 246 / 0.14);
+      --geo-brand-hover-bg: color-mix(in srgb, var(--p-blue-400) 14%, transparent);
 
-      --geo-accent: #fbbf24;
-      --geo-accent-strong: #fcd34d;
-      --geo-accent-soft: rgb(251 191 36 / 0.16);
-      --geo-accent-text: #fcd34d;
-      --geo-focus-ring: #fbbf24;
+      --geo-accent: var(--p-blue-400);
+      --geo-accent-strong: var(--p-blue-300);
+      --geo-accent-soft: color-mix(in srgb, var(--p-blue-400) 16%, transparent);
+      --geo-accent-text: var(--p-blue-300);
+      --geo-focus-ring: var(--p-blue-400);
       --geo-ring: var(--geo-focus-ring);
 
-      --geo-info: #2563eb;
-      --geo-info-soft: rgb(37 99 235 / 0.2);
-      --geo-info-text: #93c5fd;
-      --geo-success: #15803d;
-      --geo-success-hover: #166534;
-      --geo-success-soft: rgb(21 128 61 / 0.2);
-      --geo-success-text: #4ade80;
-      --geo-warning: #b45309;
-      --geo-warning-hover: #92400e;
-      --geo-warning-soft: rgb(180 83 9 / 0.22);
-      --geo-warning-text: #fbbf24;
-      --geo-warning-border: rgb(251 191 36 / 0.45);
-      --geo-danger: #b91c1c;
-      --geo-danger-hover: #991b1b;
-      --geo-danger-soft: rgb(185 28 28 / 0.22);
-      --geo-danger-text: #fca5a5;
-      --geo-danger-border: rgb(252 165 165 / 0.45);
+      --geo-info: var(--p-blue-500);
+      --geo-info-soft: color-mix(in srgb, var(--p-blue-500) 18%, transparent);
+      --geo-info-text: var(--p-blue-300);
+      --geo-success: var(--p-green-600);
+      --geo-success-hover: var(--p-green-700);
+      --geo-success-soft: color-mix(in srgb, var(--p-green-500) 16%, transparent);
+      --geo-success-text: var(--p-green-400);
+      --geo-warning: var(--p-amber-600);
+      --geo-warning-hover: var(--p-amber-700);
+      --geo-warning-soft: color-mix(in srgb, var(--p-amber-500) 16%, transparent);
+      --geo-warning-text: var(--p-amber-400);
+      --geo-warning-border: color-mix(in srgb, var(--p-amber-400) 45%, transparent);
+      --geo-danger: var(--p-red-600);
+      --geo-danger-hover: var(--p-red-700);
+      --geo-danger-soft: color-mix(in srgb, var(--p-red-500) 18%, transparent);
+      --geo-danger-text: var(--p-red-300);
+      --geo-danger-border: color-mix(in srgb, var(--p-red-300) 45%, transparent);
       --geo-danger-foreground: #ffffff;
 
-      --geo-rank-1: rgb(234 179 8 / 0.55);
-      --geo-rank-1-soft: rgb(234 179 8 / 0.18);
-      --geo-rank-1-text: #fde047;
-      --geo-rank-2: rgb(148 163 184 / 0.55);
-      --geo-rank-2-soft: rgb(148 163 184 / 0.18);
-      --geo-rank-2-text: #e2e8f0;
-      --geo-rank-3: rgb(249 115 22 / 0.55);
-      --geo-rank-3-soft: rgb(249 115 22 / 0.18);
-      --geo-rank-3-text: #fdba74;
+      --geo-rank-1: color-mix(in srgb, var(--p-yellow-500) 55%, transparent);
+      --geo-rank-1-soft: color-mix(in srgb, var(--p-yellow-500) 18%, transparent);
+      --geo-rank-1-text: var(--p-yellow-300);
+      --geo-rank-2: color-mix(in srgb, var(--p-zinc-400) 55%, transparent);
+      --geo-rank-2-soft: color-mix(in srgb, var(--p-zinc-400) 18%, transparent);
+      --geo-rank-2-text: var(--p-zinc-200);
+      --geo-rank-3: color-mix(in srgb, var(--p-orange-500) 55%, transparent);
+      --geo-rank-3-soft: color-mix(in srgb, var(--p-orange-500) 18%, transparent);
+      --geo-rank-3-text: var(--p-orange-300);
 
-      /* No escuro o menu continua azul-marinho e a área de conteúdo fica num neutro mais escuro. */
-      --geo-nav-bg: #0f1a33;
-      --geo-nav-bg-hover: rgb(255 255 255 / 0.06);
-      --geo-nav-bg-active: rgb(96 147 250 / 0.2);
-      --geo-nav-tile-bg: rgb(255 255 255 / 0.06);
-      --geo-nav-tile-bg-hover: rgb(255 255 255 / 0.1);
-      --geo-nav-tile-bg-active: rgb(251 191 36 / 0.16);
-      --geo-nav-badge-bg: rgb(251 191 36 / 0.16);
-      --geo-nav-fg: #c9d4ea;
-      --geo-nav-fg-muted: #8b9bbd;
-      --geo-nav-fg-active: #ffffff;
-      --geo-nav-indicator: #fbbf24;
-      --geo-nav-border: #263043;
-      --geo-nav-border-strong: #33405a;
+      --geo-nav-bg: var(--p-zinc-950);
+      --geo-nav-bg-hover: color-mix(in srgb, var(--p-zinc-50) 6%, transparent);
+      --geo-nav-bg-active: color-mix(in srgb, var(--p-zinc-50) 10%, transparent);
+      --geo-nav-tile-bg: color-mix(in srgb, var(--p-zinc-50) 6%, transparent);
+      --geo-nav-tile-bg-hover: color-mix(in srgb, var(--p-zinc-50) 10%, transparent);
+      --geo-nav-tile-bg-active: color-mix(in srgb, var(--p-blue-400) 16%, transparent);
+      --geo-nav-badge-bg: color-mix(in srgb, var(--p-blue-400) 16%, transparent);
+      --geo-nav-fg: var(--p-zinc-300);
+      --geo-nav-fg-muted: var(--p-zinc-400);
+      --geo-nav-fg-active: var(--p-zinc-50);
+      --geo-nav-indicator: var(--p-blue-400);
+      --geo-nav-border: var(--p-zinc-800);
+      --geo-nav-border-strong: var(--p-zinc-700);
 
-      --geo-elevation-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 0 0 1px rgb(255 255 255 / 0.03);
-      --geo-elevation-2: 0 6px 16px -4px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.04);
-      --geo-elevation-3: 0 20px 40px -12px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.05);
+      --geo-elevation-1: 0 1px 2px rgb(0 0 0 / 0.3);
+      --geo-elevation-2: 0 4px 16px -2px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.04);
+      --geo-elevation-3: 0 16px 48px -8px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.05);
       --geo-shadow-sm: var(--geo-elevation-1);
       --geo-shadow-md: var(--geo-elevation-2);
       --geo-shadow-lg: var(--geo-elevation-3);
@@ -325,27 +312,27 @@
       --geo-form-card-bg: var(--geo-surface);
       --geo-form-footer-bg: color-mix(in srgb, var(--geo-surface) 94%, transparent);
 
-      --geo-chart-1: #6093fa;
-      --geo-chart-2: #22d3ee;
-      --geo-chart-3: #a78bfa;
-      --geo-chart-4: #fbbf24;
-      --geo-chart-5: #f472b6;
-      --geo-chart-6: #2dd4bf;
-      --geo-chart-7: #e879f9;
-      --geo-chart-8: #94a3b8;
-      --geo-chart-grid: #263043;
-      --geo-chart-axis: #b4bdcc;
+      --geo-chart-1: var(--p-blue-400);
+      --geo-chart-2: var(--p-cyan-400);
+      --geo-chart-3: var(--p-violet-400);
+      --geo-chart-4: var(--p-amber-400);
+      --geo-chart-5: var(--p-pink-400);
+      --geo-chart-6: var(--p-teal-400);
+      --geo-chart-7: var(--p-fuchsia-400);
+      --geo-chart-8: var(--p-zinc-400);
+      --geo-chart-grid: var(--p-zinc-800);
+      --geo-chart-axis: var(--p-zinc-400);
     }
   }
 
   /* Confortável: alvos maiores (toque). A compacta é o valor de :root. */
   :root[data-geo-density='comfortable'] {
-    --geo-control-height-sm: 2.25rem;
-    --geo-control-height-md: 2.75rem;
-    --geo-control-height-lg: 3rem;
-    --geo-table-row-height: 3rem;
-    --geo-font-control: 0.846rem;
-    --geo-font-body: 0.923rem;
+    --geo-control-height-sm: 32px;
+    --geo-control-height-md: 40px;
+    --geo-control-height-lg: 44px;
+    --geo-table-row-height: 44px;
+    --geo-font-control: 1rem;
+    --geo-font-body: 1.0714rem;
   }
 
   /* Reduzir movimento: nenhum componente precisa de lógica própria. */

@@ -1,9 +1,11 @@
-/* You can add global styles to this file, and also import other style files */
-
+/*
+ * CSS global do GEO. A identidade (cores, tipo, densidade) vem do preset do PrimeNG
+ * (design-system/core/theme/geo-preset.ts) e dos tokens --geo-* (design-system/styles/tokens.css).
+ * Aqui ficam só a raiz, as camadas, o Tailwind e a compatibilidade das telas antigas.
+ */
 @import "tailwindcss";
-@custom-variant dark (&:where(.app-dark, .app-dark *));
 @import "tailwindcss-primeui";
-@import "primeicons/primeicons.css";
+@import "@fontsource-variable/inter";
 @import "leaflet/dist/leaflet.css";
 @import './app/design-system/styles/index.css';
 @import './app/shared/styles/dashboard-shell.css';
@@ -11,105 +13,71 @@
 @custom-variant dark (&:where(.app-dark, .app-dark *, .dark, .dark *));
 @custom-variant app-dark (&:where(.app-dark, .app-dark *));
 
+/*
+ * Neutros únicos: as escalas slate/gray/neutral/stone do Tailwind usadas nas telas antigas viram
+ * a escala zinc do preset. Assim não há quatro cinzas diferentes no app.
+ */
+@theme inline {
+  --color-slate-50: var(--p-zinc-50);
+  --color-slate-100: var(--p-zinc-100);
+  --color-slate-200: var(--p-zinc-200);
+  --color-slate-300: var(--p-zinc-300);
+  --color-slate-400: var(--p-zinc-400);
+  --color-slate-500: var(--p-zinc-500);
+  --color-slate-600: var(--p-zinc-600);
+  --color-slate-700: var(--p-zinc-700);
+  --color-slate-800: var(--p-zinc-800);
+  --color-slate-900: var(--p-zinc-900);
+  --color-slate-950: var(--p-zinc-950);
+  --color-gray-50: var(--p-zinc-50);
+  --color-gray-100: var(--p-zinc-100);
+  --color-gray-200: var(--p-zinc-200);
+  --color-gray-300: var(--p-zinc-300);
+  --color-gray-400: var(--p-zinc-400);
+  --color-gray-500: var(--p-zinc-500);
+  --color-gray-600: var(--p-zinc-600);
+  --color-gray-700: var(--p-zinc-700);
+  --color-gray-800: var(--p-zinc-800);
+  --color-gray-900: var(--p-zinc-900);
+  --color-gray-950: var(--p-zinc-950);
+  --color-neutral-50: var(--p-zinc-50);
+  --color-neutral-100: var(--p-zinc-100);
+  --color-neutral-200: var(--p-zinc-200);
+  --color-neutral-300: var(--p-zinc-300);
+  --color-neutral-400: var(--p-zinc-400);
+  --color-neutral-500: var(--p-zinc-500);
+  --color-neutral-600: var(--p-zinc-600);
+  --color-neutral-700: var(--p-zinc-700);
+  --color-neutral-800: var(--p-zinc-800);
+  --color-neutral-900: var(--p-zinc-900);
+  --color-neutral-950: var(--p-zinc-950);
+  --font-sans: var(--geo-font-family-sans);
+  --font-mono: var(--geo-font-family-mono);
+}
+
+/* Raiz de 14px: 1rem = 14px. O preset aura-compat é calibrado para ela. */
 :root {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 body {
   margin: 0;
   font-family: var(--geo-font-family-sans);
+  font-feature-settings: 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--geo-foreground);
   background-color: var(--geo-canvas);
 }
 
-/* Ajuste de densidade global para componentes PrimeNG */
-.p-component {
-  font-size: 0.9rem !important;
+/* Números sempre tabulares em tabelas e campos numéricos. */
+.p-datatable,
+.p-inputnumber,
+.t-num {
+  font-variant-numeric: tabular-nums;
 }
 
-/* Botões só de ícone ficam de fora: o padding horizontal os deixava mais estreitos que altos e com o
-   ícone fora do centro. Eles seguem o PrimeNG e o geo-icon-button (quadrados, ícone centralizado). */
-.p-button:not(.p-button-icon-only) {
-  padding: 0.5rem 1rem !important;
-}
-
-.p-inputtext:not(.p-iconfield *):not([class*='!pl-']):not([class*='!pr-']) {
-  padding-block: 0.5rem !important;
-  padding-inline: 0.75rem !important;
-}
-
-/* PrimeNG IconField Global - Alinhamento e centralização perfeitos dos ícones */
-p-iconfield,
-.p-iconfield {
-  position: relative !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  width: 100% !important;
-}
-
-p-iconfield > .p-inputicon,
-.p-iconfield > .p-inputicon,
-.p-iconfield .p-inputicon {
-  position: absolute !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  height: 100% !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  z-index: 10 !important;
-  pointer-events: none !important;
-  transform: none !important;
-}
-
-p-iconfield[iconPosition="left"] > .p-inputicon,
-.p-iconfield-left > .p-inputicon,
-.p-iconfield > .p-inputicon:first-child,
-.p-iconfield:has(> .p-inputicon:first-child) > .p-inputicon:first-child {
-  left: 0 !important;
-  right: auto !important;
-  inset-inline-start: 0 !important;
-  inset-inline-end: auto !important;
-  width: 2.75rem !important;
-}
-
-p-iconfield[iconPosition="right"] > .p-inputicon,
-.p-iconfield-right > .p-inputicon,
-.p-iconfield > .p-inputicon:last-child {
-  right: 0 !important;
-  left: auto !important;
-  inset-inline-end: 0 !important;
-  inset-inline-start: auto !important;
-  width: 2.75rem !important;
-}
-
-p-iconfield[iconPosition="left"] input,
-p-iconfield[iconPosition="left"] .p-inputtext,
-.p-iconfield-left input,
-.p-iconfield-left .p-inputtext,
-.p-iconfield:has(> .p-inputicon:first-child) input,
-.p-iconfield:has(> .p-inputicon:first-child) .p-inputtext,
-.p-iconfield:has(> .p-inputicon:first-child) .p-password input {
-  padding-left: 2.75rem !important;
-  padding-inline-start: 2.75rem !important;
-}
-
-p-iconfield[iconPosition="right"] input,
-p-iconfield[iconPosition="right"] .p-inputtext,
-.p-iconfield-right input,
-.p-iconfield-right .p-inputtext,
-.p-iconfield:has(> .p-inputicon:last-child) input,
-.p-iconfield:has(> .p-inputicon:last-child) .p-inputtext,
-.p-iconfield:has(> .p-inputicon:last-child) .p-password input {
-  padding-right: 2.75rem !important;
-  padding-inline-end: 2.75rem !important;
-}
-
+/* Scrollbar */
 /* Scrollbar Global Styling */
 * {
   scrollbar-width: thin;
@@ -127,28 +95,28 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--geo-border-strong);
   border: 1px solid transparent;
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; /* slate-400 */
+  background: var(--p-zinc-400);
   border: 1px solid transparent;
   background-clip: content-box;
 }
 
 /* Dark mode scrollbars */
 .app-dark * {
-  scrollbar-color: #475569 transparent; /* slate-600 */
+  scrollbar-color: var(--p-zinc-700) transparent;
 }
 
 .app-dark ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: var(--p-zinc-700);
 }
 
 .app-dark ::-webkit-scrollbar-thumb:hover {
-  background: #64748b; /* slate-500 */
+  background: var(--p-zinc-600);
 }
 
 /* Specific styling for PrimeNG tables scrollbars */
