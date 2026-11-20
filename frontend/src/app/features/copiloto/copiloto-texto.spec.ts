@@ -6,6 +6,8 @@ import {
   tempoDecorrido,
   ultimasVersoes,
 } from './copiloto-texto';
+import { agruparConversas } from './copiloto.store';
+import { semIdentificadores } from './componentes/copiloto-dados.component';
 
 describe('separarProximosPassos', () => {
   it('tira o bloco final de próximos passos e devolve os pedidos limpos', () => {
@@ -70,8 +72,7 @@ describe('tempoDecorrido', () => {
 });
 
 describe('agruparConversas', () => {
-  it('conversas fixadas ficam num grupo próprio no topo', async () => {
-    const { agruparConversas } = await import('./copiloto.store');
+  it('conversas fixadas ficam num grupo próprio no topo', () => {
     const agora = new Date('2026-11-19T12:00:00');
     const base = { dataCriacao: '2026-11-01T10:00:00', emAndamento: false };
     const grupos = agruparConversas([
@@ -84,8 +85,7 @@ describe('agruparConversas', () => {
 });
 
 describe('semIdentificadores', () => {
-  it('tira colunas de UUID e mantém o número da nota', async () => {
-    const { semIdentificadores } = await import('./componentes/copiloto-dados.component');
+  it('tira colunas de UUID e mantém o número da nota', () => {
     const dados = semIdentificadores({
       codigo: 'r1', titulo: 'Notas', natureza: 'INTERNO', total: 1, truncado: false,
       colunas: [{ nome: 'execucao_id', tipo: 'TEXTO' }, { nome: 'numero_nota', tipo: 'TEXTO' }, { nome: 'valor', tipo: 'NUMERO' }],

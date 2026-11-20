@@ -162,6 +162,8 @@ export class CopilotoMensagemComponent {
   protected readonly rodape = computed(() => {
     const resposta = this.resposta();
     if (!resposta?.concluida || resposta.status !== 'CONCLUIDA') return '';
+    // Com etapas, o tempo já aparece no cabeçalho delas ("1 etapa · 5,1 s").
+    if (resposta.etapas?.length) return '';
     const duracao = formatarDuracao(resposta.duracaoMs ?? this.mensagem().metricas?.duracaoMs);
     return duracao ? `Concluída em ${duracao}` : '';
   });
@@ -312,7 +314,7 @@ export class CopilotoMensagemComponent {
     const data = new Date(this.mensagem().dataCriacao ?? Date.now()).toLocaleString('pt-BR');
     janela.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${titulo}</title>
 <style>
-  body { font: 14px/1.6 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; color: CanvasText; background: Canvas; margin: 2rem auto; max-width: 48rem; padding: 0 1rem; }
+  body { font: 14px/1.6 Manrope, system-ui, -apple-system, 'Segoe UI', sans-serif; color: CanvasText; background: Canvas; margin: 2rem auto; max-width: 48rem; padding: 0 1rem; }
   header { border-bottom: 2px solid currentColor; margin-bottom: 1.25rem; padding-bottom: 0.5rem; }
   header h1 { font-size: 1.25rem; margin: 0; } header p { margin: 0.2rem 0 0; color: GrayText; font-size: 0.8rem; }
   table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; font-size: 0.85rem; }

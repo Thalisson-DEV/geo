@@ -169,7 +169,11 @@ export class CopilotoMarkdownComponent {
     container.querySelectorAll<HTMLElement>('.markdown-table').forEach((rolagem) => {
       const tabela = rolagem.querySelector('table');
       if (!tabela) return;
-      const linhas = tabela.querySelectorAll('tbody tr').length;
+      const corpoLinhas = Array.from(tabela.querySelectorAll('tbody tr'));
+      const linhas = corpoLinhas.length;
+      // A linha de total não conta como registro (o painel de dados também não a conta).
+      const temTotal = linhas > 2 && /^total/i.test(corpoLinhas[linhas - 1].querySelector('td, th')?.textContent?.trim() ?? '');
+      const registros = temTotal ? linhas - 1 : linhas;
       tabela.querySelectorAll<HTMLElement>('thead th').forEach((th, indice) => {
         if (linhas < 2) return;
         const botao = document.createElement('button');
@@ -193,7 +197,7 @@ export class CopilotoMarkdownComponent {
       barra.setAttribute('role', 'group');
       barra.setAttribute('aria-label', 'Ações da tabela');
       barra.innerHTML = `
-        <span class="markdown-tabela__total">${linhas} ${linhas === 1 ? 'linha' : 'linhas'}</span>
+        <span class="markdown-tabela__total">${registros} ${registros === 1 ? 'linha' : 'linhas'}</span>
         <button type="button" class="markdown-tabela__acao" data-acao="copiar-tabela"><i class="pi pi-copy" aria-hidden="true"></i>Copiar</button>
         <button type="button" class="markdown-tabela__acao" data-acao="csv-tabela"><i class="pi pi-download" aria-hidden="true"></i>CSV</button>`;
       rolagem.replaceWith(bloco);

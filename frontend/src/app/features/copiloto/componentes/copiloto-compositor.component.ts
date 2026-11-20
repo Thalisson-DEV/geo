@@ -271,6 +271,24 @@ export class CopilotoCompositorComponent {
       campo.style.height = 'auto';
       campo.style.height = `${campo.scrollHeight + 2}px`;
     });
+    // O "/" abre a lista de competências: o campo vira combobox ligado a ela, para o leitor de tela
+    // anunciar a opção escolhida pelas setas (o geo-textarea não expõe esses atributos).
+    afterRenderEffect(() => {
+      const aberta = this.atalhos().length > 0;
+      const ativo = this.atalhoAtivo();
+      const campo = this.host.nativeElement.querySelector('textarea');
+      if (!campo) return;
+      campo.setAttribute('role', 'combobox');
+      campo.setAttribute('aria-autocomplete', 'list');
+      campo.setAttribute('aria-expanded', String(aberta));
+      if (aberta) {
+        campo.setAttribute('aria-controls', 'copiloto-competencias');
+        campo.setAttribute('aria-activedescendant', 'copiloto-competencia-' + ativo);
+      } else {
+        campo.removeAttribute('aria-controls');
+        campo.removeAttribute('aria-activedescendant');
+      }
+    });
   }
 
   focar(): void {

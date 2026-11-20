@@ -178,7 +178,9 @@ app-copiloto-markdown {
   font: inherit;
   font-size: var(--geo-font-caption);
   line-height: 1.35rem;
-  vertical-align: 0.05rem;
+  min-height: 1.5rem;
+  min-width: 1.5rem;
+  vertical-align: middle;
   cursor: pointer;
   transition: color var(--geo-duration-fast) var(--geo-ease-standard), border-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
@@ -211,6 +213,7 @@ app-copiloto-markdown {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  min-height: 1.5rem;
   padding: 0.15rem 0.5rem;
   border: 0;
   border-radius: var(--geo-radius-sm);

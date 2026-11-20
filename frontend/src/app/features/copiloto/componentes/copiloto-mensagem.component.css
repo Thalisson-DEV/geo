@@ -484,29 +484,6 @@
   flex-wrap: wrap;
   gap: 0.45rem;
 }
-.passo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  max-width: 100%;
-  padding: 0.45rem 0.75rem;
-  border: 1px solid var(--geo-border);
-  border-radius: var(--geo-radius-md);
-  background: var(--geo-surface);
-  color: var(--geo-foreground);
-  font: inherit;
-  font-size: var(--geo-font-body);
-  text-align: left;
-  cursor: pointer;
-  transition: border-color var(--geo-duration-fast) var(--geo-ease-standard), color var(--geo-duration-fast) var(--geo-ease-standard);
-}
-.passo .pi { flex: 0 0 auto; font-size: 0.7rem; color: var(--geo-foreground-subtle); }
-.passo:hover { border-color: var(--geo-brand); color: var(--geo-brand); }
-.passo:hover .pi { color: var(--geo-brand); }
-.passo:focus-visible {
-  outline: 2px solid var(--geo-focus-ring);
-  outline-offset: 2px;
-}
 
 /* ---------------------------------------------------------------- rodapé e avaliação */
 .assistente__metrica { margin-right: auto; }

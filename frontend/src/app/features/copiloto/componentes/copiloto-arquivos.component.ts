@@ -86,7 +86,7 @@ const ICONE_ARQUIVO: Record<string, string> = {
       width: 2.2rem; height: 2.2rem; border-radius: var(--geo-radius-sm); background: var(--geo-brand-soft); color: var(--geo-brand);
     }
     .arquivos__titulos { flex: 1; min-width: 0; }
-    .arquivos__titulo { margin: 0; font-size: var(--geo-font-title); font-weight: 650; color: var(--geo-foreground); }
+    .arquivos__titulo { margin: 0; font-size: var(--geo-font-title); font-weight: 600; color: var(--geo-foreground); }
     .arquivos__subtitulo { margin: 0.1rem 0 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); }
     .arquivos__corpo { flex: 1; min-height: 0; overflow-y: auto; padding: 0.6rem 0.9rem 1.2rem; }
     .grupo + .grupo { margin-top: 1rem; }

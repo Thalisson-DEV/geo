@@ -1,10 +1,22 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
-import { GeoButtonComponent, GeoIconButtonComponent } from '@geo/ui';
+import { NgTemplateOutlet } from '@angular/common';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoTabItem, GeoTabPanelDirective, GeoTabsComponent } from '@geo/ui';
 import { GeoAsyncStateComponent, NotificationService } from '@geo/ui/feedback';
 import { ResultadoTabular } from '../../../core/models/assistente.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { CopilotoStore } from '../copiloto.store';
 import { NATUREZA, formatarCelula, rotuloColuna } from '../copiloto-formatos';
+
+/** Colunas de situação/classificação, cujos valores vêm como enum (EM_EXECUCAO, CONCLUIDA...). */
+const COLUNA_ENUM = /(status|situacao|tipo|categoria|prioridade|gravidade|natureza|origem|operacao)/i;
+
+/** Mesmo valor da tabela da resposta: "EM EXECUÇÃO" vira "Em execução"; siglas curtas ficam como estão. */
+export function formatarCelulaDados(valor: unknown, tipo: string | undefined, coluna = ''): string {
+  const texto = formatarCelula(valor, tipo, coluna);
+  if (!COLUNA_ENUM.test(coluna) || texto.length <= 3 || !/^[A-ZÀ-Ý][A-ZÀ-Ý_ ]*$/.test(texto)) return texto;
+  const frase = texto.replace(/_/g, ' ').toLocaleLowerCase('pt-BR');
+  return frase.charAt(0).toLocaleUpperCase('pt-BR') + frase.slice(1);
+}
 
 type Estado =
   | { tipo: 'carregando' }
@@ -20,7 +32,7 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
 @Component({
   selector: 'app-copiloto-dados',
   standalone: true,
-  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent],
+  imports: [NgTemplateOutlet, GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent, GeoTabsComponent, GeoTabPanelDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="dados" aria-labelledby="copiloto-dados-titulo">
@@ -35,16 +47,18 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
       </header>
 
       @if (codigos().length > 1) {
-        <div class="dados__abas" role="tablist" aria-label="Tabelas citadas">
+        <geo-tabs class="dados__abas" [value]="ativa()" (valueChange)="ativa.set(+($event ?? 0))" [tabs]="abas()"
+          [lazy]="false" ariaLabel="Tabelas citadas">
           @for (codigo of codigos(); track codigo; let i = $index) {
-            <button type="button" role="tab" class="dados__aba" [class.dados__aba--ativa]="i === ativa()"
-              [attr.aria-selected]="i === ativa()" (click)="ativa.set(i)">
-              {{ tituloDe(codigo) || 'Tabela ' + (i + 1) }}
-            </button>
+            <ng-template [geoTabPanel]="i"><ng-container [ngTemplateOutlet]="corpo"></ng-container></ng-template>
           }
-        </div>
+        </geo-tabs>
+      } @else {
+        <ng-container [ngTemplateOutlet]="corpo"></ng-container>
       }
+    </section>
 
+    <ng-template #corpo>
       <div class="dados__corpo">
         @switch (estado().tipo) {
           @case ('carregando') {
@@ -80,7 +94,7 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
                       @for (linha of d.linhas; track $index) {
                         <tr>
                           @for (celula of linha; track $index) {
-                            <td [class.num]="numerica(d.colunas[$index]?.tipo)">{{ formatarCelula(celula, d.colunas[$index]?.tipo?.toLowerCase(), d.colunas[$index]?.nome) }}</td>
+                            <td [class.num]="numerica(d.colunas[$index]?.tipo)">{{ formatarCelulaDados(celula, d.colunas[$index]?.tipo?.toLowerCase(), d.colunas[$index]?.nome) }}</td>
                           }
                         </tr>
                       }
@@ -89,7 +103,7 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
                 </div>
                 @if (d.linhas.length < d.total) {
                   <p class="dados__nota">
-                    Para a base completa ({{ d.total.toLocaleString('pt-BR') }} linhas), peça aa Bússola para exportar em Excel.
+                    Para a base completa ({{ d.total.toLocaleString('pt-BR') }} linhas), peça à Bússola para exportar em Excel.
                   </p>
                 }
               } @else {
@@ -99,7 +113,7 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
           }
         }
       </div>
-    </section>
+    </ng-template>
   `,
   styles: `
     :host { display: flex; flex: 1; min-width: 0; min-height: 0; }
@@ -114,20 +128,9 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
       background: var(--geo-brand-soft); color: var(--geo-brand);
     }
     .dados__titulos { flex: 1; min-width: 0; }
-    .dados__titulo { margin: 0; font-size: var(--geo-font-title); font-weight: 650; color: var(--geo-foreground); }
+    .dados__titulo { margin: 0; font-size: var(--geo-font-title); font-weight: 600; color: var(--geo-foreground); }
     .dados__subtitulo { margin: 0.1rem 0 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); }
-    .dados__abas {
-      display: flex; gap: 0.25rem; overflow-x: auto;
-      padding: 0.5rem 0.9rem 0; border-bottom: 1px solid var(--geo-border);
-    }
-    .dados__aba {
-      flex: 0 0 auto; max-width: 16rem; padding: 0.45rem 0.7rem;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-      border: 0; border-bottom: 2px solid transparent; background: transparent;
-      color: var(--geo-foreground-muted); font: inherit; font-size: var(--geo-font-body); cursor: pointer;
-    }
-    .dados__aba:hover { color: var(--geo-foreground); }
-    .dados__aba--ativa { border-bottom-color: var(--geo-brand); color: var(--geo-brand); font-weight: 600; }
+    .dados__abas { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: auto; }
     .dados__aba:focus-visible, .dados__tabela:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
     .dados__corpo { flex: 1; min-height: 0; overflow: auto; padding: 0.9rem; display: flex; flex-direction: column; gap: 0.7rem; }
     .dados__resumo { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
@@ -151,6 +154,8 @@ export class CopilotoDadosComponent {
   readonly fechar = output<void>();
 
   protected readonly ativa = signal(0);
+  protected readonly abas = computed<GeoTabItem[]>(() =>
+    this.codigos().map((codigo, i) => ({ value: i, label: this.tituloDe(codigo) || 'Tabela ' + (i + 1) })));
   private readonly estados = signal<Record<string, Estado>>({});
   protected readonly codigoAtivo = computed(() => this.codigos()[Math.min(this.ativa(), this.codigos().length - 1)] ?? '');
   protected readonly estado = computed<Estado>(() => this.estados()[this.codigoAtivo()] ?? { tipo: 'carregando' });
@@ -164,7 +169,7 @@ export class CopilotoDadosComponent {
   });
 
   protected readonly natureza = NATUREZA;
-  protected readonly formatarCelula = formatarCelula;
+  protected readonly formatarCelulaDados = formatarCelulaDados;
   protected readonly rotuloColuna = rotuloColuna;
 
   constructor() {
@@ -204,7 +209,7 @@ export class CopilotoDadosComponent {
   private linhasTexto(dados: ResultadoTabular): string[][] {
     return [
       dados.colunas.map((coluna) => rotuloColuna(coluna.nome)),
-      ...dados.linhas.map((linha) => linha.map((celula, i) => formatarCelula(celula, dados.colunas[i]?.tipo?.toLowerCase(), dados.colunas[i]?.nome))),
+      ...dados.linhas.map((linha) => linha.map((celula, i) => formatarCelulaDados(celula, dados.colunas[i]?.tipo?.toLowerCase(), dados.colunas[i]?.nome))),
     ];
   }
 

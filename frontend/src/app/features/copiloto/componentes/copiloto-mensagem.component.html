@@ -240,10 +240,7 @@
           <span class="passos__titulo">Próximos passos</span>
           <div class="passos__lista">
             @for (passo of passos(); track passo) {
-              <button type="button" class="passo" (click)="enviarTexto.emit(passo)">
-                <span>{{ passo }}</span>
-                <i class="pi pi-arrow-up-right" aria-hidden="true"></i>
-              </button>
+              <geo-button variant="outline" size="sm" icon="pi pi-arrow-up-right" iconPosition="right" [label]="passo" (pressed)="enviarTexto.emit(passo)"></geo-button>
             }
           </div>
         </div>
@@ -289,9 +286,9 @@
         @if (avaliandoNegativa()) {
           <form class="avaliacao" (submit)="$event.preventDefault(); enviarAvaliacaoNegativa()" aria-label="Por que a resposta não ajudou">
             <p class="avaliacao__titulo">O que não ficou bom?</p>
-            <div class="avaliacao__motivos" role="radiogroup" aria-label="Motivo">
+            <div class="avaliacao__motivos" role="group" aria-label="Motivo">
               @for (motivo of motivos; track motivo) {
-                <button type="button" class="avaliacao__motivo" role="radio" [attr.aria-checked]="motivoEscolhido() === motivo"
+                <button type="button" class="avaliacao__motivo" [attr.aria-pressed]="motivoEscolhido() === motivo"
                   [class.avaliacao__motivo--ativo]="motivoEscolhido() === motivo" (click)="motivoEscolhido.set(motivo)">{{ motivo }}</button>
               }
             </div>
