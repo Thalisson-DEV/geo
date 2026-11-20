@@ -234,7 +234,7 @@ export const routes: Routes = [
       },
       {
         path: 'tratamento-erros',
-        data: { permission: 'sincronizacao:read' },
+        data: { permission: 'sincronizacao:read', fullBleed: true },
         loadComponent: () => import('./features/admin/sync-error-cases/sync-error-cases.component').then(m => m.SyncErrorCasesComponent)
       }
     ]

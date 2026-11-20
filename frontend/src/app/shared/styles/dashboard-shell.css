@@ -123,11 +123,8 @@
 
 .dash-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
 .dash-metric { position: relative; min-height: 156px; padding: 1.25rem; overflow: hidden; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); box-shadow: none; }
-.dash-metric::before { position: absolute; top: 0; bottom: 0; left: 0; width: 4px; background: var(--p-zinc-400); content: ''; }
-.dash-metric[data-tone='primary']::before { background: var(--p-primary-500); }
-.dash-metric[data-tone='amber']::before { background: var(--p-yellow-600); }
-.dash-metric[data-tone='red']::before { background: var(--p-red-800); }
-.dash-metric[data-tone='green']::before { background: var(--p-teal-700); }
+/* Métrica sem faixa colorida: o tom aparece só no ícone e na barra de progresso. */
+.dash-metric::before { content: none; }
 .dash-metric__topline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .dash-metric__label { color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .dash-metric__icon { display: grid; width: 2.1rem; height: 2.1rem; place-items: center; border-radius: 0.6rem; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); }
@@ -136,9 +133,9 @@
 .dash-metric__detail { margin: 0.55rem 0 0; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); line-height: 1.4; }
 .dash-metric__track { height: 4px; margin-top: 0.85rem; overflow: hidden; border-radius: 99px; background: var(--geo-surface-muted); }
 .dash-metric__track span { display: block; height: 100%; border-radius: inherit; background: var(--p-primary-500); }
-.dash-metric[data-tone='red'] .dash-metric__track span { background: var(--p-red-800); }
-.dash-metric[data-tone='amber'] .dash-metric__track span { background: var(--p-yellow-600); }
-.dash-metric[data-tone='green'] .dash-metric__track span { background: var(--p-teal-700); }
+.dash-metric[data-tone='red'] .dash-metric__track span { background: var(--geo-danger); }
+.dash-metric[data-tone='amber'] .dash-metric__track span { background: var(--geo-warning); }
+.dash-metric[data-tone='green'] .dash-metric__track span { background: var(--geo-success); }
 
 /* Cartão clicável (drill-down): o botão esticado cobre o cartão; ações extras (Bússola) ficam acima. */
 .dash-metric__corner { display: inline-flex; align-items: center; gap: 0.25rem; }
