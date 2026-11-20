@@ -74,9 +74,9 @@
   [description]="description()"
   [state]="shellState()"
   [density]="density()"
-  [stateTitle]="stateTitle()"
-  [stateDescription]="stateDescription()"
-  [stateActionLabel]="shellActionLabel()"
+  [stateTitle]="carregandoTabela() ? undefined : stateTitle()"
+  [stateDescription]="carregandoTabela() ? undefined : stateDescription()"
+  [stateActionLabel]="carregandoTabela() ? undefined : shellActionLabel()"
   [stateActionIcon]="shellActionIcon()"
   (stateAction)="onShellAction()"
 >

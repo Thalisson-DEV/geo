@@ -697,172 +697,12 @@ body {
   color: var(--geo-foreground-muted) !important;
 }
 
-/* ==========================================================================
-   DIALOGS & OVERLAYS UNIVERSAL ADAPTATION
-   Garante contraste perfeito e legibilidade em caixas de diálogo no tema claro e escuro.
-   ========================================================================== */
-.p-dialog,
-.custom-dialog,
-.geo-dialog,
-.p-confirmdialog,
-.p-confirm-dialog {
-  background-color: var(--geo-surface) !important;
-  color: var(--geo-foreground) !important;
-}
-
-.p-dialog .p-dialog-header,
-.p-dialog-header {
-  background-color: var(--geo-surface) !important;
-  color: var(--geo-foreground) !important;
-  border-bottom: 1px solid var(--geo-border) !important;
-  padding: 1.25rem 1.5rem !important;
-}
-
-.p-dialog .p-dialog-title,
-.p-dialog-title {
-  color: var(--geo-foreground) !important;
-  font-weight: 700 !important;
-}
-
-.p-dialog .p-dialog-content,
-.p-dialog-content {
-  background-color: var(--geo-surface) !important;
-  color: var(--geo-foreground) !important;
-  padding: 1.25rem 1.5rem !important;
-}
-
-.p-dialog .p-dialog-footer,
-.p-dialog-footer {
-  background-color: var(--geo-surface) !important;
-  color: var(--geo-foreground) !important;
-  border-top: 1px solid var(--geo-border) !important;
-  padding: 1.25rem 1.5rem !important;
-}
-
+/* Diálogos: rodapé vazio não ocupa espaço. Cores, raio e espaçamento vêm do preset (geo-preset.ts). */
 .geo-dialog-shell .p-dialog-footer:not(:has([dialog-footer])),
 .geo-dialog-shell .p-dialog-footer:has(.geo-dialog-shell__footer:empty),
 .geo-dialog .p-dialog-footer:has(.geo-dialog-shell__footer:empty),
 .p-dialog-footer:empty {
-  display: none !important;
-}
-
-.p-confirmdialog-message,
-.p-confirm-dialog-message,
-.p-dialog-message {
-  color: var(--geo-foreground-muted, var(--p-zinc-600)) !important;
-  font-size: 0.875rem !important;
-  line-height: 1.6 !important;
-  word-break: break-word !important;
-}
-
-/* Modo Escuro específico para diálogos */
-.app-dark .p-dialog,
-.app-dark .custom-dialog,
-.app-dark .geo-dialog,
-.app-dark .p-confirmdialog,
-.app-dark .p-confirm-dialog {
-  background-color: var(--geo-surface) !important;
-  color: var(--geo-foreground) !important;
-  border-color: var(--geo-border) !important;
-}
-
-.app-dark .p-dialog .p-dialog-header,
-.app-dark .p-dialog-header {
-  background-color: var(--geo-surface) !important;
-  color: var(--geo-foreground) !important;
-  border-color: var(--geo-border) !important;
-}
-
-.app-dark .p-dialog .p-dialog-title,
-.app-dark .p-dialog-title {
-  color: var(--geo-foreground) !important;
-}
-
-.app-dark .p-dialog .p-dialog-content,
-.app-dark .p-dialog-content {
-  background-color: var(--geo-surface) !important;
-  color: var(--geo-foreground) !important;
-}
-
-.app-dark .p-dialog .p-dialog-footer,
-.app-dark .p-dialog-footer {
-  background-color: var(--geo-surface) !important;
-  color: var(--geo-foreground) !important;
-  border-color: var(--geo-border) !important;
-}
-
-.app-dark .p-dialog h1,
-.app-dark .p-dialog h2,
-.app-dark .p-dialog h3,
-.app-dark .p-dialog h4,
-.app-dark .p-dialog h5,
-.app-dark .p-dialog h6 {
-  color: var(--geo-foreground) !important;
-}
-
-.app-dark .p-dialog label,
-.app-dark .p-dialog .filter-label,
-.app-dark .p-dialog .form-label,
-.app-dark .p-dialog label.filter-label {
-  color: var(--geo-foreground-muted) !important;
-}
-
-.app-dark .p-dialog input:not(.p-button):not([type='checkbox']):not([type='radio']),
-.app-dark .p-dialog textarea,
-.app-dark .p-dialog .p-inputtext,
-.app-dark .p-dialog .custom-input {
-  background-color: var(--geo-surface-subtle) !important;
-  border-color: var(--geo-border) !important;
-  color: var(--geo-foreground) !important;
-}
-
-.app-dark .p-dialog input::placeholder,
-.app-dark .p-dialog textarea::placeholder {
-  color: var(--geo-foreground-subtle) !important;
-}
-
-.app-dark .p-dialog .p-select,
-.app-dark .p-dialog .p-multiselect,
-.app-dark .p-dialog .p-datepicker {
-  background-color: var(--geo-surface-subtle) !important;
-  border-color: var(--geo-border) !important;
-  color: var(--geo-foreground) !important;
-}
-
-.app-dark .p-dialog .p-select-label,
-.app-dark .p-dialog .p-multiselect-label {
-  color: var(--geo-foreground) !important;
-}
-
-.app-dark .p-dialog .minimalist-table .p-datatable-thead > tr > th,
-.app-dark .p-dialog .p-datatable-thead > tr > th {
-  background-color: var(--geo-surface-subtle) !important;
-  color: var(--geo-foreground-subtle) !important;
-  border-color: var(--geo-border) !important;
-}
-
-.app-dark .p-dialog .minimalist-table .p-datatable-tbody > tr,
-.app-dark .p-dialog .p-datatable-tbody > tr {
-  background-color: transparent !important;
-  color: var(--geo-foreground) !important;
-  border-color: var(--geo-border) !important;
-}
-
-.app-dark .p-dialog .minimalist-table .p-datatable-tbody > tr:hover,
-.app-dark .p-dialog .p-datatable-tbody > tr:hover {
-  background-color: var(--geo-surface-muted) !important;
-}
-
-.app-dark .p-dialog .minimalist-table .p-datatable-tbody > tr > td,
-.app-dark .p-dialog .p-datatable-tbody > tr > td {
-  color: var(--geo-foreground) !important;
-  border-color: var(--geo-border) !important;
-}
-
-.app-dark .p-confirmdialog-message,
-.app-dark .p-confirm-dialog-message,
-.app-dark .p-dialog-message {
-  color: var(--geo-foreground) !important;
+  display: none;
 }
 
 /* Dark Mode Subtle Shadows - Eliminates heavy black halos */
@@ -908,19 +748,6 @@ body {
 .app-dark img[src*="logo_vertical.svg"],
 .app-dark img[src*="logo.svg"] {
   content: url('/logo_vertical_dark.svg') !important;
-}
-
-/* Form Controls Zero Shadow */
-.p-inputtext,
-input.p-inputtext,
-.p-select,
-.p-multiselect,
-.p-datepicker,
-.p-datepicker-input,
-.custom-input,
-.custom-select,
-.custom-date {
-  box-shadow: none !important;
 }
 
 @media print {

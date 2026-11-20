@@ -42,7 +42,7 @@ const pagina = <T>(content: T[], total = content.length) => ({
 /** Registra as consultas de uma listagem para conferir parâmetros (busca, página, filtros). */
 async function simularApi(page: Page, rotas: Record<string, unknown>): Promise<URL[]> {
   const chamadas: URL[] = [];
-  await page.route(/^https?:\/\/(localhost|127\.0\.0\.1):8080\/api\//, async (route: Route) => {
+  await page.route(/^https?:\/\/(localhost|127\.0\.0\.1):\d+\/api\//, async (route: Route) => {
     const url = new URL(route.request().url());
     const cors = {
       'access-control-allow-origin': route.request().headers()['origin'] ?? '*',
@@ -61,7 +61,7 @@ async function simularApi(page: Page, rotas: Record<string, unknown>): Promise<U
     const vazio = route.request().method() !== 'GET' || url.pathname.endsWith('/resumo') ? {} : url.searchParams.has('page') || url.searchParams.has('size') ? pagina([]) : [];
     return route.fulfill({ json: vazio, headers: cors });
   });
-  await page.route(/^https?:\/\/(localhost|127\.0\.0\.1):8080\/(ws|websocket|sockjs)/, (route) => route.abort());
+  await page.route(/^https?:\/\/(localhost|127\.0\.0\.1):\d+\/(ws|websocket|sockjs)/, (route) => route.abort());
   return chamadas;
 }
 

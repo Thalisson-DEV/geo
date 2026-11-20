@@ -376,6 +376,8 @@ export class GeoDataTableComponent<T = unknown> implements OnInit {
     const ocultas = this.ocultas();
     return this.columns().filter((column, index) => index === 0 || !ocultas.includes(column.key));
   });
+  /** Enquanto carrega, o texto e a ação do vazio não aparecem (o shell mostra o skeleton). */
+  protected readonly carregandoTabela = computed(() => this.shellState() === 'loading');
   protected readonly showColumnPicker = computed(() => this.columnPicker() ?? this.columns().length > 8);
 
   protected toggleColumn(key: string): void {

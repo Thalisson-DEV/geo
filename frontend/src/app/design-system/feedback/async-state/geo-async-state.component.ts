@@ -22,8 +22,8 @@ interface StatePresentation {
     '[attr.aria-busy]': "state() === 'loading' || state() === 'refreshing'"
   },
   template: `
-    @if (state() === 'loading' && !compact()) {
-      <!-- Carregando: skeleton das linhas, sem texto do vazio nem ações (skill: skeleton, não spinner). -->
+    @if (state() === 'loading' && !compact() && !title()) {
+      <!-- Carregando sem mensagem própria: skeleton das linhas (skill: skeleton, não spinner). -->
       <div class="geo-async-state__skeleton" aria-hidden="true">
         @for (linha of linhasSkeleton; track linha) {
           <span class="geo-async-state__skeleton-linha" [style.inline-size]="linha"></span>
@@ -44,8 +44,8 @@ interface StatePresentation {
       }
 
       <div class="geo-async-state__copy">
-        <strong>{{ carregando() ? presentation().title : title() || presentation().title }}</strong>
-        <p>{{ carregando() ? presentation().description : description() || presentation().description }}</p>
+        <strong>{{ title() || presentation().title }}</strong>
+        <p>{{ description() || presentation().description }}</p>
       </div>
 
       @if (!carregando() && (actionLabel() || secondaryActionLabel())) {
@@ -103,7 +103,7 @@ export class GeoAsyncStateComponent {
   readonly secondaryAction = output<void>();
 
   protected readonly linhasSkeleton = ['100%', '92%', '96%', '88%', '94%', '78%'];
-  /** Carregando: título, descrição e ações da tela não valem (evita "vazio" durante a carga). */
+  /** Carregando: as ações não valem (quem chama decide o texto: título próprio ou skeleton). */
   protected readonly carregando = computed(() => this.state() === 'loading' || this.state() === 'refreshing');
 
   protected readonly presentation = computed<StatePresentation>(() => {
