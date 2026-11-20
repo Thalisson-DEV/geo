@@ -106,7 +106,7 @@
           </div>
 
           @if (d.serieTemporal.length) {
-            <div class="dash-chart"><p-chart type="bar" [data]="serieData" [options]="serieOptions" height="310px" /></div>
+            <div class="dash-chart"><p-chart type="bar" [data]="$any(serieData)" [options]="$any(serieOptions)" height="310px" /></div>
             @if (d.resumo.totalDescontos === 0) {
               <p class="dash-note">Nenhum termo no período — os intervalos aparecem zerados para manter o gráfico contínuo.</p>
             } @else {
@@ -175,7 +175,7 @@
             </div>
           </header>
           @if (d.resumo.totalDescontos) {
-            <div class="dash-chart dash-chart--short"><p-chart type="bar" [data]="funilData" [options]="funilOptions" height="240px" /></div>
+            <div class="dash-chart dash-chart--short"><p-chart type="bar" [data]="$any(funilData)" [options]="$any(funilOptions)" height="240px" /></div>
             <div class="dash-summary__items !mt-4">
               @for (etapa of d.funil; track etapa.etapa) {
                 <div class="dash-summary__item">
@@ -199,7 +199,7 @@
             </div>
           </header>
           @if (totalPendenteHistorico() > 0) {
-            <div class="dash-chart dash-chart--short"><p-chart type="bar" [data]="envelhecimentoData" [options]="envelhecimentoOptions" height="240px" /></div>
+            <div class="dash-chart dash-chart--short"><p-chart type="bar" [data]="$any(envelhecimentoData)" [options]="$any(envelhecimentoOptions)" height="240px" /></div>
             <div class="dash-summary__items !mt-4">
               @for (faixa of d.envelhecimento; track faixa.faixa) {
                 @if (faixa.quantidade > 0) {
@@ -229,7 +229,7 @@
             }
           </div>
           @if (d.resumo.totalDescontos) {
-            <div class="dash-chart dash-chart--short"><p-chart type="doughnut" [data]="statusData" [options]="statusChartOptions" height="240px" /></div>
+            <div class="dash-chart dash-chart--short"><p-chart type="doughnut" [data]="$any(statusData)" [options]="$any(statusChartOptions)" height="240px" /></div>
           } @else {
             <div class="dash-empty"><i class="pi pi-chart-pie"></i>Sem termos no período.</div>
           }
@@ -244,7 +244,7 @@
             </div>
           </header>
           @if (d.ciclo.amostraValidacao || d.ciclo.amostraBaixa) {
-            <div class="dash-chart"><p-chart type="bar" [data]="cicloData" [options]="cicloOptions" height="280px" /></div>
+            <div class="dash-chart"><p-chart type="bar" [data]="$any(cicloData)" [options]="$any(cicloOptions)" height="280px" /></div>
             <p class="dash-note">
               Amostra: {{ d.ciclo.amostraValidacao }} termo(s) validado(s) e {{ d.ciclo.amostraBaixa }} baixado(s) no período.
               Idade média das pendências: {{ d.ciclo.idadeMediaPendentesDias | number:'1.0-1' }} dia(s).
@@ -266,7 +266,7 @@
             </div>
           </header>
           @if (d.porMotivo.length) {
-            <div class="dash-chart dash-chart--tall"><p-chart type="bar" [data]="motivoData" [options]="motivoOptions" height="320px" /></div>
+            <div class="dash-chart dash-chart--tall"><p-chart type="bar" [data]="$any(motivoData)" [options]="$any(motivoOptions)" height="320px" /></div>
           } @else {
             <div class="dash-empty"><i class="pi pi-tag"></i>Nenhum motivo com termos no período.</div>
           }
@@ -281,7 +281,7 @@
             </div>
           </header>
           @if (d.porTipoEquipamento.length) {
-            <div class="dash-chart dash-chart--tall"><p-chart type="bar" [data]="tipoEquipamentoData" [options]="tipoEquipamentoOptions" height="320px" /></div>
+            <div class="dash-chart dash-chart--tall"><p-chart type="bar" [data]="$any(tipoEquipamentoData)" [options]="$any(tipoEquipamentoOptions)" height="320px" /></div>
           } @else {
             <div class="dash-empty"><i class="pi pi-box"></i>Nenhum item lançado no período.</div>
           }

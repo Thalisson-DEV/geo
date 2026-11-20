@@ -85,7 +85,7 @@
           </header>
           @if (d.tendenciaDesvios.length) {
             <div class="dash-chart dash-chart--responsive dash-chart--drill">
-              <p-chart type="line" [data]="deviationTrendData" [options]="trendChartOptions" [responsive]="true"
+              <p-chart type="line" [data]="$any(deviationTrendData)" [options]="trendChartOptions" [responsive]="true"
                 ariaLabel="Desvios identificados ao longo do período. Clique num ponto para analisar." (onDataSelect)="onTendenciaSelect($event)" />
             </div>
             <p class="dash-drill-hint"><i class="pi pi-hand-pointer" aria-hidden="true"></i> Clique num ponto para ver os desvios daquele período</p>

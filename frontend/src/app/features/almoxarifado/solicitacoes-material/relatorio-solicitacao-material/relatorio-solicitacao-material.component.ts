@@ -203,7 +203,7 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
   protected readonly equipeSaqueName = signal('—');
 
   // Linha do tempo / Histórico
-  protected readonly timelineValue = signal<string | number | string[] | number[] | null | undefined>(undefined);
+  protected readonly timelineValue = signal<string | number | (string | number)[] | null | undefined>(undefined);
   protected readonly isTimelineOpen = computed(() => {
     const val = this.timelineValue();
     if (!val) return false;

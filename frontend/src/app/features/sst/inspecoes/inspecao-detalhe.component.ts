@@ -103,7 +103,7 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
 
   @ViewChild('historicoComp') protected historicoComp?: InspecaoSegurancaHistoricoComponent;
 
-  protected readonly timelineValue = signal<string | number | string[] | number[] | null | undefined>(undefined);
+  protected readonly timelineValue = signal<string | number | (string | number)[] | null | undefined>(undefined);
   protected readonly isTimelineOpen = computed(() => {
     const val = this.timelineValue();
     if (!val) return false;

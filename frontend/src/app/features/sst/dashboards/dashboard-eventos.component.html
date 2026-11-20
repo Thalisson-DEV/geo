@@ -73,7 +73,7 @@
             <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'serie', rotulo: 'Ocorrências ao longo do período' }" />
           </header>
           @if (d.serie.length) {
-            <div class="dash-chart dash-chart--responsive dash-chart--drill"><p-chart type="bar" [data]="serieChartData" [options]="serieChartOptions" [responsive]="true"
+            <div class="dash-chart dash-chart--responsive dash-chart--drill"><p-chart type="bar" [data]="$any(serieChartData)" [options]="$any(serieChartOptions)" [responsive]="true"
               ariaLabel="Ocorrências ao longo do período. Clique numa barra para analisar." (onDataSelect)="onSerieSelect($event)" /></div>
             <p class="dash-drill-hint"><i class="pi pi-hand-pointer" aria-hidden="true"></i> Clique numa barra para ver os eventos daquele período</p>
           } @else {

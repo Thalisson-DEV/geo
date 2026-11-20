@@ -616,9 +616,9 @@ export class DashboardDesviosComponent implements OnInit {
   }
 
   /** Clique num ponto da tendência (p-chart): abre a análise daquele período. */
-  protected onTendenciaSelect(evento: { element?: { index?: number } }): void {
+  protected onTendenciaSelect(evento: { element?: unknown }): void {
     const d = this.data();
-    const indice = evento?.element?.index;
+    const indice = (evento?.element as { index?: number } | undefined)?.index;
     const ponto = d && typeof indice === 'number' ? d.tendenciaDesvios[indice] : undefined;
     if (d && ponto) this.analise.abrir(d.granularidade === 'DIA' ? 'dia' : d.granularidade === 'MES' ? 'mes' : 'ano', ponto.inicio);
   }

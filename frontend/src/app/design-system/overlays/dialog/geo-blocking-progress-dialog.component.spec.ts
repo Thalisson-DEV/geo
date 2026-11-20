@@ -21,10 +21,10 @@ describe('GeoBlockingProgressDialogComponent', () => {
     fixture.detectChanges();
 
     const dialog = fixture.debugElement.query(By.directive(Dialog)).componentInstance as Dialog;
-    expect(dialog.modal).toBe(true);
-    expect(dialog.closable).toBe(false);
-    expect(dialog.closeOnEscape).toBe(false);
-    expect(dialog.visible).toBe(true);
+    expect(dialog.modal()).toBe(true);
+    expect(dialog.closable()).toBe(false);
+    expect(dialog.closeOnEscape()).toBe(false);
+    expect(dialog.visible()).toBe(true);
     expect(document.body.textContent).toContain('Confirmando solicitações');
     expect(document.body.textContent).not.toContain('Aguarde um instante.');
   });

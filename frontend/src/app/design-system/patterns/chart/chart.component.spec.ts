@@ -38,15 +38,15 @@ describe('GeoChartComponent', () => {
       series: [{ name: 'Desvios', values: [7, 3] }],
     });
     const chart = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
-    expect(chart.type).toBe('bar');
-    expect((chart.options as { indexAxis: string }).indexAxis).toBe('y');
-    const dataset = (chart.data as { datasets: { backgroundColor: string }[] }).datasets[0];
+    expect(chart.type()).toBe('bar');
+    expect((chart.options() as { indexAxis: string }).indexAxis).toBe('y');
+    const dataset = (chart.data() as { datasets: { backgroundColor: string }[] }).datasets[0];
     expect(dataset.backgroundColor).toBe('#112233');
 
     fixture.componentRef.setInput('kind', 'bar-stacked');
     fixture.detectChanges();
     const empilhado = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
-    expect((empilhado.options as { scales: { y: { stacked: boolean } } }).scales.y.stacked).toBe(true);
+    expect((empilhado.options() as { scales: { y: { stacked: boolean } } }).scales.y.stacked).toBe(true);
     document.documentElement.style.removeProperty('--geo-chart-1');
   });
 
@@ -106,12 +106,12 @@ describe('GeoChartComponent', () => {
     fixture.componentInstance.pointSelect.subscribe((selecao) => selecoes.push(selecao));
 
     const chart = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
-    const onClick = (chart.options as { onClick: (e: unknown, el: unknown[]) => void }).onClick;
+    const onClick = (chart.options() as { onClick: (e: unknown, el: unknown[]) => void }).onClick;
     onClick({}, [{ index: 1, datasetIndex: 0 }]);
     onClick({}, []);
     expect(selecoes).toEqual([{ index: 1, label: '02/09', seriesIndex: 0 }]);
     // A categoria inteira é área de clique, não só a barra/ponto.
-    expect((chart.options as { interaction?: unknown }).interaction).toEqual({ mode: 'index', intersect: false, axis: 'x' });
+    expect((chart.options() as { interaction?: unknown }).interaction).toEqual({ mode: 'index', intersect: false, axis: 'x' });
 
     fixture.componentInstance.dataTableVisible.set(true);
     fixture.detectChanges();
@@ -131,7 +131,7 @@ describe('GeoChartComponent', () => {
       valueFormat: 'integer',
     });
     const chart = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
-    const escalas = (chart.options as { scales: { y: { ticks: { precision?: number } } } }).scales;
+    const escalas = (chart.options() as { scales: { y: { ticks: { precision?: number } } } }).scales;
     expect(escalas.y.ticks.precision).toBe(0);
   });
 
@@ -143,8 +143,8 @@ describe('GeoChartComponent', () => {
       series: [{ name: 'S', values: [1] }],
     });
     const chart = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
-    expect((chart.options as { onClick?: unknown }).onClick).toBeUndefined();
-    expect((chart.options as { interaction?: unknown }).interaction).toBeUndefined();
+    expect((chart.options() as { onClick?: unknown }).onClick).toBeUndefined();
+    expect((chart.options() as { interaction?: unknown }).interaction).toBeUndefined();
     fixture.componentInstance.dataTableVisible.set(true);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.geo-chart__row-action')).toBeNull();

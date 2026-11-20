@@ -124,7 +124,7 @@ export class GeoDatepickerComponent {
    */
   protected abrirAoClicar(event: MouseEvent): void {
     const picker = this.picker();
-    if (!picker || this.disabled() || this.readonly() || picker.overlayVisible) return;
+    if (!picker || this.disabled() || this.readonly() || picker.overlayVisible()) return;
     if ((event.target as HTMLElement | null)?.tagName === 'INPUT') picker.showOverlay();
   }
 

@@ -20,9 +20,9 @@ describe('GeoDialogShellComponent', () => {
     fixture.detectChanges();
 
     const dialog = fixture.debugElement.query(By.directive(Dialog)).componentInstance as Dialog;
-    expect(dialog.closable).toBe(false);
-    expect(dialog.closeOnEscape).toBe(false);
-    expect(dialog.dismissableMask).toBe(false);
+    expect(dialog.closable()).toBe(false);
+    expect(dialog.closeOnEscape()).toBe(false);
+    expect(dialog.dismissableMask()).toBe(false);
     expect(document.body.textContent).toContain('Processando');
   });
 
@@ -33,7 +33,7 @@ describe('GeoDialogShellComponent', () => {
     }).compileComponents();
     const fixture = TestBed.createComponent(GeoDialogShellComponent);
     const dialog = fixture.debugElement.query(By.directive(Dialog)).componentInstance as Dialog;
-    dialog.visibleChange.emit(false);
+    dialog.visible.set(false);
     fixture.detectChanges();
 
     expect(fixture.componentInstance.visible()).toBe(false);
@@ -51,8 +51,8 @@ describe('GeoDialogShellComponent', () => {
     fixture.detectChanges();
 
     const dialog = fixture.debugElement.query(By.directive(Dialog)).componentInstance as Dialog;
-    expect(dialog.styleClass).toContain('geo-dialog');
-    expect(dialog.styleClass).toContain('geo-dialog-shell');
-    expect(dialog.styleClass).toContain('geo-dialog-shell--lg');
+    expect(dialog.styleClass()).toContain('geo-dialog');
+    expect(dialog.styleClass()).toContain('geo-dialog-shell');
+    expect(dialog.styleClass()).toContain('geo-dialog-shell--lg');
   });
 });

@@ -103,9 +103,9 @@ describe('GEO form controls', () => {
     expect(datepicker.appendTo()).toBe('body');
     expect(autocomplete.size()).toBe('small');
     expect(autocomplete.appendTo()).toBe('body');
-    expect(autocomplete.minQueryLength).toBe(2);
-    expect(autocomplete.virtualScroll).toBe(true);
-    expect(autocomplete.forceSelection).toBe(true);
+    expect(autocomplete.minQueryLength()).toBe(2);
+    expect(autocomplete.virtualScroll()).toBe(true);
+    expect(autocomplete.forceSelection()).toBe(true);
   });
 
   it('mantem valor primitivo no ControlValueAccessor e encaminha busca/paginacao', async () => {
@@ -283,7 +283,7 @@ describe('GEO form controls', () => {
 
     const select = selectFixture.debugElement.query(By.directive(Select))
       .componentInstance as Select;
-    expect(select.virtualScroll).toBe(true);
+    expect(select.virtualScroll()).toBe(true);
 
     const multiFixture = TestBed.createComponent(GeoMultiSelectComponent);
     multiFixture.componentRef.setInput('label', 'Materiais');
@@ -292,7 +292,7 @@ describe('GEO form controls', () => {
 
     const multiselect = multiFixture.debugElement.query(By.directive(MultiSelect))
       .componentInstance as MultiSelect;
-    expect(multiselect.virtualScroll).toBe(true);
+    expect(multiselect.virtualScroll()).toBe(true);
   });
 
   it('valida o limite do arquivo antes de expor a seleção', async () => {
@@ -365,7 +365,7 @@ describe('GEO form controls', () => {
     fixture.detectChanges();
     const datepicker = fixture.debugElement.query(By.directive(DatePicker)).componentInstance as DatePicker;
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
-    expect(datepicker.showTime).toBe(true);
+    expect(datepicker.showTime()).toBe(true);
     expect(input.placeholder).toBe('dd/mm/aaaa hh:mm');
 
     input.value = '101020261430';
@@ -402,14 +402,14 @@ describe('GEO form controls', () => {
     fixture.detectChanges();
     const datepicker = fixture.debugElement.query(By.directive(DatePicker)).componentInstance as DatePicker;
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
-    expect(datepicker.stepMinute).toBe(5);
+    expect(datepicker.stepMinute()).toBe(5);
 
     input.focus();
     input.dispatchEvent(new FocusEvent('focus'));
-    expect(datepicker.overlayVisible).toBeFalsy();
+    expect(datepicker.overlayVisible()).toBeFalsy();
 
     input.click();
-    expect(datepicker.overlayVisible).toBe(true);
+    expect(datepicker.overlayVisible()).toBe(true);
   });
 
   it('datepicker não reemite o mesmo instante (evita laço com Date recriado a cada leitura)', async () => {

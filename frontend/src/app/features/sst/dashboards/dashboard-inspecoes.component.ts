@@ -480,8 +480,8 @@ export class DashboardInspecoesComponent implements OnInit {
   }
 
   /** Clique numa barra/ponto da série (p-chart): abre a análise daquele período. */
-  protected onSerieDataSelect(evento: { element?: { index?: number } }): void {
-    const indice = evento?.element?.index;
+  protected onSerieDataSelect(evento: { element?: unknown }): void {
+    const indice = (evento?.element as { index?: number } | undefined)?.index;
     const ponto = typeof indice === 'number' ? this.data()?.serieTemporal[indice] : undefined;
     if (ponto) this.analisarPeriodo(ponto.inicio);
   }
@@ -493,8 +493,8 @@ export class DashboardInspecoesComponent implements OnInit {
   }
 
   /** Clique numa fatia de "Onde as inspeções aconteceram". */
-  protected onDistribuicaoSelect(evento: { element?: { index?: number } }): void {
-    const indice = evento?.element?.index;
+  protected onDistribuicaoSelect(evento: { element?: unknown }): void {
+    const indice = (evento?.element as { index?: number } | undefined)?.index;
     const item = typeof indice === 'number' ? this.distributionRows()[indice] : undefined;
     const grupo = DIMENSAO_GRUPO[this.distributionDimension()];
     if (item && grupo) this.analise.abrir('grupo', `${grupo}~${item.id}`);

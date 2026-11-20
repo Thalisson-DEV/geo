@@ -114,7 +114,7 @@ export class SolicitacaoTecnicaDetalheComponent implements OnInit, OnDestroy {
   protected readonly pendenciaModalMotivoAtual = signal<MotivoPendenciaResponse | null>(null);
   protected readonly pendenciaModalJustificativaAtual = signal<string | null>(null);
 
-  protected readonly timelineValue = signal<string | number | string[] | number[] | null | undefined>(undefined);
+  protected readonly timelineValue = signal<string | number | (string | number)[] | null | undefined>(undefined);
   protected readonly isTimelineOpen = computed(() => {
     const val = this.timelineValue();
     return val === 'timeline' || (Array.isArray(val) && (val as unknown[]).includes('timeline'));

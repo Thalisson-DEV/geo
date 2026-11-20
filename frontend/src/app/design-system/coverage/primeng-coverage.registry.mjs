@@ -15,6 +15,8 @@ const wrapperEntrypoints = [
   'primeng/inputmask',
   'primeng/inputnumber',
   'primeng/inputotp',
+  'primeng/inputpassword',
+  'primeng/inputtags',
   'primeng/inputtext',
   'primeng/listbox',
   'primeng/multiselect',
@@ -43,6 +45,7 @@ const patternEntrypoints = [
   'primeng/inputgroup',
   'primeng/inputgroupaddon',
   'primeng/inputicon',
+  'primeng/label',
   'primeng/orderlist',
   'primeng/organizationchart',
   'primeng/overlaybadge',
@@ -72,6 +75,8 @@ const styledDirectEntrypoints = [
   'primeng/chart',
   'primeng/chip',
   'primeng/colorpicker',
+  'primeng/commandmenu',
+  'primeng/compare',
   'primeng/confirmdialog',
   'primeng/confirmpopup',
   'primeng/contextmenu',
@@ -82,9 +87,11 @@ const styledDirectEntrypoints = [
   'primeng/drawer',
   'primeng/dynamicdialog',
   'primeng/editor',
+  'primeng/gallery',
   'primeng/galleria',
   'primeng/image',
   'primeng/imagecompare',
+  'primeng/inputcolor',
   'primeng/keyfilter',
   'primeng/knob',
   'primeng/megamenu',
@@ -99,9 +106,11 @@ const styledDirectEntrypoints = [
   'primeng/progressspinner',
   'primeng/rating',
   'primeng/ripple',
+  'primeng/scrollarea',
   'primeng/scroller',
   'primeng/scrollpanel',
   'primeng/scrolltop',
+  'primeng/sidebar',
   'primeng/skeleton',
   'primeng/speeddial',
   'primeng/splitbutton',
@@ -122,8 +131,10 @@ const infrastructureEntrypoints = [
   'primeng/dom',
   'primeng/focustrap',
   'primeng/icons',
+  'primeng/isolation',
   'primeng/motion',
   'primeng/passthrough',
+  'primeng/useid',
   'primeng/utils'
 ];
 
@@ -188,7 +199,7 @@ const excludedEntries = [
     entrypoint: 'primeng',
     disposition: 'excluded',
     rationale:
-      'The package root resolves to an empty compatibility module in PrimeNG 21.1.3; use explicit public subpaths for traceable ownership and tree shaking.'
+      'The package root resolves to an empty compatibility module in PrimeNG 22.1.5; use explicit public subpaths for traceable ownership and tree shaking.'
   },
   ...[
     'primeng/base',
@@ -215,6 +226,12 @@ const excludedEntries = [
       'Secondary table icon leaf omitted from the public primeng/icons barrel; avoid treating this implementation-facing export as a GEO feature contract.'
   },
   {
+    entrypoint: 'primeng/license',
+    disposition: 'excluded',
+    rationale:
+      'PrimeNG license check that injects a fixed banner when the license cannot be verified; vendor runtime plumbing, not an application UI or GEO contract.'
+  },
+  {
     entrypoint: 'primeng/ts-helpers',
     disposition: 'excluded',
     rationale:
@@ -235,7 +252,7 @@ const excludedEntries = [
  */
 export const primengCoverageRegistry = Object.freeze({
   schemaVersion: 1,
-  primeNgVersion: '21.1.3',
+  primeNgVersion: '22.1.5',
   practicalEntrypointPolicy: 'exact-public-consumer-export-v2',
   practicalEntrypointDefinition:
     'Start from every exact key declared by the installed primeng package exports. Filter package metadata and the generated ./types/* family, which remains public for import type. Require an explicit disposition for every other public JavaScript subpath, including nested icon leaves and implementation-oriented exports that are deliberately excluded.',

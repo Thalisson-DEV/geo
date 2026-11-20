@@ -147,7 +147,7 @@ export class SolicitacaoFinanceiraDetalheComponent {
   protected readonly historico = signal<EventoSolicitacao[]>([]);
   protected readonly historicoCarregando = signal(false);
   protected readonly historicoErro = signal<string | null>(null);
-  protected readonly historicoAberto = signal<string | number | string[] | number[] | null | undefined>(undefined);
+  protected readonly historicoAberto = signal<string | number | (string | number)[] | null | undefined>(undefined);
   protected readonly inspecaoContexto = signal<InspecaoContexto | null>(null);
   protected readonly inspecaoAberta = signal(false);
   protected readonly acao = signal<AcaoDecisao | null>(null);

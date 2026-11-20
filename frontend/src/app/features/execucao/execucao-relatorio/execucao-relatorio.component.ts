@@ -84,7 +84,7 @@ export class ExecucaoRelatorioComponent implements OnInit, AfterViewChecked {
   /** Recarrega a linha do tempo depois de cada alteração. */
   protected readonly versaoHistorico = signal(0);
   /** Acordeão da linha do tempo, como no relatório da solicitação: só busca quando abre. */
-  protected readonly historicoAberto = signal<string | number | string[] | number[] | null | undefined>(undefined);
+  protected readonly historicoAberto = signal<string | number | (string | number)[] | null | undefined>(undefined);
   protected readonly historicoVisivel = computed(() => {
     const v = this.historicoAberto();
     return v === 'historico' || (Array.isArray(v) && (v as unknown[]).includes('historico'));

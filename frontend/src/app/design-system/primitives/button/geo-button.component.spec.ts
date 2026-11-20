@@ -18,7 +18,7 @@ describe('GeoButtonComponent', () => {
     fixture.detectChanges();
 
     const primeButton = fixture.debugElement.query(By.directive(Button)).componentInstance as Button;
-    expect(primeButton.severity).toBe('danger');
+    expect(primeButton.severity()).toBe('danger');
   });
 
   it('bloqueia novas ativações enquanto carrega', async () => {

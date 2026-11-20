@@ -92,7 +92,7 @@ export class FechamentoRelatorioComponent implements OnInit {
   protected readonly estornoAberto = signal(false);
   protected readonly movimentacaoSelecionada = signal<MovimentacaoFechamento | null>(null);
 
-  protected readonly timelineValue = signal<string | number | string[] | number[] | null | undefined>(undefined);
+  protected readonly timelineValue = signal<string | number | (string | number)[] | null | undefined>(undefined);
   protected readonly isTimelineOpen = computed(() => {
     const val = this.timelineValue();
     return val === 'timeline' || (Array.isArray(val) && (val as unknown[]).includes('timeline'));

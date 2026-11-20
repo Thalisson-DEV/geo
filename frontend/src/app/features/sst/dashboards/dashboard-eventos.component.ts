@@ -533,9 +533,9 @@ export class DashboardEventosComponent implements OnInit {
   }
 
   /** Clique numa barra da evolução (p-chart): abre a análise daquele período. */
-  protected onSerieSelect(evento: { element?: { index?: number } }): void {
+  protected onSerieSelect(evento: { element?: unknown }): void {
     const d = this.data();
-    const indice = evento?.element?.index;
+    const indice = (evento?.element as { index?: number } | undefined)?.index;
     const ponto = d && typeof indice === 'number' ? d.serie[indice] : undefined;
     if (!d || !ponto) return;
     this.analise.abrir(d.granularidade === 'DIA' ? 'dia' : d.granularidade === 'MES' ? 'mes' : 'ano', diaCivil(ponto.data));
