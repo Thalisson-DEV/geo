@@ -66,12 +66,13 @@
     display: grid;
     flex: none;
     place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--geo-border);
     border-radius: var(--geo-radius-md);
-    background: var(--geo-brand-soft);
-    color: var(--geo-brand);
-    font-size: 1.05rem;
+    background: var(--geo-surface);
+    color: var(--geo-foreground-muted);
+    font-size: var(--geo-icon-size-md);
   }
   .geo-form-card__heading { display: grid; flex: 1; gap: 0.15rem; min-width: 0; }
   .geo-form-card__eyebrow {
@@ -193,12 +194,12 @@
     display: grid;
     flex: none;
     place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 24px;
+    height: 24px;
     border-radius: var(--geo-radius-sm);
-    background: var(--geo-brand-soft);
-    color: var(--geo-brand);
-    font-size: var(--geo-font-caption);
+    background: var(--geo-surface-muted);
+    color: var(--geo-foreground-muted);
+    font-size: var(--geo-icon-size-sm);
   }
   .geo-form-section__heading { display: grid; flex: 1; gap: 0.15rem; min-width: 0; }
   .geo-form-section__title {

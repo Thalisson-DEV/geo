@@ -299,16 +299,17 @@
   .geo-status[data-emphasis='outline'] { border-color: currentColor; color: var(--geo-status-ink); }
   .geo-status[data-emphasis='solid'] { background: var(--geo-status-color); color: var(--p-surface-0); }
 
+  /* Devolução: tom neutro (sem segundo acento); o ícone e o texto já dizem que é devolução. */
   .geo-status--devolucao,
   .geo-status[data-tipo='DEVOLUCAO'],
   .geo-status[data-tipo='DEVOLUCAO_COMERCIAL'] {
-    --geo-status-color: var(--p-indigo-500);
-    --geo-status-ink: var(--p-indigo-700);
-    --geo-status-soft: var(--p-zinc-200);
-    --geo-status-border: var(--p-indigo-200);
-    background: var(--p-zinc-200) !important;
-    border-color: var(--p-indigo-200) !important;
-    color: var(--p-indigo-700) !important;
+    --geo-status-color: var(--geo-foreground-muted);
+    --geo-status-ink: var(--geo-foreground);
+    --geo-status-soft: var(--geo-surface-muted);
+    --geo-status-border: var(--geo-border-strong);
+    background: var(--geo-status-soft);
+    border-color: var(--geo-status-border);
+    color: var(--geo-status-ink);
   }
 
   .app-dark .geo-status[data-tone='neutral'],
@@ -321,35 +322,22 @@
   }
   .app-dark .geo-status[data-tone='info'],
   .dark .geo-status[data-tone='info'] {
-    --geo-status-border: rgba(59, 130, 246, 0.4);
+    --geo-status-border: color-mix(in srgb, var(--geo-info) 45%, transparent);
   }
   .app-dark .geo-status[data-tone='success'],
   .dark .geo-status[data-tone='success'] {
-    --geo-status-border: rgba(34, 197, 94, 0.4);
+    --geo-status-border: color-mix(in srgb, var(--geo-success) 45%, transparent);
   }
   .app-dark .geo-status[data-tone='warning'],
   .dark .geo-status[data-tone='warning'] {
-    --geo-status-border: rgba(245, 158, 11, 0.4);
+    --geo-status-border: color-mix(in srgb, var(--geo-warning) 45%, transparent);
   }
   .app-dark .geo-status[data-tone='danger'],
   .dark .geo-status[data-tone='danger'] {
-    --geo-status-border: rgba(239, 68, 68, 0.4);
+    --geo-status-border: color-mix(in srgb, var(--geo-danger) 45%, transparent);
   }
 
-  .app-dark .geo-status--devolucao,
-  .app-dark .geo-status[data-tipo='DEVOLUCAO'],
-  .app-dark .geo-status[data-tipo='DEVOLUCAO_COMERCIAL'],
-  .dark .geo-status--devolucao,
-  .dark .geo-status[data-tipo='DEVOLUCAO'],
-  .dark .geo-status[data-tipo='DEVOLUCAO_COMERCIAL'] {
-    --geo-status-color: var(--p-indigo-400);
-    --geo-status-ink: var(--p-indigo-200);
-    --geo-status-soft: rgba(49, 46, 129, 0.45);
-    --geo-status-border: rgba(99, 102, 241, 0.4);
-    background: rgba(49, 46, 129, 0.45) !important;
-    border-color: rgba(99, 102, 241, 0.4) !important;
-    color: var(--p-indigo-200) !important;
-  }
+
 
   .geo-field {
     display: grid;

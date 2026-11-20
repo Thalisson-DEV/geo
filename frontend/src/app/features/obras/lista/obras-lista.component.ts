@@ -106,13 +106,14 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
 
     .obra-encerramento { display: inline-flex; margin-top: 0.25rem; padding: 0; border: 0; background: none; cursor: pointer; border-radius: var(--geo-radius-sm); }
     .obra-encerramento:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    /* Título em uma linha; o texto completo fica no title da célula. */
     .obra-titulo {
-      display: -webkit-box;
+      display: block;
       min-width: 16rem;
+      max-width: 26rem;
       overflow: hidden;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .importacao-opcoes {
@@ -220,6 +221,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         [emptyActionLabel]="podeEscrever ? 'Nova obra' : undefined"
         noResultsTitle="Nenhuma obra encontrada com esse recorte."
         [textFit]="ajusteTexto"
+        [hiddenColumns]="colunasOcultasPadrao"
         [columns]="colunas"
         [rows]="resultado.rows()"
         [totalRecords]="resultado.total()"
@@ -484,8 +486,10 @@ export class ObrasListComponent {
     { errorMessage: getErrorMessage }
   );
 
-  /** Carteira larga (18 colunas): texto em até 2 linhas, o resto no title da célula. */
-  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 2 } as const;
+  /** Carteira larga (18 colunas): texto em uma linha, o resto no title da célula. */
+  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 1 } as const;
+  /** Padrão enxuto (10 colunas, com o valor do projeto à vista); o usuário escolhe as demais em "Colunas". */
+  protected readonly colunasOcultasPadrao = ['processo', 'centro', 'coordenador', 'tensao', 'prioridade', 'prazoRegulado', 'materialPrevisto', 'servicoPrevisto'];
   protected readonly colunas: GeoDataTableColumn<ObraResumoResponse>[] = [
     { key: 'numero', header: 'Número', type: 'custom', priority: 1, sortField: 'numero', width: '9rem', value: (o) => o.numero, display: (o) => o.numero },
     { key: 'titulo', header: 'Título', type: 'custom', priority: 1, sortField: 'titulo', value: (o) => o.titulo, display: (o) => o.titulo },

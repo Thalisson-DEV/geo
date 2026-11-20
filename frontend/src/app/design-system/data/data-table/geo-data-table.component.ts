@@ -1,5 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import {
+  linkedSignal,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -147,6 +148,13 @@ export class GeoDataTableComponent<T = unknown> implements OnInit {
   readonly pageSizeOptions = input<readonly number[]>(GEO_PAGE_SIZE_OPTIONS);
   /** Chave para lembrar o tamanho de página neste dispositivo (`localStorage`). */
   readonly storageKey = input<string | undefined>();
+  /**
+   * Colunas ocultas por padrão (chaves). Com mais de 8 colunas, a barra mostra "Colunas" para o
+   * usuário escolher; a escolha fica neste dispositivo junto do `storageKey`.
+   */
+  readonly hiddenColumns = input<readonly string[]>([]);
+  /** Força mostrar/ocultar o seletor de colunas. Padrão: aparece com mais de 8 colunas. */
+  readonly columnPicker = input<boolean | undefined>();
   /** Quando definido, mostra "Exportar CSV" com este nome de arquivo (sem extensão). */
   readonly exportFileName = input<string | undefined>();
   /** Modo servidor: busca todas as linhas do recorte (até `exportLimit`) para o CSV. */
@@ -350,8 +358,51 @@ export class GeoDataTableComponent<T = unknown> implements OnInit {
       ? `Exportar os ${this.rows().length} registros desta página em CSV`
       : `Exportar ${this.total()} registros em CSV`,
   );
+  /** Chaves das colunas ocultas: escolha salva do usuário ou o padrão da tela. */
+  protected readonly ocultas = linkedSignal<readonly string[]>(() => {
+    const chave = this.storageKey();
+    if (chave) {
+      try {
+        const salvo = localStorage.getItem(`geo.table.${chave}.hidden`);
+        if (salvo) return JSON.parse(salvo) as string[];
+      } catch {
+        // sem preferência salva
+      }
+    }
+    return this.hiddenColumns();
+  });
+  protected readonly visibleColumns = computed(() => {
+    const ocultas = this.ocultas();
+    return this.columns().filter((column, index) => index === 0 || !ocultas.includes(column.key));
+  });
+  protected readonly showColumnPicker = computed(() => this.columnPicker() ?? this.columns().length > 8);
+
+  protected toggleColumn(key: string): void {
+    const atual = this.ocultas();
+    const nova = atual.includes(key) ? atual.filter((k) => k !== key) : [...atual, key];
+    this.ocultas.set(nova);
+    const chave = this.storageKey();
+    if (!chave) return;
+    try {
+      localStorage.setItem(`geo.table.${chave}.hidden`, JSON.stringify(nova));
+    } catch {
+      // preferência apenas em memória
+    }
+  }
+
+  protected resetColumns(): void {
+    this.ocultas.set(this.hiddenColumns());
+    const chave = this.storageKey();
+    if (!chave) return;
+    try {
+      localStorage.removeItem(`geo.table.${chave}.hidden`);
+    } catch {
+      // nada a limpar
+    }
+  }
+
   protected readonly columnCount = computed(
-    () => this.columns().length + (this.detailTemplate() ? 1 : 0) + (this.hasActions() ? 1 : 0) + (this.selectable() ? 1 : 0),
+    () => this.visibleColumns().length + (this.detailTemplate() ? 1 : 0) + (this.hasActions() ? 1 : 0) + (this.selectable() ? 1 : 0),
   );
 
   constructor() {

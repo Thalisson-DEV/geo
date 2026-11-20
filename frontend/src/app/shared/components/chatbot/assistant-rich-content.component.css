@@ -12,7 +12,7 @@
 .visualization-card > header { padding: 0.75rem 0.8rem 0.45rem; }
 .visualization-heading { display: flex; align-items: flex-start; gap: 0.55rem; }
 .visualization-heading > i { margin-top: 0.15rem; color: var(--p-primary-600); font-size: var(--geo-font-caption); }
-.visualization-heading h4 { margin: 0; color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 750; line-height: 1.35; }
+.visualization-heading h4 { margin: 0; color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 600; line-height: 1.35; }
 .visualization-heading p { margin: 0.2rem 0 0; color: var(--p-zinc-500); font-size: var(--geo-font-caption); line-height: 1.45; }
 
 .visualization-chart { height: 13rem; padding: 0.25rem 0.45rem 0.65rem; }
@@ -22,7 +22,7 @@
 
 .indicator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.5rem; padding: 0.45rem 0.8rem 0.8rem; }
 .indicator-value { padding: 0.75rem; border-radius: 0.75rem; background: color-mix(in srgb, var(--p-primary-50) 68%, white); }
-.indicator-value strong { display: block; color: var(--p-primary-700); font-size: 1.25rem; font-weight: 780; letter-spacing: -0.035em; }
+.indicator-value strong { display: block; color: var(--p-primary-700); font-size: 1.25rem; font-weight: 600; letter-spacing: -0.035em; }
 .indicator-value span { display: block; margin-top: 0.15rem; color: var(--p-zinc-600); font-size: var(--geo-font-caption); font-weight: 600; }
 .indicator-value small { display: block; margin-top: 0.1rem; color: var(--p-zinc-400); font-size: var(--geo-font-caption); }
 

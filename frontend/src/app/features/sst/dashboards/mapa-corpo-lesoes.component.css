@@ -245,7 +245,7 @@
 .mapa__secao > header > span {
   color: var(--p-zinc-600);
   font-size: var(--geo-font-caption);
-  font-weight: 750;
+  font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
 }

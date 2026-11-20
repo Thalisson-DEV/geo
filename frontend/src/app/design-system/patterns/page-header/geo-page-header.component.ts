@@ -36,12 +36,16 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'geo-page-header' },
   styles: `
+    /* Título e texto à esquerda; ações alinhadas ao topo, à direita. Empilha abaixo de 1024px. */
     :host {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 0.75rem 1rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+      gap: 12px 16px;
+    }
+
+    @media (max-width: 64rem) {
+      :host { grid-template-columns: minmax(0, 1fr); }
     }
 
     .geo-page-header__main {
@@ -49,7 +53,6 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
       align-items: flex-start;
       gap: 0.75rem;
       min-width: 0;
-      flex: 1 1 24rem;
     }
 
     .geo-page-header__mark {
@@ -109,14 +112,17 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
       display: none;
     }
 
-    /* Ações sempre à direita, inclusive quando quebram para a linha de baixo. */
     .geo-page-header__actions {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: flex-end;
-      gap: 0.5rem;
-      margin-inline-start: auto;
+      gap: 8px;
+      min-block-size: 32px;
+    }
+
+    @media (max-width: 64rem) {
+      .geo-page-header__actions { justify-content: flex-start; }
     }
 
     @media (max-width: 40rem) {

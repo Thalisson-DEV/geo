@@ -101,7 +101,7 @@ body {
 /* Scrollbar Global Styling */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent; /* slate-300 */
+  scrollbar-color: var(--p-zinc-300) transparent; /* slate-300 */
 }
 
 /* Webkit browsers (Chrome, Safari, Edge) */
@@ -232,12 +232,12 @@ body {
 /* Tooltip for vehicles */
 .custom-vehicle-tooltip {
   background: white !important;
-  border: 2px solid #334155 !important; /* Slate-700 for better contrast */
+  border: 2px solid var(--p-zinc-700) !important; /* Slate-700 for better contrast */
   border-radius: 6px !important;
   padding: 3px 8px !important;
   font-size: 11px !important;
   font-weight: 900 !important;
-  color: #0f172a !important; /* Slate-900 */
+  color: var(--p-zinc-900) !important; /* Slate-900 */
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
   opacity: 1 !important;
   text-align: center !important;
@@ -246,7 +246,7 @@ body {
 
 /* Tooltip arrow styling */
 .custom-vehicle-tooltip::before {
-  border-top-color: #334155 !important;
+  border-top-color: var(--p-zinc-700) !important;
   bottom: -11px !important; /* Adjust arrow position */
   margin-left: -10px !important;
   border-width: 10px 10px 0 !important;
@@ -267,157 +267,37 @@ body {
 /* Aberto (Vermelho notável com borda cobrindo as partes superiores e inferiores) */
 .dialog-tratamento-aberto.p-dialog,
 .dialog-tratamento-aberto .p-dialog {
-  border-color: #fca5a5 !important;
+  border-color: var(--p-red-300) !important;
 }
 .dialog-tratamento-aberto .p-dialog-header {
-  background-color: #fee2e2 !important;
-  border-top: 1.5px solid #fca5a5 !important;
-  border-bottom: 1.5px solid #fca5a5 !important;
-  border-color: #fca5a5 !important;
+  background-color: var(--p-zinc-200) !important;
+  border-top: 1.5px solid var(--p-red-300) !important;
+  border-bottom: 1.5px solid var(--p-red-300) !important;
+  border-color: var(--p-red-300) !important;
 }
 
 /* Em Tratamento (Âmbar notável com borda cobrindo as partes superiores e inferiores) */
 .dialog-tratamento-em_tratamento.p-dialog,
 .dialog-tratamento-em_tratamento .p-dialog {
-  border-color: #fcd34d !important;
+  border-color: var(--p-amber-300) !important;
 }
 .dialog-tratamento-em_tratamento .p-dialog-header {
-  background-color: #fef3c7 !important;
-  border-top: 1.5px solid #fcd34d !important;
-  border-bottom: 1.5px solid #fcd34d !important;
-  border-color: #fcd34d !important;
+  background-color: var(--p-amber-100) !important;
+  border-top: 1.5px solid var(--p-amber-300) !important;
+  border-bottom: 1.5px solid var(--p-amber-300) !important;
+  border-color: var(--p-amber-300) !important;
 }
 
 /* Resolvido (Verde notável com borda cobrindo as partes superiores e inferiores) */
 .dialog-tratamento-resolvido.p-dialog,
 .dialog-tratamento-resolvido .p-dialog {
-  border-color: #6ee7b7 !important;
+  border-color: var(--p-emerald-300) !important;
 }
 .dialog-tratamento-resolvido .p-dialog-header {
-  background-color: #d1fae5 !important;
-  border-top: 1.5px solid #6ee7b7 !important;
-  border-bottom: 1.5px solid #6ee7b7 !important;
-  border-color: #6ee7b7 !important;
-}
-
-/* ==========================================================================
-   MODAL DE CADASTRO/EDIÇÃO DE USUÁRIOS (IAM) - TEMA ESCURO COM FONTES var(--p-primary-700)
-   ========================================================================== */
-.app-dark .usuario-form-dialog,
-.app-dark .usuario-form-dialog.p-dialog,
-.app-dark .usuario-form-dialog .p-dialog,
-.dark .usuario-form-dialog,
-.dark .usuario-form-dialog.p-dialog,
-.dark .usuario-form-dialog .p-dialog {
-  color: var(--p-primary-700);
-}
-
-.app-dark .usuario-form-dialog .p-dialog-header .p-dialog-title,
-.dark .usuario-form-dialog .p-dialog-header .p-dialog-title {
-  color: var(--p-primary-700) !important;
-}
-
-.app-dark .usuario-form-dialog .filter-label,
-.app-dark .usuario-form-dialog label.filter-label,
-.app-dark .usuario-form-dialog label,
-.app-dark .usuario-form-dialog .form-label,
-.app-dark .usuario-form-dialog .p-field label,
-.app-dark .usuario-form-dialog .field label,
-.dark .usuario-form-dialog .filter-label,
-.dark .usuario-form-dialog label.filter-label,
-.dark .usuario-form-dialog label,
-.dark .usuario-form-dialog .form-label,
-.dark .usuario-form-dialog .p-field label,
-.dark .usuario-form-dialog .field label {
-  color: var(--p-primary-700) !important;
-}
-
-.app-dark .usuario-form-dialog .text-primary-600,
-.app-dark .usuario-form-dialog .\!text-primary-600,
-.app-dark .usuario-form-dialog .text-primary-700,
-.app-dark .usuario-form-dialog .\!text-primary-700,
-.app-dark .usuario-form-dialog .text-primary-800,
-.app-dark .usuario-form-dialog .text-blue-600,
-.app-dark .usuario-form-dialog .text-blue-700,
-.app-dark .usuario-form-dialog .text-blue-800,
-.dark .usuario-form-dialog .text-primary-600,
-.dark .usuario-form-dialog .\!text-primary-600,
-.dark .usuario-form-dialog .text-primary-700,
-.dark .usuario-form-dialog .\!text-primary-700,
-.dark .usuario-form-dialog .text-primary-800,
-.dark .usuario-form-dialog .text-blue-600,
-.dark .usuario-form-dialog .text-blue-700,
-.dark .usuario-form-dialog .text-blue-800 {
-  color: var(--p-primary-700) !important;
-}
-
-.app-dark .usuario-form-dialog .bg-primary-600,
-.dark .usuario-form-dialog .bg-primary-600 {
-  background-color: var(--p-primary-700) !important;
-  border-color: var(--p-primary-700) !important;
-  color: #ffffff !important;
-}
-
-.app-dark .usuario-form-dialog .border-primary-600,
-.dark .usuario-form-dialog .border-primary-600 {
-  border-color: var(--p-primary-700) !important;
-}
-
-.app-dark .usuario-form-dialog .bg-primary-50,
-.dark .usuario-form-dialog .bg-primary-50 {
-  background-color: color-mix(in srgb, var(--p-primary-700) 10%, transparent) !important;
-  border-color: color-mix(in srgb, var(--p-primary-700) 30%, transparent) !important;
-}
-
-.app-dark .usuario-form-dialog .bg-slate-50,
-.dark .usuario-form-dialog .bg-slate-50 {
-  background-color: rgba(15, 23, 42, 0.6) !important;
-  border-color: #334155 !important;
-}
-
-.app-dark .usuario-form-dialog .text-slate-500,
-.app-dark .usuario-form-dialog .text-slate-600,
-.dark .usuario-form-dialog .text-slate-500,
-.dark .usuario-form-dialog .text-slate-600 {
-  color: var(--p-surface-400) !important;
-}
-
-.app-dark .usuario-form-dialog .p-button.p-button-text,
-.app-dark .usuario-form-dialog .p-button.p-button-text .p-button-label,
-.app-dark .usuario-form-dialog .p-button.p-button-text .p-button-icon,
-.dark .usuario-form-dialog .p-button.p-button-text,
-.dark .usuario-form-dialog .p-button.p-button-text .p-button-label,
-.dark .usuario-form-dialog .p-button.p-button-text .p-button-icon {
-  color: var(--p-primary-700) !important;
-}
-
-.app-dark .usuario-form-dialog .p-button:not(.p-button-text):not(.p-button-secondary):not(.p-button-danger):not(.p-button-outlined),
-.dark .usuario-form-dialog .p-button:not(.p-button-text):not(.p-button-secondary):not(.p-button-danger):not(.p-button-outlined) {
-  background-color: var(--p-primary-700) !important;
-  border-color: var(--p-primary-700) !important;
-  color: #ffffff !important;
-  font-weight: 700 !important;
-}
-
-.app-dark .usuario-form-dialog .p-button:not(.p-button-text):not(.p-button-secondary):not(.p-button-danger):not(.p-button-outlined):hover,
-.dark .usuario-form-dialog .p-button:not(.p-button-text):not(.p-button-secondary):not(.p-button-danger):not(.p-button-outlined):hover {
-  background-color: #38bdf8 !important;
-  border-color: #38bdf8 !important;
-  color: #ffffff !important;
-}
-
-/* Garante fontes brancas em todos os botões no tema escuro */
-.app-dark .p-button:not(.p-button-text):not(.p-button-link),
-.dark .p-button:not(.p-button-text):not(.p-button-link),
-.app-dark .p-button:not(.p-button-text):not(.p-button-link) .p-button-label,
-.dark .p-button:not(.p-button-text):not(.p-button-link) .p-button-label,
-.app-dark .p-button:not(.p-button-text):not(.p-button-link) .p-button-icon,
-.dark .p-button:not(.p-button-text):not(.p-button-link) .p-button-icon,
-.app-dark .geo-button .p-button:not(.p-button-text):not(.p-button-link),
-.dark .geo-button .p-button:not(.p-button-text):not(.p-button-link),
-.app-dark .geo-button .p-button:not(.p-button-text):not(.p-button-link) *,
-.dark .geo-button .p-button:not(.p-button-text):not(.p-button-link) * {
-  color: #ffffff !important;
+  background-color: var(--p-zinc-50) !important;
+  border-top: 1.5px solid var(--p-emerald-300) !important;
+  border-bottom: 1.5px solid var(--p-emerald-300) !important;
+  border-color: var(--p-emerald-300) !important;
 }
 
 /* ==========================================================================
@@ -439,9 +319,9 @@ body {
 .dark button.\!bg-white,
 .app-dark button.bg-white,
 .dark button.bg-white {
-  background-color: #1e293b !important;
-  border-color: #334155 !important;
-  color: #ffffff !important;
+  background-color: var(--p-zinc-800) !important;
+  border-color: var(--p-zinc-700) !important;
+  color: var(--p-surface-0) !important;
 }
 
 .app-dark .p-button.\!bg-white:hover,
@@ -452,9 +332,9 @@ body {
 .dark button.\!bg-white:hover,
 .app-dark button.bg-white:hover,
 .dark button.bg-white:hover {
-  background-color: #334155 !important;
+  background-color: var(--p-zinc-700) !important;
   border-color: var(--p-primary-500) !important;
-  color: #ffffff !important;
+  color: var(--p-surface-0) !important;
 }
 
 .app-dark .p-button.\!bg-white .p-button-label,
@@ -465,7 +345,7 @@ body {
 .dark .p-button.bg-white .p-button-label,
 .app-dark .p-button.bg-white .p-button-icon,
 .dark .p-button.bg-white .p-button-icon {
-  color: #ffffff !important;
+  color: var(--p-surface-0) !important;
 }
 
 .app-dark .bg-slate-50,
@@ -504,7 +384,7 @@ body {
 }
 
 /* ==========================================================================
-   TIPOGRAFIA DO TEMA ESCURO: FONTES PRETAS / ESCURAS -> BRANCO PURO (#FFFFFF)
+   TIPOGRAFIA DO TEMA ESCURO: FONTES PRETAS / ESCURAS -> BRANCO PURO (var(--p-surface-0))
    ========================================================================== */
 .app-dark .text-black,
 .dark .text-black,
@@ -574,7 +454,7 @@ body {
 .dark .text-neutral-700,
 .app-dark .\!text-neutral-700,
 .dark .\!text-neutral-700 {
-  color: #ffffff !important;
+  color: var(--p-surface-0) !important;
 }
 
 .app-dark .text-slate-600,
@@ -707,7 +587,7 @@ body {
 .app-dark .bg-red-50\/20,
 .app-dark .bg-red-50\/30,
 .app-dark .bg-red-50\/50 {
-  background-color: color-mix(in srgb, #dc2626 15%, var(--geo-surface)) !important;
+  background-color: color-mix(in srgb, var(--p-red-600) 15%, var(--geo-surface)) !important;
 }
 
 .app-dark .bg-amber-50,
@@ -716,7 +596,7 @@ body {
 .app-dark .bg-amber-50\/30,
 .app-dark .bg-amber-50\/50,
 .app-dark .bg-yellow-50 {
-  background-color: color-mix(in srgb, #d97706 15%, var(--geo-surface)) !important;
+  background-color: color-mix(in srgb, var(--p-amber-600) 15%, var(--geo-surface)) !important;
 }
 
 .app-dark .bg-primary-50,
@@ -732,7 +612,7 @@ body {
 .app-dark .bg-emerald-50,
 .app-dark .bg-green-50,
 .app-dark .bg-green-50\/50 {
-  background-color: color-mix(in srgb, #059669 18%, var(--geo-surface)) !important;
+  background-color: color-mix(in srgb, var(--p-emerald-600) 18%, var(--geo-surface)) !important;
 }
 
 .app-dark .border-primary-100,
@@ -747,7 +627,7 @@ body {
 .app-dark .border-green-200,
 .app-dark .border-emerald-100,
 .app-dark .border-emerald-200 {
-  border-color: color-mix(in srgb, #059669 35%, var(--geo-border)) !important;
+  border-color: color-mix(in srgb, var(--p-emerald-600) 35%, var(--geo-border)) !important;
 }
 
 .app-dark .text-primary-700,
@@ -776,7 +656,7 @@ body {
 .dark .text-red-600,
 .dark .text-red-700,
 .dark .text-red-800 {
-  color: #f87171 !important;
+  color: var(--p-red-400) !important;
 }
 
 .app-dark .text-amber-600,
@@ -787,14 +667,14 @@ body {
 .dark .text-amber-700,
 .dark .text-amber-800,
 .dark .text-orange-600 {
-  color: #fbbf24 !important;
+  color: var(--p-amber-400) !important;
 }
 
 .app-dark .text-green-700,
 .app-dark .text-green-600,
 .app-dark .text-emerald-700,
 .app-dark .text-emerald-600 {
-  color: #34d399 !important;
+  color: var(--p-emerald-400) !important;
 }
 
 /* Help Dialog Dark Adaptation */
@@ -869,7 +749,7 @@ body {
 .p-confirmdialog-message,
 .p-confirm-dialog-message,
 .p-dialog-message {
-  color: var(--geo-foreground-muted, #475569) !important;
+  color: var(--geo-foreground-muted, var(--p-zinc-600)) !important;
   font-size: 0.875rem !important;
   line-height: 1.6 !important;
   word-break: break-word !important;
@@ -1072,19 +952,19 @@ input.p-inputtext,
 /* Notificações e Comunicados - Form Shells & Cards Dark Mode */
 .app-dark .form-shell,
 .dark .form-shell {
-  background: #0f172a !important;
-  border-color: #1e293b !important;
+  background: var(--p-zinc-900) !important;
+  border-color: var(--p-zinc-800) !important;
 }
 
 .app-dark .form-shell__header,
 .dark .form-shell__header {
-  border-bottom-color: #1e293b !important;
+  border-bottom-color: var(--p-zinc-800) !important;
 }
 
 .app-dark .choice-card,
 .dark .choice-card {
-  border-color: #334155 !important;
-  background: #0f172a !important;
+  border-color: var(--p-zinc-700) !important;
+  background: var(--p-zinc-900) !important;
 }
 
 .app-dark .choice-card:hover,
@@ -1102,44 +982,44 @@ input.p-inputtext,
 
 .app-dark .choice-card__title,
 .dark .choice-card__title {
-  color: #ffffff !important;
+  color: var(--p-surface-0) !important;
 }
 
 .app-dark .choice-card__desc,
 .dark .choice-card__desc {
-  color: #94a3b8 !important;
+  color: var(--p-zinc-400) !important;
 }
 
 .app-dark .choice-card__icon,
 .dark .choice-card__icon {
-  border-color: #334155 !important;
-  background: #1e293b !important;
-  color: #94a3b8 !important;
+  border-color: var(--p-zinc-700) !important;
+  background: var(--p-zinc-800) !important;
+  color: var(--p-zinc-400) !important;
 }
 
 .app-dark .choice-card--active .choice-card__icon,
 .dark .choice-card--active .choice-card__icon {
   border-color: var(--p-primary-700) !important;
-  background: #0f172a !important;
+  background: var(--p-zinc-900) !important;
   color: var(--p-primary-700) !important;
 }
 
 .app-dark .repeat-row,
 .dark .repeat-row {
-  border-color: #334155 !important;
+  border-color: var(--p-zinc-700) !important;
   background: rgba(15, 23, 42, 0.8) !important;
 }
 
 .app-dark .repeat-empty,
 .dark .repeat-empty {
-  border-color: #334155 !important;
-  color: #64748b !important;
-  background: #0f172a !important;
+  border-color: var(--p-zinc-700) !important;
+  color: var(--p-zinc-500) !important;
+  background: var(--p-zinc-900) !important;
 }
 
 .app-dark .review-card,
 .dark .review-card {
-  border-color: #334155 !important;
+  border-color: var(--p-zinc-700) !important;
   background: rgba(15, 23, 42, 0.8) !important;
 }
 
@@ -1150,12 +1030,12 @@ input.p-inputtext,
 
 .app-dark .review-card p,
 .dark .review-card p {
-  color: #ffffff !important;
+  color: var(--p-surface-0) !important;
 }
 .app-dark .p-inputnumber-button,
 .dark .p-inputnumber-button {
   background: var(--p-primary-700) !important;
-  color: #ffffff !important;
+  color: var(--p-surface-0) !important;
   border-color: var(--p-primary-700) !important;
 }
 

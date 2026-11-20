@@ -125,7 +125,8 @@
   }
 
   .geo-kpi__value {
-    font-size: 1.125rem;
+    font-size: 1.7143rem;
+    line-height: 1.25;
     font-weight: var(--geo-font-weight-semibold);
     color: var(--geo-foreground);
     font-variant-numeric: tabular-nums;

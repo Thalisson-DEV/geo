@@ -36,6 +36,24 @@
         </label>
       }
       <ng-content select="[table-actions]"></ng-content>
+      @if (showColumnPicker() && !compact()) {
+        <details class="geo-data-table__colunas">
+          <summary class="geo-data-table__colunas-botao" [attr.aria-label]="'Escolher colunas (' + visibleColumns().length + ' de ' + columns().length + ')'">
+            <i class="pi pi-sliders-h" aria-hidden="true"></i>
+            <span>Colunas</span>
+            <span class="geo-data-table__colunas-contagem">{{ visibleColumns().length }}/{{ columns().length }}</span>
+          </summary>
+          <div class="geo-data-table__colunas-painel" role="group" aria-label="Colunas visíveis">
+            @for (column of columns(); track column.key; let primeira = $first) {
+              <label class="geo-data-table__colunas-item">
+                <input type="checkbox" [checked]="primeira || !ocultas().includes(column.key)" [disabled]="primeira" (change)="toggleColumn(column.key)" />
+                <span>{{ column.header }}</span>
+              </label>
+            }
+            <button type="button" class="geo-data-table__colunas-restaurar" (click)="resetColumns()">Restaurar padrão</button>
+          </div>
+        </details>
+      }
       @if (exportFileName()) {
         <geo-button
           size="sm"
@@ -200,7 +218,7 @@
           @if (detailTemplate()) {
             <th scope="col" class="geo-data-table__expander-col"><span class="geo-sr-only">Expandir</span></th>
           }
-          @for (column of columns(); track column.key) {
+          @for (column of visibleColumns(); track column.key) {
             <th
               scope="col"
               [style.width]="column.width"
@@ -276,7 +294,7 @@
                 }
               </td>
             }
-            @for (column of columns(); track column.key) {
+            @for (column of visibleColumns(); track column.key) {
               <td [class.geo-data-table__numeric]="isNumeric(column)">
                 @if (templates().get(column.key); as tpl) {
                   <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row, index: i }"></ng-container>

@@ -22,46 +22,69 @@ interface StatePresentation {
     '[attr.aria-busy]': "state() === 'loading' || state() === 'refreshing'"
   },
   template: `
-    @if (state() === 'loading' || state() === 'refreshing') {
-      <p-progress-spinner
-        strokeWidth="4"
-        [style]="{ width: compact() ? '1.75rem' : '2.5rem', height: compact() ? '1.75rem' : '2.5rem' }"
-        ariaLabel="Carregando"
-      ></p-progress-spinner>
-    } @else {
-      <span class="geo-async-state__icon" aria-hidden="true">
-        <i class="pi {{ icon() || presentation().icon }}"></i>
-      </span>
-    }
-
-    <div class="geo-async-state__copy">
-      <strong>{{ title() || presentation().title }}</strong>
-      <p>{{ description() || presentation().description }}</p>
-    </div>
-
-    @if (actionLabel() || secondaryActionLabel()) {
-      <div class="geo-async-state__actions">
-        @if (actionLabel()) {
-          <geo-button
-            [label]="actionLabel()!"
-            [icon]="actionIcon()"
-            [variant]="state() === 'error' ? 'primary' : 'secondary'"
-            size="sm"
-            (pressed)="action.emit()"
-          ></geo-button>
-        }
-        @if (secondaryActionLabel()) {
-          <geo-button
-            [label]="secondaryActionLabel()!"
-            [icon]="secondaryActionIcon()"
-            variant="ghost"
-            size="sm"
-            (pressed)="secondaryAction.emit()"
-          ></geo-button>
+    @if (state() === 'loading' && !compact()) {
+      <!-- Carregando: skeleton das linhas, sem texto do vazio nem ações (skill: skeleton, não spinner). -->
+      <div class="geo-async-state__skeleton" aria-hidden="true">
+        @for (linha of linhasSkeleton; track linha) {
+          <span class="geo-async-state__skeleton-linha" [style.inline-size]="linha"></span>
         }
       </div>
+      <span class="geo-sr-only" role="status">{{ presentation().title }}</span>
+    } @else {
+      @if (state() === 'loading' || state() === 'refreshing') {
+        <p-progress-spinner
+          strokeWidth="4"
+          [style]="{ width: '1.75rem', height: '1.75rem' }"
+          ariaLabel="Carregando"
+        ></p-progress-spinner>
+      } @else {
+        <span class="geo-async-state__icon" aria-hidden="true">
+          <i class="pi {{ icon() || presentation().icon }}"></i>
+        </span>
+      }
+
+      <div class="geo-async-state__copy">
+        <strong>{{ carregando() ? presentation().title : title() || presentation().title }}</strong>
+        <p>{{ carregando() ? presentation().description : description() || presentation().description }}</p>
+      </div>
+
+      @if (!carregando() && (actionLabel() || secondaryActionLabel())) {
+        <div class="geo-async-state__actions">
+          @if (actionLabel()) {
+            <geo-button
+              [label]="actionLabel()!"
+              [icon]="actionIcon()"
+              [variant]="state() === 'error' ? 'primary' : 'secondary'"
+              size="sm"
+              (pressed)="action.emit()"
+            ></geo-button>
+          }
+          @if (secondaryActionLabel()) {
+            <geo-button
+              [label]="secondaryActionLabel()!"
+              [icon]="secondaryActionIcon()"
+              variant="ghost"
+              size="sm"
+              (pressed)="secondaryAction.emit()"
+            ></geo-button>
+          }
+        </div>
+      }
     }
-  `
+  `,
+  styles: [`
+    .geo-async-state__skeleton { display: grid; gap: 10px; inline-size: 100%; padding: 4px 0; }
+    .geo-async-state__skeleton-linha {
+      display: block;
+      block-size: 14px;
+      border-radius: var(--geo-radius-xs);
+      background: linear-gradient(90deg, var(--geo-surface-muted) 25%, var(--geo-surface-subtle) 50%, var(--geo-surface-muted) 75%);
+      background-size: 200% 100%;
+      animation: geo-skeleton 1.4s ease-in-out infinite;
+    }
+    @keyframes geo-skeleton { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+    :host-context([data-motion='reduced']) .geo-async-state__skeleton-linha { animation: none; }
+  `]
 })
 export class GeoAsyncStateComponent {
   readonly state = input<Exclude<GeoContentState, 'idle' | 'ready'>>('loading');
@@ -78,6 +101,10 @@ export class GeoAsyncStateComponent {
 
   readonly action = output<void>();
   readonly secondaryAction = output<void>();
+
+  protected readonly linhasSkeleton = ['100%', '92%', '96%', '88%', '94%', '78%'];
+  /** Carregando: título, descrição e ações da tela não valem (evita "vazio" durante a carga). */
+  protected readonly carregando = computed(() => this.state() === 'loading' || this.state() === 'refreshing');
 
   protected readonly presentation = computed<StatePresentation>(() => {
     const presentations: Record<Exclude<GeoContentState, 'idle' | 'ready'>, StatePresentation> = {

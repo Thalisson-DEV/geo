@@ -123,6 +123,11 @@ export const geoPreset = definePreset(Aura, {
       submenuIcon: { size: '0.875rem' }
     },
 
+    mask: {
+      background: 'light-dark(rgba(9,9,11,0.4), rgba(0,0,0,0.65))',
+      color: '{surface.200}'
+    },
+
     overlay: {
       select: {
         borderRadius: '8px',
