@@ -61,6 +61,12 @@ Prints: `docs/redesign/shots/antes/*.jpg` e `docs/redesign/shots/depois/*.png`.
 | D14 | openapi-typescript via `npx` com versão fixa, fora do package.json | Declara peer typescript@5 (projeto em TS 6); instalar exigiria --legacy-peer-deps. |
 | D15 | Componentes novos do backend em `application/dto` e `application/mappers` | backend/CLAUDE.md proíbe camadas extras. |
 
+## Módulos integrados
+- Frota (P1): ordens de serviço, veículos, abastecimentos, relatórios (abas neutras). 189 testes ok. Commit b076d297.
+- Almoxarifado + DP (P1): painel de descontos (visão gerencial), formulário de desconto em geo-form-page, lançamento, solicitações técnicas. 328 testes ok. Commits 04f1eeec (+ parte do DP em 3c2137c5).
+- Pedidos ao DS atendidos: abas de página compactas e sem moldura; barra da visão gerencial pelo indicador; dash-briefing neutro; abas de período sem quebra; datas sem quebra; abastecimentos fullBleed.
+- Pedido NÃO atendido (proibido: permissões): dar `estoque:solicitacao:read` ao admin para revisar /almoxarifado/solicitacoes.
+
 ## Pendências menores do portão (registradas)
 - `.uppercase` neutralizado globalmente (D9): remover na origem tela a tela.
 - `pi pi-*` no código das telas (desenhados como Lucide pela máscara): trocar por `<geo-icon>` aos poucos.
