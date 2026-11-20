@@ -4,15 +4,11 @@
 > Branch: `redesign/full` (criada a partir da `main` em 9d67b2b0, 20/11/2026).
 
 ## Etapa atual
-5. Migração em massa por módulo (portão das referências: APROVADO COM AJUSTES pelo ui-reviewer, 2ª rodada, ~01:25).
-   - Rodada 1 (subagentes em paralelo, mesmo working tree, cada um só na pasta do módulo; eu integro e commito):
-     SST · Almoxarifado + DP · Frota.
-   - Rodada 2: Obras + Execução · Financeiro + Chamados + Notificações · RH/IAM/Contrato/Admin/Manuais/Home/Legal/Bússola.
-   - Brief comum: docs/redesign/BRIEF-MODULO.md.
+CONCLUÍDO (20/11/2026 ~08:30). Relatório: docs/redesign/MORNING_REPORT.md.
 
 ## Próxima tarefa
-- Integrar a rodada 1 (testes do módulo + commit por módulo + ui-reviewer por módulo); lançar a rodada 2.
-- Depois das rodadas: reiniciar o backend (endpoints novos), `npm run api:gen`, e2e, build, npm test, ds:check.
+- Confirmar `npm test -- --watch=false` e `npm run test:e2e` completos (as rodadas finais foram interrompidas por falta de memória).
+- Itens de consistência restantes da revisão final e telas P2/P3 (ver MORNING_REPORT e OPORTUNIDADES).
 
 ## Ferramentas
 - Chrome (Claude in Chrome) parou de capturar telas às ~00:30 (renderer sem pintura; provável tela do PC desligada). Validação visual segue pelo Playwright headless:
