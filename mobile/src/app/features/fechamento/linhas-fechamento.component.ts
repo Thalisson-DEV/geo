@@ -79,8 +79,8 @@ const QUANTIDADE_MINIMA = 0.001;
     .linha.com-erro { box-shadow: inset 3px 0 0 var(--geo-erro); }
     .erro { flex-basis: 100%; }
     .remover { color: var(--geo-texto-2); }
-    .adicionar { width: calc(100% - 2 * var(--geo-e3)); margin: var(--geo-e2) var(--geo-e3) 0; min-height: 56px; }
-    .busca { margin: 0 var(--geo-e3) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+    .adicionar { width: calc(100% - 2 * var(--geo-e3)); margin: var(--geo-e2) var(--geo-margem) 0; min-height: 56px; }
+    .busca { margin: 0 var(--geo-margem) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
       border-radius: var(--geo-r-pilula); background: var(--geo-superficie-2); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }

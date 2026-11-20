@@ -126,7 +126,7 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, 
   `,
   styles: [`
     :host { display: block; padding-bottom: var(--geo-e6, 32px); }
-    .identidade { display: flex; align-items: center; gap: var(--geo-e3); margin: 0 var(--geo-e3); padding: var(--geo-e4);
+    .identidade { display: flex; align-items: center; gap: var(--geo-e3); margin: 0 var(--geo-margem); padding: var(--geo-e4);
       background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .avatar { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; flex: none;
       background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 600 1.375rem/1 var(--geo-fonte); }
@@ -146,7 +146,7 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, 
     .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
     [aria-checked='true'] .trilho { background: var(--geo-destaque); }
     [aria-checked='true'] .trilho span { transform: translateX(20px); }
-    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); font-size: .875rem; }
     .folha-aviso { margin: 0 var(--geo-e4); }
     .aparencia { display: grid; gap: var(--geo-e3); padding: var(--geo-e4); }

@@ -202,7 +202,7 @@ const mesmo = (a: readonly string[], b: readonly string[]) => a.length === b.len
     .grupo-titulo { padding-top: var(--geo-e4); }
     .grupo-titulo.alerta { color: var(--geo-erro); }
     .cartoes { display: grid; gap: var(--geo-e2); padding: 0 var(--geo-e3); }
-    .mais { margin: var(--geo-e3) var(--geo-e3) 0; width: calc(100% - 24px); }
+    .mais { margin: var(--geo-e3) var(--geo-margem) 0; width: calc(100% - 24px); }
     .fim { margin: var(--geo-e4) 0 0; text-align: center; font: var(--geo-t-apoio); color: var(--geo-texto-3); }
     .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3) var(--geo-e2); }
     .campos geo-seletor { box-shadow: inset 0 0 0 1px var(--geo-linha); border-radius: var(--geo-r-grupo); }

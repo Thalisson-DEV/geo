@@ -46,7 +46,7 @@ const CATEGORIAS: CategoriaProduto[] = ['COMBUSTIVEL', 'ARLA', 'OLEO', 'FLUIDO']
         }
       </geo-barra-topo>
       @if (catalogo() && frota()) {
-        <div class="passos" aria-hidden="true">
+        <div class="geo-passos" aria-hidden="true">
           @for (p of passos; track p) { <i [class.feito]="$index <= indice()"></i> }
         </div>
       }
@@ -283,13 +283,10 @@ const CATEGORIAS: CategoriaProduto[] = ['COMBUSTIVEL', 'ARLA', 'OLEO', 'FLUIDO']
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
     .baixar { margin-top: var(--geo-e3); min-height: var(--geo-alvo-principal); padding: 0 var(--geo-e6); }
     .auto-salvo { display: inline-flex; align-items: center; gap: 4px; font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-ok); white-space: nowrap; }
-    .passos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); transition: background-color var(--geo-m-entrar); }
-    .passos i.feito { background: var(--geo-destaque); }
     .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
     .campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--geo-e2); padding: 0 var(--geo-e3); }
-    .geo-faixa-estado { margin: var(--geo-e3) var(--geo-e3) 0; }
+    .geo-faixa-estado { margin: var(--geo-e3) var(--geo-margem) 0; }
     .campos .geo-faixa-estado { margin: 0; }
     .geo-faixa-estado span { flex: 1; font: var(--geo-t-apoio); font-size: .875rem; }
     .aviso-checklist { align-items: flex-start; }
@@ -301,7 +298,7 @@ const CATEGORIAS: CategoriaProduto[] = ['COMBUSTIVEL', 'ARLA', 'OLEO', 'FLUIDO']
     .falta--secao { padding: var(--geo-e2) var(--geo-e5) 0; }
     .estado { display: flex; align-items: center; gap: 6px; margin: 0; padding: 0 var(--geo-e1); font: var(--geo-t-apoio); font-weight: 500; }
     .estado--ok { color: var(--geo-ok); }
-    .busca { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-e3) 0; padding: 0 var(--geo-e4); min-height: 52px;
+    .busca { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-margem) 0; padding: 0 var(--geo-e4); min-height: 52px;
       background: var(--geo-superficie); border-radius: var(--geo-r-campo); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
@@ -310,7 +307,7 @@ const CATEGORIAS: CategoriaProduto[] = ['COMBUSTIVEL', 'ARLA', 'OLEO', 'FLUIDO']
     .veiculo[aria-selected='true'] { background: var(--geo-destaque-suave); }
     .marca { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex: none; border: 2px solid var(--geo-linha-forte); color: transparent; }
     .veiculo[aria-selected='true'] .marca { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
-    .cartao { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .cartao { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .cartao__texto { flex: 1; min-width: 0; display: grid; gap: 1px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .cartao__texto strong { font: 600 1.0625rem/1.3 var(--geo-fonte); letter-spacing: .02em; color: var(--geo-texto); }
@@ -352,12 +349,12 @@ const CATEGORIAS: CategoriaProduto[] = ['COMBUSTIVEL', 'ARLA', 'OLEO', 'FLUIDO']
     .chip:active { transform: scale(.97); }
     .chip--sugerido { border-color: var(--geo-destaque); color: var(--geo-destaque); font-weight: 600; }
     .chip__selo { padding: 2px 6px; border-radius: var(--geo-r-pilula); background: var(--geo-destaque-suave); font: 600 .6875rem/1.2 var(--geo-fonte); }
-    .resumo { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e1) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .resumo { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e1) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .resumo > div { display: flex; justify-content: space-between; align-items: baseline; gap: var(--geo-e3); padding: var(--geo-e3) 0; border-bottom: 1px solid var(--geo-linha); }
     .resumo > div:last-child { border-bottom: 0; }
     .resumo dt { font: var(--geo-t-corpo); color: var(--geo-texto-2); }
     .resumo dd { margin: 0; font: var(--geo-t-corpo-forte); text-align: right; overflow-wrap: anywhere; }
-    .revisao-foto { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-e3) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .revisao-foto { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .revisao-foto img { width: 72px; height: 54px; border-radius: 10px; object-fit: cover; }
     .texto { min-height: 72px; padding-top: var(--geo-e3); resize: vertical; }
     .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));

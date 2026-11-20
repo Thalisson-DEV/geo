@@ -98,7 +98,7 @@ const PREFIXO_BRUTO = 'bruto:';
         navegacao="fechar" (voltar)="fechar()">
         <span class="auto-salvo" role="status" aria-label="Salvo automaticamente" title="Salvo automaticamente"><geo-icone nome="check" [tamanho]="14" />Salvo</span>
       </geo-barra-topo>
-      <div class="passos" aria-hidden="true">
+      <div class="geo-passos" aria-hidden="true">
         @for (s of stepsArray(); track s) { <i [class.feito]="s <= currentStep()"></i> }
       </div>
 
@@ -339,9 +339,6 @@ const PREFIXO_BRUTO = 'bruto:';
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
-    .passos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); }
-    .passos i.feito { background: var(--geo-destaque); }
     .esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); }
     .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
@@ -389,7 +386,7 @@ const PREFIXO_BRUTO = 'bruto:';
     .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
     [aria-checked='true'] > .caixa { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
     .texto { min-height: 96px; padding-top: var(--geo-e3); resize: vertical; }
-    .desvio { margin: 0 var(--geo-e3) var(--geo-e3); padding: var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo);
+    .desvio { margin: 0 var(--geo-margem) var(--geo-e3); padding: var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo);
       display: grid; gap: var(--geo-e4); border-left: 4px solid var(--geo-atencao); }
     .desvio.tratado { border-left-color: var(--geo-ok); }
     .desvio header { display: grid; gap: 2px; }
@@ -417,7 +414,7 @@ const PREFIXO_BRUTO = 'bruto:';
     .tirar { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; border: 0; display: grid; place-items: center;
       background: rgba(0, 0, 0, .55); color: #fff; cursor: pointer; }
     .tirar::after { content: ''; position: absolute; inset: -8px; }
-    .resumo { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e2) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .resumo { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e2) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .resumo > div { display: flex; justify-content: space-between; gap: var(--geo-e3); padding: var(--geo-e3) 0; border-bottom: 1px solid var(--geo-linha); }
     .resumo > div:last-child { border-bottom: 0; }
     dt { color: var(--geo-texto-2); }

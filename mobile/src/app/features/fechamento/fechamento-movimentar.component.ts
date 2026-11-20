@@ -89,7 +89,7 @@ interface ItemMovimentar { id: string; codigo: string; descricao: string; unidad
     :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
-    .resumo { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: 2px; }
+    .resumo { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: 2px; }
     .resumo .rotulo { font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); }
     .resumo .rotulo:not(:first-child) { margin-top: var(--geo-e2); }
     .obra { font: 600 1.125rem/1.25 var(--geo-fonte); overflow-wrap: anywhere; }
@@ -102,7 +102,7 @@ interface ItemMovimentar { id: string; codigo: string; descricao: string; unidad
     .item.zerado .geo-linha__titulo { color: var(--geo-texto-2); }
     .rota { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: var(--geo-e3) var(--geo-e5) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .rota strong { color: var(--geo-texto); }
-    .previa { margin: var(--geo-e3) var(--geo-e3) 0; }
+    .previa { margin: var(--geo-e3) var(--geo-margem) 0; }
     .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
       background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
     .rodape .principal { flex: 1; min-height: var(--geo-alvo-principal); font-size: 1rem; }

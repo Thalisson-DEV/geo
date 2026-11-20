@@ -219,8 +219,8 @@ type CargaServidor = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
     :host { display: flex; flex-direction: column; min-height: 100%; }
     .conteudo { flex: 1; }
     .visao { padding: var(--geo-e2) var(--geo-e3) 0; }
-    .escolha { margin: var(--geo-e3) var(--geo-e3) 0; background: var(--geo-superficie); border-radius: var(--geo-r-grupo); overflow: hidden; }
-    .retomar { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .escolha { margin: var(--geo-e3) var(--geo-margem) 0; background: var(--geo-superficie); border-radius: var(--geo-r-grupo); overflow: hidden; }
+    .retomar { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       background: var(--geo-superficie); border-radius: var(--geo-r-grupo); box-shadow: inset 4px 0 0 var(--geo-destaque); flex-wrap: wrap; }
     .retomar__texto { flex: 1; min-width: 12rem; display: grid; gap: 2px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .retomar__texto strong { font: var(--geo-t-corpo-forte); color: var(--geo-texto); }

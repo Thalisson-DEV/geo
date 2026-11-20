@@ -126,7 +126,7 @@ const ROTA = '/abastecimento/aprovacoes';
     .geo-linha__resumo[data-tom='destaque'] { color: var(--geo-destaque); }
     .geo-linha__resumo[data-tom='ok'] { color: var(--geo-ok); }
     .geo-linha__resumo[data-tom='erro'] { color: var(--geo-erro); }
-    .mais { margin: var(--geo-e3) var(--geo-e3) 0; width: calc(100% - 24px); }
+    .mais { margin: var(--geo-e3) var(--geo-margem) 0; width: calc(100% - 24px); }
     .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3) var(--geo-e2); }
     .campos geo-seletor { box-shadow: inset 0 0 0 1px var(--geo-linha); border-radius: var(--geo-r-grupo); }
     .campos .geo-campo__rotulo { padding-left: var(--geo-e4); }

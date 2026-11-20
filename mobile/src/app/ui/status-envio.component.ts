@@ -24,6 +24,10 @@ const ROTULOS: Record<EstadoEnvio, { texto: string; icone: NomeIcone | null; cla
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @if (discreto() && estado() === 'synced') {
+      <!-- Estado normal da lista: só o ícone; a pílula fica para o que pede atenção (fila, problema). -->
+      <span class="so-icone" role="status" [attr.aria-label]="rotulo() ?? info().texto"><geo-icone nome="check" [tamanho]="18" /></span>
+    } @else {
     <span class="chip" [class]="'chip ' + info().classe" role="status">
       @if (estado() === 'syncing') {
         <span class="giro" aria-hidden="true"></span>
@@ -32,11 +36,13 @@ const ROTULOS: Record<EstadoEnvio, { texto: string; icone: NomeIcone | null; cla
       }
       {{ rotulo() ?? info().texto }}
     </span>
+    }
   `,
   styles: [`
     :host { display: inline-flex; flex: none; }
     .chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: var(--geo-r-pilula);
       font: 600 .75rem/1.2 var(--geo-fonte); white-space: nowrap; }
+    .so-icone { display: inline-grid; place-items: center; color: var(--geo-ok); }
     .neutro { background: var(--geo-superficie-2); color: var(--geo-texto-2); }
     .fila { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
     .ok { background: var(--geo-ok-suave); color: var(--geo-ok); }
@@ -52,5 +58,7 @@ export class StatusEnvioComponent {
   readonly estado = input.required<EstadoEnvio>();
   /** Sobrescreve o texto padrão (ex.: "Na fila · 3"). */
   readonly rotulo = input<string | undefined>(undefined);
+  /** Em listas: "Enviado" vira só um ícone de check (o normal não precisa chamar atenção). */
+  readonly discreto = input(false);
   readonly info = computed(() => ROTULOS[this.estado()]);
 }

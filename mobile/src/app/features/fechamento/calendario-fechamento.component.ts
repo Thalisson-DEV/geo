@@ -107,7 +107,7 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
   `,
   styles: [`
     :host { display: block; }
-    .mes { margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e4) var(--geo-e3) var(--geo-e3); border-radius: var(--geo-r-folha); background: var(--geo-superficie);
+    .mes { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e4) var(--geo-e3) var(--geo-e3); border-radius: var(--geo-r-folha); background: var(--geo-superficie);
       box-shadow: 0 1px 2px rgba(14, 23, 38, .05); }
     .cab { display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e1) var(--geo-e3) var(--geo-e2); }
     .titulo { flex: 1; min-width: 0; }
@@ -141,7 +141,7 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
     .legenda { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px var(--geo-e4); margin: var(--geo-e3) 0 0; padding-top: var(--geo-e3);
       border-top: 1px solid var(--geo-linha); font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); }
     .legenda span { display: inline-flex; align-items: center; gap: 6px; }
-    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3); border-radius: var(--geo-r-grupo);
+    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3); border-radius: var(--geo-r-grupo);
       background: var(--geo-atencao-suave); font: var(--geo-t-apoio); }
     .dia-cab { display: flex; align-items: center; gap: var(--geo-e3); padding: var(--geo-e4) var(--geo-e4) var(--geo-e3); }
     .dia-cab h3 { margin: 0; font: 600 .9375rem/1.3 var(--geo-fonte); }

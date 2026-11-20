@@ -193,7 +193,7 @@ interface ItemTela {
     .aviso geo-icone { flex: none; margin-top: 2px; }
 
     /* Andamento: linha vertical que liga as etapas, como uma entrega rastreada. */
-    .andamento { list-style: none; margin: 0 var(--geo-e3); padding: var(--geo-e3) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .andamento { list-style: none; margin: 0 var(--geo-margem); padding: var(--geo-e3) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .andamento li { position: relative; display: flex; gap: var(--geo-e3); padding-bottom: var(--geo-e4); }
     .andamento li:last-child { padding-bottom: 0; }
     .andamento li:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 26px; bottom: 2px; width: 2px; background: var(--geo-linha); }

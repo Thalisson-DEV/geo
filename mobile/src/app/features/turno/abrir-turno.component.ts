@@ -184,7 +184,7 @@ interface RascunhoTurno {
     .esqueletos { display: grid; gap: var(--geo-e3); padding: var(--geo-e4); }
     .intro { margin: var(--geo-e1) var(--geo-e5) 0; color: var(--geo-texto-2); }
     .aviso, .nota, .erro, .sem-rede { display: flex; gap: var(--geo-e2); align-items: flex-start; font: var(--geo-t-apoio); font-size: .875rem; }
-    .aviso { margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-destaque-suave); color: var(--geo-texto); }
+    .aviso { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-destaque-suave); color: var(--geo-texto); }
     .nota { margin: var(--geo-e3) var(--geo-e5) 0; color: var(--geo-texto-2); }
     .erro { margin: var(--geo-e3) var(--geo-e5) 0; color: var(--geo-erro); }
     .geo-linha:disabled { color: inherit; cursor: default; }
@@ -195,7 +195,7 @@ interface RascunhoTurno {
     .rodape { position: sticky; bottom: 0; display: grid; gap: var(--geo-e2); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
       background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
     .sem-rede { margin: 0; color: var(--geo-atencao); }
-    .busca { margin: 0 var(--geo-e3) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+    .busca { margin: 0 var(--geo-margem) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
       border-radius: var(--geo-r-pilula); background: var(--geo-superficie-2); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }

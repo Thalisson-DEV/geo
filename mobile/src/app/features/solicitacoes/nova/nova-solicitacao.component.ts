@@ -46,7 +46,7 @@ const TITULOS = ['Origem e destino', 'Materiais', 'Conferir'];
         navegacao="fechar" (voltar)="fechar()">
         <geo-indicador-rede />
       </geo-barra-topo>
-      <div class="passos" aria-hidden="true">@for (s of [1, 2, 3]; track s) { <i [class.feito]="s <= passo()"></i> }</div>
+      <div class="geo-passos" aria-hidden="true">@for (s of [1, 2, 3]; track s) { <i [class.feito]="s <= passo()"></i> }</div>
 
       @if (carregando()) {
         <div class="esqueletos" role="status" aria-busy="true" aria-label="Carregando">
@@ -161,9 +161,6 @@ const TITULOS = ['Origem e destino', 'Materiais', 'Conferir'];
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
-    .passos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); }
-    .passos i.feito { background: var(--geo-destaque); }
     .esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); }
     .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
@@ -185,12 +182,12 @@ const TITULOS = ['Origem e destino', 'Materiais', 'Conferir'];
     .item { flex-wrap: wrap; }
     .item .geo-linha__texto { flex-basis: 100%; }
     .un { font: var(--geo-t-apoio); color: var(--geo-texto-2); flex: 1; }
-    .busca { margin: 0 var(--geo-e3) var(--geo-e2); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+    .busca { margin: 0 var(--geo-margem) var(--geo-e2); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
       border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
     .linha-lista { content-visibility: auto; contain-intrinsic-size: auto 64px; }
-    .resumo { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e2) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .resumo { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e2) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .resumo > div { padding: var(--geo-e3) 0; border-bottom: 1px solid var(--geo-linha); }
     .resumo > div:last-child { border-bottom: 0; }
     dt { font: var(--geo-t-apoio); color: var(--geo-texto-2); }

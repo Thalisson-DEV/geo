@@ -32,7 +32,7 @@ import { IconeComponent } from '../../ui';
               <geo-icone nome="baixar" />Instalar app
             </button>
           } @else {
-            <div class="passos" aria-live="polite">
+            <div class="geo-passos" aria-live="polite">
               @switch (plataforma.plataforma) {
                 @case ('ios') {
                   <p><b>No iPhone:</b> toque em <span class="tecla"><geo-icone nome="compartilhar_ios" [tamanho]="18" /> Compartilhar</span>
@@ -61,9 +61,6 @@ import { IconeComponent } from '../../ui';
     .motivos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--geo-e4); }
     .motivos li { display: flex; align-items: center; gap: var(--geo-e3); font: var(--geo-t-corpo); }
     .acoes { margin-top: auto; display: grid; gap: var(--geo-e2); }
-    .passos { display: grid; gap: var(--geo-e3); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); padding: var(--geo-e4); }
-    .passos p { margin: 0; line-height: 1.7; }
-    .passos .apoio { color: var(--geo-texto-2); font-size: .875rem; }
     .tecla { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 8px; background: var(--geo-superficie-2);
       font-weight: 600; white-space: nowrap; vertical-align: middle; }
   `],

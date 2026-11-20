@@ -202,7 +202,7 @@ const MINIMO_MOTIVO = 5;
     :host > * { flex-shrink: 0; }
     .pagina { transition: opacity var(--geo-m-entrar); }
     .pagina.atualizando { opacity: .6; }
-    .hero { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: var(--geo-e3); }
+    .hero { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: var(--geo-e3); }
     .selos { display: flex; flex-wrap: wrap; gap: 6px; }
     .tipo { font-family: var(--geo-fonte); }
     .titulo { display: grid; gap: 2px; }
@@ -224,14 +224,14 @@ const MINIMO_MOTIVO = 5;
     .apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .progresso { display: block; height: 8px; margin: 6px 0; border-radius: var(--geo-r-pilula); background: var(--geo-linha); overflow: hidden; }
     .progresso i { display: block; height: 100%; border-radius: inherit; background: var(--geo-ok); transition: width var(--geo-m-folha) var(--geo-curva); }
-    .aviso { display: flex; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie-2); }
+    .aviso { display: flex; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie-2); }
     .aviso > geo-icone { margin-top: 1px; }
     .aviso div { display: grid; gap: 4px; justify-items: start; min-width: 0; }
     .aviso strong { font: var(--geo-t-corpo-forte); }
     .aviso p { margin: 0; font: var(--geo-t-apoio); font-size: .875rem; overflow-wrap: anywhere; }
     .aviso--erro { background: var(--geo-erro-suave); } .aviso--erro > geo-icone { color: var(--geo-erro); }
     .aviso--atencao { background: var(--geo-atencao-suave); } .aviso--atencao > geo-icone { color: var(--geo-atencao); }
-    .obs { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-left: 3px solid var(--geo-linha-forte); border-radius: 0 var(--geo-r-grupo) var(--geo-r-grupo) 0;
+    .obs { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-left: 3px solid var(--geo-linha-forte); border-radius: 0 var(--geo-r-grupo) var(--geo-r-grupo) 0;
       background: var(--geo-superficie); font: var(--geo-t-corpo); display: grid; gap: 2px; }
     .obs span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .item { align-items: flex-start; }

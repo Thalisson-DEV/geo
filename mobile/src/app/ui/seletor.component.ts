@@ -64,16 +64,19 @@ export interface OpcaoSeletor {
   `,
   styles: [`
     :host { display: block; }
-    .campo { width: 100%; display: flex; align-items: center; gap: var(--geo-e3); min-height: 64px; padding: var(--geo-e3) var(--geo-e4);
-      background: var(--geo-superficie); border: 0; border-radius: var(--geo-r-grupo); text-align: left; color: var(--geo-texto); cursor: pointer; }
+    /* Mesmo contorno do campo de texto (.geo-input): um estilo de campo só em todo formulário. */
+    .campo { width: 100%; display: flex; align-items: center; gap: var(--geo-e3); min-height: 64px; padding: var(--geo-e2) var(--geo-e4);
+      background: var(--geo-superficie); border: 1.5px solid var(--geo-borda-campo); border-radius: var(--geo-r-campo); text-align: left;
+      color: var(--geo-texto); cursor: pointer; touch-action: manipulation; transition: background-color 100ms, border-color 100ms; }
     .campo:active:not(:disabled) { background: var(--geo-superficie-2); }
+    .campo:focus-visible { outline: none; border-color: var(--geo-destaque); box-shadow: 0 0 0 3px var(--geo-destaque-suave); }
     .campo:disabled { cursor: default; opacity: .7; }
-    .campo.invalido { box-shadow: inset 0 0 0 1.5px var(--geo-erro); }
+    .campo.invalido { border-color: var(--geo-erro); }
     .txt { flex: 1; min-width: 0; display: grid; gap: 2px; }
     .rotulo { font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
     .valor { font: var(--geo-t-corpo-forte); overflow-wrap: anywhere; }
     .vazio .valor { color: var(--geo-texto-3); font-weight: 400; }
-    .busca { margin: 0 var(--geo-e3) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+    .busca { margin: 0 var(--geo-margem) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
       border-radius: var(--geo-r-pilula); background: var(--geo-superficie-2); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }

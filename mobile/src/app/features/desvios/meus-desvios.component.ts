@@ -184,7 +184,7 @@ const ABAS: readonly { value: AbaDesvio; label: string }[] = [
     :host { display: block; position: relative; min-height: 100%; }
     .filtro { color: var(--geo-texto); gap: 4px; white-space: nowrap; flex: none; }
     .geo-rodape-acoes { bottom: calc(var(--geo-barra-abas) + var(--geo-safe-base)); padding-bottom: var(--geo-e3); }
-    .busca { margin: var(--geo-e1) var(--geo-e3) 0; display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+    .busca { margin: var(--geo-e1) var(--geo-margem) 0; display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
       border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }

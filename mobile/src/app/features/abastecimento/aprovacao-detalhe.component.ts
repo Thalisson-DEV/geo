@@ -29,7 +29,7 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
       @let a = p.abastecimento;
       @if (!a.podeAprovar) {
         <h2 class="geo-secao">Andamento</h2>
-        <ol class="passos" aria-label="Andamento do pedido">
+        <ol class="geo-passos" aria-label="Andamento do pedido">
           @for (ps of passos(); track ps.titulo) {
             <li class="passo" [attr.data-estado]="ps.estado">
               <span class="passo__marca" aria-hidden="true">@if (ps.estado === 'feito') { <geo-icone nome="check" [tamanho]="14" /> }</span>
@@ -153,7 +153,7 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
-    .copiloto { display: flex; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .copiloto { display: flex; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-destaque-suave); border-left: 4px solid var(--geo-destaque); }
     .copiloto[data-tom='ATENCAO'] { border-left-color: var(--geo-atencao); }
     .copiloto[data-tom='CRITICO'] { border-left-color: var(--geo-erro); }
@@ -175,7 +175,6 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
     .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .foto__rotulo { font: var(--geo-t-apoio); color: var(--geo-texto); }
     .motivo { padding: 0 var(--geo-e4); }
-    .passos { list-style: none; margin: 0 var(--geo-e3); padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); }
     .passo { position: relative; display: flex; gap: var(--geo-e3); padding-bottom: var(--geo-e4); }
     .passo:last-child { padding-bottom: 0; }
     .passo:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 26px; bottom: 2px; width: 2px; background: var(--geo-linha); }

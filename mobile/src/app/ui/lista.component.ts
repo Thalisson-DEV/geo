@@ -40,7 +40,7 @@ export const PERIODOS: { valor: PeriodFilter; rotulo: string; curto: string }[] 
   `,
   styles: [`
     :host { display: block; }
-    .chips { display: flex; gap: var(--geo-e2); overflow-x: auto; padding: var(--geo-e3) var(--geo-e4) var(--geo-e2); scrollbar-width: none;
+    .chips { display: flex; gap: var(--geo-e2); overflow-x: auto; padding: var(--geo-e3) var(--geo-margem) var(--geo-e2); scrollbar-width: none;
       overscroll-behavior-x: contain; }
     .chips::-webkit-scrollbar { display: none; }
     /* 40 px visíveis, 48 px de toque (o pseudo-elemento estende 4 px para cima e para baixo). */

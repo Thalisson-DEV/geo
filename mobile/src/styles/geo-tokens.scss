@@ -66,6 +66,7 @@
   --geo-e5: 20px;
   --geo-e6: 24px;
   --geo-e8: 32px;
+  // Margem da página: título, seções, cartões e faixas alinham por ela (24 px a partir do tablet).
   --geo-margem: 16px;
 
   // Toque
@@ -102,6 +103,10 @@
   --geo-recuo-coluna: max(0px, calc((100vw - var(--geo-nav-lateral) - var(--geo-conteudo-max)) / 2));
   --geo-safe-topo: env(safe-area-inset-top, 0px);
   --geo-safe-base: env(safe-area-inset-bottom, 0px);
+}
+
+@media (min-width: 600px) {
+  :root { --geo-margem: 24px; }
 }
 
 // Tablet deitado: navegação vira barra lateral, sem barra de abas embaixo (soma o recorte do iPhone deitado).

@@ -197,16 +197,16 @@ interface MaterialLinha {
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .esqueletos { display: grid; gap: var(--geo-e3); padding: var(--geo-e4); }
-    .estado { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
+    .estado { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
       display: grid; gap: var(--geo-e2); justify-items: start; }
     .estado.atencao { background: var(--geo-atencao-suave); }
     .estado p { margin: 0; font: var(--geo-t-corpo); color: var(--geo-texto-2); }
-    .valor { margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); display: flex; justify-content: space-between; align-items: baseline;
+    .valor { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); display: flex; justify-content: space-between; align-items: baseline;
       background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .valor span { color: var(--geo-texto-2); }
     .valor strong { font: var(--geo-t-numero); }
     .respiro { flex: 1; min-height: 96px; }
-    .alteracao { margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
+    .alteracao { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
       background: var(--geo-atencao-suave); display: flex; gap: var(--geo-e3); align-items: flex-start; }
     .alteracao strong { font: var(--geo-t-corpo-forte); color: var(--geo-texto); }
     .alteracao p { margin: var(--geo-e1) 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }

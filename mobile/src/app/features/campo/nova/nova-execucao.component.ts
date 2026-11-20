@@ -126,7 +126,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
         [subtitulo]="titulos[passo() - 1] + ' · ' + passo() + ' de ' + total" navegacao="fechar" (voltar)="fechar()">
         <geo-indicador-rede />
       </geo-barra-topo>
-      <div class="passos" aria-hidden="true">
+      <div class="geo-passos" aria-hidden="true">
         @for (s of etapas; track s) { <i [class.feito]="s <= passo()"></i> }
       </div>
 
@@ -529,9 +529,6 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e4); }
-    .passos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); transition: background-color var(--geo-m-entrar) var(--geo-curva); }
-    .passos i.feito { background: var(--geo-destaque); }
     .esqueletos { display: grid; gap: var(--geo-e3); padding: var(--geo-e4); }
     .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
@@ -543,7 +540,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     dd.apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .conferir .cod { color: var(--geo-texto-2); }
     .resumo-sel { padding: var(--geo-e2) var(--geo-e5) var(--geo-e1); font: var(--geo-t-corpo-forte); color: var(--geo-texto-2); }
-    .busca { margin: var(--geo-e2) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4);
+    .busca { margin: var(--geo-e2) var(--geo-margem); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4);
       min-height: 48px; border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
@@ -552,7 +549,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     .caixa { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center;
       color: transparent; flex: none; transition: background-color var(--geo-m-entrar), border-color var(--geo-m-entrar); }
     .caixa.marcada { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
-    .tipo { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) var(--geo-e1); padding: var(--geo-e3) var(--geo-e4);
+    .tipo { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) var(--geo-e1); padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-superficie); }
     .tipo__selo { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex: none; }
     .tipo--servico .tipo__selo { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
@@ -594,7 +591,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     .cat .geo-linha__texto { flex: 1 1 55%; }
     .cat__botoes { display: flex; gap: var(--geo-e2); flex-basis: 100%; }
     .cat__botoes .geo-btn { flex: 1; min-height: 44px; }
-    .conferir { margin: var(--geo-e2) var(--geo-e3) var(--geo-e2); padding: var(--geo-e2) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .conferir { margin: var(--geo-e2) var(--geo-margem) var(--geo-e2); padding: var(--geo-e2) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .conferir > div { padding: var(--geo-e3) 0; border-bottom: 1px solid var(--geo-linha); }
     .conferir > div:last-child { border-bottom: 0; }
     dt { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
@@ -602,7 +599,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     .mat-linha { display: block; }
     .dica, .erro { margin: var(--geo-e4) var(--geo-e5) 0; display: flex; gap: var(--geo-e2); align-items: flex-start; font: var(--geo-t-apoio); font-size: .875rem; }
     .dica { color: var(--geo-texto-2); }
-    .motivo { margin: var(--geo-e4) var(--geo-e3) 0; }
+    .motivo { margin: var(--geo-e4) var(--geo-margem) 0; }
     .motivo .texto { min-height: 96px; padding: var(--geo-e3) var(--geo-e4); resize: vertical; }
     .sinal { width: 24px; flex-shrink: 0; text-align: center; font: var(--geo-t-corpo-forte); color: var(--geo-ok); }
     .sinal--sai { color: var(--geo-erro); }

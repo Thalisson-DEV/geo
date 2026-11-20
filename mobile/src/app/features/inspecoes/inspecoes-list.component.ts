@@ -142,9 +142,9 @@ interface EstadoTela { filtro?: Filtro; periodo?: PeriodFilter; folhaPeriodo?: b
   `,
   styles: [`
     :host { display: block; position: relative; min-height: 100%; }
-    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); font-size: .875rem; }
-    .mais-filtros { margin: 0 var(--geo-e3); gap: 4px; }
+    .mais-filtros { margin: 0 var(--geo-margem); gap: 4px; }
     .direita { display: grid; justify-items: end; gap: 6px; }
     .geo-qtd.com-desvio { color: var(--geo-atencao); }
     .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e4); }

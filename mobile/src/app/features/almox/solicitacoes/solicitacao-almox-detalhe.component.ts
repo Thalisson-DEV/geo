@@ -219,7 +219,7 @@ const MINIMO = 5;
     :host > * { flex-shrink: 0; }
     .pagina { transition: opacity var(--geo-m-entrar); }
     .pagina.atualizando { opacity: .6; }
-    .hero { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: var(--geo-e3); }
+    .hero { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: var(--geo-e3); }
     .selos { display: flex; flex-wrap: wrap; gap: 6px; }
     .rota { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--geo-e3); }
     .rota li { position: relative; display: flex; gap: var(--geo-e3); align-items: flex-start; }
@@ -232,7 +232,7 @@ const MINIMO = 5;
     .ponta strong.nome { font-weight: 600; }
     .quem { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .quem strong { color: var(--geo-texto); font-weight: 600; }
-    .fluxo { list-style: none; margin: var(--geo-e3) var(--geo-e3) 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--geo-e2); }
+    .fluxo { list-style: none; margin: var(--geo-e3) var(--geo-margem) 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--geo-e2); }
     .fluxo li { position: relative; display: grid; justify-items: center; align-content: start; text-align: center; gap: 6px; }
     .fluxo li + li::before { content: ''; position: absolute; top: 15px; right: calc(50% + 20px); width: calc(100% - 32px); height: 2px; background: var(--geo-linha-forte); }
     .fluxo li[data-estado='feito'] + li::before, .fluxo li[data-estado='feito'] + li[data-estado='atual']::before { background: var(--geo-ok); }
@@ -246,7 +246,7 @@ const MINIMO = 5;
     .apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .progresso { display: block; height: 8px; margin: 6px 0; border-radius: var(--geo-r-pilula); background: var(--geo-linha); overflow: hidden; }
     .progresso i { display: block; height: 100%; border-radius: inherit; background: var(--geo-ok); transition: width var(--geo-m-folha) var(--geo-curva); }
-    .aviso { display: flex; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
+    .aviso { display: flex; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
       background: var(--geo-superficie-2); }
     .aviso > geo-icone { margin-top: 1px; }
     .aviso div { display: grid; gap: 4px; justify-items: start; min-width: 0; }
@@ -255,7 +255,7 @@ const MINIMO = 5;
     .aviso--erro { background: var(--geo-erro-suave); } .aviso--erro > geo-icone { color: var(--geo-erro); }
     .aviso--atencao { background: var(--geo-atencao-suave); } .aviso--atencao > geo-icone { color: var(--geo-atencao); }
     .aviso.dentro { margin: 0 var(--geo-e4) var(--geo-e3); }
-    .obs { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-left: 3px solid var(--geo-linha-forte); border-radius: 0 var(--geo-r-grupo) var(--geo-r-grupo) 0;
+    .obs { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-left: 3px solid var(--geo-linha-forte); border-radius: 0 var(--geo-r-grupo) var(--geo-r-grupo) 0;
       background: var(--geo-superficie); font: var(--geo-t-corpo); display: grid; gap: 2px; }
     .obs span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .item { align-items: flex-start; }
@@ -266,7 +266,7 @@ const MINIMO = 5;
     .numeros span { display: grid; gap: 2px; }
     .numeros small { font: 500 .6875rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .numeros .falta { color: var(--geo-atencao); }
-    .acao-secao { margin: var(--geo-e2) var(--geo-e3) 0; gap: 6px; }
+    .acao-secao { margin: var(--geo-e2) var(--geo-margem) 0; gap: 6px; }
     .op { align-items: flex-start; }
     .op-itens { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; font: var(--geo-t-apoio); color: var(--geo-texto); }
     .serie { margin-left: 6px; padding: 1px 6px; border-radius: 6px; background: var(--geo-superficie-2); font: 600 .75rem/1.4 var(--geo-fonte-mono); }

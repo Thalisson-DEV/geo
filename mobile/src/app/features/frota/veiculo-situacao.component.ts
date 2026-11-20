@@ -179,7 +179,7 @@ type Carga = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
     .inclui { display: flex; align-items: center; gap: 6px; font: var(--geo-t-apoio); color: var(--geo-texto); overflow-wrap: anywhere; }
     .inclui geo-icone { flex: none; color: var(--geo-texto-2); }
     .dd-apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .aviso { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .aviso { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); font-size: .875rem; color: var(--geo-texto); }
   `],
 })

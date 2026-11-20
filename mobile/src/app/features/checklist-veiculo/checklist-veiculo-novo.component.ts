@@ -50,7 +50,7 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
         navegacao="fechar" (voltar)="fechar()">
         <span class="auto-salvo" role="status" aria-label="Salvo automaticamente"><geo-icone nome="check" [tamanho]="14" />Salvo</span>
       </geo-barra-topo>
-      <div class="passos" aria-hidden="true">
+      <div class="geo-passos" aria-hidden="true">
         @for (p of passos(); track $index) { <i [class.feito]="$index <= indice()"></i> }
       </div>
 

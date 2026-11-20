@@ -53,7 +53,7 @@ function comEscolhido(opcoes: OpcaoSeletor[], valor: string | null, rotulo: stri
       <geo-barra-topo titulo="Novo fechamento" [subtitulo]="passos[passo() - 1] + ' · ' + passo() + ' de ' + passos.length" navegacao="fechar" (voltar)="fechar()">
         <geo-indicador-rede />
       </geo-barra-topo>
-      <div class="passos" [style.grid-template-columns]="'repeat(' + passos.length + ', 1fr)'" aria-hidden="true">
+      <div class="geo-passos" [style.grid-template-columns]="'repeat(' + passos.length + ', 1fr)'" aria-hidden="true">
         @for (p of passos; track $index) { <i [class.feito]="$index < passo()"></i> }
       </div>
 
@@ -160,9 +160,6 @@ function comEscolhido(opcoes: OpcaoSeletor[], valor: string | null, rotulo: stri
     :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
-    .passos { display: grid; gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); transition: background var(--geo-m-entrar); }
-    .passos i.feito { background: var(--geo-destaque); }
     .intro { margin: var(--geo-e2) var(--geo-e5) var(--geo-e3); font: var(--geo-t-corpo); color: var(--geo-texto-2); }
     .campos { display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e3); }
     .campos .geo-campo__rotulo, .campos .geo-campo__erro { padding-left: var(--geo-e4); }

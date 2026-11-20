@@ -66,7 +66,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
         rotuloFechar="Fechar a entrega" (voltar)="fechar()">
         <geo-indicador-rede />
       </geo-barra-topo>
-      <div class="passos" aria-hidden="true">@for (s of [1, 2, 3, 4]; track s) { <i [class.feito]="s <= passo()"></i> }</div>
+      <div class="geo-passos" aria-hidden="true">@for (s of [1, 2, 3, 4]; track s) { <i [class.feito]="s <= passo()"></i> }</div>
 
       @if (carregando()) {
         <div class="geo-esqueletos" aria-busy="true"><div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 220px"></div></div>
@@ -252,22 +252,19 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
     :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
-    .passos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); transition: background var(--geo-m-entrar); }
-    .passos i.feito { background: var(--geo-destaque); }
     .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
-    .rota { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .rota { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-superficie); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .rota geo-icone { color: var(--geo-texto-3); }
     .rota .destino { font: 600 .9375rem/1.3 var(--geo-fonte); color: var(--geo-texto); }
-    .reserva { margin: var(--geo-e3) var(--geo-e3) 0; }
+    .reserva { margin: var(--geo-e3) var(--geo-margem) 0; }
     .reserva .geo-campo__rotulo, .reserva .geo-campo__erro, .reserva .geo-campo__ajuda { padding-left: var(--geo-e4); }
     .barra-itens { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); flex-wrap: wrap; padding: var(--geo-e3) var(--geo-e3) var(--geo-e2) var(--geo-e5);
       font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .barra-itens strong { color: var(--geo-texto); }
     .botoes { display: flex; }
-    .ler { margin: 0 var(--geo-e3) var(--geo-e2); width: calc(100% - 24px); }
+    .ler { margin: 0 var(--geo-margem) var(--geo-e2); width: calc(100% - 24px); }
     .item { flex-wrap: wrap; row-gap: var(--geo-e2); }
     .item .geo-linha__texto { flex: 1 1 55%; }
     .item.zerado .geo-linha__titulo { color: var(--geo-texto-2); }
@@ -293,7 +290,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
     .ajuda { margin: 0 var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .intro { margin: var(--geo-e2) var(--geo-e5) var(--geo-e3); font: var(--geo-t-apoio); font-size: .875rem; color: var(--geo-texto-2); }
     .assinaturas { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3); }
-    .assinadas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-e3) 0; }
+    .assinadas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-margem) 0; }
     figure { margin: 0; padding: var(--geo-e2); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); display: grid; gap: 4px; }
     figure img { width: 100%; height: 64px; object-fit: contain; background: #fff; border-radius: 8px; }
     figcaption { font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -301,7 +298,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
       background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
     .rodape .geo-btn { min-height: var(--geo-alvo-principal); }
     .rodape .principal { flex: 1; font-size: 1rem; }
-    .busca { margin: 0 var(--geo-e3) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+    .busca { margin: 0 var(--geo-margem) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
       border-radius: var(--geo-r-pilula); background: var(--geo-superficie-2); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }

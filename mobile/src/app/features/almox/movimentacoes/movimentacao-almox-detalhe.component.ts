@@ -84,7 +84,7 @@ interface GrupoMaterial {
   styles: [`
     :host { display: block; min-height: 100%; background: var(--geo-fundo); }
     .informado { display: block; font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); text-align: right; }
-    .hero { display: flex; gap: var(--geo-e3); align-items: center; margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); }
+    .hero { display: flex; gap: var(--geo-e3); align-items: center; margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); }
     .rota { display: grid; gap: var(--geo-e2); min-width: 0; }
     .rota span { display: grid; font: var(--geo-t-corpo); overflow-wrap: anywhere; }
     .rota small { font: 500 .75rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }

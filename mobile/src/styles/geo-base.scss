@@ -123,12 +123,22 @@ button, a, [role='button'], [role='tab'], .geo-tocavel {
   &--grande { font: var(--geo-t-campo); letter-spacing: .02em; font-variant-numeric: tabular-nums; min-height: 60px; }
 }
 
+// ---------- progresso de um fluxo em passos ----------
+// Segmentos no topo do lançamento (o texto "1 de 4" fica no subtítulo da barra superior).
+.geo-passos {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px;
+  padding: 0 var(--geo-margem) var(--geo-e3);
+  i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha);
+    transition: background-color var(--geo-m-entrar) var(--geo-curva); }
+  i.feito { background: var(--geo-destaque); }
+}
+
 // ---------- listas agrupadas ----------
 .geo-secao {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: var(--geo-e5) var(--geo-e5) var(--geo-e2);
+  padding: var(--geo-e5) var(--geo-margem) var(--geo-e2);
   font: var(--geo-t-secao);
   color: var(--geo-texto-2);
   margin: 0;
@@ -138,7 +148,7 @@ button, a, [role='button'], [role='tab'], .geo-tocavel {
   // Nunca encolher dentro de colunas flex: o overflow:hidden cortaria as linhas.
   flex-shrink: 0;
   background: var(--geo-superficie);
-  margin: 0 var(--geo-e3);
+  margin: 0 var(--geo-margem);
   border-radius: var(--geo-r-grupo);
   overflow: hidden;
   list-style: none;
@@ -167,7 +177,9 @@ button, a, [role='button'], [role='tab'], .geo-tocavel {
 
   .geo-linha__texto { flex: 1; min-width: 0; display: grid; gap: 1px; }
   .geo-linha__titulo { font: var(--geo-t-corpo-forte); overflow-wrap: anywhere; }
-  .geo-linha__apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  // Apoio em até duas linhas: cortar no meio esconde justamente a informação que a equipe procura.
+  .geo-linha__apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); overflow-wrap: anywhere;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
   // Texto descritivo de até duas linhas (nomes de serviço costumam ser longos).
   .geo-linha__resumo { font: var(--geo-t-apoio); color: var(--geo-texto); overflow-wrap: anywhere;
     display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
@@ -200,6 +212,8 @@ li + li > .geo-linha::before {
 // Tablet: cada tela ocupa uma coluna de largura máxima centralizada; o fundo continua de ponta a ponta.
 // Fica aqui (global) porque o host da tela é inserido pelo roteador, fora do alcance do estilo do shell.
 .geo-coluna-app > :not(router-outlet) { width: 100%; max-width: var(--geo-conteudo-max); margin-inline: auto; }
+// Formulário em passos: coluna mais estreita (um campo de 7 dígitos não precisa de 880 px).
+.geo-coluna-app > :has(.geo-passos) { max-width: 640px; }
 
 // ---------- listas ----------
 .geo-esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); }
@@ -219,7 +233,7 @@ button.geo-linha:disabled { cursor: default; opacity: .55; }
 }
 // Faixa de estado no topo de um detalhe (enviado, na fila, com problema…).
 .geo-faixa-estado {
-  display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+  display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
   border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
   p { margin: 0; flex: 1; font: var(--geo-t-apoio); font-size: .875rem; color: var(--geo-texto-2); }
   &--atencao { background: var(--geo-atencao-suave); p { color: var(--geo-texto); } }
@@ -227,7 +241,7 @@ button.geo-linha:disabled { cursor: default; opacity: .55; }
 }
 // Pares rótulo/valor de um detalhe.
 .geo-dados {
-  margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e1) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo);
+  margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e1) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo);
   > div { padding: var(--geo-e3) 0; border-bottom: 1px solid var(--geo-linha); }
   > div:last-child { border-bottom: 0; }
   dt { font: var(--geo-t-apoio); color: var(--geo-texto-2); }

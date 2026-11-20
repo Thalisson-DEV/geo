@@ -7,9 +7,6 @@
 :host > * { flex-shrink: 0; }
 .tela { flex: 1; padding-bottom: var(--geo-e5); }
 .auto-salvo { display: inline-flex; align-items: center; gap: 4px; font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-ok); white-space: nowrap; }
-.passos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-.passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); transition: background-color var(--geo-m-entrar); }
-.passos i.feito { background: var(--geo-destaque); }
 .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
 @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
 .campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--geo-e2); padding: 0 var(--geo-e3); }

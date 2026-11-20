@@ -144,13 +144,13 @@ const TAMANHO = 30;
     .atalho[data-tom='ok'] geo-icone { color: var(--geo-ok); }
     .atalho[data-tom='erro'] geo-icone { color: var(--geo-erro); }
     .atalho[data-tom='destaque'] geo-icone { color: var(--geo-destaque); }
-    .retomar { display: flex; align-items: center; gap: var(--geo-e3); width: calc(100% - 24px); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .retomar { display: flex; align-items: center; gap: var(--geo-e3); width: calc(100% - 24px); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border: 0; border-radius: var(--geo-r-grupo); background: var(--geo-destaque-suave); color: var(--geo-texto); text-align: left; font: inherit; cursor: pointer; }
     .retomar .txt { flex: 1; min-width: 0; display: grid; }
     .retomar .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .lista { transition: opacity var(--geo-m-entrar); }
     .lista.atualizando { opacity: .6; }
-    .mais { margin: var(--geo-e3) var(--geo-e3) 0; width: calc(100% - 24px); }
+    .mais { margin: var(--geo-e3) var(--geo-margem) 0; width: calc(100% - 24px); }
     .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3) var(--geo-e2); }
     .campos geo-seletor { box-shadow: inset 0 0 0 1px var(--geo-linha); border-radius: var(--geo-r-grupo); }
     .campos .geo-campo__rotulo, .campos .geo-campo__ajuda, .campos .geo-campo__erro { padding-left: var(--geo-e4); }

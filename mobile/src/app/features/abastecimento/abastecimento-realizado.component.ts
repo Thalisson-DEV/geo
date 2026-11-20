@@ -45,7 +45,7 @@ const TITULOS: Record<Passo, string> = { valores: 'Litros e valores', fotos: 'Fo
         navegacao="fechar" (voltar)="fechar()">
         <span class="auto-salvo" role="status" aria-label="Salvo automaticamente"><geo-icone nome="check" [tamanho]="14" />Salvo</span>
       </geo-barra-topo>
-      <div class="passos" aria-hidden="true">
+      <div class="geo-passos" aria-hidden="true">
         @for (p of passos; track p) { <i [class.feito]="$index <= indice()"></i> }
       </div>
 
@@ -200,17 +200,14 @@ const TITULOS: Record<Passo, string> = { valores: 'Litros e valores', fotos: 'Fo
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
     .auto-salvo { display: inline-flex; align-items: center; gap: 4px; font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-ok); white-space: nowrap; }
-    .passos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); transition: background-color var(--geo-m-entrar); }
-    .passos i.feito { background: var(--geo-destaque); }
     .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
-    .cartao { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .cartao { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .cartao__texto { flex: 1; min-width: 0; display: grid; gap: 1px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .cartao__texto strong { font: 600 1.0625rem/1.3 var(--geo-fonte); letter-spacing: .02em; color: var(--geo-texto); }
     .campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--geo-e2); padding: 0 var(--geo-e3); }
-    .geo-faixa-estado { margin: var(--geo-e3) var(--geo-e3) 0; }
+    .geo-faixa-estado { margin: var(--geo-e3) var(--geo-margem) 0; }
     .campos .geo-faixa-estado { margin: 0; }
     .geo-faixa-estado span { flex: 1; font: var(--geo-t-apoio); font-size: .875rem; }
     .apoio, .dica { margin: 0; padding: 0 var(--geo-e1); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
@@ -255,7 +252,7 @@ const TITULOS: Record<Passo, string> = { valores: 'Litros e valores', fotos: 'Fo
     .foto__refazer { position: absolute; right: 6px; bottom: 6px; padding: 4px 8px; border-radius: var(--geo-r-pilula); background: rgba(0, 0, 0, .6); color: #fff; font: 600 .6875rem/1 var(--geo-fonte); }
     .foto__rotulo { font: var(--geo-t-corpo-forte); font-size: .9375rem; color: var(--geo-texto); padding: 0 2px; }
     .foto__dica { font: var(--geo-t-apoio); color: var(--geo-texto-2); padding: 0 2px; }
-    .resumo { margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e1) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .resumo { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e1) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .resumo > div { display: flex; justify-content: space-between; align-items: baseline; gap: var(--geo-e3); padding: var(--geo-e3) 0; border-bottom: 1px solid var(--geo-linha); }
     .resumo > div:last-child { border-bottom: 0; }
     .resumo dt { font: var(--geo-t-corpo); color: var(--geo-texto-2); }

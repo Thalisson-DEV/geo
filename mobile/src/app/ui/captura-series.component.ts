@@ -248,7 +248,7 @@ const MAX_CONFERIR = 30;
     @keyframes entrar { from { opacity: 0; transform: scale(.94); } }
     .tirar { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--geo-texto-2); display: grid; place-items: center; cursor: pointer; }
     .tirar:active { background: var(--geo-linha); }
-    .limpar { margin: var(--geo-e2) var(--geo-e3) 0; color: var(--geo-erro); gap: 4px; }
+    .limpar { margin: var(--geo-e2) var(--geo-margem) 0; color: var(--geo-erro); gap: 4px; }
     .vazio { margin: 0; padding: 0 var(--geo-e5); font: var(--geo-t-apoio); color: var(--geo-texto-3); }
     .geo-folha-rodape .geo-btn { flex: 1; }
     @media (prefers-reduced-motion: reduce) { .chip, .giro { animation: none; } }

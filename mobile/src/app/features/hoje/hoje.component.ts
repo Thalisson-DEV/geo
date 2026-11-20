@@ -324,7 +324,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; }
-    .retomar { margin: var(--geo-e4) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
+    .retomar { margin: var(--geo-e4) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
       background: var(--geo-destaque-suave); display: flex; align-items: center; gap: var(--geo-e3); }
     .retomar .txt { flex: 1; min-width: 0; display: grid; }
     .retomar__acoes { display: grid; justify-items: center; gap: 2px; flex: none; }
@@ -345,7 +345,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
     .meta__falta--atencao geo-icone { color: var(--geo-atencao); }
     .respiro { height: var(--geo-e6); }
     .doca { position: sticky; bottom: 0; padding: var(--geo-e3) var(--geo-e4); background: linear-gradient(to top, var(--geo-fundo) 72%, transparent); }
-    .atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-e3) 0; }
+    .atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-margem) 0; }
     .atalho { display: grid; justify-items: center; gap: 4px; padding: var(--geo-e2) var(--geo-e1) 10px; border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
       color: var(--geo-texto); text-decoration: none; font: 500 .75rem/1.2 var(--geo-fonte); text-align: center; }
     .atalho .geo-selo { width: 34px; height: 34px; border-radius: 10px; }

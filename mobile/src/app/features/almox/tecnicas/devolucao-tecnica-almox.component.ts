@@ -131,14 +131,14 @@ const CONDICOES: OpcaoSegmento<CondicaoDev>[] = [
     :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
-    .resumo { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: 2px; }
+    .resumo { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: 2px; }
     .resumo .rotulo { font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); }
     .resumo .rotulo:not(:first-child) { margin-top: var(--geo-e2); }
     .oc, .obra { font: 600 1.125rem/1.25 var(--geo-fonte); overflow-wrap: anywhere; }
     .rota { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: var(--geo-e3) 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .rota strong { color: var(--geo-texto); }
     .tipo { justify-self: start; margin-top: var(--geo-e2); padding: 2px 8px; border-radius: 6px; background: var(--geo-superficie-2); font: 600 .75rem/1.5 var(--geo-fonte); }
-    .reserva { margin: var(--geo-e3) var(--geo-e3) 0; }
+    .reserva { margin: var(--geo-e3) var(--geo-margem) 0; }
     .reserva .geo-campo__rotulo, .reserva .geo-campo__ajuda { padding-left: var(--geo-e4); }
     .barra-itens { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); flex-wrap: wrap; padding: var(--geo-e3) var(--geo-e3) var(--geo-e2) var(--geo-e5);
       font: var(--geo-t-apoio); color: var(--geo-texto-2); }

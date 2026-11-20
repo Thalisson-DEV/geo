@@ -122,17 +122,17 @@ import { IconeComponent, IndicadorRedeComponent, TituloGrandeComponent } from '.
   `,
   styles: [`
     :host { display: block; padding-bottom: var(--geo-e6); }
-    .destaque { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .destaque { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       min-height: 72px; border-radius: var(--geo-r-grupo); background: var(--geo-ok-suave); color: var(--geo-texto); text-decoration: none; }
     .destaque:active { transform: scale(.99); }
     .destaque--aprovar { background: var(--geo-atencao-suave, var(--geo-superficie)); }
     .destaque--neutro { background: var(--geo-superficie); }
     .destaque .geo-linha__texto { flex: 1; min-width: 0; display: grid; gap: 2px; }
-    .atual { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
+    .atual { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
       display: grid; gap: var(--geo-e3); }
     .atual__topo { display: flex; align-items: center; gap: var(--geo-e3); }
     .atual__texto { display: grid; gap: 2px; min-width: 0; }
-    .atual__rotulo { font: var(--geo-t-secao); color: var(--geo-texto-2); text-transform: uppercase; letter-spacing: .04em; }
+    .atual__rotulo { font: var(--geo-t-secao); color: var(--geo-texto-2); }
     .atual__placa { font: var(--geo-t-numero); color: var(--geo-texto); }
     .atual__vazio { font: var(--geo-t-corpo-forte); color: var(--geo-texto); }
     .atual__apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }

@@ -175,7 +175,7 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .protocolo { margin: var(--geo-e2) var(--geo-e5) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-e3) 0; }
+    .resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-margem) 0; }
     .resumo div { display: grid; justify-items: center; padding: var(--geo-e3) var(--geo-e2); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); }
     .resumo strong { font: 600 1.625rem/1.1 var(--geo-fonte); }
     .resumo span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }

@@ -96,7 +96,7 @@ interface GrupoDocumentos {
     :host { display: block; }
     .escolha { padding: var(--geo-e2) var(--geo-e3) 0; }
     .geo-linha .geo-etiqueta { flex: none; }
-    .aviso, .nota { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+    .aviso, .nota { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); font: var(--geo-t-apoio); font-size: .875rem; }
     .aviso { background: var(--geo-atencao-suave); color: var(--geo-texto); }
     .nota { background: var(--geo-superficie); color: var(--geo-texto-2); margin-top: var(--geo-e3); }

@@ -68,7 +68,7 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
       <geo-barra-topo titulo="Transferir material" [subtitulo]="stepTitle() + ' · ' + currentStep() + ' de 4'" navegacao="fechar" (voltar)="fechar()">
         <geo-indicador-rede />
       </geo-barra-topo>
-      <div class="passos" aria-hidden="true">@for (s of [1, 2, 3, 4]; track s) { <i [class.feito]="s <= currentStep()"></i> }</div>
+      <div class="geo-passos" aria-hidden="true">@for (s of [1, 2, 3, 4]; track s) { <i [class.feito]="s <= currentStep()"></i> }</div>
 
       <section class="conteudo" [attr.aria-label]="stepTitle()">
         @if (currentStep() === 1) {
@@ -184,17 +184,14 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
-    .passos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); }
-    .passos i.feito { background: var(--geo-destaque); }
     .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
     .campos { display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e3); }
     .fixo { display: grid; gap: 2px; padding: var(--geo-e3) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .fixo span { font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
-    .resumo-topo { margin: var(--geo-e2) var(--geo-e3) var(--geo-e3); }
+    .resumo-topo { margin: var(--geo-e2) var(--geo-margem) var(--geo-e3); }
     .contagem { margin: var(--geo-e2) var(--geo-e5) 0; font: var(--geo-t-corpo-forte); color: var(--geo-texto-2); }
-    .busca { margin: var(--geo-e2) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+    .busca { margin: var(--geo-e2) var(--geo-margem); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
       border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }

@@ -52,6 +52,12 @@ for (const [aparelho, viewport] of Object.entries(APARELHOS)) {
         await page.goto('/campo/nova');
         await expect(page.locator('#nota')).toBeVisible();
         await foto(page, '03-nova-execucao');
+        await page.getByRole('button', { name: /^Tipo de serviço/ }).click();
+        await expect(page.getByRole('dialog')).toBeVisible();
+        await foto(page, '03b-folha-seletor');
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('dialog')).toHaveCount(0);
+        await page.waitForTimeout(300);
         await page.goto('/material');
         await foto(page, '04-material');
         await page.goto('/frota');

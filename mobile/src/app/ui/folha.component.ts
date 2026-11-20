@@ -49,7 +49,12 @@ const ARRASTE_FECHA_PX = 90;
     .painel.visivel { transform: none; }
     .alca-area { display: grid; place-items: center; height: 24px; flex: none; touch-action: none; cursor: grab; }
     .alca { width: 36px; height: 4px; border-radius: 99px; background: var(--geo-linha-forte); }
-    .cab { padding: 0 var(--geo-e5) var(--geo-e3); flex: none; }
+    .cab { padding: 0 var(--geo-margem) var(--geo-e3); flex: none; }
+    /* Tablet: folha centralizada com até 640 px (Material 3), em vez de atravessar a tela toda. */
+    @media (min-width: 720px) {
+      .painel { left: 50%; right: auto; width: min(640px, calc(100vw - 2 * var(--geo-margem))); margin-left: calc(var(--geo-nav-lateral) / 2);
+        translate: -50% 0; }
+    }
     h2 { margin: 0; font: 600 1.1875rem/1.3 var(--geo-fonte); }
     .cab p { margin: 4px 0 0; font: var(--geo-t-apoio); font-size: .875rem; color: var(--geo-texto-2); }
     .corpo { overflow-y: auto; overscroll-behavior: contain; min-height: 0; flex: 1; }

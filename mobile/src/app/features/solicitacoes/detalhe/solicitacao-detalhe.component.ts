@@ -99,7 +99,7 @@ interface ItemEnriquecido {
     :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
-    .recusa { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
+    .recusa { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
       background: var(--geo-superficie); border-left: 4px solid var(--geo-erro); }
     .recusa strong { font: var(--geo-t-corpo-forte); }
     .recusa p { margin: 4px 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }

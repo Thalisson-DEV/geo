@@ -92,7 +92,7 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
       <geo-barra-topo [titulo]="def.titulo" [subtitulo]="def.passos[passo() - 1] + ' · ' + passo() + ' de ' + def.passos.length" navegacao="fechar" (voltar)="fechar()">
         <geo-indicador-rede />
       </geo-barra-topo>
-      <div class="passos" [style.grid-template-columns]="'repeat(' + def.passos.length + ', 1fr)'" aria-hidden="true">
+      <div class="geo-passos" [style.grid-template-columns]="'repeat(' + def.passos.length + ', 1fr)'" aria-hidden="true">
         @for (p of def.passos; track $index) { <i [class.feito]="$index < passo()"></i> }
       </div>
 
@@ -338,9 +338,6 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
     :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; padding-bottom: var(--geo-e5); }
-    .passos { display: grid; gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
-    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); transition: background var(--geo-m-entrar); }
-    .passos i.feito { background: var(--geo-destaque); }
     .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
     .campos { display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e3); }
@@ -375,17 +372,17 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
     .ler { width: 48px; padding: 0; border-radius: 50%; }
-    .tudo { margin: 0 var(--geo-e3) var(--geo-e2); gap: 4px; }
+    .tudo { margin: 0 var(--geo-margem) var(--geo-e2); gap: 4px; }
     .atualizando { opacity: .6; }
-    .mais { margin: var(--geo-e3) var(--geo-e3) 0; width: calc(100% - 24px); }
+    .mais { margin: var(--geo-e3) var(--geo-margem) 0; width: calc(100% - 24px); }
     .saldo { display: grid; justify-items: end; font: 600 1.125rem/1.1 var(--geo-fonte); }
     .saldo small { font: 500 .75rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .ok { color: var(--geo-ok); }
     button.geo-linha:disabled { opacity: .6; }
-    .rota-final { display: grid; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); }
+    .rota-final { display: grid; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); }
     .rota-final span { display: grid; font: var(--geo-t-corpo); }
     .rota-final small { font: 500 .75rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
-    .perigo { display: flex; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-erro-suave); }
+    .perigo { display: flex; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-erro-suave); }
     .perigo > geo-icone { color: var(--geo-erro); }
     .perigo p { margin: 0; font: var(--geo-t-apoio); font-size: .875rem; }
     .conferir { align-items: flex-start; }

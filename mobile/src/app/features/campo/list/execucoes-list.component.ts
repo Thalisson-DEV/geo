@@ -96,13 +96,17 @@ let ultimaLeitura: { execucoes: ExecucaoCampoLocal[]; fila: Map<string, OutboxIt
                 <span class="geo-linha__texto">
                   <span class="geo-linha__titulo geo-num">{{ l.nota }}</span>
                   @if (l.servicos) { <span class="geo-linha__resumo">{{ l.servicos }}</span> }
-                  <span class="geo-linha__apoio geo-num">@if (l.alterada) {<span class="geo-cond geo-cond--sucata">Alterada</span> · }{{ l.apoio }}@if (l.valor) { · {{ l.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} }</span>
+                  <span class="geo-linha__apoio geo-num">@if (l.alterada) {<span class="geo-cond geo-cond--sucata">Alterada</span> · }{{ l.apoio }}</span>
                 </span>
-                @if (l.legadoIniciada) {
-                  <span class="geo-btn geo-btn--tonal geo-btn--compacto" aria-hidden="true">Terminar</span>
-                } @else {
-                  <geo-status-envio [estado]="l.estado" />
-                }
+                <!-- Valor à direita, alinhado entre as linhas: é o que o encarregado confere na lista. -->
+                <span class="lado">
+                  @if (l.valor) { <span class="valor geo-num">{{ l.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span> }
+                  @if (l.legadoIniciada) {
+                    <span class="geo-btn geo-btn--tonal geo-btn--compacto" aria-hidden="true">Terminar</span>
+                  } @else {
+                    <geo-status-envio [estado]="l.estado" [discreto]="true" />
+                  }
+                </span>
               </button>
             </li>
           }
@@ -136,6 +140,8 @@ let ultimaLeitura: { execucoes: ExecucaoCampoLocal[]; fila: Map<string, OutboxIt
     </geo-folha>
   `,
   styles: [`
+    .lado { flex: none; display: grid; justify-items: end; gap: 6px; }
+    .valor { font: var(--geo-t-corpo-forte); font-variant-numeric: tabular-nums; white-space: nowrap; }
     :host { display: block; position: relative; min-height: 100%; }
     .periodo { color: var(--geo-texto); }
     .chips { display: flex; gap: var(--geo-e2); overflow-x: auto; padding: var(--geo-e3) var(--geo-e4) var(--geo-e1); scrollbar-width: none;
@@ -198,8 +204,8 @@ export class ExecucoesListComponent implements OnInit {
     return this.noPeriodo().map(e => ({
       id: e.id,
       nota: rotuloNota(e),
-      apoio: `${e.tipoServico?.descricao ?? 'Tipo não informado'} · ${e.acoes.length ? e.acoes.length + (e.acoes.length === 1 ? ' serviço' : ' serviços') : 'Sem serviço'} · ${hora(e.dataLancamento)}`,
       servicos: e.acoes.map(id => nomes.get(id) ?? 'Serviço').join(' · '),
+      apoio: apoioDaLinha(e.tipoServico?.descricao, e.acoes.map(id => nomes.get(id) ?? 'Serviço'), hora(e.dataLancamento)),
       valor: e.valorTotalFaturado,
       // Com alteração na fila, o estado mostrado é o do envio da alteração.
       estado: e.alteracaoPendente
@@ -311,4 +317,18 @@ function tituloDia(iso: string): string {
   if (d.toDateString() === hoje.toDateString()) return 'Hoje';
   if (d.toDateString() === ontem.toDateString()) return 'Ontem';
   return `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES[d.getMonth()]}`;
+}
+
+/**
+ * Apoio da linha: tipo de serviço (só quando acrescenta algo ao nome do serviço), quantidade e hora.
+ * Sem tipo não aparece "Tipo não informado": é ruído para quem confere a lista.
+ */
+export function apoioDaLinha(tipo: string | null | undefined, servicos: string[], horario: string): string {
+  const partes: string[] = [];
+  const tipoLimpo = tipo?.trim();
+  const repetido = !!tipoLimpo && servicos.some(s => s.trim().toLocaleLowerCase('pt-BR') === tipoLimpo.toLocaleLowerCase('pt-BR'));
+  if (tipoLimpo && !repetido) partes.push(tipoLimpo);
+  partes.push(servicos.length ? `${servicos.length} ${servicos.length === 1 ? 'serviço' : 'serviços'}` : 'Sem serviço');
+  partes.push(horario);
+  return partes.join(' · ');
 }

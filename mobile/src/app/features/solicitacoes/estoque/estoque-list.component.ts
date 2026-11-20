@@ -122,7 +122,7 @@ interface EstadoTela { filtro?: Filtro; busca?: string; series?: string | null; 
   `,
   styles: [`
     :host { display: block; min-height: 100%; }
-    .busca { margin: var(--geo-e1) var(--geo-e3) 0; display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+    .busca { margin: var(--geo-e1) var(--geo-margem) 0; display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
       border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); }
     .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
@@ -131,7 +131,7 @@ interface EstadoTela { filtro?: Filtro; busca?: string; series?: string | null; 
     .tempo { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; font: 600 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
     .tempo[data-tom='atencao'] { color: var(--geo-atencao); }
     .tempo[data-tom='erro'] { color: var(--geo-erro); }
-    .parados { display: flex; align-items: center; gap: var(--geo-e3); width: calc(100% - 2 * var(--geo-e3)); min-height: 56px; margin: var(--geo-e2) var(--geo-e3) 0;
+    .parados { display: flex; align-items: center; gap: var(--geo-e3); width: calc(100% - 2 * var(--geo-e3)); min-height: 56px; margin: var(--geo-e2) var(--geo-margem) 0;
       padding: var(--geo-e2) var(--geo-e4); border: 0; border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); color: var(--geo-atencao);
       text-align: left; cursor: pointer; transition: transform var(--geo-m-entrar); }
     .parados:active { transform: scale(.98); }
