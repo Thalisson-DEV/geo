@@ -39,6 +39,8 @@ public final class AgentRunContext {
     /** Limites desta resposta; nulos usam os da configuração (o chat). */
     private Integer maxCiclos;
     private Integer maxChamadas;
+    private int ciclosAmpliados;
+    private int chamadasAmpliadas;
 
     public AgentRunContext(AgentRun run, SemanticQueryContext security, String nomeUsuario, ContextoGeo contexto,
             List<UUID> arquivosDaMensagem, Duration duracaoMaxima, int resultadosExistentes,
@@ -65,11 +67,23 @@ public final class AgentRunContext {
     }
 
     public int maxCiclos(int padrao) {
-        return maxCiclos == null ? padrao : maxCiclos;
+        return maxCiclos == null ? Math.max(padrao, ciclosAmpliados) : maxCiclos;
+    }
+
+    /**
+     * Roteiros de analise longa pedem mais etapas para esta resposta. Um orcamento definido por quem chamou (ex.:
+     * a API) continua valendo: so o teto padrao e ampliado.
+     */
+    public void ampliarCiclos(int ciclos) {
+        ciclosAmpliados = Math.max(ciclosAmpliados, ciclos);
     }
 
     public int maxChamadas(int padrao) {
-        return maxChamadas == null ? padrao : maxChamadas;
+        return maxChamadas == null ? Math.max(padrao, chamadasAmpliadas) : maxChamadas;
+    }
+
+    public void ampliarChamadas(int chamadas) {
+        chamadasAmpliadas = Math.max(chamadasAmpliadas, chamadas);
     }
 
     public boolean cancelled() {

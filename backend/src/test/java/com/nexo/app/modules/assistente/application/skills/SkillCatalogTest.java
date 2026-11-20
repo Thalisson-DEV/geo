@@ -32,6 +32,14 @@ class SkillCatalogTest {
     }
 
     @Test
+    void investigacaoDeAtipicosPedeMaisEtapasEAsDemaisMantemOPadrao() {
+        SkillCatalog.Skill atipicos = catalogo.buscar("investigacao-atipicos").orElseThrow();
+        assertThat(atipicos.ciclos()).isEqualTo(50);
+        assertThat(atipicos.chamadas()).isEqualTo(120);
+        assertThat(catalogo.buscar("analise-consumo-materiais").orElseThrow().ciclos()).isNull();
+    }
+
+    @Test
     void interpretaFrontMatterSimples() {
         SkillCatalog.Skill skill = SkillCatalog.parse("---\nnome: Teste-X\ntitulo: Teste\ndescricao: Uma descricao\n"
                 + "autoridades: [a:read, b:read]\n---\n# Corpo\ntexto", "arquivo.md");

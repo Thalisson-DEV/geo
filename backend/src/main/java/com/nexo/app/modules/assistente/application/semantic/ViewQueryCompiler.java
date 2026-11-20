@@ -16,7 +16,7 @@ import java.util.*;
 public class ViewQueryCompiler {
 
     public static final int LIMITE_PADRAO = 200;
-    public static final int LIMITE_MAXIMO = 5_000;
+    public static final int LIMITE_MAXIMO = 30_000;
     private static final Set<String> FUNCOES = Set.of("contagem", "contagem_distinta", "soma", "media", "minimo",
             "maximo", "mediana");
     private static final Set<String> NUMERICOS = Set.of("integer", "bigint", "smallint", "numeric", "double precision",

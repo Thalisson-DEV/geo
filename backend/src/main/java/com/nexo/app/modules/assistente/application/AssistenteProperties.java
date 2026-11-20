@@ -67,9 +67,9 @@ public class AssistenteProperties {
     public static class Agent {
         private int maxCycles = 16;
         private int maxToolCalls = 60;
-        private int maxRunSeconds = 900;
+        private int maxRunSeconds = 1800;
         private int toolResultMaxChars = 24_000;
-        private int maxConsecutiveToolFailures = 3;
+        private int maxConsecutiveToolFailures = 5;
         private int maxConcurrentRuns = 24;
     }
 
@@ -79,7 +79,7 @@ public class AssistenteProperties {
         private boolean enabled = true;
         private String schema = "copiloto";
         private int statementTimeoutMs = 15_000;
-        private int maxRows = 5_000;
+        private int maxRows = 30_000;
         private int maxConcurrentQueries = 3;
         private String role = "";
     }

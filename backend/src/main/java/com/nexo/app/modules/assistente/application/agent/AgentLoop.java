@@ -105,6 +105,7 @@ public class AgentLoop {
 
             conversa.add(new LlmMessage.Assistant(resposta.content(), resposta.reasoningContent(), chamadas));
             List<ToolExecutor.Outcome> resultados = executor.executar(run, ciclo, chamadas, porNome);
+            maxCiclos = Math.max(maxCiclos, run.maxCiclos(limites.getMaxCycles()));
             boolean algumSucesso = false;
             boolean repeticao = false;
             for (ToolExecutor.Outcome resultado : resultados) {

@@ -236,15 +236,15 @@ geo:
     agent:
       max-cycles: ${AI_AGENT_MAX_CYCLES:16}
       max-tool-calls: ${AI_AGENT_MAX_TOOL_CALLS:60}
-      max-run-seconds: ${AI_AGENT_MAX_RUN_SECONDS:900}
+      max-run-seconds: ${AI_AGENT_MAX_RUN_SECONDS:1800}
       tool-result-max-chars: ${AI_AGENT_TOOL_RESULT_MAX_CHARS:24000}
-      max-consecutive-tool-failures: ${AI_AGENT_MAX_CONSECUTIVE_TOOL_FAILURES:3}
+      max-consecutive-tool-failures: ${AI_AGENT_MAX_CONSECUTIVE_TOOL_FAILURES:5}
       max-concurrent-runs: ${AI_AGENT_MAX_CONCURRENT_RUNS:24}
     sql:
       enabled: ${AI_SQL_ENABLED:true}
       schema: copiloto
       statement-timeout-ms: ${AI_SQL_TIMEOUT_MS:15000}
-      max-rows: ${AI_SQL_MAX_ROWS:5000}
+      max-rows: ${AI_SQL_MAX_ROWS:30000}
       max-concurrent-queries: ${AI_SQL_MAX_CONCURRENT_QUERIES:3}
       # Opcional: role PostgreSQL com SELECT apenas no schema copiloto (defesa em profundidade).
       role: ${AI_SQL_ROLE:}

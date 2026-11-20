@@ -47,6 +47,8 @@ public class CompetenciaTools {
                         .orElseThrow(() -> new ToolException("Competencia '" + nome + "' nao existe ou nao esta disponivel. "
                                 + "Disponiveis: " + String.join(", ", catalogo.disponiveis(context.security()).stream()
                                 .map(SkillCatalog.Skill::nome).toList())));
+                if (skill.ciclos() != null) context.run().ampliarCiclos(skill.ciclos());
+                if (skill.chamadas() != null) context.run().ampliarChamadas(skill.chamadas());
                 Map<String, Object> resposta = new LinkedHashMap<>();
                 resposta.put("competencia", skill.nome());
                 resposta.put("titulo", skill.titulo());

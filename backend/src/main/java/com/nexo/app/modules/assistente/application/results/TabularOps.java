@@ -220,6 +220,258 @@ public final class TabularOps {
         return new TabularData(colunas, linhas, linhas.size(), false);
     }
 
+    /**
+     * Compara cada linha com o tipico do seu grupo (ex.: valor da nota x notas do mesmo tipo de servico,
+     * quantidade pedida x pedidos da mesma equipe). Metodos: {@code multiplo} (valor a partir de N vezes a
+     * mediana do grupo, padrao 2.5), {@code iqr} (acima de Q3 + N x IQR do grupo, padrao 1.5) e {@code zscore}
+     * (|z| a partir de N no grupo, padrao 2.5). Grupos com menos de {@code minimoGrupo} valores ficam de fora:
+     * sem pares suficientes nao ha tipico confiavel.
+     */
+    public static AnomaliasPorGrupo anomaliasPorGrupo(TabularData data, String metrica, List<String> grupos, String metodo,
+            Double limiteInformado, int minimoGrupo, boolean incluirAbaixo) {
+        int indice = exigirColuna(data, metrica);
+        List<Integer> indicesGrupo = grupos.stream().map(grupo -> exigirColuna(data, grupo)).toList();
+        String metodoEfetivo = metodo == null ? "multiplo" : metodo.trim().toLowerCase(Locale.ROOT);
+        if (!List.of("multiplo", "iqr", "zscore").contains(metodoEfetivo)) {
+            throw new ToolException("Metodo invalido: " + metodo + ". Use multiplo, iqr ou zscore.");
+        }
+        double limite = limiteInformado != null && limiteInformado > 0 ? limiteInformado
+                : "iqr".equals(metodoEfetivo) ? 1.5 : 2.5;
+        int minimo = Math.max(3, minimoGrupo);
+
+        Map<List<Object>, List<Double>> valoresPorGrupo = new LinkedHashMap<>();
+        for (List<Object> row : data.rows()) {
+            Double valor = numero(row.get(indice));
+            if (valor == null) continue;
+            valoresPorGrupo.computeIfAbsent(chaveGrupo(row, indicesGrupo), chave -> new ArrayList<>()).add(valor);
+        }
+        Map<List<Object>, Distribuicao> distribuicoes = new HashMap<>();
+        int gruposIgnorados = 0;
+        for (Map.Entry<List<Object>, List<Double>> entrada : valoresPorGrupo.entrySet()) {
+            if (entrada.getValue().size() < minimo) {
+                gruposIgnorados++;
+                continue;
+            }
+            distribuicoes.put(entrada.getKey(), Distribuicao.de(entrada.getValue()));
+        }
+
+        List<TabularData.Column> colunas = new ArrayList<>(data.columns());
+        colunas.add(new TabularData.Column("tipico_grupo", TabularData.ColumnType.NUMERO));
+        colunas.add(new TabularData.Column("registros_grupo", TabularData.ColumnType.INTEIRO));
+        colunas.add(new TabularData.Column("vezes_o_tipico", TabularData.ColumnType.NUMERO));
+        colunas.add(new TabularData.Column("percentil_no_grupo", TabularData.ColumnType.INTEIRO));
+        colunas.add(new TabularData.Column("anomalia", TabularData.ColumnType.TEXTO));
+        colunas.add(new TabularData.Column("motivo", TabularData.ColumnType.TEXTO));
+        List<List<Object>> linhas = new ArrayList<>();
+        List<Double> ordem = new ArrayList<>();
+        for (List<Object> row : data.rows()) {
+            Double valor = numero(row.get(indice));
+            if (valor == null) continue;
+            List<Object> chave = chaveGrupo(row, indicesGrupo);
+            Distribuicao grupo = distribuicoes.get(chave);
+            if (grupo == null) continue;
+            double vezes = grupo.mediana() > 0 ? valor / grupo.mediana() : Double.NaN;
+            double z = grupo.desvio() == 0 ? 0 : (valor - grupo.media()) / grupo.desvio();
+            String tipo = switch (metodoEfetivo) {
+                case "iqr" -> valor > grupo.q3() + limite * grupo.iqr() ? "ACIMA_DO_TIPICO"
+                        : incluirAbaixo && valor < grupo.q1() - limite * grupo.iqr() ? "ABAIXO_DO_TIPICO" : null;
+                case "zscore" -> z >= limite ? "ACIMA_DO_TIPICO" : incluirAbaixo && z <= -limite ? "ABAIXO_DO_TIPICO" : null;
+                default -> !Double.isNaN(vezes) && vezes >= limite ? "ACIMA_DO_TIPICO"
+                        : incluirAbaixo && !Double.isNaN(vezes) && vezes <= 1 / limite ? "ABAIXO_DO_TIPICO" : null;
+            };
+            if (tipo == null) continue;
+            List<Object> linha = new ArrayList<>(row);
+            linha.add(arredondar(grupo.mediana()));
+            linha.add(grupo.quantidade());
+            linha.add(Double.isNaN(vezes) ? null : arredondar(Math.round(vezes * 100) / 100.0));
+            linha.add(grupo.percentil(valor));
+            linha.add(tipo);
+            linha.add(motivo(metrica, valor, vezes, grupo, descreverGrupo(grupos, chave)));
+            linhas.add(linha);
+            ordem.add(Double.isNaN(vezes) ? Math.abs(z) : Math.max(vezes, vezes == 0 ? 0 : 1 / vezes));
+        }
+        List<Integer> posicoes = new ArrayList<>();
+        for (int i = 0; i < linhas.size(); i++) posicoes.add(i);
+        posicoes.sort((a, b) -> Double.compare(ordem.get(b), ordem.get(a)));
+        List<List<Object>> ordenadas = posicoes.stream().map(linhas::get).toList();
+        return new AnomaliasPorGrupo(new TabularData(colunas, ordenadas, ordenadas.size(), false),
+                distribuicoes.size(), gruposIgnorados, metodoEfetivo, limite);
+    }
+
+    /**
+     * Composicao incomum: recebe uma linha por item de cada registro (ex.: nota + tipo de servico + acao;
+     * solicitacao + equipe + material) e aponta, por registro, os itens raros no seu grupo (presentes em menos
+     * de {@code frequenciaMaxima} dos registros do grupo), os itens repetidos de forma incomum e a quantidade
+     * de itens acima do tipico do grupo.
+     */
+    public static ComposicaoIncomum composicaoIncomum(TabularData data, String colunaRegistro, List<String> grupos,
+            String colunaItem, double frequenciaMaxima, int minimoGrupo, double multiploItens) {
+        int indiceRegistro = exigirColuna(data, colunaRegistro);
+        int indiceItem = exigirColuna(data, colunaItem);
+        List<Integer> indicesGrupo = grupos.stream().map(grupo -> exigirColuna(data, grupo)).toList();
+        double frequencia = frequenciaMaxima > 0 && frequenciaMaxima < 1 ? frequenciaMaxima : 0.10;
+        double multiplo = multiploItens > 1 ? multiploItens : 2.0;
+        int minimo = Math.max(5, minimoGrupo);
+
+        // registro -> grupo e contagem de cada item
+        Map<Object, List<Object>> grupoDoRegistro = new LinkedHashMap<>();
+        Map<Object, Map<String, Integer>> itensDoRegistro = new LinkedHashMap<>();
+        for (List<Object> row : data.rows()) {
+            Object registro = row.get(indiceRegistro);
+            Object item = row.get(indiceItem);
+            if (registro == null || item == null) continue;
+            grupoDoRegistro.putIfAbsent(registro, chaveGrupo(row, indicesGrupo));
+            itensDoRegistro.computeIfAbsent(registro, chave -> new LinkedHashMap<>())
+                    .merge(String.valueOf(item), 1, Integer::sum);
+        }
+        Map<List<Object>, Integer> registrosPorGrupo = new HashMap<>();
+        Map<List<Object>, Map<String, Integer>> presencaPorGrupo = new HashMap<>();
+        Map<List<Object>, Map<String, Integer>> repeticaoPorGrupo = new HashMap<>();
+        Map<List<Object>, List<Double>> totaisPorGrupo = new HashMap<>();
+        for (Map.Entry<Object, Map<String, Integer>> entrada : itensDoRegistro.entrySet()) {
+            List<Object> grupo = grupoDoRegistro.get(entrada.getKey());
+            registrosPorGrupo.merge(grupo, 1, Integer::sum);
+            int total = 0;
+            for (Map.Entry<String, Integer> item : entrada.getValue().entrySet()) {
+                presencaPorGrupo.computeIfAbsent(grupo, chave -> new HashMap<>()).merge(item.getKey(), 1, Integer::sum);
+                if (item.getValue() > 1) {
+                    repeticaoPorGrupo.computeIfAbsent(grupo, chave -> new HashMap<>()).merge(item.getKey(), 1, Integer::sum);
+                }
+                total += item.getValue();
+            }
+            totaisPorGrupo.computeIfAbsent(grupo, chave -> new ArrayList<>()).add((double) total);
+        }
+
+        List<TabularData.Column> colunas = new ArrayList<>();
+        colunas.add(new TabularData.Column(data.columns().get(indiceRegistro).name(), data.columns().get(indiceRegistro).type()));
+        for (int indice : indicesGrupo) colunas.add(data.columns().get(indice));
+        colunas.add(new TabularData.Column("itens", TabularData.ColumnType.INTEIRO));
+        colunas.add(new TabularData.Column("itens_tipico_grupo", TabularData.ColumnType.NUMERO));
+        colunas.add(new TabularData.Column("registros_grupo", TabularData.ColumnType.INTEIRO));
+        colunas.add(new TabularData.Column("itens_incomuns", TabularData.ColumnType.INTEIRO));
+        colunas.add(new TabularData.Column("detalhe_incomuns", TabularData.ColumnType.TEXTO));
+        colunas.add(new TabularData.Column("motivo", TabularData.ColumnType.TEXTO));
+        List<List<Object>> linhas = new ArrayList<>();
+        int gruposIgnorados = (int) registrosPorGrupo.values().stream().filter(total -> total < minimo).count();
+        for (Map.Entry<Object, Map<String, Integer>> entrada : itensDoRegistro.entrySet()) {
+            List<Object> grupo = grupoDoRegistro.get(entrada.getKey());
+            int registros = registrosPorGrupo.get(grupo);
+            if (registros < minimo) continue;
+            Map<String, Integer> presenca = presencaPorGrupo.getOrDefault(grupo, Map.of());
+            Map<String, Integer> repeticao = repeticaoPorGrupo.getOrDefault(grupo, Map.of());
+            List<String> incomuns = new ArrayList<>();
+            int total = 0;
+            for (Map.Entry<String, Integer> item : entrada.getValue().entrySet()) {
+                total += item.getValue();
+                double presente = presenca.getOrDefault(item.getKey(), 0) / (double) registros;
+                if (presente < frequencia) {
+                    incomuns.add(item.getKey() + " (em " + percentual(presente) + " do grupo)");
+                } else if (item.getValue() > 1 && repeticao.getOrDefault(item.getKey(), 0) / (double) registros < frequencia) {
+                    incomuns.add(item.getKey() + " repetido " + item.getValue() + "x (repete em "
+                            + percentual(repeticao.getOrDefault(item.getKey(), 0) / (double) registros) + " do grupo)");
+                }
+            }
+            List<Double> totais = new ArrayList<>(totaisPorGrupo.get(grupo));
+            Collections.sort(totais);
+            double tipico = mediana(totais);
+            boolean itensDemais = tipico > 0 && total >= multiplo * tipico;
+            if (incomuns.isEmpty() && !itensDemais) continue;
+            List<String> motivos = new ArrayList<>();
+            if (itensDemais) {
+                motivos.add(total + " itens, " + formatar(total / tipico) + "x o tipico de " + formatar(tipico)
+                        + " do grupo");
+            }
+            if (!incomuns.isEmpty()) motivos.add(incomuns.size() + (incomuns.size() == 1 ? " item incomum" : " itens incomuns"));
+            List<Object> linha = new ArrayList<>();
+            linha.add(entrada.getKey());
+            linha.addAll(grupo);
+            linha.add(total);
+            linha.add(arredondar(tipico));
+            linha.add(registros);
+            linha.add(incomuns.size());
+            linha.add(String.join("; ", incomuns));
+            linha.add(String.join("; ", motivos) + " (" + descreverGrupo(grupos, grupo) + ")");
+            linhas.add(linha);
+        }
+        int posicaoIncomuns = colunas.size() - 3;
+        int posicaoItens = 1 + indicesGrupo.size();
+        linhas.sort((a, b) -> {
+            int porIncomuns = Integer.compare((Integer) b.get(posicaoIncomuns), (Integer) a.get(posicaoIncomuns));
+            return porIncomuns != 0 ? porIncomuns : Integer.compare((Integer) b.get(posicaoItens), (Integer) a.get(posicaoItens));
+        });
+        return new ComposicaoIncomum(new TabularData(colunas, linhas, linhas.size(), false), itensDoRegistro.size(),
+                registrosPorGrupo.size() - gruposIgnorados, gruposIgnorados, frequencia, multiplo);
+    }
+
+    public record AnomaliasPorGrupo(TabularData dados, int gruposAvaliados, int gruposIgnorados, String metodo,
+            double limite) {
+    }
+
+    public record ComposicaoIncomum(TabularData dados, int registrosAvaliados, int gruposAvaliados, int gruposIgnorados,
+            double frequenciaMaxima, double multiploItens) {
+    }
+
+    private record Distribuicao(int quantidade, double media, double desvio, double mediana, double q1, double q3,
+            List<Double> ordenados) {
+
+        static Distribuicao de(List<Double> valores) {
+            List<Double> ordenados = new ArrayList<>(valores);
+            Collections.sort(ordenados);
+            double media = valores.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            double desvio = Math.sqrt(valores.stream().mapToDouble(v -> (v - media) * (v - media)).sum()
+                    / Math.max(1, valores.size() - 1));
+            return new Distribuicao(valores.size(), media, desvio, TabularOps.mediana(ordenados), quantil(ordenados, 0.25),
+                    quantil(ordenados, 0.75), ordenados);
+        }
+
+        double iqr() {
+            return q3 - q1;
+        }
+
+        int percentil(double valor) {
+            int abaixo = 0;
+            for (double atual : ordenados) {
+                if (atual < valor) abaixo++;
+                else break;
+            }
+            return (int) Math.round(100.0 * abaixo / ordenados.size());
+        }
+    }
+
+    private static List<Object> chaveGrupo(List<Object> row, List<Integer> indices) {
+        List<Object> chave = new ArrayList<>(indices.size());
+        for (int indice : indices) chave.add(row.get(indice));
+        return chave;
+    }
+
+    private static String descreverGrupo(List<String> grupos, List<Object> chave) {
+        if (grupos.isEmpty()) return "todos os registros";
+        List<String> partes = new ArrayList<>();
+        for (int i = 0; i < grupos.size(); i++) partes.add(grupos.get(i) + " " + Objects.toString(chave.get(i), "não informado"));
+        return String.join(", ", partes);
+    }
+
+    private static String motivo(String metrica, double valor, double vezes, Distribuicao grupo, String descricaoGrupo) {
+        String base = metrica + " " + formatar(valor);
+        String comparacao = Double.isNaN(vezes)
+                ? " com o tipico do grupo igual a zero"
+                : vezes >= 1 ? ", " + formatar(vezes) + "x o tipico de " + formatar(grupo.mediana())
+                : valor <= 0 ? ", abaixo do tipico de " + formatar(grupo.mediana())
+                : ", " + formatar(grupo.mediana() / valor) + "x abaixo do tipico de " + formatar(grupo.mediana());
+        return base + comparacao + " (" + descricaoGrupo + ", " + grupo.quantidade() + " registros)";
+    }
+
+    private static String formatar(double valor) {
+        java.text.NumberFormat formato = java.text.NumberFormat.getNumberInstance(Locale.of("pt", "BR"));
+        formato.setMaximumFractionDigits(2);
+        formato.setMinimumFractionDigits(valor == Math.rint(valor) ? 0 : 2);
+        return formato.format(valor);
+    }
+
+    private static String percentual(double fracao) {
+        return formatar(Math.round(fracao * 1000) / 10.0) + "%";
+    }
+
     public static Map<String, Object> resumoDistribuicao(TabularData data, String metrica) {
         int indice = exigirColuna(data, metrica);
         List<Double> valores = new ArrayList<>();

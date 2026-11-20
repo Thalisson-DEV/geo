@@ -68,10 +68,25 @@ public class SkillCatalog {
         Set<String> autoridades = new LinkedHashSet<>();
         String bruto = meta.getOrDefault("autoridades", "").replace("[", "").replace("]", "");
         for (String autoridade : bruto.split(",")) if (!autoridade.isBlank()) autoridades.add(autoridade.trim());
-        return new Skill(nome, meta.getOrDefault("titulo", nome), meta.getOrDefault("descricao", ""), Set.copyOf(autoridades), corpo);
+        return new Skill(nome, meta.getOrDefault("titulo", nome), meta.getOrDefault("descricao", ""), Set.copyOf(autoridades), corpo,
+                inteiro(meta.get("ciclos")), inteiro(meta.get("chamadas")));
     }
 
-    public record Skill(String nome, String titulo, String descricao, Set<String> autoridades, String conteudo) {
+    private static Integer inteiro(String valor) {
+        if (valor == null || valor.isBlank()) return null;
+        try {
+            return Integer.valueOf(valor.trim());
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    /**
+     * {@code ciclos} e {@code chamadas}: tetos de etapas e de chamadas de ferramenta da resposta quando o roteiro e
+     * carregado (analises longas); nulos mantem o padrao.
+     */
+    public record Skill(String nome, String titulo, String descricao, Set<String> autoridades, String conteudo,
+            Integer ciclos, Integer chamadas) {
         public boolean permitida(SemanticQueryContext contexto) {
             return autoridades.isEmpty() || autoridades.stream().anyMatch(contexto::possuiAutoridade);
         }

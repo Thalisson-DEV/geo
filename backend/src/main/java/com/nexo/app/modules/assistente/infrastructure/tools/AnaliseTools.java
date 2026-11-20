@@ -136,14 +136,25 @@ public class AnaliseTools {
     @Bean
     AgentTool detectarAnomaliasTool(ResultStore store, ResultFormatter formatter, AssistenteProperties properties) {
         return new BaseTool("detectar_anomalias", "Detectar anomalias",
-                "Detecta valores fora do padrao numa coluna numerica de um resultado (metodo 'iqr' de Tukey, padrao, ou "
-                        + "'zscore'). Para anomalias por grupo (ex.: material, equipe, dia), agregue antes com "
-                        + "analisar_resultado ou consulte ja agrupado. Retorna as linhas anomalas com z-score.",
+                "Aponta os registros de um resultado que fogem do tipico. Com 'grupos', compara cada registro com os "
+                        + "seus pares (ex.: valor da nota x notas do mesmo tipo de servico; quantidade pedida x pedidos da "
+                        + "mesma equipe ou material; duracao do turno x turnos da mesma base) e devolve o tipico do grupo, "
+                        + "quantas vezes o registro esta acima, o percentil e o motivo em texto, pronto para "
+                        + "exportar_planilha. Metodos: 'multiplo' (a partir de N vezes a mediana do grupo, padrao 2.5; o "
+                        + "mais facil de explicar), 'iqr' (Tukey, padrao 1.5) e 'zscore' (padrao 2.5). Sem 'grupos', "
+                        + "compara com o resultado inteiro. Traga antes a base completa, uma linha por registro: a "
+                        + "mediana de uma amostra cortada engana.",
                 JsonSchemas.object()
                         .required("resultado", JsonSchemas.string("Codigo do resultado"))
-                        .required("metrica", JsonSchemas.string("Coluna numerica analisada"))
-                        .prop("metodo", JsonSchemas.enumString(null, List.of("iqr", "zscore")))
-                        .prop("limite_z", JsonSchemas.number("Limite de |z| para zscore (padrao 2.5)"))
+                        .required("metrica", JsonSchemas.string("Coluna numerica analisada (ex.: valor_total_faturado)"))
+                        .prop("grupos", JsonSchemas.arrayOfStrings(
+                                "Colunas que definem os pares de comparacao (ex.: [\"tipo_servico\"] ou [\"equipe\", \"material\"])"))
+                        .prop("metodo", JsonSchemas.enumString(null, List.of("multiplo", "iqr", "zscore")))
+                        .prop("limite", JsonSchemas.number(
+                                "Corte do metodo: vezes a mediana (multiplo), multiplicador do IQR ou |z|. Use o que o usuario pedir"))
+                        .prop("minimo_grupo", JsonSchemas.number("Minimo de registros para o grupo ter tipico confiavel (padrao 5)"))
+                        .prop("incluir_abaixo", JsonSchemas.bool("Tambem apontar registros muito abaixo do tipico (padrao false)"))
+                        .prop("limite_z", JsonSchemas.number("Obsoleto: use 'limite'"))
                         .prop("titulo", JsonSchemas.string(null))
                         .build(),
                 ToolKind.ANALYSIS, Set.of(), Duration.ofSeconds(30)) {
@@ -156,20 +167,112 @@ public class AnaliseTools {
             public ToolResult execute(JsonNode arguments, ToolContext context) {
                 ResultStore.StoredResult origem = store.exigir(context.conversaId(), ToolArgs.requiredText(arguments, "resultado"));
                 String metrica = ToolArgs.requiredText(arguments, "metrica");
-                String metodo = Optional.ofNullable(ToolArgs.text(arguments, "metodo")).orElse("iqr");
-                Double limite = ToolArgs.number(arguments, "limite_z");
-                TabularData anomalias = TabularOps.anomalias(origem.data(), metrica, metodo, limite == null ? 2.5 : limite);
+                List<String> grupos = ToolArgs.texts(arguments, "grupos");
+                String metodo = ToolArgs.text(arguments, "metodo");
+                Double limite = Optional.ofNullable(ToolArgs.number(arguments, "limite"))
+                        .orElse(ToolArgs.number(arguments, "limite_z"));
+                if (grupos.isEmpty() && !"multiplo".equalsIgnoreCase(Objects.toString(metodo, ""))) {
+                    String metodoGeral = Optional.ofNullable(metodo).orElse("iqr");
+                    TabularData anomalias = TabularOps.anomalias(origem.data(), metrica, metodoGeral, limite == null ? 2.5 : limite);
+                    String titulo = Optional.ofNullable(ToolArgs.text(arguments, "titulo"))
+                            .orElse("Anomalias em " + metrica + " (" + origem.codigo() + ")");
+                    ResultStore.StoredResult novo = store.registrar(context.run(), name(), ResultadoAssistente.Natureza.CALCULO,
+                            titulo, anomalias, Map.of("origem", origem.codigo(), "metodo", metodoGeral));
+                    Map<String, Object> extra = new LinkedHashMap<>();
+                    extra.put("distribuicao", TabularOps.resumoDistribuicao(origem.data(), metrica));
+                    extra.put("metodo", metodoGeral);
+                    extra.putAll(avisoBaseCortada(origem));
+                    return formatter.toToolResult(novo, properties.getAgent().getToolResultMaxChars(), extra,
+                            anomalias.totalRows() + " anomalias");
+                }
+                Integer minimo = ToolArgs.integer(arguments, "minimo_grupo");
+                TabularOps.AnomaliasPorGrupo analise = TabularOps.anomaliasPorGrupo(origem.data(), metrica, grupos, metodo,
+                        limite, minimo == null ? 5 : minimo, ToolArgs.bool(arguments, "incluir_abaixo", false));
                 String titulo = Optional.ofNullable(ToolArgs.text(arguments, "titulo"))
-                        .orElse("Anomalias em " + metrica + " (" + origem.codigo() + ")");
+                        .orElse("Atipicos em " + metrica + (grupos.isEmpty() ? "" : " por " + String.join(", ", grupos)));
+                Map<String, Object> consulta = new LinkedHashMap<>();
+                consulta.put("origem", origem.codigo());
+                consulta.put("metodo", analise.metodo());
+                consulta.put("limite", analise.limite());
+                consulta.put("grupos", grupos);
                 ResultStore.StoredResult novo = store.registrar(context.run(), name(), ResultadoAssistente.Natureza.CALCULO,
-                        titulo, anomalias, Map.of("origem", origem.codigo(), "metodo", metodo));
+                        titulo, analise.dados(), consulta);
                 Map<String, Object> extra = new LinkedHashMap<>();
-                extra.put("distribuicao", TabularOps.resumoDistribuicao(origem.data(), metrica));
-                extra.put("metodo", metodo);
+                extra.put("metodo", analise.metodo());
+                extra.put("limite", analise.limite());
+                extra.put("grupos_avaliados", analise.gruposAvaliados());
+                if (analise.gruposIgnorados() > 0) extra.put("grupos_sem_pares_suficientes", analise.gruposIgnorados());
+                extra.put("registros_analisados", origem.data().rows().size());
+                extra.putAll(avisoBaseCortada(origem));
                 return formatter.toToolResult(novo, properties.getAgent().getToolResultMaxChars(), extra,
-                        anomalias.totalRows() + " anomalias");
+                        analise.dados().totalRows() + " fora do típico");
             }
         };
+    }
+
+    @Bean
+    AgentTool detectarItensIncomunsTool(ResultStore store, ResultFormatter formatter, AssistenteProperties properties) {
+        return new BaseTool("detectar_itens_incomuns", "Detectar itens incomuns",
+                "Avalia a composicao dos registros. Recebe um resultado com UMA LINHA POR ITEM de cada registro (ex.: "
+                        + "nota + tipo de servico + acao; solicitacao + equipe + material; turno + base + atividade) e "
+                        + "aponta, por registro, os itens raros no seu grupo (presentes em menos de 'frequencia_maxima' "
+                        + "dos registros do grupo, padrao 10%), os itens repetidos de forma incomum e a quantidade de "
+                        + "itens acima do tipico do grupo. Devolve um registro por linha com o detalhe e o motivo, pronto "
+                        + "para exportar_planilha ou para cruzar com o resultado de detectar_anomalias.",
+                JsonSchemas.object()
+                        .required("resultado", JsonSchemas.string("Codigo do resultado com uma linha por item"))
+                        .required("registro", JsonSchemas.string("Coluna que identifica o registro (ex.: execucao_id)"))
+                        .required("item", JsonSchemas.string("Coluna do item (ex.: acao)"))
+                        .prop("grupos", JsonSchemas.arrayOfStrings("Colunas que definem os pares (ex.: [\"tipo_servico\"])"))
+                        .prop("frequencia_maxima", JsonSchemas.number("Item e incomum abaixo desta fracao do grupo (padrao 0.10)"))
+                        .prop("multiplo_itens", JsonSchemas.number("Itens demais a partir de N vezes o tipico do grupo (padrao 2)"))
+                        .prop("minimo_grupo", JsonSchemas.number("Minimo de registros no grupo (padrao 10)"))
+                        .prop("titulo", JsonSchemas.string(null))
+                        .build(),
+                ToolKind.ANALYSIS, Set.of(), Duration.ofSeconds(30)) {
+            @Override
+            public String progressLabel(JsonNode arguments) {
+                return "Avaliando a composição dos registros";
+            }
+
+            @Override
+            public ToolResult execute(JsonNode arguments, ToolContext context) {
+                ResultStore.StoredResult origem = store.exigir(context.conversaId(), ToolArgs.requiredText(arguments, "resultado"));
+                List<String> grupos = ToolArgs.texts(arguments, "grupos");
+                Double frequencia = ToolArgs.number(arguments, "frequencia_maxima");
+                Double multiplo = ToolArgs.number(arguments, "multiplo_itens");
+                Integer minimo = ToolArgs.integer(arguments, "minimo_grupo");
+                TabularOps.ComposicaoIncomum analise = TabularOps.composicaoIncomum(origem.data(),
+                        ToolArgs.requiredText(arguments, "registro"), grupos, ToolArgs.requiredText(arguments, "item"),
+                        frequencia == null ? 0.10 : frequencia, minimo == null ? 10 : minimo, multiplo == null ? 2 : multiplo);
+                String titulo = Optional.ofNullable(ToolArgs.text(arguments, "titulo"))
+                        .orElse("Composicao incomum" + (grupos.isEmpty() ? "" : " por " + String.join(", ", grupos)));
+                Map<String, Object> consulta = new LinkedHashMap<>();
+                consulta.put("origem", origem.codigo());
+                consulta.put("grupos", grupos);
+                consulta.put("frequencia_maxima", analise.frequenciaMaxima());
+                ResultStore.StoredResult novo = store.registrar(context.run(), name(), ResultadoAssistente.Natureza.CALCULO,
+                        titulo, analise.dados(), consulta);
+                Map<String, Object> extra = new LinkedHashMap<>();
+                extra.put("registros_avaliados", analise.registrosAvaliados());
+                extra.put("grupos_avaliados", analise.gruposAvaliados());
+                if (analise.gruposIgnorados() > 0) extra.put("grupos_sem_pares_suficientes", analise.gruposIgnorados());
+                extra.put("frequencia_maxima", analise.frequenciaMaxima());
+                extra.put("multiplo_itens", analise.multiploItens());
+                extra.putAll(avisoBaseCortada(origem));
+                return formatter.toToolResult(novo, properties.getAgent().getToolResultMaxChars(), extra,
+                        analise.dados().totalRows() + " com composição incomum");
+            }
+        };
+    }
+
+    /** O tipico do grupo so vale com a base inteira: avisa o modelo quando o resultado de origem foi cortado. */
+    private static Map<String, Object> avisoBaseCortada(ResultStore.StoredResult origem) {
+        TabularData data = origem.data();
+        if (!data.truncated() && data.rows().size() >= data.totalRows()) return Map.of();
+        return Map.of("aviso_base_cortada", origem.codigo() + " tem " + data.rows().size() + " de " + data.totalRows()
+                + " linhas: o tipico foi calculado sobre a parte disponivel. Filtre o periodo ou a base na consulta "
+                + "para trazer a populacao inteira e repita.");
     }
 
     private static String rotulo(String valor, String padrao) {

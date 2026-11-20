@@ -23,8 +23,8 @@ import java.util.*;
 public class ResultStore {
 
     /** Linhas persistidas por resultado; o total real continua informado em {@code totalLinhas}. */
-    public static final int MAX_LINHAS_PERSISTIDAS = 5_000;
-    private static final int MAX_JSON_BYTES = 4 * 1024 * 1024;
+    public static final int MAX_LINHAS_PERSISTIDAS = 30_000;
+    private static final int MAX_JSON_BYTES = 12 * 1024 * 1024;
     private static final TypeReference<List<TabularData.Column>> COLUMNS = new TypeReference<>() { };
     private static final TypeReference<List<List<Object>>> ROWS = new TypeReference<>() { };
     private static final TypeReference<Map<String, Object>> CONSULTA = new TypeReference<>() { };

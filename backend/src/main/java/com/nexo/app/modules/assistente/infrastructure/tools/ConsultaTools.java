@@ -62,7 +62,7 @@ public class ConsultaTools {
                                 .prop("inicio", JsonSchemas.string("AAAA-MM-DD"))
                                 .prop("fim", JsonSchemas.string("AAAA-MM-DD")).build())
                         .prop("ordenar_por", JsonSchemas.array(null, ordem))
-                        .prop("limite", JsonSchemas.integer("Maximo de linhas (padrao 200)", 1, 5000))
+                        .prop("limite", JsonSchemas.integer("Maximo de linhas (padrao 200)", 1, 30000))
                         .prop("titulo", JsonSchemas.string("Titulo curto do resultado"))
                         .build(),
                 ToolKind.DATA, Set.of(), Duration.ofSeconds(45)) {
