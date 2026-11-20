@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ObraResponse } from '../../../core/models/obras.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
+import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.service';
 import { ContratoService } from '../../../core/services/contrato.service';
 import { ObrasService } from '../../../core/services/obras.service';
 import { RhService } from '../../../core/services/rh.service';
@@ -48,6 +49,7 @@ describe('ObraDetalheComponent', () => {
   let tela: any;
   let servico: Record<string, ReturnType<typeof vi.fn>>;
   let permissoes: string[];
+  let medicoes: Record<string, ReturnType<typeof vi.fn>>;
 
   async function abrir(obra: ObraResponse = mockObra, busca = vi.fn(() => of(obra) as Observable<ObraResponse>)): Promise<HTMLElement> {
     servico['buscarObraPorId'] = busca;
@@ -64,6 +66,7 @@ describe('ObraDetalheComponent', () => {
         { provide: ContratoService, useValue: { listarContratosAtivos: () => of({ content: [{ id: 'c1', numeroContrato: 'CT-01', cliente: 'Cliente' }] }) } },
         { provide: RhService, useValue: { listarEquipes: vi.fn(() => of({ content: [{ id: 'eq-1', codigo: 'EQ-01', tipoEquipe: { nome: 'LINHA VIVA' }, baseOperacional: { nome: 'BASE JUAZEIRO' } }] })) } },
         { provide: AuthService, useValue: { currentUser: () => ({ permissoes }) } },
+        { provide: ObrasMedicoesService, useValue: medicoes },
         { provide: ObrasProgramacaoService, useValue: { resumos: vi.fn(() => of([])), listarDaObra: vi.fn(() => of([])) } },
         { provide: SolicitacaoMaterialTecnicaService, useValue: { obterProjecaoObra: vi.fn(() => of({ idObra: 'obra-1', tipoObra: 'OBRA', ocorrencias: [], solicitacoes: [] })), obterSaldoObra: vi.fn(() => of({ idEstoque: null, itens: [] })) } },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'obra-1' })) } }
@@ -80,6 +83,11 @@ describe('ObraDetalheComponent', () => {
   beforeEach(() => {
     TestBed.resetTestingModule();
     permissoes = ['obras:obra:read', 'obras:obra:write', 'obras:anexos:write'];
+    medicoes = {
+      daObra: vi.fn(() =>
+        of({ idObra: 'obra-1', numero: '1228694', titulo: 'REFORMA', municipio: null, valorProjeto: 185000, pendentes: [{ idItem: 'i1' }], valorPendente: 1200, servicosSemValor: 0, valorMedido: 5000, saldo: 180000, medicoes: [] })
+      )
+    };
     servico = {
       listarStatusAtivos: vi.fn(() => of([{ id: 'st-1', nome: 'EM EXECUÇÃO', concluida: false }, { id: 'st-2', nome: 'CONCLUÍDA', concluida: true }])),
       listarTiposAnexosAtivos: vi.fn(() => of([{ id: 'tipo-1', nome: 'PROJETO' }])),
@@ -222,5 +230,22 @@ describe('ObraDetalheComponent', () => {
   it('erro ao carregar mostra o estado de erro em vez de sair da tela', async () => {
     const el = await abrir(mockObra, vi.fn(() => throwError(() => new Error('falhou'))));
     expect(el.textContent).toContain('Não foi possível abrir a obra');
+  });
+
+  it('mostra o ciclo da obra e sugere medir o executado pendente', async () => {
+    permissoes = [...permissoes, 'obras:medicao:read', 'obras:medicao:write'];
+    const el = await abrir();
+    const etapas = [...el.querySelectorAll('.obra-ciclo__rotulo')].map((e) => e.textContent!.trim());
+    expect(etapas).toEqual(['Cadastro', 'Orçamento', 'Materiais', 'Medição', 'Encerramento']);
+    expect(el.querySelector('.obra-ciclo__etapa[data-estado="atencao"]')!.textContent).toContain('a medir');
+    expect(el.querySelector('.obra-ciclo__proximo')!.textContent).toContain('esperando medição');
+    expect(el.textContent).toContain('Execução e medição');
+  });
+
+  it('segue a ordem do ciclo nas seções da ficha', async () => {
+    permissoes = [...permissoes, 'obras:medicao:read'];
+    const el = await abrir();
+    const titulos = [...el.querySelectorAll('.obra-principal .obra-card h2')].map((h) => h.textContent!.trim().replace(/\s+\d+$/, ''));
+    expect(titulos).toEqual(['Dados da obra', 'Orçamento previsto', 'Materiais da obra', 'Execução e medição', 'Anexos', 'Subprojetos']);
   });
 });

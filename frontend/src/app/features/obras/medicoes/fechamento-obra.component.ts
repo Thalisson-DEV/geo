@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   GeoAsyncStateComponent,
   GeoButtonComponent,
@@ -105,6 +105,7 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
               <span class="fechamento__links">
                 <button type="button" (click)="ir(['/obras', o.idObra])"><i class="pi pi-building" aria-hidden="true"></i> Ficha</button>
                 <button type="button" (click)="ir(['/obras', o.idObra, 'planejamento'])"><i class="pi pi-map" aria-hidden="true"></i> Planejamento</button>
+                <button type="button" (click)="ir(['/obras/medicoes'])"><i class="pi pi-calculator" aria-hidden="true"></i> Medições</button>
               </span>
             </header>
             <div class="geo-kpis">
@@ -163,6 +164,9 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
                       <geo-status [tone]="statusDe(row).tom" [icon]="statusDe(row).icone">{{ statusDe(row).rotulo }}</geo-status>
                     </ng-template>
                     <ng-template geoCell="gerada" let-row>{{ row.dataCriacao | date: 'dd/MM/yyyy' }} · {{ row.usuarioCriacao }}</ng-template>
+                    <ng-template geoCell="boletim" let-row>
+                      <button type="button" class="fechamento__boletim" (click)="ir(['/obras/medicoes', row.id])" [attr.aria-label]="'Abrir o boletim da medição ' + row.numero">Boletim <i class="pi pi-arrow-right" aria-hidden="true"></i></button>
+                    </ng-template>
                   </geo-data-table>
                 } @else {
                   <geo-callout tone="info" [dense]="true" title="Nenhuma medição gerada">Esta obra ainda não teve medição.</geo-callout>
@@ -200,12 +204,14 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
     .fechamento__titulo h2 span { color: var(--geo-foreground-muted); font-weight: 400; }
     .fechamento__links { display: inline-flex; gap: 0.75rem; }
     .fechamento__links button { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; cursor: pointer; }
+    .fechamento__boletim { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
     .fechamento__links button:focus-visible { outline: 2px solid var(--geo-focus-ring, currentColor); outline-offset: 2px; }
   `
 })
 export class FechamentoObraComponent {
   private readonly api = inject(ObrasMedicoesService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly notificacoes = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -253,6 +259,7 @@ export class FechamentoObraComponent {
     { key: 'operacao', header: 'Operação', value: (s) => OPERACAO[s.operacao] },
     { key: 'lancado', header: 'Lançado', type: 'number', value: (s) => s.lancado },
     { key: 'executado', header: 'Executado', type: 'number', priority: 1, value: (s) => s.executado },
+    { key: 'percentual', header: '% executado', type: 'number', value: (s) => (s.lancado ? Math.round((s.executado / s.lancado) * 1000) / 10 : null), display: (s) => (s.lancado ? `${((s.executado / s.lancado) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%` : '—') },
     { key: 'unidade', header: 'Un.', value: (s) => s.unidade },
     { key: 'valorExecutado', header: 'Valor executado', type: 'currency', value: (s) => s.valorExecutado }
   ];
@@ -275,13 +282,23 @@ export class FechamentoObraComponent {
     { key: 'competencia', header: 'Competência', value: (m) => m.competencia, display: (m) => rotuloCompetencia(m.competencia) },
     { key: 'valorTotal', header: 'Valor', type: 'currency', priority: 1, value: (m) => m.valorTotal },
     { key: 'status', header: 'Situação', type: 'custom', value: (m) => m.status, display: (m) => STATUS_MEDICAO[m.status].rotulo },
-    { key: 'gerada', header: 'Gerada', type: 'custom', value: (m) => m.dataCriacao, display: (m) => new Date(m.dataCriacao).toLocaleDateString('pt-BR') }
+    { key: 'gerada', header: 'Gerada', type: 'custom', value: (m) => m.dataCriacao, display: (m) => new Date(m.dataCriacao).toLocaleDateString('pt-BR') },
+    { key: 'boletim', header: 'Boletim', type: 'custom', sortable: false, searchable: false, exportable: false, align: 'end', value: () => null, display: () => 'Boletim' }
   ];
   protected readonly chaveObra = (o: FechamentoObra) => o.idObra;
   protected readonly rotuloObra = (o: FechamentoObra) => `obra ${o.numero}`;
   protected readonly chaveLinha = (l: { codigo: string | null; operacao: string; unidade: string | null }, i: number) => `${l.codigo}|${l.operacao}|${l.unidade}|${i}`;
   protected readonly chaveKit = (k: LinhaKitFechamento) => k.codigoKit ?? '';
   protected readonly chaveMedicao = (m: MedicaoResumo) => m.id;
+
+  constructor() {
+    // A ficha da obra e outras telas abrem o fechamento já com a obra: ?obras=1027601 (vírgula para várias).
+    const obras = this.route.snapshot.queryParamMap.get('obras');
+    if (obras) {
+      this.codigos.set(obras.split(',').map((c) => c.trim()).filter(Boolean).join('\n'));
+      if (this.quantidade() && this.quantidade() <= LIMITE) this.gerar();
+    }
+  }
 
   protected gerar(): void {
     this.gerando.set(true);

@@ -50,7 +50,10 @@ import { STATUS_MEDICAO, TIPO_MEDICAO, rotuloCompetencia } from './medicoes.logi
         @let medicao = m()!.medicao;
         <div class="medicao__topo">
           <geo-status [tone]="status[medicao.status].tom" [icon]="status[medicao.status].icone">{{ status[medicao.status].rotulo }}</geo-status>
-          <a class="medicao__link" [routerLink]="['/obras', medicao.idObra]"><i class="pi pi-building" aria-hidden="true"></i> Ficha da obra</a>
+          <span class="medicao__links">
+            <a class="medicao__link" [routerLink]="['/obras/medicoes', medicao.id]"><i class="pi pi-file" aria-hidden="true"></i> Boletim de medição</a>
+            <a class="medicao__link" [routerLink]="['/obras', medicao.idObra]"><i class="pi pi-building" aria-hidden="true"></i> Ficha da obra</a>
+          </span>
         </div>
         <dl class="medicao__dados">
           <div><dt>Tipo</dt><dd>{{ tipo[medicao.tipo] }}</dd></div>
@@ -72,7 +75,7 @@ import { STATUS_MEDICAO, TIPO_MEDICAO, rotuloCompetencia } from './medicoes.logi
             [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" [exportFileName]="'medicao-' + medicao.numero">
             <ng-template geoCell="servico" let-row>
               <span class="geo-cell-strong">{{ row.descricao }}</span>
-              <span class="geo-cell-muted">{{ row.codigo }} · {{ row.codigoKit }}</span>
+              <span class="geo-cell-muted">{{ row.codigo }} · {{ row.codigoKit }}{{ row.local ? ' · ' + row.local : '' }}</span>
             </ng-template>
           </geo-data-table>
         </geo-form-section>
@@ -99,6 +102,7 @@ import { STATUS_MEDICAO, TIPO_MEDICAO, rotuloCompetencia } from './medicoes.logi
   `,
   styles: `
     .medicao__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .medicao__links { display: inline-flex; flex-wrap: wrap; gap: 1rem; }
     .medicao__link { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--geo-brand); font-size: var(--geo-font-body); }
     .medicao__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem 1rem; margin: 0 0 1rem; }
     .medicao__dados dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
@@ -131,7 +135,6 @@ export class MedicaoDetalheDrawerComponent {
 
   protected readonly colunas: GeoDataTableColumn<ItemMedido>[] = [
     { key: 'servico', header: 'Serviço', type: 'custom', priority: 1, value: (i) => i.descricao, display: (i) => `${i.descricao ?? ''} (${i.codigo ?? ''})` },
-    { key: 'local', header: 'Local', value: (i) => i.local },
     { key: 'quantidade', header: 'Qtd.', type: 'number', value: (i) => i.quantidade, display: (i) => `${i.quantidade.toLocaleString('pt-BR')} ${i.unidade ?? ''}`.trim() },
     { key: 'valorUnitario', header: 'Unitário', type: 'currency', value: (i) => i.valorUnitario },
     { key: 'valorTotal', header: 'Valor', type: 'currency', priority: 1, value: (i) => i.valorTotal },

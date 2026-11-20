@@ -44,6 +44,9 @@ const INTERVALO_GERACAO_MS = 3000;
 const LIMITE_FOTO_BYTES = 15 * 1024 * 1024;
 const MINIATURAS_NO_CARTAO = 4;
 const PONTOS_PARA_FILTRAR = 6;
+/** Pontos mostrados antes de "Mostrar todos": obras grandes têm dezenas de pontos e empurravam o resto da ficha. */
+const PONTOS_VISIVEIS = 12;
+const ORDEM_NATURAL = new Intl.Collator('pt-BR', { numeric: true, sensitivity: 'base' });
 
 type FiltroPontos = 'TODOS' | 'EXECUTADOS' | 'FALTANDO';
 
@@ -157,7 +160,7 @@ const TIPOS_EQUIPAMENTO: GeoSelectOption<TipoEquipamento>[] = [
           }
           @if (pontosDoBook().length) {
             <ul class="od-book">
-              @for (p of pontosDoBook(); track p.id) {
+              @for (p of pontosExibidos(); track p.id) {
                 <li class="od-ponto">
                   <div class="od-ponto__topo">
                     <div class="od-lista__texto">
@@ -175,8 +178,6 @@ const TIPOS_EQUIPAMENTO: GeoSelectOption<TipoEquipamento>[] = [
                     @if (p.evidencias.length > miniaturasNoCartao) {
                       <button type="button" class="od-ponto__mais" (click)="verFoto(p, miniaturasNoCartao)">Ver mais {{ p.evidencias.length - miniaturasNoCartao }} {{ p.evidencias.length - miniaturasNoCartao === 1 ? 'foto' : 'fotos' }}</button>
                     }
-                  } @else {
-                    <p class="od-ponto__semfoto"><i class="pi pi-image" aria-hidden="true"></i> Nenhuma foto lançada</p>
                   }
                   <div class="od-ponto__estados">
                     @if (!p.evidencias.length) {
@@ -197,6 +198,11 @@ const TIPOS_EQUIPAMENTO: GeoSelectOption<TipoEquipamento>[] = [
                 </li>
               }
             </ul>
+            @if (pontosOcultos() > 0) {
+              <button type="button" class="od-ponto__mais od-book__todos" (click)="todosPontos.set(true)">Mostrar todos os {{ pontosDoBook().length }} pontos</button>
+            } @else if (todosPontos() && pontosDoBook().length > pontosVisiveis) {
+              <button type="button" class="od-ponto__mais od-book__todos" (click)="todosPontos.set(false)">Mostrar menos</button>
+            }
           } @else if (d.pontos.length) {
             <p class="od-vazio">Nenhum ponto com esse filtro.</p>
           } @else {
@@ -388,7 +394,7 @@ const TIPOS_EQUIPAMENTO: GeoSelectOption<TipoEquipamento>[] = [
     .od-ponto__fotos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.375rem; }
     .od-ponto__mais { align-self: flex-start; padding: 0; border: 0; background: transparent; color: var(--geo-brand); font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
     .od-ponto__mais:focus-visible { outline: 3px solid var(--geo-focus-ring); outline-offset: 2px; }
-    .od-ponto__semfoto { display: flex; align-items: center; gap: 0.375rem; margin: 0; padding: 0.875rem 0.75rem; border: 1px dashed var(--geo-border-strong); border-radius: var(--geo-radius-md); color: var(--geo-foreground-muted); font-size: 0.8125rem; }
+    .od-book__todos { margin-top: 0.125rem; }
     .od-ponto__estados { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: auto; }
     .od-evidencias { display: flex; flex-direction: column; gap: 0.875rem; margin-top: 1rem; }
     .od-evidencias h3, .od-ficha-titulo { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 600; }
@@ -436,10 +442,15 @@ export class ObraDocumentacaoComponent {
   protected readonly pontosDoBook = computed(() => {
     const pontos = this.dados()?.pontos ?? [];
     const filtro = this.filtroPontos();
-    if (filtro === 'EXECUTADOS') return pontos.filter((p) => p.executado);
-    if (filtro === 'FALTANDO') return pontos.filter((p) => !p.evidencias.length || itensFaltando(p).length);
-    return pontos;
+    const ordenados = [...pontos].sort((a, b) => ORDEM_NATURAL.compare(String(a.pagina), String(b.pagina)) || ORDEM_NATURAL.compare(String(a.numero), String(b.numero)));
+    if (filtro === 'EXECUTADOS') return ordenados.filter((p) => p.executado);
+    if (filtro === 'FALTANDO') return ordenados.filter((p) => !p.evidencias.length || itensFaltando(p).length);
+    return ordenados;
   });
+  protected readonly pontosVisiveis = PONTOS_VISIVEIS;
+  protected readonly todosPontos = signal(false);
+  protected readonly pontosExibidos = computed(() => (this.todosPontos() ? this.pontosDoBook() : this.pontosDoBook().slice(0, PONTOS_VISIVEIS)));
+  protected readonly pontosOcultos = computed(() => (this.todosPontos() ? 0 : this.pontosDoBook().length - PONTOS_VISIVEIS));
   protected readonly enviandoItem = signal<string | null>(null);
   /** Refaz o campo de arquivo depois de cada envio, para ele voltar vazio e aceitar o mesmo arquivo de novo. */
   protected readonly envios = signal(0);

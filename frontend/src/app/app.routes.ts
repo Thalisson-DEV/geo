@@ -832,6 +832,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/obras/medicoes/medicoes.component').then(m => m.MedicoesComponent)
       },
       {
+        path: 'medicoes/:id',
+        data: { permission: 'obras:medicao:read', fullscreen: true, relatorio: true, backFallback: '/obras/medicoes?aba=geradas' },
+        loadComponent: () => import('./features/obras/medicoes/boletim-medicao.component').then(m => m.BoletimMedicaoComponent)
+      },
+      {
         path: 'fechamento',
         data: { permission: 'obras:medicao:read' },
         loadComponent: () => import('./features/obras/medicoes/fechamento-obra.component').then(m => m.FechamentoObraComponent)

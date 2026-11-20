@@ -161,10 +161,11 @@ function inicioPadrao(): string {
           } @else { <span class="geo-cell-muted">Sem atividade</span> }
         </ng-template>
         <ng-template geoCell="meta" let-row>
-          <span>{{ row.realizado | currency: 'BRL' }}</span>
-          @if (row.percentualMeta != null) {
-            <span class="turnos-meta"><geo-status [tone]="faixa(row.percentualMeta)">{{ percentual(row.percentualMeta) }}</geo-status> <span class="geo-cell-muted">de {{ row.metaDiaria | currency: 'BRL' }}</span></span>
-          } @else { <span class="geo-cell-muted">Sem meta</span> }
+          <span class="turnos-meta">
+            <span class="geo-cell-num">{{ row.realizado | currency: 'BRL' }}</span>
+            @if (row.percentualMeta != null) { <geo-status [tone]="faixa(row.percentualMeta)">{{ percentual(row.percentualMeta) }}</geo-status> }
+          </span>
+          <span class="geo-cell-muted turnos-meta__base">{{ row.percentualMeta != null ? 'meta ' + (row.metaDiaria | currency: 'BRL') : 'Sem meta' }}</span>
         </ng-template>
         <ng-template geoCell="registros" let-row>
           <span class="turnos-registros">
@@ -195,7 +196,8 @@ function inicioPadrao(): string {
   `,
   styles: `
     .geo-kpis.turnos-kpis { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); margin-bottom: 1rem; }
-    .turnos-meta { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; }
+    .turnos-meta { display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; justify-content: flex-end; }
+    .turnos-meta__base { display: block; text-align: right; }
     .turnos-registros { display: flex; flex-wrap: wrap; gap: 0.25rem; }
     .turno-local { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   `

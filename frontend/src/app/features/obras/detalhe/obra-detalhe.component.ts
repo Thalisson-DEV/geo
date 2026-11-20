@@ -94,8 +94,18 @@ import { ObrasProgramacaoService } from '../../../core/services/obras-programaca
 import { ProgramacaoDetalheComponent } from '../programacao/programacao-detalhe.component';
 import { ROTULO_TURNO, SITUACAO_PROGRAMACAO, formatarNumero } from '../programacao/programacao.logic';
 import { ObraFechamentosComponent } from '../fechamento/obra-fechamentos.component';
+import { MedicaoDaObra, MedicaoDetalhe } from '../../../core/models/obras-medicoes.models';
+import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.service';
+import { MedirObraDrawerComponent } from '../medicoes/medir-obra-drawer.component';
+import { STATUS_MEDICAO, TIPO_MEDICAO, rotuloCompetencia } from '../medicoes/medicoes.logic';
 
 declare var L: any;
+
+/** dd/MM/yyyy -> yyyyMMdd, para ordenar. */
+function dataOrdenavel(data: string | null | undefined): string {
+  const [d, m, a] = (data ?? '').split('/');
+  return a && m && d ? `${a}${m}${d}` : '';
+}
 
 type Carga<T> = { estado: 'loading' } | { estado: 'error'; mensagem: string } | { estado: 'ready'; dados: T };
 
@@ -109,6 +119,27 @@ const DIA_MS = 86_400_000;
 const INSIGHTS_VISIVEIS = 6;
 /** Escurece os tiles claros do mapa no tema escuro. */
 const FILTRO_TILES_ESCURO = 'invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9)';
+
+type EstadoEtapa = 'feito' | 'andamento' | 'atencao' | 'pendente';
+
+/** Etapa do ciclo da obra, do cadastro ao encerramento. `alvo` é o id do título da seção correspondente. */
+export interface EtapaCiclo {
+  id: string;
+  rotulo: string;
+  detalhe: string;
+  estado: EstadoEtapa;
+  alvo: string;
+}
+
+type AcaoPasso = 'visita' | 'planejar' | 'solicitar' | 'medir' | 'status' | 'encerramento';
+
+/** A ação que destrava a obra agora, na ordem do ciclo. */
+export interface ProximoPasso {
+  texto: string;
+  rotulo: string;
+  icone: string;
+  acao: AcaoPasso;
+}
 
 /** Marco da linha do tempo do prazo, em % do intervalo exibido. */
 interface MarcoPrazo {
@@ -130,6 +161,7 @@ interface MarcoPrazo {
   imports: [
     ObraDocumentacaoComponent,
     ObraFechamentosComponent,
+    MedirObraDrawerComponent,
     DevolucaoTecnicaFormComponent,
     ObraFormComponent,
     NovaSolicitacaoTecnicaDrawerComponent,
@@ -193,6 +225,19 @@ export class ObraDetalheComponent {
   protected readonly rotuloTurno = ROTULO_TURNO;
   protected readonly numeroProgramacao = formatarNumero;
   protected readonly podeAnexar = this.permissoes.includes('obras:anexos:write');
+  protected readonly podeVerMedicao = this.permissoes.includes('obras:medicao:read');
+  protected readonly podeMedir = this.podeVerMedicao && this.permissoes.includes('obras:medicao:write');
+  private readonly apiMedicoes = inject(ObrasMedicoesService);
+  protected readonly medicao = signal<Carga<MedicaoDaObra>>({ estado: 'loading' });
+  protected readonly medindo = signal(false);
+  protected readonly statusMedicao = STATUS_MEDICAO;
+  protected readonly tipoMedicao = TIPO_MEDICAO;
+  protected readonly competencia = rotuloCompetencia;
+  protected readonly medicoesAtivas = computed(() => (this.dados(this.medicao())?.medicoes ?? []).filter((m) => m.status === 'GERADA').length);
+  /** Mais recente primeiro, pela data de início (a ordem do número não acompanha as reprogramações). */
+  protected readonly programacoesOrdenadas = computed(() =>
+    [...this.programacoes()].sort((a, b) => dataOrdenavel(b.inicio).localeCompare(dataOrdenavel(a.inicio)) || b.numero - a.numero)
+  );
 
   // Helpers de template
   protected readonly moeda = formatarMoeda;
@@ -227,6 +272,13 @@ export class ObraDetalheComponent {
   protected readonly proximas = signal<Carga<ObraProximaResponse[]>>({ estado: 'loading' });
   protected readonly orcamento = signal<Carga<OrcamentoObraResponse>>({ estado: 'loading' });
   protected readonly raio = signal(10);
+  /** A lista lateral mostra as mais próximas; o mapa já mostra todas. */
+  protected readonly proximasVisiveis = 5;
+  protected readonly todasProximas = signal(false);
+  protected readonly proximasExibidas = computed(() => {
+    const lista = this.dados(this.proximas()) ?? [];
+    return this.todasProximas() ? lista : lista.slice(0, this.proximasVisiveis);
+  });
   protected readonly recalculando = signal(false);
 
   protected readonly contratoOpcoes = toSignal(
@@ -320,6 +372,147 @@ export class ObraDetalheComponent {
       visitaRealizada: this.visitaRealizada()
     }).map((i) => (i.acao && !this.podeAcionar(i.acao.tipo) ? { ...i, acao: undefined } : i));
   });
+  /** Do cadastro ao encerramento: a situação de cada etapa com o que já se sabe da obra. */
+  protected readonly ciclo = computed<EtapaCiclo[]>(() => {
+    const o = this.obra();
+    if (!o) return [];
+    const etapas: EtapaCiclo[] = [
+      { id: 'cadastro', rotulo: 'Cadastro', detalhe: o.dataInicio ? `Início em ${o.dataInicio}` : 'Cadastrada', estado: 'feito', alvo: 'dados-titulo' }
+    ];
+
+    const carregandoOrcamento = this.orcamento().estado === 'loading';
+    const orc = this.dados(this.orcamento());
+    etapas.push({
+      id: 'orcamento',
+      rotulo: 'Orçamento',
+      alvo: 'orcamento-titulo',
+      detalhe: carregandoOrcamento ? 'Carregando' : orc?.importado ? this.moeda(orc.totalServicosImportados) : 'Não importado',
+      estado: orc?.importado ? 'feito' : 'pendente'
+    });
+
+    if (this.podeVerDocumentacao) {
+      const visita = this.visitaRealizada();
+      etapas.push({
+        id: 'visita',
+        rotulo: 'Visita prévia',
+        alvo: 'documentacao-titulo',
+        detalhe: visita === null ? 'Carregando' : visita ? 'Realizada' : 'Não realizada',
+        estado: visita ? 'feito' : 'pendente'
+      });
+    }
+
+    const plan = this.resumoPlanejamento();
+    if (this.podeVerProgramacao) {
+      const programado = plan ? Math.min(100, plan.percentualConcluido + plan.percentualProgramado) : 0;
+      etapas.push({
+        id: 'programacao',
+        rotulo: 'Programação',
+        alvo: 'programacao-titulo',
+        detalhe: !plan?.temKits ? 'Sem kits planejados' : `${formatarNumero(programado)}% programado`,
+        estado: !plan?.temKits ? 'pendente' : programado >= 100 ? 'feito' : programado > 0 ? 'andamento' : 'pendente'
+      });
+    }
+
+    const solicitacoes = this.solicitacoes().estado === 'ready' ? this.listaSolicitacoes().length : null;
+    etapas.push({
+      id: 'materiais',
+      rotulo: 'Materiais',
+      alvo: 'solicitacoes-titulo',
+      detalhe: solicitacoes === null ? 'Carregando' : solicitacoes ? `${solicitacoes} ${solicitacoes === 1 ? 'solicitação' : 'solicitações'}` : 'Nada solicitado',
+      estado: solicitacoes ? 'feito' : 'pendente'
+    });
+
+    if (this.podeVerProgramacao && plan?.temKits) {
+      etapas.push({
+        id: 'execucao',
+        rotulo: 'Execução',
+        alvo: this.podeVerMedicao ? 'medicao-titulo' : 'programacao-titulo',
+        detalhe: `${formatarNumero(plan.percentualConcluido)}% concluído`,
+        estado: plan.percentualConcluido >= 100 ? 'feito' : plan.percentualConcluido > 0 ? 'andamento' : 'pendente'
+      });
+    }
+
+    if (this.podeVerMedicao) {
+      const med = this.dados(this.medicao());
+      let detalhe = 'Carregando';
+      let estado: EstadoEtapa = 'pendente';
+      if (med && med.valorPendente > 0) {
+        detalhe = `${this.moeda(med.valorPendente)} a medir`;
+        estado = 'atencao';
+      } else if (med && med.valorMedido > 0) {
+        detalhe = `${this.moeda(med.valorMedido)} medido`;
+        estado = o.statusConcluida ? 'feito' : 'andamento';
+      } else if (med) {
+        detalhe = 'Nada medido';
+      }
+      etapas.push({ id: 'medicao', rotulo: 'Medição', alvo: 'medicao-titulo', detalhe, estado });
+    }
+
+    etapas.push({
+      id: 'encerramento',
+      rotulo: 'Encerramento',
+      alvo: this.podeVerEncerramento ? 'encerramento-titulo' : 'historico-titulo',
+      detalhe: o.statusConcluida ? (o.dataFimEfetiva ? `Concluída em ${o.dataFimEfetiva}` : 'Concluída') : 'Em aberto',
+      estado: o.statusConcluida ? 'feito' : 'pendente'
+    });
+    return etapas;
+  });
+
+  /** A primeira etapa que pede ação de quem está vendo, na ordem do ciclo. Sem permissão para agir, não sugere. */
+  protected readonly proximoPasso = computed<ProximoPasso | null>(() => {
+    const o = this.obra();
+    if (!o) return null;
+    const plan = this.resumoPlanejamento();
+    const med = this.dados(this.medicao());
+    if (this.podeVerDocumentacao && this.visitaRealizada() === false && !plan?.percentualConcluido) {
+      return { texto: 'a visita prévia ainda não foi registrada.', rotulo: 'Registrar visita', icone: 'pi pi-map-marker', acao: 'visita' };
+    }
+    if (this.podePlanejar && plan?.temKits && plan.valorPendente > 0) {
+      return { texto: `${this.moeda(plan.valorPendente)} em serviços ainda sem programação.`, rotulo: 'Programar', icone: 'pi pi-calendar-plus', acao: 'planejar' };
+    }
+    if (!o.statusConcluida && this.solicitacoes().estado === 'ready' && !this.listaSolicitacoes().length && (plan?.percentualProgramado ?? 0) > 0) {
+      return { texto: 'há programação, mas nenhum material foi solicitado para a obra.', rotulo: 'Solicitar materiais', icone: 'pi pi-cart-plus', acao: 'solicitar' };
+    }
+    if (this.podeMedir && med && med.pendentes.length) {
+      return { texto: `${this.moeda(med.valorPendente)} executados esperando medição.`, rotulo: 'Medir', icone: 'pi pi-calculator', acao: 'medir' };
+    }
+    if (this.podeEscrever && !o.statusConcluida && plan?.temKits && plan.percentualConcluido >= 100) {
+      return { texto: 'todos os serviços planejados foram executados. Registre a conclusão da obra.', rotulo: 'Registrar status', icone: 'pi pi-sync', acao: 'status' };
+    }
+    if (this.podeCriarEncerramento && o.statusConcluida && med && !med.pendentes.length) {
+      return { texto: 'obra concluída e medida. Regularize o saldo de material.', rotulo: 'Solicitar encerramento', icone: 'pi pi-flag', acao: 'encerramento' };
+    }
+    return null;
+  });
+
+  protected executarPasso(acao: AcaoPasso): void {
+    switch (acao) {
+      case 'visita':
+        return this.irParaSecao('documentacao-titulo');
+      case 'planejar':
+        return this.planejar();
+      case 'solicitar':
+        return this.solicitarMateriais();
+      case 'medir':
+        return this.medindo.set(true);
+      case 'status':
+        return this.abrirStatus();
+      case 'encerramento':
+        return this.novoEncerramento();
+    }
+  }
+
+  protected irParaSecao(idTitulo: string): void {
+    const titulo = document.getElementById(idTitulo);
+    const alvo = titulo?.closest('section') ?? titulo;
+    alvo?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  protected aoMedir(m: MedicaoDetalhe): void {
+    this.carregarMedicao();
+    void this.router.navigate(['/obras/medicoes', m.medicao.id]);
+  }
+
   protected readonly todosInsights = signal(false);
   /** Vem do card de documentação técnica quando ele carrega. */
   protected readonly visitaRealizada = signal<boolean | null>(null);
@@ -476,6 +669,7 @@ export class ObraDetalheComponent {
         this.carregarHistorico(dados.id);
         this.carregarOrcamento(dados.id);
         this.carregarProgramacoes(dados.id);
+        this.carregarMedicao(dados.id);
         if (dados.latitude != null && dados.longitude != null) {
           this.carregarProximas(dados.id, this.raio());
         } else {
@@ -499,6 +693,15 @@ export class ObraDetalheComponent {
     if (!this.podeVerProgramacao) return;
     this.apiProgramacao.listarDaObra(id).pipe(catchError(() => of([]))).subscribe((lista) => this.programacoes.set(lista));
     this.apiProgramacao.resumos([id]).pipe(catchError(() => of([]))).subscribe(([resumo]) => this.resumoPlanejamento.set(resumo ?? null));
+  }
+
+  protected carregarMedicao(id = this.obra()!.id): void {
+    if (!this.podeVerMedicao) return;
+    if (!this.dados(this.medicao())) this.medicao.set({ estado: 'loading' });
+    this.apiMedicoes.daObra(id).subscribe({
+      next: (dados) => this.medicao.set({ estado: 'ready', dados }),
+      error: (e) => this.medicao.set({ estado: 'error', mensagem: getErrorMessage(e) })
+    });
   }
 
   protected abrirProgramacao(id: string): void {
@@ -847,8 +1050,7 @@ export class ObraDetalheComponent {
   // ═══════════════════════════════════════════════════════════════════════
 
   private irParaDocumentacao(): void {
-    const alvo = document.getElementById('documentacao-titulo');
-    alvo?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    this.irParaSecao('documentacao-titulo');
   }
 
   protected abrirAnexo(): void {

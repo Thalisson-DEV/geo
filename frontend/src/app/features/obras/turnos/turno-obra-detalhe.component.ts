@@ -153,17 +153,21 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
                     <table class="td-tabela">
                       <caption class="td-sr">Itens executados na obra {{ c.numeroObra }}</caption>
                       <thead><tr><th scope="col">Executado no turno</th><th scope="col" class="td-num">Qtd.</th><th scope="col" class="td-num">Valor</th></tr></thead>
-                      <tbody>
-                        @for (a of c.apontamentos; track a.id) {
-                          <tr>
-                            <td><strong>{{ a.descricao }}</strong><small>{{ a.local }} · {{ a.usuario }}</small>
-                              @if (a.excedente > 0) { <small class="td-excedente"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i> Passou {{ numero(a.excedente) }} {{ a.unidade }} do previsto: {{ a.justificativa }}</small> }
-                            </td>
-                            <td class="td-num">{{ numero(a.quantidade) }} {{ a.unidade }}</td>
-                            <td class="td-num">{{ a.valor != null ? moeda(a.valor) : '—' }}</td>
-                          </tr>
-                        }
-                      </tbody>
+                      @for (grupo of gruposApontamento(c.apontamentos); track grupo.tipo) {
+                        <tbody>
+                          <tr class="td-grupo"><th scope="rowgroup" colspan="2">{{ grupo.rotulo }} <span>{{ grupo.itens.length }}</span></th>
+                            <td class="td-num">{{ grupo.tipo === 'SERVICO' ? moeda(grupo.valor) : '' }}</td></tr>
+                          @for (a of grupo.itens; track a.id) {
+                            <tr>
+                              <td><strong>{{ a.descricao }}</strong><small>{{ a.local }} · {{ a.usuario }}</small>
+                                @if (a.excedente > 0) { <small class="td-excedente"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i> Passou {{ numero(a.excedente) }} {{ a.unidade }} do previsto: {{ a.justificativa }}</small> }
+                              </td>
+                              <td class="td-num">{{ numero(a.quantidade) }} {{ a.unidade }}</td>
+                              <td class="td-num">{{ a.valor != null ? moeda(a.valor) : '—' }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      }
                     </table>
                   </div>
                 }
@@ -299,10 +303,12 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
     .td-tabela { width: 100%; font-size: var(--geo-font-table); border-collapse: collapse; }
     .td-tabela th { padding: 0.375rem 0.5rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-table-meta); font-weight: 600; text-align: left; border-bottom: 1px solid var(--geo-border); }
     .td-tabela td { padding: 0.5rem; vertical-align: top; border-bottom: 1px solid var(--geo-border); }
-    .td-tabela tr:last-child td { border-bottom: 0; }
     .td-tabela small { display: block; color: var(--geo-foreground-muted); }
     .td-tabela .td-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .td-tabela .td-excedente { color: var(--geo-warning-text); }
+    .td-tabela .td-grupo th, .td-tabela .td-grupo td { padding-top: 0.625rem; background: var(--geo-surface-subtle); color: var(--geo-foreground); font-weight: 600; }
+    .td-tabela .td-grupo th span { margin-left: 0.25rem; color: var(--geo-foreground-muted); font-weight: 500; }
+    .td-tabela tbody:last-child tr:last-child td { border-bottom: 0; }
     .td-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .td-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 0.5rem; margin: 0.75rem 0 0; padding: 0; list-style: none; }
     .td-foto { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; color: var(--geo-foreground-muted); background: var(--geo-surface-subtle); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-sm); cursor: zoom-in; }
@@ -333,6 +339,16 @@ export class TurnoObraDetalheComponent {
 
   protected readonly situacao = computed(() => situacaoDoTurno(this.t() ?? { status: 'ABERTO', abertoDesdeOutroDia: false, dataInicio: '', encerradoAutomaticamente: false }));
   protected readonly cartoes = computed(() => (this.t() ? cartoesDoTurno(this.t()!) : []));
+  /** Serviços (com valor) primeiro, depois os materiais aplicados; cada grupo ordenado pelo local. */
+  protected gruposApontamento<T extends { tipo: string; local: string | null; valor?: number | null }>(lista: T[]) {
+    const ordem = new Intl.Collator('pt-BR', { numeric: true });
+    const grupo = (tipo: 'SERVICO' | 'MATERIAL', rotulo: string) => {
+      const itens = lista.filter((a) => a.tipo === tipo).sort((a, b) => ordem.compare(a.local ?? '', b.local ?? ''));
+      return { tipo, rotulo, itens, valor: itens.reduce((t, a) => t + (a.valor ?? 0), 0) };
+    };
+    return [grupo('SERVICO', 'Serviços'), grupo('MATERIAL', 'Materiais aplicados')].filter((g) => g.itens.length);
+  }
+
   protected readonly servicos = computed(() => (this.t()?.apontamentos ?? []).filter((a) => a.tipo === 'SERVICO'));
   protected readonly subtitulo = computed(() => {
     const t = this.t();
