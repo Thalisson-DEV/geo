@@ -1,4 +1,4 @@
-<div class="flex flex-col h-screen overflow-hidden bg-[var(--geo-canvas)] text-[var(--geo-foreground)] font-sans print:h-auto print:overflow-visible" >
+<div class="flex flex-col h-screen overflow-clip bg-[var(--geo-canvas)] text-[var(--geo-foreground)] font-sans print:h-auto print:overflow-visible" >
   <p-toast class="print:hidden">
     <ng-template #message let-aviso>
       <i [class]="iconeAviso(aviso.severity)" aria-hidden="true"></i>
@@ -41,7 +41,7 @@
         (expandAndFocus)="expandAndFocus($event)"
       ></app-sidebar>
 
-      <div class="flex-grow flex flex-col min-w-0 overflow-hidden relative print:overflow-visible">
+      <div class="flex-grow flex flex-col min-w-0 overflow-clip relative print:overflow-visible">
         <app-header
           class="print:hidden"
           [isMobile]="isMobile()"
