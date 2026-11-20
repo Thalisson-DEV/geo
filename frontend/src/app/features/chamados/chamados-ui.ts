@@ -51,7 +51,8 @@ export function statusSeverity(status: ChamadoStatus): 'info' | 'warn' | 'succes
     AGUARDANDO_SOLICITANTE: 'secondary',
     RESOLVIDO: 'success',
     FECHADO: 'secondary',
-    CANCELADO: 'danger'
+    // Cancelado é estado final, não erro: neutro como no financeiro.
+    CANCELADO: 'secondary'
   };
   return severities[status];
 }
@@ -207,7 +208,7 @@ export function statusIcone(status: ChamadoStatus): string {
 
 /** Tom do DS (`geo-status`) para a prioridade. */
 export function prioridadeTom(prioridade: ChamadoPrioridade): GeoTone {
-  const tons: Record<ChamadoPrioridade, GeoTone> = { BAIXA: 'neutral', NORMAL: 'info', ALTA: 'warning', CRITICA: 'danger' };
+  const tons: Record<ChamadoPrioridade, GeoTone> = { BAIXA: 'neutral', NORMAL: 'neutral', ALTA: 'warning', CRITICA: 'danger' };
   return tons[prioridade];
 }
 

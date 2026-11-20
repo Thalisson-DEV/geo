@@ -145,7 +145,8 @@ describe('GeoImportDrawerComponent', () => {
     const [linha, erro, situacao] = Array.from(tabela.querySelectorAll<HTMLElement>('thead th'));
     expect(erro.style.minWidth).toBe('9rem');
     expect(linha.style.minWidth).toContain('4.5rem');
-    expect(situacao.style.minWidth).toBe('');
+    // Largura definida pela tela vale também como mínimo (a tabela larga não espreme a coluna).
+    expect(situacao.style.minWidth).toBe('6rem');
     const celula = tabela.querySelector<HTMLElement>('.geo-data-table__clamp[title^="Material inexistente"]');
     expect(celula?.textContent).toContain('Material inexistente no catálogo');
   });

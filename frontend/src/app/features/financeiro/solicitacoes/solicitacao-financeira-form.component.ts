@@ -370,7 +370,7 @@ interface RascunhoSolicitacaoFinanceira {
                             (onClick)="novaSolicitacao()"
                           />
                           <p-button
-                            label="Voltar para a Lista"
+                            label="Voltar para a lista"
                             icon="pi pi-list"
                             
                             severity="secondary"
@@ -394,7 +394,7 @@ interface RascunhoSolicitacaoFinanceira {
     .form-shell { background: var(--geo-surface); border-radius: var(--geo-radius-lg); border: 1px solid var(--geo-border); }
     .form-shell__header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--geo-border); display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
     .form-shell__titulo { margin: 0; color: var(--geo-foreground); font-size: 1rem; font-weight: 600; }
-    .form-shell__descricao { margin: 0; color: var(--geo-foreground-muted); font-size: 13px; }
+    .form-shell__descricao { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-label); }
     .form-shell__body { padding: 1.25rem 1.5rem; }
     .step-button { background: transparent; border: 0; display: inline-flex; flex-direction: column; align-items: center; gap: 0.375rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: var(--geo-radius-md); }
     .step-button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }

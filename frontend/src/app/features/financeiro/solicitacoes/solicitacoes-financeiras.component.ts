@@ -245,7 +245,7 @@ const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
         [title]="titulo()"
         mode="server"
         [storageKey]="chave"
-        searchPlaceholder="Fornecedor, descrição, PIX, linha digitável…"
+        searchPlaceholder="Fornecedor ou descrição"
         rowActionLabel="Detalhes"
         rowActionIcon="pi pi-arrow-right"
         [emptyActionLabel]="podeCriar() ? (tipoAtual() === 'PAGAMENTO' ? 'Novo pagamento' : 'Nova compra') : undefined"

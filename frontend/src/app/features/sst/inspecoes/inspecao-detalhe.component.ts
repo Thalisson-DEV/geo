@@ -20,7 +20,6 @@ import { AnalisarComCopilotoComponent } from '../../../shared/components/analisa
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { AccordionModule } from 'primeng/accordion';
 import { DesvioAnexosComponent } from './desvio-anexos.component';
@@ -83,14 +82,12 @@ declare var L: any;
     GeoTextareaComponent,
     AnalisarComCopilotoComponent,
     ButtonModule,
-    ToastModule,
     TooltipModule,
     AccordionModule,
     DesvioAnexosComponent,
     EvidenciasInspecaoComponent,
     InspecaoSegurancaHistoricoComponent
   ],
-  providers: [MessageService],
   templateUrl: './inspecao-detalhe.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../execucao/relatorios/relatorio.css', './inspecao-detalhe.component.css']

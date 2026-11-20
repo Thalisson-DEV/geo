@@ -219,7 +219,7 @@ interface BlocoBuilder extends GrupoDeCampos {
     .section-marker { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
     .section-marker span { color: var(--geo-foreground); font-size: 1rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
     .field { display: flex; flex-direction: column; gap: 0.25rem; }
-    .field > label { color: var(--geo-foreground); font-size: 13px; font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
+    .field > label { color: var(--geo-foreground); font-size: var(--geo-font-label); font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
     .doc-input { width: 100%; }
   `]
 })

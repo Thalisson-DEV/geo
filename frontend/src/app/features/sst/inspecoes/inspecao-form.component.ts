@@ -12,7 +12,6 @@ import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DialogModule } from 'primeng/dialog';
@@ -104,7 +103,6 @@ interface Inspecionado {
     SelectModule,
     MultiSelectModule,
     DatePickerModule,
-    ToastModule,
     TooltipModule,
     SkeletonModule,
     DialogModule,
@@ -116,9 +114,7 @@ interface Inspecionado {
     GeoAutocompleteComponent,
     GeoBooleanControlComponent
   ],
-  providers: [MessageService],
   template: `
-    <p-toast></p-toast>
     <app-map-dialog #mapDialog></app-map-dialog>
     <app-location-picker-dialog #localPicker (localConfirmado)="onLocalConfirmado($event)"></app-location-picker-dialog>
 
@@ -292,7 +288,7 @@ interface Inspecionado {
           <div class="flex flex-col gap-4 md:gap-6">
             <!-- Progresso do checklist -->
             @if (progresso(); as pg) {
-              <div class="sticky top-0 z-20 bg-[var(--geo-surface)]/95 backdrop-blur rounded-lg border border-[var(--geo-border)] px-4 md:px-5 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <div class="sticky top-[-1px] z-20 bg-[var(--geo-surface)] rounded-lg shadow-[0_-12px_0_var(--geo-canvas)] border border-[var(--geo-border)] px-4 md:px-5 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                   <div class="flex items-center gap-3 flex-wrap text-xs">
                     <span class="font-medium text-[var(--geo-foreground)]">{{ pg.respondidas }} de {{ pg.total }} respondidas</span>

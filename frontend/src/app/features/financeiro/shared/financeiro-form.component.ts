@@ -235,7 +235,7 @@ import {
       text-transform: none;
     }
     .field { display: flex; flex-direction: column; gap: 0.25rem; }
-    .field > label { color: var(--geo-foreground); font-size: 13px; font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
+    .field > label { color: var(--geo-foreground); font-size: var(--geo-font-label); font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
     .field-meta { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); min-height: 0.75rem; }
     .field-meta:empty { display: none; }
     .field-help { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); line-height: 1.3; }
@@ -249,7 +249,7 @@ import {
       border-radius: var(--geo-radius-md, 6px);
       background: var(--geo-surface-subtle);
     }
-    .fornecedor-escolha__pergunta { color: var(--geo-foreground); font-size: 13px; font-weight: 500; }
+    .fornecedor-escolha__pergunta { color: var(--geo-foreground); font-size: var(--geo-font-label); font-weight: 500; }
     .section-icon { color: var(--geo-foreground-muted); font-size: 1rem; }
     .obrigatorio { color: var(--geo-danger-text); font-weight: 600; }
   `]

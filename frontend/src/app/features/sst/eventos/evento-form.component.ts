@@ -20,7 +20,6 @@ import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { StepperModule } from 'primeng/stepper';
 import { TextareaModule } from 'primeng/textarea';
-import { ToastModule } from 'primeng/toast';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -79,12 +78,10 @@ interface EnvolvidoForm {
     SkeletonModule,
     StepperModule,
     TextareaModule,
-    ToastModule,
     ToggleSwitchModule,
     TooltipModule,
     GeoAutocompleteComponent,
   ],
-  providers: [MessageService],
   templateUrl: './evento-form.component.html',
   styleUrl: './evento-form.component.css',
 })

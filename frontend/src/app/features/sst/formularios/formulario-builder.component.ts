@@ -6,11 +6,9 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { GeoBreadcrumbItem, GeoButtonComponent, GeoIconButtonComponent, GeoPageHeaderComponent } from '@geo/ui';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 
@@ -66,18 +64,13 @@ function uid(): string {
     GeoIconButtonComponent,
     ButtonModule,
     CheckboxModule,
-    ConfirmDialogModule,
     InputTextModule,
     SelectModule,
     TextareaModule,
-    ToastModule,
     TooltipModule,
     SkeletonModule
   ],
-  providers: [MessageService, ConfirmationService],
   template: `
-    <p-toast></p-toast>
-    <p-confirmdialog></p-confirmdialog>
 
     <div class="flex flex-col gap-4">
       <geo-page-header

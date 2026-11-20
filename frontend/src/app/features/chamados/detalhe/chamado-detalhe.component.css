@@ -53,8 +53,7 @@
   gap: 0.25rem;
   padding: 0.875rem 1rem;
   border: 1px solid var(--geo-border);
-  border-left-width: 4px;
-  border-radius: var(--geo-radius-md);
+  border-radius: var(--geo-radius-lg);
   background: var(--geo-surface);
 }
 
@@ -89,7 +88,7 @@
 
 .cartao__valor {
   color: var(--geo-foreground);
-  font-size: 1.125rem;
+  font-size: var(--geo-text-title-2);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -100,12 +99,6 @@
   font-weight: 600;
 }
 
-.cartao[data-tone='neutral'] { border-left-color: var(--geo-border-strong); }
-.cartao[data-tone='info'] { border-left-color: var(--geo-info-text); }
-.cartao[data-tone='brand'] { border-left-color: var(--geo-brand); }
-.cartao[data-tone='success'] { border-left-color: var(--geo-success-text); }
-.cartao[data-tone='warning'] { border-left-color: var(--geo-warning-text); }
-.cartao[data-tone='danger'] { border-left-color: var(--geo-danger-text); }
 
 .cartao[data-tone='success'] .cartao__icone,
 .cartao[data-tone='success'] .cartao__legenda { color: var(--geo-success-text); }
