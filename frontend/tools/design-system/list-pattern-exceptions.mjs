@@ -8,8 +8,6 @@
 export const TABLE_MODULE_EXCEPTIONS = {
   /** Itens editáveis dentro de formulários de movimentação e solicitação (linha a linha, sem paginação de servidor). */
   'tabela de itens em formulário': [
-    'src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-acao/solicitacao-tecnica-acao.component.ts',
-    'src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-planejamento/solicitacao-tecnica-planejamento.component.ts',
     'src/app/features/dp/descontos/desconto-form/desconto-form.component.ts',
     'src/app/features/sst/governanca/governanca-membros-etapa.component.ts',
     'src/app/features/sst/governanca/reuniao-governanca.component.ts',
