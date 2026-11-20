@@ -7,7 +7,7 @@ import {
   catchError,
   debounceTime,
   defer,
-  distinctUntilChanged,
+  filter,
   map,
   merge,
   switchMap,
@@ -80,6 +80,7 @@ export class RemoteLookup<T = string> {
   private readonly subscription: Subscription;
   private destroyed = false;
   private lastFailedCommand: LookupCommand | null = null;
+  private lastSearchedQuery: string | null = null;
 
   private readonly itemsState = signal<LookupOption<T>[]>([]);
   private readonly statusState = signal<LookupStatus>('idle');
@@ -115,7 +116,16 @@ export class RemoteLookup<T = string> {
       map((query) => normalizeLookupQuery(query)),
       tap((query) => this.queryState.set(query)),
       debounceTime(this.debounceMs),
-      distinctUntilChanged(),
+      filter((query) => {
+        if (query !== this.lastSearchedQuery) {
+          this.lastSearchedQuery = query;
+          return true;
+        }
+        // Mesma busca depois de normalizar (ex.: espaço no fim): não consulta de novo, mas
+        // republica as opções para o campo sair do "carregando" que ele ligou ao digitar.
+        if (this.statusState() !== 'loading') this.itemsState.update((items) => [...items]);
+        return false;
+      }),
       map((query): LookupCommand => ({ request: { query, cursor: null }, append: false })),
     );
 

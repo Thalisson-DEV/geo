@@ -54,7 +54,7 @@ describe('RemoteLookup', () => {
     lookup.destroy();
   });
 
-  it('nao repete uma query normalizada por distinctUntilChanged', () => {
+  it('nao repete uma query que normaliza igual a anterior', () => {
     vi.useFakeTimers();
     const loader = vi.fn(() => of(page([{ value: '1', label: 'Maria' }])));
     const lookup = new RemoteLookup(loader);
@@ -65,6 +65,23 @@ describe('RemoteLookup', () => {
     vi.advanceTimersByTime(300);
 
     expect(loader).toHaveBeenCalledOnce();
+    lookup.destroy();
+  });
+
+  it('republica as opcoes quando a query repetida chega (o campo sai do carregando)', () => {
+    vi.useFakeTimers();
+    const loader = vi.fn(() => of(page([{ value: '1', label: 'Rodrigues Goncalves' }])));
+    const lookup = new RemoteLookup(loader);
+
+    lookup.search('rodrigues');
+    vi.advanceTimersByTime(300);
+    const antes = lookup.items();
+    lookup.search('rodrigues ');
+    vi.advanceTimersByTime(300);
+
+    expect(loader).toHaveBeenCalledOnce();
+    expect(lookup.items()).not.toBe(antes);
+    expect(lookup.items()).toEqual(antes);
     lookup.destroy();
   });
 

@@ -9,6 +9,7 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Predicate;
+import org.hibernate.query.criteria.JpaExpression;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -74,7 +75,10 @@ public class DescontoSpecification {
                     alguma.add(cb.like(cb.lower(root.get("observacoes")), termo));
                     alguma.add(cb.like(cb.lower(root.join("motivo", JoinType.LEFT).get("descricao")), termo));
                     // A tela mostra o início do código (#d1234567): quem copia de lá encontra o desconto.
-                    alguma.add(cb.like(cb.lower(root.get("id").as(String.class)), termo.replace("#", "")));
+                    // `as(String)` não converte no SQL: o Postgres recebia lower(uuid) e recusava a consulta.
+                    // O cast é explícito e o texto do UUID já sai em minúsculas.
+                    Expression<String> codigo = ((JpaExpression<?>) root.get("id")).cast(String.class);
+                    alguma.add(cb.like(codigo, termo.replace("#", "")));
                     if (!busca.colaboradores().isEmpty()) {
                         alguma.add(root.get("colaboradorId").in(busca.colaboradores()));
                     }

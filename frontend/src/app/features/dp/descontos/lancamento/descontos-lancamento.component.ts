@@ -367,7 +367,8 @@ export class DescontosLancamentoComponent {
         .pipe(catchError(() => of(null)))
         .subscribe((c) => {
           this.nomes.update((n) => ({ ...n, [id]: c?.nomeCompleto ?? 'Colaborador removido' }));
-          if (c) this.colaboradores.seedSelected({ value: c.id, label: c.nomeCompleto });
+          // Só o colaborador do filtro vira opção fixa: semear os da página escondia o resultado da busca.
+          if (c && c.id === this.lista.filters.colaboradorId()) this.colaboradores.seedSelected({ value: c.id, label: c.nomeCompleto });
         })
     );
   }
