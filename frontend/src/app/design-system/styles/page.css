@@ -38,8 +38,8 @@
   /* Indicadores. Como <a> ou <button>, o indicador é um atalho para o recorte correspondente. */
   .geo-kpis {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: 12px;
   }
 
   .geo-kpi {
@@ -51,7 +51,6 @@
     border: 1px solid var(--geo-border);
     border-radius: var(--geo-radius-lg);
     background: var(--geo-surface);
-    box-shadow: var(--geo-shadow-sm);
     color: inherit;
     font: inherit;
     text-align: start;
@@ -125,12 +124,12 @@
   }
 
   .geo-kpi__value {
-    font-size: 1.7143rem;
+    font-size: clamp(1.2857rem, 1.6vw, 1.7143rem);
     line-height: 1.25;
+    white-space: nowrap;
     font-weight: var(--geo-font-weight-semibold);
     color: var(--geo-foreground);
     font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
   }
 
   .geo-kpi__detail {

@@ -37,9 +37,9 @@
       }
       <ng-content select="[table-actions]"></ng-content>
       @if (showColumnPicker() && !compact()) {
-        <details class="geo-data-table__colunas">
+        <details #seletorColunas class="geo-data-table__colunas" (keydown.escape)="fecharSeletorColunas(seletorColunas, true)" (focusout)="aoSairDoSeletor($event, seletorColunas)">
           <summary class="geo-data-table__colunas-botao" [attr.aria-label]="'Escolher colunas (' + visibleColumns().length + ' de ' + columns().length + ')'">
-            <i class="pi pi-sliders-h" aria-hidden="true"></i>
+            <geo-icon name="sliders-horizontal" size="sm" />
             <span>Colunas</span>
             <span class="geo-data-table__colunas-contagem">{{ visibleColumns().length }}/{{ columns().length }}</span>
           </summary>

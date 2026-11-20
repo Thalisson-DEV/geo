@@ -28,6 +28,7 @@ import { NotificationService } from '../../feedback/notification';
 import { GeoAsyncStateComponent } from '../../feedback/async-state';
 import { GeoConfirmationService } from '../../overlays/confirmation';
 import { GeoButtonComponent } from '../../primitives/button';
+import { GeoIconComponent } from '../../icons/geo-icon.component';
 import { GeoTableShellComponent } from '../table-shell';
 import { GeoTableToolbarComponent } from '../table-toolbar';
 import { GeoCellDirective, GeoRowActionsDirective, GeoRowDetailDirective } from './geo-data-table.directives';
@@ -95,7 +96,7 @@ const CONTROLES_INTERATIVOS =
 @Component({
   selector: 'geo-data-table',
   standalone: true,
-  imports: [NgTemplateOutlet, GeoAsyncStateComponent, GeoButtonComponent, GeoTableShellComponent, GeoTableToolbarComponent],
+  imports: [NgTemplateOutlet, GeoAsyncStateComponent, GeoIconComponent, GeoButtonComponent, GeoTableShellComponent, GeoTableToolbarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'geo-data-table',
@@ -388,6 +389,19 @@ export class GeoDataTableComponent<T = unknown> implements OnInit {
     } catch {
       // preferência apenas em memória
     }
+  }
+
+  /** Esc fecha o seletor e devolve o foco ao botão "Colunas". */
+  protected fecharSeletorColunas(detalhes: HTMLDetailsElement, devolverFoco = false): void {
+    if (!detalhes.open) return;
+    detalhes.open = false;
+    if (devolverFoco) detalhes.querySelector('summary')?.focus();
+  }
+
+  /** O foco (ou o clique) saiu do seletor: fecha, como os overlays do @geo/ui. */
+  protected aoSairDoSeletor(evento: FocusEvent, detalhes: HTMLDetailsElement): void {
+    const destino = evento.relatedTarget as Node | null;
+    if (!destino || !detalhes.contains(destino)) this.fecharSeletorColunas(detalhes);
   }
 
   protected resetColumns(): void {
