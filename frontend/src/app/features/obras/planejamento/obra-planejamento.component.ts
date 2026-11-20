@@ -12,7 +12,7 @@ import {
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   GeoAsyncStateComponent,
   GeoButtonComponent,
@@ -62,6 +62,8 @@ import { formatarMoeda } from '../obras-ui';
 import { ProgramacaoDetalheComponent } from '../programacao/programacao-detalhe.component';
 import { ProgramarDrawerComponent } from '../programacao/programar-drawer.component';
 import { sugerirDescricao } from '../programacao/programacao.logic';
+import { MedicaoDaObra } from '../../../core/models/obras-medicoes.models';
+import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.service';
 import { PlanejamentoArvoreComponent } from './planejamento-arvore.component';
 import { AplicacaoKit, PlanejamentoKitsComponent } from './planejamento-kits.component';
 import { PlanejamentoRevisaoComponent, PontoEmRevisao, VaoEmRevisao } from './planejamento-revisao.component';
@@ -77,6 +79,7 @@ const INTERVALO_ANALISE_MS = 3000;
   selector: 'app-obra-planejamento',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     DatePipe,
     GeoAsyncStateComponent,
     GeoButtonComponent,
@@ -120,6 +123,10 @@ export class ObraPlanejamentoComponent {
   protected readonly podeEditar = (inject(AuthService).currentUser()?.permissoes ?? []).includes('obras:planejamento:write');
   protected readonly podeProgramar = (inject(AuthService).currentUser()?.permissoes ?? []).includes('obras:programacao:write');
   private readonly programacoes = inject(ObrasProgramacaoService);
+  private readonly medicoes = inject(ObrasMedicoesService);
+  protected readonly podeVerMedicao = (inject(AuthService).currentUser()?.permissoes ?? []).includes('obras:medicao:read');
+  /** O que já foi medido e o que está executado esperando medição: fecha o ciclo planejado → executado → medido. */
+  protected readonly medicao = signal<MedicaoDaObra | null>(null);
   protected readonly programarAberto = signal(false);
   protected readonly programacaoAberta = signal(false);
   protected readonly idProgramacao = signal<string | null>(null);
@@ -447,6 +454,9 @@ export class ObraPlanejamentoComponent {
 
   constructor() {
     this.carregar();
+    if (this.podeVerMedicao && this.idObra) {
+      this.medicoes.daObra(this.idObra).pipe(take(1)).subscribe({ next: (m) => this.medicao.set(m), error: () => this.medicao.set(null) });
+    }
 
     effect(() => {
       const idAnexo = this.plano()?.projetoMestre?.idAnexo ?? null;

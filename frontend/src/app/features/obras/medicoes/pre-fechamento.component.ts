@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   GeoCellDirective,
   GeoConfirmationService,
@@ -47,6 +47,7 @@ import { AJUSTE_TEXTO_LISTAGEM } from '../obras-ui';
   selector: 'app-pre-fechamento',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     DatePipe,
     GeoCellDirective,
     GeoDataTableComponent,
@@ -129,7 +130,7 @@ import { AJUSTE_TEXTO_LISTAGEM } from '../obras-ui';
         [stateDescription]="erro() ?? (soPendentes() ? 'Todas as obras em aberto do recorte já têm o levantamento concluído.' : 'As obras em aberto aparecem aqui.')"
         [filtered]="lista.filtered()" (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()" (rowActivate)="abrirPlanejamento($event)">
         <ng-template geoCell="obra" let-row>
-          <span class="geo-cell-strong">{{ row.numero }}</span>
+          <a class="geo-cell-strong" [routerLink]="['/obras', row.idObra]" [attr.aria-label]="'Abrir a ficha da obra ' + row.numero">{{ row.numero }}</a>
           <span class="geo-cell-muted">{{ row.titulo }}</span>
         </ng-template>
         <ng-template geoCell="local" let-row>

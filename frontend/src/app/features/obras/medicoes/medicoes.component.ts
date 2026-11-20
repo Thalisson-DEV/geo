@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   GeoButtonComponent,
   GeoCellDirective,
@@ -61,6 +61,7 @@ const STATUS: GeoSelectOption<StatusMedicao>[] = [
   selector: 'app-medicoes',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     DatePipe,
     GeoButtonComponent,
     GeoCellDirective,
@@ -147,7 +148,7 @@ const STATUS: GeoSelectOption<StatusMedicao>[] = [
             [filtered]="recorteObraAtivo()" (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()"
             (rowActivate)="medir($event)">
             <ng-template geoCell="obra" let-row>
-              <span class="geo-cell-strong">{{ row.numero }}</span>
+              <a class="geo-cell-strong" [routerLink]="['/obras', row.idObra]" [attr.aria-label]="'Abrir a ficha da obra ' + row.numero">{{ row.numero }}</a>
               <span class="geo-cell-muted">{{ row.titulo }}</span>
             </ng-template>
             <ng-template geoCell="local" let-row>
@@ -172,7 +173,7 @@ const STATUS: GeoSelectOption<StatusMedicao>[] = [
               <span class="geo-cell-muted">{{ tipoDe(row) }}</span>
             </ng-template>
             <ng-template geoCell="obra" let-row>
-              <span class="geo-cell-strong">{{ row.numeroObra }}</span>
+              <a class="geo-cell-strong" [routerLink]="['/obras', row.idObra]" [attr.aria-label]="'Abrir a ficha da obra ' + row.numeroObra">{{ row.numeroObra }}</a>
               <span class="geo-cell-muted">{{ row.tituloObra }}</span>
             </ng-template>
             <ng-template geoCell="status" let-row>

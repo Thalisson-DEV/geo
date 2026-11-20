@@ -11,6 +11,8 @@ import {
   GeoDataTableComponent,
   GeoFormSectionComponent,
   GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
   GeoStatusComponent,
   GeoTabPanelDirective,
   GeoTabsComponent,
@@ -27,6 +29,8 @@ import {
 } from '../../../core/models/obras-medicoes.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.service';
+import { ObrasService } from '../../../core/services/obras.service';
+import { Subject, catchError, debounceTime, map, of, switchMap } from 'rxjs';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { formatarMoeda } from '../obras-ui';
 import { SITUACAO_EXECUCAO, STATUS_MEDICAO, TIPO_MEDICAO, contarCodigos, rotuloCompetencia } from './medicoes.logic';
@@ -50,6 +54,7 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
     GeoDataTableComponent,
     GeoFormSectionComponent,
     GeoPageHeaderComponent,
+    GeoSelectComponent,
     GeoStatusComponent,
     GeoTabPanelDirective,
     GeoTabsComponent,
@@ -64,7 +69,12 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
         helpLabel="Ajuda sobre o fechamento" (help)="ajuda.show()">
       </geo-page-header>
 
-      <geo-form-section title="Obras" icon="pi pi-building" description="Cole a coluna de códigos do Excel, um por linha, ou separe por vírgula.">
+      <geo-form-section title="Obras" icon="pi pi-building" description="Busque a obra pelo número ou título, ou cole a coluna de códigos do Excel (um por linha ou separados por vírgula).">
+        <div class="fechamento__busca">
+          <geo-select label="Adicionar obra" [options]="opcoesObra()" [(value)]="obraEscolhida" [filter]="true" [loading]="buscandoObras()"
+            placeholder="Busque pelo número ou título" filterPlaceholder="Número ou título da obra" (search)="buscaObra$.next($event)" (opened)="buscaObra$.next('')"
+            (valueChange)="adicionarObra($event)"></geo-select>
+        </div>
         <geo-textarea label="Códigos das obras" [labelVisible]="false" [rows]="4" [(value)]="codigos" placeholder="Ex.: 7000001&#10;7100002"
           [description]="quantidade() ? quantidade() + (quantidade() === 1 ? ' código' : ' códigos') + (quantidade() > limite ? ' — o limite é ' + limite + ' por vez' : '') : undefined"
           [error]="quantidade() > limite ? 'Gere o fechamento de até ' + limite + ' obras por vez.' : undefined"></geo-textarea>
@@ -196,6 +206,7 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
     </app-ajuda-listagem>
   `,
   styles: `
+    .fechamento__busca { max-width: 28rem; margin-bottom: 0.75rem; }
     .fechamento__acoes { justify-content: flex-end; margin-top: 0.5rem; }
     .fechamento__obra { margin-top: 1.25rem; display: grid; gap: 1rem; scroll-margin-top: 4rem; }
     .fechamento__obra:focus { outline: none; }
@@ -212,6 +223,13 @@ export class FechamentoObraComponent {
   private readonly api = inject(ObrasMedicoesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly obrasService = inject(ObrasService);
+
+  /** Busca de obras para quem não tem a lista de códigos à mão. */
+  protected readonly buscaObra$ = new Subject<string>();
+  protected readonly buscandoObras = signal(false);
+  protected readonly opcoesObra = signal<GeoSelectOption<string>[]>([]);
+  protected readonly obraEscolhida = signal<string | null>(null);
   private readonly notificacoes = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -292,12 +310,38 @@ export class FechamentoObraComponent {
   protected readonly chaveMedicao = (m: MedicaoResumo) => m.id;
 
   constructor() {
+    this.buscaObra$
+      .pipe(
+        debounceTime(250),
+        switchMap((termo) => {
+          this.buscandoObras.set(true);
+          return this.obrasService.listarObras({ buscaGlobal: termo.trim() || undefined, size: 20 }).pipe(
+            map((pagina) => pagina.content.map((o) => ({ label: `${o.numero} · ${o.titulo}`, value: o.numero }))),
+            catchError(() => of([] as GeoSelectOption<string>[]))
+          );
+        }),
+        takeUntilDestroyed()
+      )
+      .subscribe((opcoes) => {
+        this.buscandoObras.set(false);
+        this.opcoesObra.set(opcoes);
+      });
     // A ficha da obra e outras telas abrem o fechamento já com a obra: ?obras=1027601 (vírgula para várias).
     const obras = this.route.snapshot.queryParamMap.get('obras');
     if (obras) {
       this.codigos.set(obras.split(',').map((c) => c.trim()).filter(Boolean).join('\n'));
       if (this.quantidade() && this.quantidade() <= LIMITE) this.gerar();
     }
+  }
+
+  /** Acrescenta a obra escolhida à lista (sem repetir) e já gera o fechamento. */
+  protected adicionarObra(numero: string | null): void {
+    if (!numero) return;
+    // O campo volta vazio, pronto para a próxima obra.
+    setTimeout(() => this.obraEscolhida.set(null));
+    const atuais = this.codigos().split(/[\s,;]+/).map((c) => c.trim()).filter(Boolean);
+    if (!atuais.includes(numero)) this.codigos.set([...atuais, numero].join('\n'));
+    if (this.quantidade() <= LIMITE) this.gerar();
   }
 
   protected gerar(): void {

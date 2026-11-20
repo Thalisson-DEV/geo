@@ -153,8 +153,8 @@ function dataDaUrl(valor: string | null): Date | null {
         <button type="button" class="geo-kpi" [attr.data-tone]="indicadores().atrasadas ? 'danger' : 'neutral'" [attr.aria-pressed]="soAtrasadas()" (click)="alternarAtrasadas()">
           <span class="geo-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
           <span class="geo-kpi__body"><span class="geo-kpi__label">Atrasadas</span>
-            <span class="geo-kpi__value">{{ indicadores().atrasadas }}</span>
-            <span class="geo-kpi__detail">{{ soAtrasadas() ? 'Mostrar todas' : 'Passaram do fim sem concluir' }}</span></span>
+            <span class="geo-kpi__value">{{ indicadores().atrasadas }}<span class="prog-kpi__de"> de {{ indicadores().programacoes }}</span></span>
+            <span class="geo-kpi__detail">{{ soAtrasadas() ? 'Mostrar todas' : (indicadores().atrasadasAntes ? '+ ' + indicadores().atrasadasAntes + ' de períodos anteriores' : 'Passaram do fim sem concluir') }}</span></span>
         </button>
         <div class="geo-kpi" [attr.data-tone]="indicadores().livres ? 'success' : 'neutral'">
           <span class="geo-kpi__icon"><i class="pi pi-users" aria-hidden="true"></i></span>
@@ -327,6 +327,7 @@ function dataDaUrl(valor: string | null): Date | null {
     .prog-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
     .prog-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .prog-visoes .pi { font-size: var(--geo-font-caption); }
+    .prog-kpi__de { margin-left: 0.25rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 500; }
     .prog-periodo { display: flex; gap: 0.25rem; align-items: center; }
     .prog-periodo__titulo { min-width: 13rem; margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-title); font-weight: 600; text-align: center; }
     .prog-periodo geo-button { margin-left: 0.5rem; }
@@ -547,7 +548,9 @@ export class ProgramacaoComponent {
     return {
       programacoes: abertas.length,
       valor: abertas.reduce((soma, p) => soma + p.valor, 0),
-      atrasadas: this.contagens().ATRASADA,
+      // Do período, como o total ao lado; as de antes do período vêm à parte, para não somar conjuntos diferentes.
+      atrasadas: abertas.filter((p) => p.situacao === 'ATRASADA').length,
+      atrasadasAntes: this.atrasadasAntes().length,
       // Livre é quem não tem nada no período: os filtros da programação não mudam isso, só os da equipe.
       equipes: linhasDaEquipe.length,
       livres: linhasDaEquipe.filter((l) => !l.programacoes.some((p) => p.situacao !== 'CANCELADA')).length

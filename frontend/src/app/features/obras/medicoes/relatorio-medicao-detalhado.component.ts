@@ -1,3 +1,4 @@
+import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -35,6 +36,7 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
   selector: 'app-relatorio-medicao-detalhado',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     DatePipe,
     GeoAsyncStateComponent,
     GeoBooleanControlComponent,
@@ -114,7 +116,7 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
               [columns]="colunas" [rows]="a.obras" [rowKey]="chave" [rowLabel]="rotulo" [selectable]="true" [(selection)]="escolhidas"
               [pageSizeOptions]="[10, 25, 50]" [pageSize]="10">
               <ng-template geoCell="obra" let-row>
-                <span class="geo-cell-strong">{{ row.numero }}</span>
+                <a class="geo-cell-strong" [routerLink]="['/obras', row.idObra]" [attr.aria-label]="'Abrir a ficha da obra ' + row.numero">{{ row.numero }}</a>
                 <span class="geo-cell-muted">{{ row.titulo }}</span>
               </ng-template>
               <ng-template geoCell="situacao" let-row>

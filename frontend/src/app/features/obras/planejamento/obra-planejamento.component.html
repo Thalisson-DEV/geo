@@ -27,6 +27,11 @@
               <span data-tipo="pend">Pendente {{ moeda(p.indicadores.valorPendente) }}</span>
             </div>
           </div>
+          @if (medicao(); as m) {
+            <a class="plan-indicadores__total plan-indicadores__medido" [routerLink]="['/obras', idObra]" [title]="(m.valorPendente > 0 ? moeda(m.valorPendente) + ' executado a medir. ' : '') + 'Abrir a medição na ficha da obra.'">
+              <span>Medido</span><strong>{{ moeda(m.valorMedido) }}</strong>
+            </a>
+          }
           <div class="plan-indicadores__total"><span>Total</span><strong>{{ moeda(p.indicadores.valorTotal) }}</strong></div>
         </div>
       }
