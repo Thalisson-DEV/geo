@@ -1,6 +1,6 @@
 ---
 name: primeng-enterprise-ui
-description: Padrões de tela e componentes do ERP com Angular 21 + PrimeNG 21 — app shell (topbar/sidebar), páginas de listagem com p-table lazy, formulários, drawers de detalhe, dialogs, toasts, estados vazios/loading/erro. Use ao criar ou redesenhar qualquer tela, componente ou layout do frontend.
+description: Padrões de tela e componentes do ERP com Angular 22 + PrimeNG 22 — app shell (topbar/sidebar), páginas de listagem com p-table lazy, formulários, drawers de detalhe, dialogs, toasts, estados vazios/loading/erro. Use ao criar ou redesenhar qualquer tela, componente ou layout do frontend.
 ---
 
 # PrimeNG Enterprise UI — padrões de tela
@@ -11,19 +11,21 @@ Leia `references/patterns.md` para os blueprints completos com código.
 ## Antes de escrever código
 
 1. Leia a skill `erp-design-system` se ainda não leu nesta sessão.
-2. Use o MCP `primeng` para confirmar API do componente (inputs, templates, `pt`) — o PrimeNG 21 renomeou/deprecou várias propriedades. Não chute a API.
-3. Use o MCP `angular-cli` (`get_best_practices`, `search_documentation`) para dúvidas de Angular 21.
-4. Procure um componente equivalente já existente em `src/app/shared/ui/` antes de criar outro.
+2. Use o MCP `primeng` para confirmar API do componente (inputs, templates, `pt`) — o PrimeNG 22 removeu e transformou em signal várias propriedades (guia `v22` no MCP). Não chute a API.
+3. Use o MCP `angular-cli` (`get_best_practices`, `search_documentation`) para dúvidas de Angular 22.
+4. Procure um componente equivalente já existente no `@geo/ui` (`src/app/design-system/`) antes de criar outro. Features consomem só o `@geo/ui`; `primeng/*` direto só nos casos registrados em `docs/design-system/prime-ng-coverage.md`.
 
-## Convenções Angular 21 (obrigatórias)
+## Convenções Angular 22 (obrigatórias)
 
-- Componentes standalone, `changeDetection: ChangeDetectionStrategy.OnPush`, app **zoneless**.
+- Componentes standalone, app **zoneless**. No Angular 22 o OnPush é o padrão; os componentes antigos que dependiam do comportamento anterior foram migrados para `ChangeDetectionStrategy.Eager` — não use `Eager` em componente novo.
 - `input()`, `output()`, `model()`, `computed()`, `signal()`, `linkedSignal()`; DI com `inject()`.
 - Control flow `@if / @for (track …) / @switch / @defer`. Nada de `*ngIf`/`*ngFor`.
 - Dados remotos: `httpResource()` / `resource()` ou service com signals. Evite `subscribe` manual em componente.
-- Formulários: Reactive Forms tipados (ou Signal Forms se o projeto já adotou — são experimentais no v21; não introduza sem combinar).
-- Nada de `@angular/animations`, `provideAnimationsAsync`, `showTransitionOptions`/`hideTransitionOptions` (sem efeito no PrimeNG 21).
+- Formulários: Reactive Forms tipados (Signal Forms são estáveis no v22, mas não introduza sem combinar).
+- Nada de `@angular/animations`, `provideAnimationsAsync`, `showTransitionOptions`/`hideTransitionOptions` (removidos no PrimeNG 22, que anima com CSS).
 - Imports de componente PrimeNG individuais (`import { TableModule } from 'primeng/table'`), nunca barrels gigantes.
+- Templates do PrimeNG com variável de template (`<ng-template #body let-row>`); `pTemplate` foi removido no v22. Seletores sempre em kebab-case (`p-inputnumber`, não `p-inputNumber`).
+- PrimeNG 22: nos componentes cujo host é a raiz (`p-table`, `p-select`, `p-datepicker`, `p-inputnumber`, `p-avatar`, `p-skeleton`…) use `class`, não `styleClass` — o atributo `styleClass` estático é ignorado em silêncio. Propriedades dos componentes são signals: em código e testes leia `dialog.visible()`, `picker.overlayVisible()`.
 
 ## Anatomia padrão de página
 
@@ -68,4 +70,4 @@ Leia `references/patterns.md` para os blueprints completos com código.
 ## Customização visual
 
 Ordem: token do preset → token de componente → `pt` (pass-through) → classe CSS na camada `app`.
-Para variações recorrentes (ex.: tabela "ultra-densa"), crie um wrapper em `shared/ui/` em vez de repetir `pt` em cada tela.
+Para variações recorrentes (ex.: tabela "ultra-densa"), crie um wrapper no `@geo/ui` (`src/app/design-system/`) em vez de repetir `pt` em cada tela.

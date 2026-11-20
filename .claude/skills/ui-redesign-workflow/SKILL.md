@@ -17,7 +17,7 @@ Redesign de ERP é maratona: dezenas de telas, usuários trabalhando todo dia. N
 1. Aplicar `erp-design-system`: `erp-preset.ts`, `styles.css`, fonte Inter, `cssLayer`, dark mode (`.app-dark`) com toggle persistido.
 2. Remover `provideAnimationsAsync`/`@angular/animations` se ainda existirem; remover CSS de tema legado (`primeng/resources/...`).
 3. Novo app shell (topbar 48px, sidebar recolhível, breadcrumb).
-4. Componentes base em `src/app/shared/ui/`: `PageHeader`, `EmptyState`, `FilterBar`, `StatusTag`, `FormSection`, `ConfirmAction`.
+4. Componentes base no `@geo/ui` (`src/app/design-system/`): `PageHeader`, `EmptyState`, `FilterBar`, `StatusTag`, `FormSection`, `ConfirmAction`.
 5. Screenshots "antes" das telas de referência ANTES de mergear (ver Fase 3).
 
 ## Fase 2 — Migração por módulo (um PR por módulo ou por 3–5 telas)

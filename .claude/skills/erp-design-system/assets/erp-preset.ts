@@ -1,9 +1,12 @@
-// src/app/theme/erp-preset.ts
-// Preset PrimeNG 21 — ERP compacto/empresarial.
-// Base: Aura. Densidade global vem de `html { font-size: 14px }` em styles.css.
-// ATENÇÃO: confirme os nomes de token no MCP `primeng` (ou em primeng.org/theming) ao ajustar.
+// src/app/design-system/core/theme/ (no GEO, o preset vive no @geo/ui)
+// Preset PrimeNG 22 (@primeuix/themes 3.x) — ERP compacto/empresarial.
+// Base: Aura compat (calibrada para raiz de 14px; mantida pela PrimeTek até jun/2027).
+// Densidade global vem de `html { font-size: 14px }` em styles.css.
+// Cores por esquema: `light-dark(claro, escuro)` no próprio token (o 3.x não tem mais colorScheme).
+// Tokens validados contra @primeuix/themes 3.1.1 (aura-compat): todos os caminhos existem.
+// ATENÇÃO: confirme os nomes de token no MCP `primeng` (ou em primeng.dev/theming) ao ajustar.
 import { definePreset } from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
+import Aura from '@primeuix/themes/aura-compat';
 
 export const ErpPreset = definePreset(Aura, {
   semantic: {
@@ -30,6 +33,33 @@ export const ErpPreset = definePreset(Aura, {
       800: '{indigo.800}',
       900: '{indigo.900}',
       950: '{indigo.950}',
+      color: 'light-dark({primary.600}, {primary.400})',
+      contrastColor: 'light-dark(#ffffff, {surface.950})',
+      hoverColor: 'light-dark({primary.700}, {primary.300})',
+      activeColor: 'light-dark({primary.800}, {primary.200})',
+    },
+
+    // Neutros: a mesma escala `stone` nos dois esquemas (o escuro usa os tons 800–950 de fundo)
+    surface: {
+      0: '#ffffff',
+      50: '{stone.50}',
+      100: '{stone.100}',
+      200: '{stone.200}',
+      300: '{stone.300}',
+      400: '{stone.400}',
+      500: '{stone.500}',
+      600: '{stone.600}',
+      700: '{stone.700}',
+      800: '{stone.800}',
+      900: '{stone.900}',
+      950: '{stone.950}',
+    },
+
+    highlight: {
+      background: 'light-dark({primary.50}, color-mix(in srgb, {primary.400}, transparent 84%))',
+      focusBackground: 'light-dark({primary.100}, color-mix(in srgb, {primary.400}, transparent 76%))',
+      color: 'light-dark({primary.800}, rgba(255,255,255,.92))',
+      focusColor: 'light-dark({primary.900}, rgba(255,255,255,.96))',
     },
 
     formField: {
@@ -40,6 +70,22 @@ export const ErpPreset = definePreset(Aura, {
       borderRadius: '6px',
       focusRing: { width: '0', style: 'none', color: 'transparent', offset: '0', shadow: 'none' },
       transitionDuration: '{transition.duration}',
+      background: 'light-dark({surface.0}, {surface.900})',
+      borderColor: 'light-dark({surface.300}, {surface.700})',
+      hoverBorderColor: 'light-dark({surface.400}, {surface.600})',
+      focusBorderColor: '{primary.color}',
+      // escuro = padrão do Aura compat
+      invalidBorderColor: 'light-dark({red.500}, {red.300})',
+      color: 'light-dark({surface.900}, {surface.0})',
+      placeholderColor: 'light-dark({surface.400}, {surface.500})',
+      shadow: 'none',
+    },
+
+    text: {
+      color: 'light-dark({surface.900}, {surface.0})',
+      hoverColor: 'light-dark({surface.950}, {surface.0})',
+      mutedColor: 'light-dark({surface.500}, {surface.400})',
+      hoverMutedColor: 'light-dark({surface.700}, {surface.300})',
     },
 
     list: {
@@ -50,7 +96,14 @@ export const ErpPreset = definePreset(Aura, {
       optionGroup: { padding: '0.4rem 0.6rem', fontWeight: '600' },
     },
 
-    content: { borderRadius: '8px' },
+    content: {
+      borderRadius: '8px',
+      background: 'light-dark({surface.0}, {surface.900})',
+      hoverBackground: 'light-dark({surface.100}, {surface.800})',
+      borderColor: 'light-dark({surface.200}, {surface.800})',
+      color: '{text.color}',
+      hoverColor: '{text.hover.color}',
+    },
 
     navigation: {
       list: { padding: '0.25rem', gap: '1px' },
@@ -76,110 +129,6 @@ export const ErpPreset = definePreset(Aura, {
       },
       navigation: {
         shadow: '0 4px 16px -2px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06)',
-      },
-    },
-
-    colorScheme: {
-      light: {
-        surface: {
-          0: '#ffffff',
-          50: '{stone.50}',
-          100: '{stone.100}',
-          200: '{stone.200}',
-          300: '{stone.300}',
-          400: '{stone.400}',
-          500: '{stone.500}',
-          600: '{stone.600}',
-          700: '{stone.700}',
-          800: '{stone.800}',
-          900: '{stone.900}',
-          950: '{stone.950}',
-        },
-        primary: {
-          color: '{primary.600}',
-          contrastColor: '#ffffff',
-          hoverColor: '{primary.700}',
-          activeColor: '{primary.800}',
-        },
-        highlight: {
-          background: '{primary.50}',
-          focusBackground: '{primary.100}',
-          color: '{primary.800}',
-          focusColor: '{primary.900}',
-        },
-        formField: {
-          background: '{surface.0}',
-          borderColor: '{surface.300}',
-          hoverBorderColor: '{surface.400}',
-          focusBorderColor: '{primary.color}',
-          invalidBorderColor: '{red.500}',
-          color: '{surface.900}',
-          placeholderColor: '{surface.400}',
-          shadow: 'none',
-        },
-        text: {
-          color: '{surface.900}',
-          hoverColor: '{surface.950}',
-          mutedColor: '{surface.500}',
-          hoverMutedColor: '{surface.700}',
-        },
-        content: {
-          background: '{surface.0}',
-          hoverBackground: '{surface.100}',
-          borderColor: '{surface.200}',
-          color: '{text.color}',
-          hoverColor: '{text.hover.color}',
-        },
-      },
-      dark: {
-        surface: {
-          0: '#ffffff',
-          50: '{stone.50}',
-          100: '{stone.100}',
-          200: '{stone.200}',
-          300: '{stone.300}',
-          400: '{stone.400}',
-          500: '{stone.500}',
-          600: '{stone.600}',
-          700: '{stone.700}',
-          800: '{stone.800}',
-          900: '{stone.900}',
-          950: '{stone.950}',
-        },
-        primary: {
-          color: '{primary.400}',
-          contrastColor: '{surface.950}',
-          hoverColor: '{primary.300}',
-          activeColor: '{primary.200}',
-        },
-        highlight: {
-          background: 'color-mix(in srgb, {primary.400}, transparent 84%)',
-          focusBackground: 'color-mix(in srgb, {primary.400}, transparent 76%)',
-          color: 'rgba(255,255,255,.92)',
-          focusColor: 'rgba(255,255,255,.96)',
-        },
-        formField: {
-          background: '{surface.900}',
-          borderColor: '{surface.700}',
-          hoverBorderColor: '{surface.600}',
-          focusBorderColor: '{primary.color}',
-          color: '{surface.0}',
-          placeholderColor: '{surface.500}',
-          shadow: 'none',
-        },
-        text: {
-          color: '{surface.0}',
-          hoverColor: '{surface.0}',
-          mutedColor: '{surface.400}',
-          hoverMutedColor: '{surface.300}',
-        },
-        content: {
-          background: '{surface.900}',
-          hoverBackground: '{surface.800}',
-          borderColor: '{surface.800}',
-          color: '{text.color}',
-          hoverColor: '{text.hover.color}',
-        },
       },
     },
   },

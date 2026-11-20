@@ -1,4 +1,4 @@
-# Blueprints de tela — Angular 21 + PrimeNG 21
+# Blueprints de tela — Angular 22 + PrimeNG 22
 
 Código de referência. Confirme APIs no MCP `primeng` antes de copiar — ajuste nomes ao projeto.
 
@@ -11,8 +11,8 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { providePrimeNG } from 'primeng/config';
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
-import { ErpPreset } from './theme/erp-preset';
-import { PT_BR } from './theme/primeng-pt-br'; // traduções do PrimeNG (datas, filtros, paginador)
+import { ErpPreset } from './design-system/core/theme/erp-preset'; // no GEO: geoPreset, via '@geo/ui'
+import { PT_BR } from './design-system/core/theme/primeng-pt-br'; // traduções do PrimeNG (datas, filtros, paginador)
 import { routes } from './app.routes';
 import { problemDetailInterceptor } from './core/http/problem-detail.interceptor';
 
@@ -20,7 +20,7 @@ registerLocaleData(localePt);
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZonelessChangeDetection(), // default em apps novos do v21; explícito em apps migrados
+    provideZonelessChangeDetection(), // padrão desde o v21; explícito em apps migrados
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideHttpClient(withFetch(), withInterceptors([problemDetailInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
@@ -204,7 +204,7 @@ export function applyProblemErrors(form: FormGroup, problem: ProblemDetail) {
 - Topbar: fundo `--p-content-background`, borda inferior 1px; seletor de empresa/filial é um `p-select` compacto sempre visível em ERP multiempresa.
 - Command palette (Ctrl+K): `p-dialog` sem header + `p-listbox` filtrável com rotas e ações recentes.
 
-## 6. Empty state / page header (shared/ui)
+## 6. Empty state / page header (@geo/ui, em `src/app/design-system/`)
 
 ```ts
 @Component({

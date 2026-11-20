@@ -5,7 +5,7 @@
 As instruções de cada aplicação continuam valendo: `frontend/CLAUDE.md` + `frontend/AGENTS.md` e `backend/CLAUDE.md` + `backend/AGENTS.md`.
 
 ## Stack
-- Frontend: Angular 21.2 (standalone, signals, zoneless, OnPush) + PrimeNG 21.1.3 (styled mode, `@primeuix/themes` 2.0.3), Tailwind CSS v4 — caminho: `frontend/`
+- Frontend: Angular 22.3 (standalone, signals, zoneless, OnPush por padrão) + PrimeNG 22.1.5 (styled mode, `@primeuix/themes` 3.1.1, preset `lara-compat`), TypeScript 6.0, Tailwind CSS v4 — caminho: `frontend/`
 - Backend: Java 21 + Spring Boot 4.0.3 (Spring Modulith), PostgreSQL 17.5 — caminho: `backend/`
 - Build: `npm` (npm 11) no front / Maven (`./mvnw`, no Windows `mvnw.cmd`) no back
 
@@ -24,11 +24,11 @@ Antes de qualquer trabalho visual, use as skills do projeto:
 ### Como o kit convive com o Design System existente
 - **Fica:** as features consomem só o `@geo/ui` (`@geo/ui`, `@geo/ui/*`), implementado em `frontend/src/app/design-system/`. Os blueprints das skills que importam `primeng/*` direto valem **dentro** do `@geo/ui`, não nas features. Componentes base novos (PageHeader, EmptyState, FilterBar…) entram no `@geo/ui`, não em `src/app/shared/ui/`.
 - **Pode mudar:** o visual atual (preset `geoPreset` sobre Lara em `design-system/core/theme/geo-preset.ts`, fonte Manrope, tokens `--geo-*`) pode ser substituído pela identidade do kit (Aura + Inter + tokens compactos). Faça a troca dentro do design system, mantendo a API pública do `@geo/ui`.
-- **PrimeNG vai subir de versão.** Ao migrar para o PrimeNG 22, o `@primeuix/themes` passa para 3.x e o preset tem de ser convertido do formato `colorScheme.light/dark` para `light-dark()`. Até lá, use themes 2.x.
+- **Densidade compacta sempre.** O preset estende a variante `-compat` (tamanhos calibrados para raiz pequena; a do GEO é 13px). Cores por esquema em `light-dark(claro, escuro)` no próprio token — o `@primeuix/themes` 3.x não tem mais `colorScheme`. As variantes compat são mantidas pela PrimeTek até jun/2027.
 
 ## Regras inegociáveis
 - Confirme APIs e nomes de token do PrimeNG no MCP `primeng`; dúvidas de Angular no MCP `angular-cli`. Não invente API.
-  - O MCP `primeng` documenta o **PrimeNG 22.x** (a linha 21.x do `@primeng/mcp` não inicia). Enquanto o projeto estiver no 21, confira no `node_modules/primeng` qualquer API marcada como nova ou alterada no 22.
+  - O MCP `primeng` documenta o PrimeNG 22, a mesma versão do projeto; o guia de migração está em `get_guide v22`.
 - Sem `::ng-deep`, `!important`, hex/rgb literal fora do preset, `*ngIf/*ngFor`, `@angular/animations`, `provideAnimationsAsync`.
 - Listagens: `p-table` lazy + `PageResponse` do backend. Erros: ProblemDetail (RFC 9457) com `errors[]` por campo.
 - Toda mudança de UI termina com screenshot (Playwright) light + dark e revisão pelo `ui-reviewer`.
