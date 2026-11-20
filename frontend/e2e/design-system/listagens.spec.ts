@@ -127,7 +127,8 @@ test.describe('listagens críticas', () => {
   test('solicitações comerciais: o endereço direto volta ao início', async ({ page }) => {
     await simularApi(page, {});
     await page.goto('/almoxarifado/solicitacoes');
-    await expect(page.getByRole('heading', { level: 1, name: /Pessoas, ativos e operação/ })).toBeVisible({ timeout: 20_000 });
+    // A home mudou de título antes do redesign; o que importa é ter saído da listagem para o início.
+    await expect(page).toHaveURL(/\/home/, { timeout: 20_000 });
     await expect(page).not.toHaveURL(/\/almoxarifado\/solicitacoes/);
   });
 

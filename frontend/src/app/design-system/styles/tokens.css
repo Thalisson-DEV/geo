@@ -8,6 +8,9 @@
  * Identidade: empresarial compacta — neutros zinc, um acento (azul da marca), Inter, raiz de
  * 14px (1rem = 14px), controles de 32px, bordas hairline, sombra só em overlays.
  *
+ * Primeira pintura: canvas, superfície, texto e borda trazem o hex do primitivo como fallback, porque as
+ * --p-* só existem depois que o PrimeNG injeta o tema (o script inline do index.html pinta antes).
+ *
  * Convenção: --geo-<categoria>-<papel>[-<variante>], nomeado pelo papel e nunca pela cor.
  * Todo token de cor em :root tem valor no tema escuro (bloco .app-dark), conferido pelo
  * `npm run ds:tokens`. O tema escuro só vale na tela (@media screen): a impressão sai clara.
@@ -17,17 +20,17 @@
     color-scheme: light;
 
     /* Superfícies e texto (zinc). */
-    --geo-canvas: var(--p-zinc-50);
+    --geo-canvas: var(--p-zinc-50, #fafafa);
     --geo-surface: #ffffff;
     --geo-surface-subtle: var(--p-zinc-50);
     --geo-surface-muted: var(--p-zinc-100);
     --geo-surface-raised: #ffffff;
     --geo-surface-inverse: var(--p-zinc-900);
-    --geo-foreground: var(--p-zinc-900);
+    --geo-foreground: var(--p-zinc-900, #18181b);
     --geo-foreground-muted: var(--p-zinc-600);
     --geo-foreground-subtle: var(--p-zinc-500);
     --geo-foreground-inverse: #ffffff;
-    --geo-border: var(--p-zinc-200);
+    --geo-border: var(--p-zinc-200, #e4e4e7);
     --geo-border-strong: var(--p-zinc-300);
     --geo-border-focus: var(--geo-focus-ring);
 
@@ -228,17 +231,17 @@
     .dark {
       color-scheme: dark;
 
-      --geo-canvas: var(--p-zinc-950);
-      --geo-surface: var(--p-zinc-900);
+      --geo-canvas: var(--p-zinc-950, #09090b);
+      --geo-surface: var(--p-zinc-900, #18181b);
       --geo-surface-subtle: var(--p-zinc-950);
       --geo-surface-muted: var(--p-zinc-800);
       --geo-surface-raised: var(--p-zinc-900);
       --geo-surface-inverse: var(--p-zinc-100);
-      --geo-foreground: var(--p-zinc-50);
+      --geo-foreground: var(--p-zinc-50, #fafafa);
       --geo-foreground-muted: var(--p-zinc-300);
       --geo-foreground-subtle: var(--p-zinc-400);
       --geo-foreground-inverse: var(--p-zinc-900);
-      --geo-border: var(--p-zinc-800);
+      --geo-border: var(--p-zinc-800, #27272a);
       --geo-border-strong: var(--p-zinc-700);
       --geo-border-focus: var(--geo-focus-ring);
 

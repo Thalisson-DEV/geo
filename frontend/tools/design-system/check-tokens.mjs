@@ -89,7 +89,7 @@ export function ehCor(valor) {
 export function resolver(nome, ...mapas) {
   let valor;
   for (const mapa of mapas) if (mapa.has(nome)) { valor = mapa.get(nome); break; }
-  const primitivo = valor?.match(/^var\((--p-[a-z]+-\d+)\)$/);
+  const primitivo = valor?.match(/^var\((--p-[a-z]+-\d+)(?:,\s*#[0-9a-f]{6})?\)$/i);
   if (primitivo) return PRIMITIVOS.get(primitivo[1]) ?? valor;
   const alias = valor?.match(/^var\((--geo-[a-z0-9-]+)\)$/);
   return alias ? resolver(alias[1], ...mapas) : valor;

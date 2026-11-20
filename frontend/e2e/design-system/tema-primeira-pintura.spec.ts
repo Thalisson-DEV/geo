@@ -20,7 +20,7 @@ test('tema escuro salvo já vale na primeira pintura', async ({ page }) => {
   await expect(html).toHaveClass(/app-dark/);
   expect(await html.evaluate((el) => el.style.colorScheme)).toBe('dark');
   const fundo = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(fundo).toBe('rgb(11, 15, 23)');
+  expect(fundo).toBe('rgb(9, 9, 11)');
 });
 
 test('seguir o sistema usa o esquema de cores do sistema operacional', async ({ page }) => {

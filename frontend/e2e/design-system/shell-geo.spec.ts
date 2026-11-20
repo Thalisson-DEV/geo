@@ -1,7 +1,7 @@
 import { expect, Page, test } from '@playwright/test';
 
 /**
- * Shell do GEO: menu azul-marinho com item ativo marcado, cabeçalho com trilha e contas,
+ * Shell do GEO: menu neutro (zinc) com item ativo marcado, cabeçalho com trilha e contas,
  * nos temas claro e escuro e no celular. A API fica fora do ar: o shell abre com a sessão local.
  */
 function sessaoCodificada(): string {
@@ -27,11 +27,11 @@ async function abrir(page: Page, tema: 'light' | 'dark'): Promise<void> {
 }
 
 for (const tema of ['light', 'dark'] as const) {
-  test(`menu azul-marinho e item ativo no tema ${tema}`, async ({ page }, info) => {
+  test(`menu neutro e item ativo no tema ${tema}`, async ({ page }, info) => {
     await abrir(page, tema);
     const menu = page.locator('.geo-nav');
     const fundo = await menu.evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(fundo).toMatch(/^rgb\(15, (29, 61|26, 51)\)$/);
+    expect(fundo).toBe(tema === 'dark' ? 'rgb(9, 9, 11)' : 'rgb(250, 250, 250)');
 
     if (info.project.name.includes('mobile')) {
       await expect(page.getByRole('button', { name: 'Abrir menu' })).toBeVisible();

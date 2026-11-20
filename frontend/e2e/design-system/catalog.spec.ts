@@ -33,8 +33,10 @@ test('alterna tema e densidade mantendo foco visível', async ({ page }) => {
   await expect(page.locator('html')).toHaveClass(/app-dark/);
   await expect(page.getByRole('button', { name: 'Usar tema claro' })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Densidade confortável' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-geo-density', 'comfortable');
+  // No celular a densidade padrão é a confortável (toque); o botão oferece sempre a outra.
+  const antes = await page.locator('html').getAttribute('data-geo-density');
+  await page.getByRole('button', { name: /^Densidade (confortável|compacta)$/ }).click();
+  await expect(page.locator('html')).not.toHaveAttribute('data-geo-density', antes ?? 'compact');
 });
 
 test('abre o diálogo compartilhado durante um processamento', async ({ page }) => {
@@ -81,7 +83,8 @@ test('mantém opções e estado vazio do autocomplete no tema escuro', async ({ 
   );
 });
 
-test('abre select no overlay global e permite selecionar primária', async ({ page }) => {
+// O catálogo não tem mais o seletor de cor primária (a cor é fixa no preset, decisão D4 do redesign).
+test.skip('abre select no overlay global e permite selecionar primária', async ({ page }) => {
   const primaryColor = page.getByRole('combobox', { name: 'blue' });
   await primaryColor.click();
   await expect(page.getByRole('option', { name: 'emerald' })).toBeVisible();
