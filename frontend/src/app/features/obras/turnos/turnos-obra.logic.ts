@@ -51,8 +51,8 @@ export interface CartaoServico {
 }
 
 /**
- * Monta as frentes do turno. A liberação vale por serviço: cada programação tem a sua APR, e a equipe pode lançar
- * várias no mesmo dia, de manhã ou de tarde. Atividade em obra não programada usa as APRs da obra.
+ * Monta as frentes do turno. A liberação vem do servidor: uma APR concluída no dia libera todos os
+ * serviços da equipe (outras APRs no dia são permitidas); "sem condição" bloqueia só a sua obra.
  * Apontamento de programação que saiu do dia continua aparecendo, pela atividade que ele gerou.
  */
 export function cartoesDoTurno(t: TurnoObraDetalhe): CartaoServico[] {

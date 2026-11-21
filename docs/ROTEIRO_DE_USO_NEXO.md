@@ -502,7 +502,7 @@ Em campo, quem registra é a equipe. A web acompanha e analisa: as telas abaixo 
 
 Os registros chegam do app da equipe (seção 12.4). Sem sinal, eles ficam no aparelho e chegam quando a equipe volta a ter conexão, com a hora em que foram feitos.
 
-**A regra da APR.** A APR é a análise de riscos feita por quem vai executar, antes de executar. Ela pode ser preenchida a qualquer hora do dia, pode haver mais de uma no mesmo dia e cada uma libera o seu serviço. Sem a APR concluída no dia, o serviço não pode ser apontado. Se a equipe registrar que não há condição de executar, a APR não é necessária; uma APR concluída depois libera o serviço.
+**A regra da APR.** A APR é a análise preliminar de riscos, feita por quem vai executar, antes do serviço. Uma APR concluída no dia já libera todos os serviços da equipe naquele dia; a equipe pode fazer outras ao longo do dia (por exemplo, ao chegar a uma obra com outra condição). Sem nenhuma APR concluída no dia, nada pode ser apontado. Se a equipe registrar que não há condição de executar numa obra, aquela obra fica bloqueada até uma APR dela concluída depois.
 
 ### 12.1 Como acompanhar os turnos das equipes
 
@@ -523,7 +523,7 @@ O encarregado usa o app no tablet ou no celular. Tudo funciona sem sinal; o que 
 1. **Hoje** mostra o **Próximo passo** num botão só e as obras do dia na ordem da programação, com as condições (desligamento com horário e manobra, linha viva, finaliza obra).
 2. **Abrir turno**: veículo e pessoas vêm do último turno; confira e abra (também sem sinal).
 3. Na ficha da obra: endereço, **Como chegar** (abre o app de mapas), **Cheguei**/**Saí** e o material previsto contra o saldo do caminhão ("faltam 2"). A equipe não pede material pelo app: se faltar, registra uma ocorrência de material.
-4. **APR** em passos: os riscos e as medidas das condições já vêm marcados para conferir; todos assinam na tela do encarregado. Se não houver condição, **Sem condição de executar** registra o motivo e o Hoje passa para o próximo serviço.
+4. **APR** em passos (uma no dia libera todos os serviços; outras são opcionais): os riscos e as medidas das condições já vêm marcados para conferir; todos assinam na tela do encarregado. Se não houver condição, **Sem condição de executar** registra o motivo e o Hoje passa para o próximo serviço.
 5. **Pontos e projeto**: o projeto em PDF com os pontos coloridos (a fazer, parcial, feito). **Tudo feito** aponta o ponto inteiro; **Parcial** pede as quantidades. As fotos do modelo saem com carimbo (obra, ponto, data, GPS); foto faltando vira pendência e não bloqueia nada. A série do equipamento pode ser lida pelo QR.
 6. **Fechar o dia**: o relatório vem montado com obras, pontos feitos, ocorrências e pendências; revise e feche o turno.
 

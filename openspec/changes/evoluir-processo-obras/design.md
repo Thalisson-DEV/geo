@@ -192,7 +192,7 @@ Melhorias decididas:
 - As respostas guardam o texto das perguntas, para o registro antigo continuar legível. Depois do primeiro uso, a estrutura do modelo trava e a alteração é por duplicação.
 - Ficha só existe para ponto com execução apontada ou kit marcado como executado antes. Ela pode ficar pela metade; incompleta, impede gerar o documento.
 - O documento As Built leva só as folhas com execução, marcadas sobre o projeto mestre, mais as fichas, as fotos e os equipamentos. Entra nos anexos como tipo "AS BUILT" e como nova versão; tentativa que falha não consome número de versão.
-- A liberação da APR passou a valer por serviço do dia (`id_programacao`), revisão do usuário em 01/11/2026: a equipe lança a qualquer hora, pode lançar mais de uma, e cada APR libera o seu serviço. Conta o dia da equipe, mesmo que em outro turno. APR concluída depois de um registro de "sem condição" libera o serviço.
+- *(Substituída em 21/11/2026: uma APR concluída no dia libera todos os serviços da equipe; ver `execucao-campo-obras/design.md`.)* A liberação da APR passou a valer por serviço do dia (`id_programacao`), revisão do usuário em 01/11/2026: a equipe lança a qualquer hora, pode lançar mais de uma, e cada APR libera o seu serviço. Conta o dia da equipe, mesmo que em outro turno. APR concluída depois de um registro de "sem condição" libera o serviço.
 
 ### Book da obra (revisão do usuário em 01/11/2026)
 

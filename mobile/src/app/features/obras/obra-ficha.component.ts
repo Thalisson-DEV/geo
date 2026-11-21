@@ -173,10 +173,10 @@ export class ObraFichaComponent implements OnInit {
   });
 
   readonly textoLiberacao = computed(() => ({
-    LIBERADA: 'Concluída: serviço liberado',
+    LIBERADA: 'APR do dia concluída: serviços liberados',
     EM_PREENCHIMENTO: 'Em preenchimento',
     IMPEDIDA: 'Sem condição de executar registrada',
-    PENDENTE: 'Faça antes de executar',
+    PENDENTE: 'Faça a APR do dia antes de executar',
   })[this.liberacao()]);
 
   readonly passo = computed(() => {

@@ -9,8 +9,10 @@ veículo e composição (titular/substituto) pré-preenchidos a partir do últim
 - **THEN** o turno fica salvo no aparelho e é sincronizado ao voltar a conexão com o horário real da abertura
 
 ### Requirement: APR guiada
-O app SHALL registrar a APR por serviço em passos curtos, pré-preenchida com obra, serviço, data, responsável e participantes do
-turno, sugerindo riscos e medidas a partir das condições da programação (linha viva, desligamento) e dos pontos (poda,
+O app SHALL registrar a APR (análise preliminar de riscos) antes do serviço, em passos curtos, pré-preenchida com obra, serviço,
+data, responsável e participantes do turno; uma APR concluída no dia MUST liberar todos os serviços da equipe naquele dia, e a
+equipe MAY fazer outras APRs ao longo do dia. O app SHALL sugerir riscos e medidas a partir das condições da programação (linha
+viva, desligamento) e dos pontos (poda,
 aterramento); verificação respondida "Não" MUST impedir a conclusão, e os participantes SHALL assinar na tela do aparelho.
 
 #### Scenario: APR com desligamento
@@ -23,7 +25,11 @@ aterramento); verificação respondida "Não" MUST impedir a conclusão, e os pa
 
 ### Requirement: Sem condição de executar
 O app SHALL registrar, num atalho, que não há condição de executar o serviço, com tipo, motivo e foto opcional, dispensando a APR e
-bloqueando apontamentos do serviço até uma APR concluída depois.
+bloqueando apontamentos naquela obra até uma APR dessa obra concluída depois.
+
+#### Scenario: Uma APR libera o dia
+- **WHEN** a equipe conclui a APR às 07:30 na primeira obra e chega à segunda obra às 13:00
+- **THEN** a segunda obra já está liberada para executar e o app oferece "Nova APR" sem exigi-la
 
 #### Scenario: Chuva forte
 - **WHEN** o encarregado registra "Sem condição de executar" por clima na obra 1234

@@ -153,7 +153,7 @@ export function visaoDoBoletim(b: Pick<BoletimEquipes, 'hoje'>, r: ResumoBoletim
     veredito = {
       tom: r.agendadasSemTurno ? 'danger' : 'warning',
       rotulo: r.agendadasSemTurno ? 'Agir agora' : 'Atenção',
-      titulo: r.agendadasSemTurno ? 'Programação sem equipe em campo' : r.aprPendente ? 'Serviço sem APR concluída' : 'Turno esquecido',
+      titulo: r.agendadasSemTurno ? 'Programação sem equipe em campo' : r.aprPendente ? 'Equipe sem APR no dia' : 'Turno esquecido',
       texto: `${problemas.join('; ')}. ${moedaCompacta(r.executado)} executados de ${moedaCompacta(r.programado)} programados.`,
       progresso
     };

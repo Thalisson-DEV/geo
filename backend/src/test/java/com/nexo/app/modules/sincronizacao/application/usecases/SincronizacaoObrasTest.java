@@ -93,7 +93,7 @@ class SincronizacaoObrasTest {
 
     @Test
     void diagnosticoDeObrasOrientaQuemTrata() {
-        var d = DiagnosticoCasoSincronizacao.obras("a apr deste serviço precisa estar concluída no dia antes de apontar a execução.", "x");
+        var d = DiagnosticoCasoSincronizacao.obras("conclua a apr do dia antes de apontar a execução.", "x");
         assertThat(d.codigo()).isEqualTo("OBRA_SEM_APR");
         assertThat(DiagnosticoCasoSincronizacao.obras("ela foi cancelada ou excluída", "x").codigo()).isEqualTo("OBRA_PROGRAMACAO_ALTERADA");
         assertThat(DiagnosticoCasoSincronizacao.obras("qualquer outra coisa", "x")).isNull();

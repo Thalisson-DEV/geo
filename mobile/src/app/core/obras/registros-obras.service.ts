@@ -138,11 +138,11 @@ export class RegistrosObrasService {
       const dependencia = await db.obrasRegistros.get(registro.dependeDe);
       if (dependencia && (dependencia.envio === 'CONFLITO' || dependencia.envio === 'AGUARDANDO')) {
         await this.marcar(registro.id, 'AGUARDANDO', `Aguardando a APR: ${dependencia.motivo ?? 'ela foi recusada pelo servidor.'}`);
-        await this.outbox.updateStatus(item.id, 'ERRO', 'Aguardando a APR deste serviço.');
+        await this.outbox.updateStatus(item.id, 'ERRO', 'Aguardando a APR do dia.');
         return;
       }
       if (dependencia && dependencia.envio !== 'ENVIADO') {
-        throw new FalhaDeEnvioObras(0, 'A APR deste serviço ainda não foi enviada.');
+        throw new FalhaDeEnvioObras(0, 'A APR do dia ainda não foi enviada.');
       }
     }
     await this.marcar(registro.id, 'ENVIANDO');

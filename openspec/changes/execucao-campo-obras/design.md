@@ -92,6 +92,11 @@ Equipes de Obras são separadas das comerciais.
   da mudança de programação.
 - **Perfil `EQUIPE_OBRAS`** com `obras:turno:read/write`, `obras:execucao:write` e `obras:campo:read` (nova, também para
   administrador e supervisor, só leitura do pacote). Os perfis do web continuam sem escrita de turno/execução (V205).
+- **APR vale pelo dia** (revisão do usuário em 21/11/2026, substitui a de 01/11 "cada APR libera o seu serviço"): a APR é a
+  análise preliminar de riscos feita antes do serviço; uma concluída no dia libera todos os serviços da equipe no dia, e outras
+  podem ser feitas ao longo do dia. "Sem condição de executar" continua por obra: bloqueia aquela obra até uma APR dessa obra
+  concluída depois (decisão minha: a condição que mudou é a daquela obra). O apontamento na fila depende da última APR da obra,
+  ou da última do dia.
 - **Abertura do turno** aceita `dataInicio` (hora do aparelho, até 24 h atrás), `idLider` e `idsSubstitutos`; o fechamento aceita
   `dataFim`. No app, o turno de Obras abre/fecha sem sinal com id `local-…`, trocado pelo do servidor quando a abertura sai da fila
   (o fechamento espera a abertura).

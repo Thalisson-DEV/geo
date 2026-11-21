@@ -55,7 +55,7 @@ pendência) e, no tablet, o projeto ao lado da lista de pontos.
 ### Requirement: Marcar execução em campo
 O app SHALL permitir marcar o ponto inteiro como feito com um toque e, sob demanda, informar parcial por item, registrando
 quantidade, data/hora, GPS, turno e usuário com id gerado no aparelho. Itens não programados para a equipe MUST NOT ser marcados, e
-a marcação de serviço sem APR concluída no dia MUST levar o encarregado à APR antes de executar.
+a marcação sem nenhuma APR concluída no dia MUST levar o encarregado à APR antes de executar.
 
 #### Scenario: Ponto inteiro offline
 - **WHEN** o encarregado toca "Tudo feito" no ponto 4 sem conexão
@@ -63,8 +63,8 @@ a marcação de serviço sem APR concluída no dia MUST levar o encarregado à A
   sincronização
 
 #### Scenario: Sem APR
-- **WHEN** o encarregado tenta marcar o ponto 4 sem APR concluída para o serviço hoje
-- **THEN** o app abre a APR do serviço já preenchida e volta ao ponto depois de concluída
+- **WHEN** o encarregado tenta marcar o ponto 4 sem nenhuma APR concluída hoje
+- **THEN** o app abre a APR já preenchida e volta ao ponto depois de concluída
 
 #### Scenario: Sincronização com conflito
 - **WHEN** o item foi retirado da programação no web antes da sincronização do apontamento

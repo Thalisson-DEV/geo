@@ -32,7 +32,7 @@ class LiberacaoExecucaoTest {
     }
 
     private static SituacaoLiberacao avaliar(UUID obra, List<AprTurno> aprs, List<OcorrenciaTurno> ocorrencias) {
-        return SituacaoLiberacao.avaliar(obra, SERVICO, HOJE, FUSO, aprs, ocorrencias);
+        return SituacaoLiberacao.avaliar(obra, HOJE, FUSO, aprs, ocorrencias);
     }
 
     @Test
@@ -43,12 +43,12 @@ class LiberacaoExecucaoTest {
     }
 
     @Test
-    void aprConcluidaLiberaSoASuaObra() {
+    void umaAprConcluidaNoDiaLiberaTodasAsObrasDaEquipe() {
         AprTurno concluida = apr(formulario(FormularioApr.Resposta.SIM));
         concluida.concluir();
 
         assertThat(avaliar(OBRA, List.of(concluida), List.of())).isEqualTo(SituacaoLiberacao.LIBERADA);
-        assertThat(avaliar(UUID.randomUUID(), List.of(concluida), List.of())).isEqualTo(SituacaoLiberacao.PENDENTE);
+        assertThat(avaliar(UUID.randomUUID(), List.of(concluida), List.of())).isEqualTo(SituacaoLiberacao.LIBERADA);
     }
 
     @Test
@@ -63,17 +63,27 @@ class LiberacaoExecucaoTest {
     }
 
     @Test
-    void cadaServicoDoDiaELiberadoPelaSuaApr() {
-        UUID servicoDaTarde = UUID.randomUUID();
+    void outrasAprsNoDiaSaoPermitidasENaoMudamALiberacao() {
+        UUID outraObra = UUID.randomUUID();
         AprTurno daManha = apr(formulario(FormularioApr.Resposta.SIM));
         daManha.concluir();
+        AprTurno daTarde = new AprTurno(TURNO, outraObra, UUID.randomUUID(), "Lançar cabo", RESPONSAVEL, formulario(FormularioApr.Resposta.SIM));
 
-        assertThat(SituacaoLiberacao.avaliar(OBRA, SERVICO, HOJE, FUSO, List.of(daManha), List.of())).isEqualTo(SituacaoLiberacao.LIBERADA);
-        assertThat(SituacaoLiberacao.avaliar(OBRA, servicoDaTarde, HOJE, FUSO, List.of(daManha), List.of())).isEqualTo(SituacaoLiberacao.PENDENTE);
-
-        AprTurno daTarde = new AprTurno(TURNO, OBRA, servicoDaTarde, "Lançar cabo", RESPONSAVEL, formulario(FormularioApr.Resposta.SIM));
+        assertThat(avaliar(outraObra, List.of(daManha, daTarde), List.of())).isEqualTo(SituacaoLiberacao.LIBERADA);
         daTarde.concluir();
-        assertThat(SituacaoLiberacao.avaliar(OBRA, servicoDaTarde, HOJE, FUSO, List.of(daManha, daTarde), List.of())).isEqualTo(SituacaoLiberacao.LIBERADA);
+        assertThat(avaliar(outraObra, List.of(daManha, daTarde), List.of())).isEqualTo(SituacaoLiberacao.LIBERADA);
+    }
+
+    @Test
+    void impedimentoSoSaiComAprDaPropriaObraConcluidaDepois() {
+        UUID outraObra = UUID.randomUUID();
+        OcorrenciaTurno chuva = new OcorrenciaTurno(TURNO, OBRA, TipoOcorrenciaTurno.CLIMA, "Chuva forte", true);
+        ReflectionTestUtils.setField(chuva, "dataCriacao", OffsetDateTime.now().minusSeconds(5));
+        AprTurno deOutraObra = new AprTurno(TURNO, outraObra, UUID.randomUUID(), "Lançar cabo", RESPONSAVEL, formulario(FormularioApr.Resposta.SIM));
+        deOutraObra.concluir();
+
+        assertThat(avaliar(OBRA, List.of(deOutraObra), List.of(chuva))).isEqualTo(SituacaoLiberacao.IMPEDIDA);
+        assertThat(avaliar(outraObra, List.of(deOutraObra), List.of(chuva))).isEqualTo(SituacaoLiberacao.LIBERADA);
     }
 
     @Test
@@ -81,7 +91,7 @@ class LiberacaoExecucaoTest {
         AprTurno concluida = apr(formulario(FormularioApr.Resposta.SIM));
         concluida.concluir();
 
-        assertThat(SituacaoLiberacao.avaliar(OBRA, SERVICO, HOJE.plusDays(1), FUSO, List.of(concluida), List.of())).isEqualTo(SituacaoLiberacao.PENDENTE);
+        assertThat(SituacaoLiberacao.avaliar(OBRA, HOJE.plusDays(1), FUSO, List.of(concluida), List.of())).isEqualTo(SituacaoLiberacao.PENDENTE);
     }
 
     @Test

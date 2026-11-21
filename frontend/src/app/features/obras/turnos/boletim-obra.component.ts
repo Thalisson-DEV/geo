@@ -344,7 +344,7 @@ function gravarPreferencia(chave: string, valor: string): void {
                           <p class="ed-alert" role="status"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i><span>{{ resumoAgenda(e) }}, sem turno aberto.</span></p>
                         }
                         @if (temAprPendente(e)) {
-                          <p class="ed-alert" role="status"><i class="pi pi-shield" aria-hidden="true"></i><span>APR pendente: sem ela, o serviço não pode ser apontado.</span></p>
+                          <p class="ed-alert" role="status"><i class="pi pi-shield" aria-hidden="true"></i><span>APR do dia pendente: sem ela, nada pode ser apontado.</span></p>
                         }
                         @if (e.abertoDesdeOutroDia) {
                           <p class="ed-alert" role="status"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i><span>Turno aberto desde {{ e.abertura | date: 'dd/MM HH:mm' }} e ainda não fechado.</span></p>

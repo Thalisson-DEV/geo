@@ -87,8 +87,8 @@ public class DiagnosticoCasoSincronizacao {
 
  /** Recusas dos registros de Obras do app, na linguagem de quem acompanha a equipe. */
  static DiagnosticoResponse obras(String lower, String erro) {
-  if (lower.contains("apr deste serviço precisa estar concluída") || lower.contains("apr ainda não chegou")) return new DiagnosticoResponse("OBRA_SEM_APR", "Apontamento sem APR concluída", erro,
-          "A APR do serviço não chegou ou foi concluída depois do apontamento. Confira a APR do dia no turno; quando ela entrar, reenvie sem alterar.", AcaoRecomendada.CONFERIR);
+  if (lower.contains("conclua a apr do dia") || lower.contains("apr deste serviço precisa estar concluída") || lower.contains("apr ainda não chegou")) return new DiagnosticoResponse("OBRA_SEM_APR", "Apontamento sem APR concluída", erro,
+          "Nenhuma APR do dia chegou antes do apontamento (ou foi concluída depois dele). Confira a APR do dia no turno; quando ela entrar, reenvie sem alterar.", AcaoRecomendada.CONFERIR);
   if (lower.contains("não tem condição de ser feito")) return new DiagnosticoResponse("OBRA_IMPEDIDA", "Serviço registrado como sem condição", erro,
           "A equipe registrou que não havia condição de executar antes deste apontamento. Confirme com a equipe o que foi feito; descarte se o serviço não aconteceu.", AcaoRecomendada.CONFERIR);
   if (lower.contains("foi cancelada ou excluída") || lower.contains("não é mais desta equipe") || lower.contains("não está na programação")) return new DiagnosticoResponse("OBRA_PROGRAMACAO_ALTERADA", "A programação mudou depois do lançamento", erro,

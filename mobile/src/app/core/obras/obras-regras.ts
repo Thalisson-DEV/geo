@@ -179,22 +179,31 @@ export function formularioDaApr(r: AprRascunho, verificacoes: string[], local?: 
 
 export type LiberacaoLocal = 'PENDENTE' | 'EM_PREENCHIMENTO' | 'LIBERADA' | 'IMPEDIDA';
 
-/** Mesma regra do servidor, sobre o que está no aparelho: APR concluída no dia libera; "sem condição" depois dela impede. */
-export function liberacaoLocal(idProgramacao: string, dia: string, registros: RegistroObraLocal[], temRascunho = false): LiberacaoLocal {
-  const doDia = registros.filter(r => r.dia === dia && r.idProgramacao === idProgramacao && r.envio !== 'CONFLITO');
-  const apr = doDia.filter(r => r.tipo === 'APR' && (r.comando as { concluir?: boolean }).concluir)
-    .map(r => r.comando.campo.instante).sort().at(-1);
-  const impedimento = doDia.filter(r => r.tipo === 'OCORRENCIA' && (r.comando as { impedeExecucao?: boolean }).impedeExecucao)
-    .map(r => r.comando.campo.instante).sort().at(-1);
-  if (impedimento && (!apr || apr < impedimento)) return 'IMPEDIDA';
-  if (apr) return 'LIBERADA';
+function aprsConcluidas(dia: string, registros: RegistroObraLocal[]): RegistroObraLocal[] {
+  return registros.filter(r => r.tipo === 'APR' && r.dia === dia && r.envio !== 'CONFLITO' && (r.comando as { concluir?: boolean }).concluir);
+}
+
+/**
+ * Mesma regra do servidor, sobre o que está no aparelho: uma APR concluída no dia libera todos os serviços da equipe
+ * (outras APRs no dia são permitidas). "Sem condição de executar" numa obra a bloqueia até uma APR dessa obra
+ * concluída depois.
+ */
+export function liberacaoLocal(p: Pick<ProgramacaoCampo, 'idObra'>, dia: string, registros: RegistroObraLocal[], temRascunho = false): LiberacaoLocal {
+  const aprs = aprsConcluidas(dia, registros);
+  const impedimento = registros.filter(r => r.dia === dia && r.idObra === p.idObra && r.envio !== 'CONFLITO' && r.tipo === 'OCORRENCIA'
+    && (r.comando as { impedeExecucao?: boolean }).impedeExecucao).map(r => r.comando.campo.instante).sort().at(-1);
+  if (impedimento) {
+    const daObra = aprs.filter(r => r.idObra === p.idObra).map(r => r.comando.campo.instante).sort().at(-1);
+    if (!daObra || daObra < impedimento) return 'IMPEDIDA';
+  }
+  if (aprs.length) return 'LIBERADA';
   return temRascunho ? 'EM_PREENCHIMENTO' : 'PENDENTE';
 }
 
-/** A APR concluída que libera o serviço no dia (para o apontamento depender dela na fila). */
-export function aprQueLibera(idProgramacao: string, dia: string, registros: RegistroObraLocal[]): RegistroObraLocal | undefined {
-  return registros.filter(r => r.tipo === 'APR' && r.dia === dia && r.idProgramacao === idProgramacao && (r.comando as { concluir?: boolean }).concluir)
-    .sort((a, b) => a.criadoEm.localeCompare(b.criadoEm)).at(-1);
+/** A APR que libera o apontamento (para ele depender dela na fila): a última da obra, senão a última do dia. */
+export function aprQueLibera(p: Pick<ProgramacaoCampo, 'idObra'>, dia: string, registros: RegistroObraLocal[]): RegistroObraLocal | undefined {
+  const aprs = aprsConcluidas(dia, registros).sort((a, b) => a.criadoEm.localeCompare(b.criadoEm));
+  return aprs.filter(r => r.idObra === p.idObra).at(-1) ?? aprs.at(-1);
 }
 
 // ---------- Hoje guiado ----------
@@ -221,7 +230,7 @@ export interface EstadoDoDia {
 
 /** Programação "da vez": a primeira do dia não concluída nem impedida. */
 export function programacaoDaVez(e: EstadoDoDia): ProgramacaoCampo | undefined {
-  return e.programacoes.find(p => !e.concluida(p) && liberacaoLocal(p.id, e.dia, e.registros) !== 'IMPEDIDA');
+  return e.programacoes.find(p => !e.concluida(p) && liberacaoLocal(p, e.dia, e.registros) !== 'IMPEDIDA');
 }
 
 /**
@@ -242,7 +251,7 @@ export function proximoPasso(e: EstadoDoDia): PassoDoDia {
   const chegou = e.registros.some(r => r.tipo === 'PRESENCA' && r.dia === e.dia && r.idObra === p.idObra
     && (r.comando as { tipo?: string }).tipo === 'CHEGADA');
   if (!chegou) return { rotulo: 'Ir para a obra', rota: `/obras/${p.id}`, icone: 'mapa', apoio };
-  const lib = liberacaoLocal(p.id, e.dia, e.registros, e.temRascunhoApr(p));
+  const lib = liberacaoLocal(p, e.dia, e.registros, e.temRascunhoApr(p));
   if (lib !== 'LIBERADA') return { rotulo: lib === 'EM_PREENCHIMENTO' ? 'Continuar a APR' : 'Fazer a APR', rota: `/obras/${p.id}/apr`, icone: 'escudo', apoio };
   return { rotulo: 'Executar', rota: `/obras/${p.id}/execucao`, icone: 'ferramenta', apoio };
 }

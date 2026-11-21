@@ -175,9 +175,9 @@ public class ConsultarTurnosObra {
                 abertoPor(turno, new HashMap<>()), membros(turno, papeis, pessoas),
                 realizado, meta, percentual(realizado, meta), bateu(realizado, meta),
                 programacoes.stream().map(p -> paraProgramacao(p, obras.get(p.getIdObra()), agora.toLocalDate(),
-                        SituacaoLiberacao.avaliar(p.getIdObra(), p.getId(), ultimoDia, ApontamentoExecucaoUseCases.FUSO, aprs, ocorrencias))).toList(),
+                        SituacaoLiberacao.avaliar(p.getIdObra(), ultimoDia, ApontamentoExecucaoUseCases.FUSO, aprs, ocorrencias))).toList(),
                 atividades.stream().map(a -> paraAtividade(a, obras.get(a.getIdObra()), numeros.get(a.getIdProgramacao()),
-                        SituacaoLiberacao.avaliar(a.getIdObra(), a.getIdProgramacao(), ultimoDia, ApontamentoExecucaoUseCases.FUSO, aprs, ocorrencias))).toList(),
+                        SituacaoLiberacao.avaliar(a.getIdObra(), ultimoDia, ApontamentoExecucaoUseCases.FUSO, aprs, ocorrencias))).toList(),
                 apontamentos.stream().map(a -> paraServico(a, obras.get(a.getIdObra()),
                         locais.computeIfAbsent(a.getIdObra(), programacaoUseCases::locais))).toList(),
                 relatorioRepository.findByIdTurno(id).filter(r -> r.isAtivo())
@@ -304,7 +304,7 @@ public class ConsultarTurnosObra {
                         return new TurnoObraResponses.AgendaDoDia(p.getId(), p.getNumero(), p.getIdObra(), obra != null ? obra.getNumero() : null,
                                 obra != null ? obra.getTitulo() : null, p.getDescricao(), p.valorTotal().setScale(2, RoundingMode.HALF_UP), itens.size(),
                                 (int) itens.stream().filter(v -> v.getItemPlanejado().concluido()).count(),
-                                SituacaoLiberacao.avaliar(p.getIdObra(), p.getId(), dia, ApontamentoExecucaoUseCases.FUSO, aprsDaEquipe, ocorrenciasDaEquipe));
+                                SituacaoLiberacao.avaliar(p.getIdObra(), dia, ApontamentoExecucaoUseCases.FUSO, aprsDaEquipe, ocorrenciasDaEquipe));
                     }).toList());
         }).toList();
 

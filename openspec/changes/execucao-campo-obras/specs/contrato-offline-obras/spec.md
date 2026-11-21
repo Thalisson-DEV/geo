@@ -27,7 +27,7 @@ O backend SHALL aceitar, na ordem de criação, APR, conclusão e apontamentos q
 liberação pela data/hora de origem do aparelho dentro do dia do turno.
 
 #### Scenario: Dia inteiro sem sinal
-- **WHEN** o app envia à noite a APR concluída às 08:10 e o apontamento das 10:30 do mesmo serviço
+- **WHEN** o app envia à noite a APR concluída às 08:10 e o apontamento das 10:30 (do mesmo serviço ou de outro do dia)
 - **THEN** o apontamento é aceito como liberado pela APR
 
 ### Requirement: Apontamento do ponto inteiro

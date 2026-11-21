@@ -23,7 +23,7 @@ import { ObrasContexto } from './obras-contexto';
   template: `
     <geo-barra-topo [titulo]="impede() ? 'Sem condição de executar' : 'Ocorrência'" [subtitulo]="subtitulo()" (voltar)="voltar()" />
     @if (impede()) {
-      <p class="explica">O serviço fica registrado como não executado hoje. Para voltar a executar, conclua uma nova APR.</p>
+      <p class="explica">O serviço fica registrado como não executado hoje. Para voltar a executar nesta obra, conclua uma nova APR.</p>
     }
     <h2 class="geo-secao">Tipo</h2>
     <div class="tipos" role="radiogroup" aria-label="Tipo da ocorrência">

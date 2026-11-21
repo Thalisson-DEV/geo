@@ -123,11 +123,11 @@ class CampoOfflineObrasTest {
         OffsetDateTime seteHoras = HOJE.atTime(7, 0).atZone(FUSO).toOffsetDateTime();
         OffsetDateTime quinzeHoras = HOJE.atTime(15, 0).atZone(FUSO).toOffsetDateTime();
 
-        assertThat(SituacaoLiberacao.avaliar(OBRA, programacao.getId(), HOJE, FUSO, List.of(apr), List.of(chuva), dezEMeia))
+        assertThat(SituacaoLiberacao.avaliar(OBRA, HOJE, FUSO, List.of(apr), List.of(chuva), dezEMeia))
                 .isEqualTo(SituacaoLiberacao.LIBERADA);
-        assertThat(SituacaoLiberacao.avaliar(OBRA, programacao.getId(), HOJE, FUSO, List.of(apr), List.of(chuva), seteHoras))
+        assertThat(SituacaoLiberacao.avaliar(OBRA, HOJE, FUSO, List.of(apr), List.of(chuva), seteHoras))
                 .isNotEqualTo(SituacaoLiberacao.LIBERADA);
-        assertThat(SituacaoLiberacao.avaliar(OBRA, programacao.getId(), HOJE, FUSO, List.of(apr), List.of(chuva), quinzeHoras))
+        assertThat(SituacaoLiberacao.avaliar(OBRA, HOJE, FUSO, List.of(apr), List.of(chuva), quinzeHoras))
                 .isEqualTo(SituacaoLiberacao.IMPEDIDA);
     }
 

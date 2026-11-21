@@ -9,9 +9,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Se a equipe pode executar um serviço no dia. A APR é lançada a qualquer hora do dia de trabalho, e pode haver mais
- * de uma no mesmo dia: cada serviço é liberado pela sua. Ela só é exigida de quem vai fazer o serviço: registrado que
- * não há condição de fazer, ela deixa de ser necessária e o apontamento fica bloqueado até uma APR concluída depois.
+ * Se a equipe pode executar no dia. A APR é a análise preliminar de riscos, feita antes do serviço: uma APR concluída no
+ * dia libera todos os serviços da equipe naquele dia, e a equipe pode fazer outras ao longo do dia (outra obra, outra
+ * condição). Registrado que não há condição de executar numa obra, ela fica bloqueada até uma APR dessa obra concluída
+ * depois do registro.
  */
 public enum SituacaoLiberacao {
     PENDENTE,
@@ -22,11 +23,11 @@ public enum SituacaoLiberacao {
     /**
      * Considera só os registros do dia: APR de ontem não libera o serviço de hoje, nem em turno que atravessou a noite.
      *
-     * @param idProgramacao o serviço programado; nulo para atividade em obra não programada, que vale por obra.
+     * @param aprs as APRs da equipe no dia (de qualquer obra e de qualquer turno do dia).
      */
-    public static SituacaoLiberacao avaliar(UUID idObra, UUID idProgramacao, LocalDate dia, ZoneId fuso,
+    public static SituacaoLiberacao avaliar(UUID idObra, LocalDate dia, ZoneId fuso,
                                             Collection<AprTurno> aprs, Collection<OcorrenciaTurno> ocorrencias) {
-        return avaliar(idObra, idProgramacao, dia, fuso, aprs, ocorrencias, null);
+        return avaliar(idObra, dia, fuso, aprs, ocorrencias, null);
     }
 
     /**
@@ -36,7 +37,7 @@ public enum SituacaoLiberacao {
      *
      * @param ate o instante do registro avaliado; nulo considera o dia inteiro.
      */
-    public static SituacaoLiberacao avaliar(UUID idObra, UUID idProgramacao, LocalDate dia, ZoneId fuso,
+    public static SituacaoLiberacao avaliar(UUID idObra, LocalDate dia, ZoneId fuso,
                                             Collection<AprTurno> aprs, Collection<OcorrenciaTurno> ocorrencias,
                                             OffsetDateTime ate) {
         Optional<OffsetDateTime> impedimento = ocorrencias.stream()
@@ -45,24 +46,27 @@ public enum SituacaoLiberacao {
                 .filter(momento -> doDia(momento, dia, fuso))
                 .filter(momento -> ate == null || !momento.isAfter(ate))
                 .max(OffsetDateTime::compareTo);
-        var doServico = aprs.stream()
-                .filter(a -> idObra.equals(a.getIdObra()) && (idProgramacao == null || idProgramacao.equals(a.getIdProgramacao())))
-                .toList();
-        Optional<OffsetDateTime> concluida = doServico.stream()
-                .filter(a -> a.getStatus() == StatusAprTurno.CONCLUIDA)
+        Optional<OffsetDateTime> concluidaNoDia = concluidaAte(aprs.stream(), dia, fuso, ate);
+        if (impedimento.isPresent()) {
+            Optional<OffsetDateTime> daObra = concluidaAte(aprs.stream().filter(a -> idObra.equals(a.getIdObra())), dia, fuso, ate);
+            if (daObra.isEmpty() || daObra.get().isBefore(impedimento.get())) {
+                return IMPEDIDA;
+            }
+        }
+        if (concluidaNoDia.isPresent()) {
+            return LIBERADA;
+        }
+        return aprs.stream().anyMatch(a -> a.getStatus() == StatusAprTurno.RASCUNHO && doDia(a.getDataCriacao(), dia, fuso))
+                ? EM_PREENCHIMENTO : PENDENTE;
+    }
+
+    private static Optional<OffsetDateTime> concluidaAte(java.util.stream.Stream<AprTurno> aprs, LocalDate dia, ZoneId fuso, OffsetDateTime ate) {
+        return aprs.filter(a -> a.getStatus() == StatusAprTurno.CONCLUIDA)
                 .map(AprTurno::getDataConclusao)
                 .filter(Objects::nonNull)
                 .filter(momento -> doDia(momento, dia, fuso))
                 .filter(momento -> ate == null || !momento.isAfter(ate))
                 .max(OffsetDateTime::compareTo);
-        if (impedimento.isPresent() && (concluida.isEmpty() || concluida.get().isBefore(impedimento.get()))) {
-            return IMPEDIDA;
-        }
-        if (concluida.isPresent()) {
-            return LIBERADA;
-        }
-        return doServico.stream().anyMatch(a -> a.getStatus() == StatusAprTurno.RASCUNHO && doDia(a.getDataCriacao(), dia, fuso))
-                ? EM_PREENCHIMENTO : PENDENTE;
     }
 
     private static boolean doDia(OffsetDateTime momento, LocalDate dia, ZoneId fuso) {

@@ -166,13 +166,13 @@ public class ApontamentoExecucaoUseCases {
         Set<UUID> turnosDoDia = new HashSet<>(Set.of(idTurno));
         turnoApi.listarSobrepostosAoPeriodo(inicio, inicio.plusDays(1), List.of(programacao.getIdEquipe()))
                 .forEach(turno -> turnosDoDia.add(turno.id()));
-        SituacaoLiberacao situacao = SituacaoLiberacao.avaliar(programacao.getIdObra(), programacao.getId(), data, FUSO,
+        SituacaoLiberacao situacao = SituacaoLiberacao.avaliar(programacao.getIdObra(), data, FUSO,
                 aprRepository.findByIdTurnoInAndAtivoTrue(turnosDoDia), ocorrenciaRepository.findByIdTurnoInAndAtivoTrue(turnosDoDia), ate);
         if (situacao == SituacaoLiberacao.IMPEDIDA) {
             throw new InvarianteVioladaException("Foi registrado que o serviço nessa obra não tem condição de ser feito. Conclua uma nova APR ou retire o impedimento antes de apontar.");
         }
         if (situacao != SituacaoLiberacao.LIBERADA) {
-            throw new InvarianteVioladaException("A APR deste serviço precisa estar concluída no dia antes de apontar a execução.");
+            throw new InvarianteVioladaException("Conclua a APR do dia antes de apontar a execução.");
         }
     }
 

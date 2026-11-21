@@ -74,7 +74,7 @@ describe('boletim-obra.logic', () => {
     const emDia = resumirBoletim([equipe({ situacao: 'EM_TURNO', agenda: [agenda('LIBERADA')] })]);
 
     expect(visaoDoBoletim({ hoje: true }, agendada).veredito.tom).toBe('danger');
-    expect(visaoDoBoletim({ hoje: true }, soApr).veredito.titulo).toBe('Serviço sem APR concluída');
+    expect(visaoDoBoletim({ hoje: true }, soApr).veredito.titulo).toBe('Equipe sem APR no dia');
     expect(visaoDoBoletim({ hoje: true }, emDia).veredito.tom).toBe('success');
   });
 

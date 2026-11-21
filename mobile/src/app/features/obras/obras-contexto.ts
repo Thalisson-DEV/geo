@@ -42,7 +42,7 @@ export class ObrasContexto {
   }
 
   liberacao(p: ProgramacaoCampo, temRascunho = false) {
-    return liberacaoLocal(p.id, this.hoje(), this.registros.registros(), temRascunho);
+    return liberacaoLocal(p, this.hoje(), this.registros.registros(), temRascunho);
   }
 
   chegou(p: ProgramacaoCampo): boolean {

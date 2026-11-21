@@ -40,7 +40,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
       @if (liberacao() !== 'LIBERADA') {
         <div class="faixa" role="status">
           <geo-icone [nome]="liberacao() === 'IMPEDIDA' ? 'impedido' : 'escudo'" />
-          <span>{{ liberacao() === 'IMPEDIDA' ? 'Registrado "sem condição de executar". Para voltar a executar, conclua uma nova APR.' : 'Conclua a APR deste serviço antes de marcar o que foi feito.' }}</span>
+          <span>{{ liberacao() === 'IMPEDIDA' ? 'Registrado "sem condição de executar". Para voltar a executar nesta obra, conclua uma nova APR.' : 'Conclua a APR do dia antes de marcar o que foi feito.' }}</span>
           <a class="geo-btn geo-btn--principal geo-btn--compacto" [routerLink]="['/obras', p.id, 'apr']">{{ liberacao() === 'IMPEDIDA' ? 'Nova APR' : 'Fazer APR' }}</a>
         </div>
       }
@@ -286,7 +286,7 @@ export class ExecucaoComponent implements OnDestroy {
   async tudoFeito(ponto: PontoDaExecucao): Promise<void> {
     const p = this.programacao();
     if (!p || !this.podeApontar()) return;
-    const apr = aprQueLibera(p.id, this.ctx.hoje(), this.ctx.registros.registros());
+    const apr = aprQueLibera(p, this.ctx.hoje(), this.ctx.registros.registros());
     const r = await this.ctx.registros.registrar({
       tipo: 'APONTAMENTO', idObra: p.idObra, idProgramacao: p.id, idPonto: ponto.id, dependeDe: apr?.id ?? null,
       comando: { idProgramacao: p.id, idPonto: ponto.id, pontoInteiro: true, itens: null, idApr: apr?.id ?? null },
@@ -308,7 +308,7 @@ export class ExecucaoComponent implements OnDestroy {
       return { idItem, quantidade, justificativa: excede ? 'Executado além do previsto em campo.' : null };
     });
     if (!itens.length) return;
-    const apr = aprQueLibera(p.id, this.ctx.hoje(), this.ctx.registros.registros());
+    const apr = aprQueLibera(p, this.ctx.hoje(), this.ctx.registros.registros());
     const r = await this.ctx.registros.registrar({
       tipo: 'APONTAMENTO', idObra: p.idObra, idProgramacao: p.id, idPonto: ponto.id, dependeDe: apr?.id ?? null,
       comando: { idProgramacao: p.id, idPonto: ponto.id, pontoInteiro: false, itens, idApr: apr?.id ?? null },

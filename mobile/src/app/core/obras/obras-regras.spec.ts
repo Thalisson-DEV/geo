@@ -1,5 +1,5 @@
 import {
-  aprVazia, condicoesDaProgramacao, faltasDaApr, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
+  aprVazia, condicoesDaProgramacao, faltasDaApr, aprQueLibera, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
   pontosDaExecucao, programacoesDoDia, proximoPasso, relatorioDoDia, sugestoesApr, verificacoesDaApr, EstadoDoDia,
 } from './obras-regras';
 import { ModeloApr, ObraCampo, ProgramacaoCampo, RegistroObraLocal } from './obras.models';
@@ -79,10 +79,25 @@ describe('regras de Obras no app', () => {
 
   it('liberação no aparelho: APR concluída libera; "sem condição" depois dela impede', () => {
     const apr = registro('APR', { concluir: true }, '2026-11-20T08:10:00-03:00');
-    expect(liberacaoLocal('p-1', '2026-11-20', [])).toBe('PENDENTE');
-    expect(liberacaoLocal('p-1', '2026-11-20', [apr])).toBe('LIBERADA');
+    const obra = { idObra: 'o-1' };
+    expect(liberacaoLocal(obra, '2026-11-20', [])).toBe('PENDENTE');
+    expect(liberacaoLocal(obra, '2026-11-20', [apr])).toBe('LIBERADA');
     const chuva = registro('OCORRENCIA', { impedeExecucao: true }, '2026-11-20T09:00:00-03:00');
-    expect(liberacaoLocal('p-1', '2026-11-20', [apr, chuva])).toBe('IMPEDIDA');
+    expect(liberacaoLocal(obra, '2026-11-20', [apr, chuva])).toBe('IMPEDIDA');
+  });
+
+  it('uma APR no dia libera todas as obras; o impedimento só sai com APR da própria obra', () => {
+    const daManha = registro('APR', { concluir: true }, '2026-11-20T07:30:00-03:00');
+    const outraObra = { idObra: 'o-2' };
+    expect(liberacaoLocal(outraObra, '2026-11-20', [daManha])).toBe('LIBERADA');
+    expect(aprQueLibera(outraObra, '2026-11-20', [daManha])?.id).toBe(daManha.id);
+
+    const chuva = registro('OCORRENCIA', { impedeExecucao: true }, '2026-11-20T09:00:00-03:00', { idObra: 'o-2' });
+    const aprOutraObra = registro('APR', { concluir: true }, '2026-11-20T10:00:00-03:00', { idObra: 'o-3' });
+    expect(liberacaoLocal(outraObra, '2026-11-20', [daManha, chuva, aprOutraObra])).toBe('IMPEDIDA');
+    expect(liberacaoLocal({ idObra: 'o-1' }, '2026-11-20', [daManha, chuva, aprOutraObra])).toBe('LIBERADA');
+    const novaApr = registro('APR', { concluir: true }, '2026-11-20T11:00:00-03:00', { idObra: 'o-2' });
+    expect(liberacaoLocal(outraObra, '2026-11-20', [daManha, chuva, novaApr])).toBe('LIBERADA');
   });
 
   it('próximo passo segue o dia da equipe', () => {

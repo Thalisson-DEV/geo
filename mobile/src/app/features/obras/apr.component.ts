@@ -107,7 +107,7 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
                   <ul>@for (f of faltas(); track f) { <li>{{ f }}</li> }</ul>
                 </div>
               } @else {
-                <div class="pronta"><geo-icone nome="check" /> APR pronta. Ao concluir, o serviço fica liberado para executar, mesmo sem sinal.</div>
+                <div class="pronta"><geo-icone nome="check" /> APR pronta. Ao concluir, os serviços do dia ficam liberados, mesmo sem sinal.</div>
               }
               <dl class="geo-dados resumo">
                 <div><dt>Riscos</dt><dd>{{ juntar(r.riscos.join(', '), r.outroRisco) || '—' }}</dd></div>
@@ -249,7 +249,7 @@ export class AprComponent implements OnInit {
         },
       });
       await db.obrasAprRascunhos.delete(this.chave);
-      this.toast.success('APR concluída: serviço liberado');
+      this.toast.success('APR concluída: serviços do dia liberados');
       void this.router.navigate(['/obras', p.id, 'execucao'], { replaceUrl: true });
     } finally {
       this.salvando.set(false);
