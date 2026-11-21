@@ -4,7 +4,8 @@ import { RegistrosObrasService } from '../../core/obras/registros-obras.service'
 import {
   PendenciaLocal, PontoDaExecucao, hojeLocal, liberacaoLocal, referenciaProgramacao, pendenciasDeFoto, pontosDaExecucao, programacoesDoDia,
 } from '../../core/obras/obras-regras';
-import { ObraCampo, ProgramacaoCampo } from '../../core/obras/obras.models';
+import { ObraCampo, ProgramacaoCampo, RegistroObraLocal } from '../../core/obras/obras.models';
+import { isoComFuso } from '../../core/obras/registros-obras.service';
 
 /** O que as telas de Obras perguntam sobre uma programação, já com o que está no aparelho. */
 @Injectable({ providedIn: 'root' })
@@ -13,6 +14,22 @@ export class ObrasContexto {
   readonly registros = inject(RegistrosObrasService);
 
   readonly hoje = computed(() => hojeLocal());
+  /**
+   * Registros do aparelho mais a APR e os impedimentos do dia que o servidor já tem (de outro aparelho, ou de antes de
+   * sair e entrar): é com eles que se decide se a equipe já pode executar.
+   */
+  readonly registrosDoDia = computed<RegistroObraLocal[]>(() => {
+    const locais = this.registros.registros();
+    const ids = new Set(locais.map(r => r.id));
+    const dia = this.hoje();
+    const doServidor = this.pacote.liberacaoServidor()
+      .filter(l => !l.idLocal || !ids.has(l.idLocal))
+      .map((l, i) => ({
+        id: `servidor-${l.idLocal ?? i}`, tipo: l.tipo === 'APR' ? 'APR' : 'OCORRENCIA', idObra: l.idObra, envio: 'ENVIADO', dia,
+        criadoEm: l.em, comando: { concluir: l.tipo === 'APR', impedeExecucao: l.tipo === 'IMPEDIMENTO', campo: { idLocal: l.idLocal ?? '', instante: isoComFuso(new Date(l.em)) } },
+      }) as unknown as RegistroObraLocal);
+    return doServidor.length ? [...locais, ...doServidor] : locais;
+  });
   readonly doDia = computed(() => programacoesDoDia(this.pacote.programacoes(), this.hoje()));
   /** Próximos dias da agenda (fora hoje). */
   readonly proximas = computed(() => this.pacote.programacoes()
@@ -46,7 +63,7 @@ export class ObrasContexto {
   }
 
   liberacao(p: ProgramacaoCampo, temRascunho = false) {
-    return liberacaoLocal(p, this.hoje(), this.registros.registros(), temRascunho);
+    return liberacaoLocal(p, this.hoje(), this.registrosDoDia(), temRascunho);
   }
 
   chegou(p: ProgramacaoCampo): boolean {

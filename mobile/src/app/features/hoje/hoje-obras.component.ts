@@ -34,7 +34,8 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
       @if (passo().apoio) { <span class="passo__apoio">{{ passo().apoio }}</span> }
       <span class="pronto" [class.pronto--ok]="ctx.pacote.prontoSemSinal()">
         <geo-icone [nome]="ctx.pacote.prontoSemSinal() ? 'check' : 'sem_rede'" [tamanho]="16" />
-        {{ ctx.pacote.prontoSemSinal() ? 'Pronto para trabalhar sem sinal' : ctx.pacote.ultimaSync() ? 'Baixando projetos das obras…' : 'Agenda ainda não baixada' }}
+        {{ ctx.pacote.prontoSemSinal() ? 'Pronto para trabalhar sem sinal' : !ctx.pacote.ultimaSync() ? 'Agenda ainda não baixada' : ctx.pacote.sincronizando() ? 'Baixando projetos das obras…'
+          : 'Sem o projeto da obra ' + ctx.pacote.projetosFaltando().join(', ') + ': os pontos aparecem em lista' }}
       </span>
     </section>
 
@@ -74,11 +75,12 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
             <geo-icone nome="avancar" [tamanho]="18" /></a></li>
         }
         @for (c of ctx.registros.conflitos(); track c.id) {
-          <li><geo-linha-arrasto rotulo="Refazer" icone="desfazer" (acao)="ctx.registros.descartarConflito(c.id)">
+          <li><geo-linha-arrasto rotulo="Descartar" icone="lixeira" (acao)="ctx.registros.descartarConflito(c.id)">
             <div class="geo-linha" data-testid="conflito-obra"><span class="geo-selo geo-selo--erro"><geo-icone nome="alerta" /></span>
-              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ rotuloTipo(c.tipo) }} recusado</span>
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ rotuloTipo(c.tipo) }}: recusado pelo servidor</span>
                 <span class="geo-linha__apoio">{{ c.motivo }}</span></span>
-              <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="ctx.registros.descartarConflito(c.id)">Refazer</button></div>
+              <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="ctx.registros.descartarConflito(c.id)">Descartar</button>
+              <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto" (click)="ctx.registros.reenviarConflito(c.id)" data-testid="reenviar-conflito">Enviar de novo</button></div>
           </geo-linha-arrasto></li>
         }
       </ul>
@@ -108,7 +110,7 @@ export class HojeObrasComponent {
     turnoAberto: !!this.turno.turnoAtivo(),
     diaFechado: this.ctx.registros.registros().some(r => r.tipo === 'RELATORIO' && r.dia === this.ctx.hoje()),
     checklistFeito: this.checklistFeito(), programacoes: this.ctx.doDia(),
-    registros: this.ctx.registros.registros(), dia: this.ctx.hoje(),
+    registros: this.ctx.registrosDoDia(), dia: this.ctx.hoje(),
     concluida: p => this.concluida(p), temRascunhoApr: () => false,
   }));
   readonly fotosPendentes = computed(() => this.ctx.doDia().reduce((n, p) => n + this.ctx.pendencias(p).length, 0));
@@ -125,7 +127,7 @@ export class HojeObrasComponent {
     if (lib === 'IMPEDIDA') return 'Sem condição de executar registrada';
     if (feitos === pontos.length && pontos.length) return 'Tudo feito';
     const apr = lib === 'LIBERADA' ? 'APR ok' : 'APR pendente';
-    return `${feitos} de ${pontos.length} pontos · ${apr}`;
+    return `${pontos.length ? `${feitos} de ${pontos.length} pontos` : 'Os pontos chegam com o sinal'} · ${apr}`;
   }
 
   rotuloTipo(tipo: string): string {

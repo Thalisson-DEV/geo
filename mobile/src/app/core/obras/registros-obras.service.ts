@@ -182,6 +182,23 @@ export class RegistrosObrasService {
   }
 
   /** Conflito resolvido pela equipe ("Refazer"): descarta o registro recusado. */
+  /**
+   * Manda de novo um registro recusado (o motivo pode ter sido resolvido no servidor ou pela supervisão): sai numa
+   * operação nova da fila, com o mesmo id do aparelho, então não duplica se o primeiro envio tiver chegado.
+   */
+  async reenviarConflito(idLocal: string): Promise<void> {
+    const r = await db.obrasRegistros.get(idLocal);
+    if (!r || (r.envio !== 'CONFLITO' && r.envio !== 'AGUARDANDO')) return;
+    const itens = (await db.outbox.toArray()).filter(i => i.endpoint === OBRAS_ENDPOINT && i.payload?.idRegistro === idLocal);
+    await db.transaction('rw', [db.obrasRegistros, db.outbox], async () => {
+      await db.outbox.bulkDelete(itens.map(i => i.id));
+      await db.obrasRegistros.update(idLocal, { envio: 'NO_APARELHO', motivo: null });
+      await this.outbox.enqueue({ endpoint: OBRAS_ENDPOINT, method: 'POST', payload: { idRegistro: idLocal, tipo: r.tipo }, operationType: `OBRA_${r.tipo}` });
+    });
+    await this.carregar();
+    this.enviarLogo();
+  }
+
   async descartarConflito(idLocal: string): Promise<void> {
     const r = await db.obrasRegistros.get(idLocal);
     if (!r || (r.envio !== 'CONFLITO' && r.envio !== 'AGUARDANDO')) return;

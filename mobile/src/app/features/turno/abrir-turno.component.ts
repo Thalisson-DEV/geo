@@ -79,6 +79,20 @@ interface RascunhoTurno {
                     <span class="geo-linha__apoio">{{ c.texto }}</span></span>
                 </div>
               }
+              @case ('sem-modelo') {
+                <div class="geo-linha" data-testid="checklist-sem-modelo">
+                  <span class="geo-selo geo-selo--atencao"><geo-icone nome="alerta" /></span>
+                  <span class="geo-linha__texto"><span class="geo-linha__titulo">Sem checklist cadastrado</span>
+                    <span class="geo-linha__apoio">{{ c.texto }}</span></span>
+                </div>
+              }
+              @case ('sem-catalogo') {
+                <div class="geo-linha">
+                  <span class="geo-selo geo-selo--atencao"><geo-icone nome="sem_rede" /></span>
+                  <span class="geo-linha__texto"><span class="geo-linha__titulo">Checklist não baixado</span>
+                    <span class="geo-linha__apoio">{{ c.texto }}</span></span>
+                </div>
+              }
               @case ('procurando') {
                 <div class="geo-linha" aria-busy="true">
                   <span class="geo-selo"><geo-icone nome="relogio" /></span>
@@ -248,10 +262,18 @@ export class AbrirTurnoComponent implements OnInit {
    * O veículo escolhido precisa de checklist hoje antes de abrir o turno, se a frota configurou
    * checklist para ele. Vale o deste aparelho (mesmo ainda na fila) ou o que o servidor já tem.
    */
-  readonly checklist = computed<{ estado: 'feito' | 'procurando' | 'falta'; texto: string; rascunho: boolean } | null>(() => {
+  readonly checklist = computed<{ estado: 'feito' | 'procurando' | 'falta' | 'sem-modelo' | 'sem-catalogo'; texto: string; rascunho: boolean } | null>(() => {
     const id = this.veiculo()?.id;
-    const doCatalogo = this.checklists.catalogo()?.veiculos.find(v => v.idVeiculo === id);
-    if (!id || !doCatalogo?.idsModelosPrincipais.length) return null;
+    if (!id) return null;
+    const catalogo = this.checklists.catalogo();
+    // O checklist é obrigatório: quando não dá para cumprir (frota sem cadastro), a equipe vê o motivo e avisa a supervisão.
+    if (!catalogo) {
+      return { estado: 'sem-catalogo', texto: 'Os checklists da frota ainda não chegaram neste aparelho. Abra o app com sinal para baixar.', rascunho: false };
+    }
+    const doCatalogo = catalogo.veiculos.find(v => v.idVeiculo === id);
+    if (!doCatalogo?.idsModelosPrincipais.length) {
+      return { estado: 'sem-modelo', texto: 'Este veículo não tem checklist cadastrado na frota. Avise a supervisão; o turno pode abrir.', rascunho: false };
+    }
     const hoje = diaLocal();
     const locais = this.checklistsLocais().filter(c => c.idVeiculo === id);
     const feito = locais
@@ -268,7 +290,7 @@ export class AbrirTurnoComponent implements OnInit {
     const rascunho = locais.some(c => c.statusSync === 'RASCUNHO');
     return { estado: 'falta', texto: 'Obrigatório antes de abrir o turno', rascunho };
   });
-  readonly faltaChecklist = computed(() => !!this.checklist() && this.checklist()!.estado !== 'feito');
+  readonly faltaChecklist = computed(() => this.checklist()?.estado === 'falta' || this.checklist()?.estado === 'procurando');
 
   readonly veiculosFiltrados = computed(() => {
     const q = normalizar(this.busca());
@@ -298,6 +320,8 @@ export class AbrirTurnoComponent implements OnInit {
     const assinatura = liveQuery(() => this.checklists.listar()).subscribe({ next: lista => this.checklistsLocais.set(lista) });
     this.destroyRef.onDestroy(() => assinatura.unsubscribe());
     if (!this.checklists.catalogo()) await this.checklists.carregarCatalogoLocal();
+    // Com sinal, atualiza o catálogo da frota: a exigência do checklist vale o que está cadastrado hoje.
+    if (this.rede.isOnline()) void this.checklists.sincronizarCatalogo().catch(() => undefined);
     await this.carregar();
   }
 

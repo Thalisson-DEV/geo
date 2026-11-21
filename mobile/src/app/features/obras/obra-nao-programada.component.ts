@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BarraTopoComponent, IconeComponent } from '../../ui';
 import { TurnoService } from '../../core/turno/turno.service';
 import { ConnectivityService } from '../../core/sync/connectivity.service';
@@ -7,7 +7,7 @@ import { ObraAvulsa, idAvulsa } from '../../core/obras/pacote-obras.service';
 import { ObrasContexto } from './obras-contexto';
 
 /** Motivos mais comuns, num toque; o texto pode ser completado. */
-const MOTIVOS = ['Emergência', 'Pedido da supervisão', 'Adiantar serviço da obra', 'Retrabalho'];
+const MOTIVOS = ['Além do programado', 'Emergência', 'Pedido da supervisão', 'Adiantar serviço da obra', 'Retrabalho'];
 
 /**
  * Execução avulsa: a equipe atua numa obra que não estava na agenda. Busca a obra pelo número (precisa de sinal só
@@ -21,7 +21,7 @@ const MOTIVOS = ['Emergência', 'Pedido da supervisão', 'Adiantar serviço da o
   imports: [BarraTopoComponent, IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <geo-barra-topo titulo="Execução avulsa" subtitulo="Obra fora da agenda de hoje" (voltar)="voltar()" />
+    <geo-barra-topo [titulo]="alem() ? 'Ir além do programado' : 'Execução avulsa'" [subtitulo]="alem() ? 'Pontos desta obra ainda sem programação' : 'Obra fora da agenda de hoje'" (voltar)="voltar()" />
     @if (!achada()) {
     <ol class="passos-ajuda">
       <li><span class="n">1</span>Busque a obra pelo número.</li>
@@ -38,8 +38,8 @@ const MOTIVOS = ['Emergência', 'Pedido da supervisão', 'Adiantar serviço da o
         <geo-icone nome="busca" />{{ buscando() ? 'Buscando…' : 'Buscar' }}</button>
     </form>
 
-    @if (!rede.isOnline()) {
-      <p class="aviso" role="status"><geo-icone nome="sem_rede" [tamanho]="18" />Sem sinal: a busca da obra precisa de internet. Com a obra já buscada, o resto funciona sem sinal.</p>
+    @if (!rede.isOnline() && !achada()) {
+      <p class="aviso" role="status"><geo-icone nome="sem_rede" [tamanho]="18" />Sem sinal: a busca usa as obras da sua base guardadas no aparelho.</p>
     }
     @if (erro(); as e) { <p class="aviso aviso--erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" />{{ e }}</p> }
 
@@ -50,6 +50,7 @@ const MOTIVOS = ['Emergência', 'Pedido da supervisão', 'Adiantar serviço da o
           <span class="obra__texto"><strong>Obra {{ a.obra.numero }}</strong><span>{{ a.obra.titulo }}</span>
             @if (endereco(); as end) { <span class="apoio">{{ end }}</span> }</span>
         </div>
+        @if (!semDados()) {
         <ul class="resumo">
           <li><strong class="geo-num">{{ pontosComServico() }}</strong> {{ pontosComServico() === 1 ? 'ponto ou vão' : 'pontos e vãos' }} com serviço a fazer</li>
           <li><strong class="geo-num">{{ servicos() }}</strong> {{ servicos() === 1 ? 'serviço' : 'serviços' }} · <strong class="geo-num">{{ materiais() }}</strong> {{ materiais() === 1 ? 'material' : 'materiais' }}</li>
@@ -58,12 +59,15 @@ const MOTIVOS = ['Emergência', 'Pedido da supervisão', 'Adiantar serviço da o
           }
           @if (!a.obra.projeto) { <li class="apoio">Esta obra não tem projeto em PDF: os pontos aparecem só em lista.</li> }
         </ul>
-        @if (!a.itens.length) {
+        }
+        @if (semDados()) {
+          <p class="aviso" role="status"><geo-icone nome="sem_rede" [tamanho]="18" />Sem sinal: os pontos e o projeto desta obra chegam sozinhos quando houver sinal. Já dá para começar: chegada, APR e ocorrências.</p>
+        } @else if (!a.itens.length) {
           <p class="aviso aviso--erro"><geo-icone nome="alerta" [tamanho]="18" />Não há serviço pendente nesta obra para a equipe executar. Fale com a supervisão.</p>
         }
       </section>
 
-      @if (a.itens.length) {
+      @if (a.itens.length || semDados()) {
         <fieldset class="motivos">
           <legend>Por que a equipe vai atuar nesta obra?</legend>
           <div class="chips" role="radiogroup" aria-label="Motivo">
@@ -128,6 +132,9 @@ export class ObraNaoProgramadaComponent {
   readonly buscando = signal(false);
   readonly salvando = signal(false);
   readonly erro = signal<string | null>(null);
+  readonly semDados = signal(false);
+  readonly alem = computed(() => this.motivo() === 'Além do programado');
+  private readonly rota = inject(ActivatedRoute);
 
   readonly servicos = computed(() => this.achada()?.itens.filter(i => i.tipo === 'SERVICO').length ?? 0);
   readonly materiais = computed(() => this.achada()?.itens.filter(i => i.tipo === 'MATERIAL').length ?? 0);
@@ -136,26 +143,54 @@ export class ObraNaoProgramadaComponent {
     const o = this.achada()?.obra;
     return o ? [o.endereco, o.municipio].filter(Boolean).join(' · ') : '';
   });
-  readonly podeComecar = computed(() => !!this.achada()?.itens.length && !!this.motivo() && !!this.turno.turnoAtivo());
+  readonly podeComecar = computed(() => (!!this.achada()?.itens.length || this.semDados()) && !!this.motivo() && !!this.turno.turnoAtivo());
+
+  constructor() {
+    // Vindo de "Ir além do programado": a obra já vem escolhida (do aparelho, também sem sinal).
+    const obra = this.rota.snapshot.queryParamMap.get('obra');
+    const motivo = this.rota.snapshot.queryParamMap.get('motivo');
+    if (motivo && MOTIVOS.includes(motivo)) this.motivo.set(motivo);
+    if (obra) {
+      this.numero.set(obra);
+      void this.buscar();
+    }
+  }
 
   async buscar(): Promise<void> {
     const numero = this.numero().trim();
     if (!numero) return;
-    // Já começada hoje (ou na agenda): abre direto.
-    const local = this.ctx.doDia().find(p => p.numeroObra === numero);
-    if (local) {
-      void this.router.navigate(['/obras', local.id]);
+    // Avulsa já começada hoje nesta obra: abre direto.
+    const jaComecada = this.ctx.doDia().find(p => p.avulsa && p.numeroObra === numero);
+    if (jaComecada) {
+      void this.router.navigate(['/obras', jaComecada.id], { replaceUrl: true });
       return;
     }
     this.buscando.set(true);
     this.erro.set(null);
     this.achada.set(null);
+    this.semDados.set(false);
+    // Primeiro o aparelho (obra da agenda, ou obra da base sem sinal); com sinal, o servidor completa.
+    const local = this.ctx.pacote.avulsaNoAparelho(numero);
     try {
+      if (local && (!local.semDados || !this.rede.isOnline())) {
+        this.achada.set(local);
+        this.semDados.set(!!local.semDados);
+        return;
+      }
+      if (!this.rede.isOnline()) {
+        this.erro.set(`Sem sinal e a obra ${numero} não está entre as obras da sua base no aparelho. Confira o número ou espere o sinal.`);
+        return;
+      }
       const r = await this.ctx.pacote.buscarAvulsa(numero);
       if (!r) this.erro.set(`Obra ${numero} não encontrada ou já encerrada. Confira o número com a supervisão.`);
       this.achada.set(r);
     } catch {
-      this.erro.set('Não foi possível buscar agora. Confira o sinal e tente de novo.');
+      if (local) {
+        this.achada.set(local);
+        this.semDados.set(!!local.semDados);
+      } else {
+        this.erro.set('Não foi possível buscar agora. Confira o sinal e tente de novo.');
+      }
     } finally {
       this.buscando.set(false);
     }

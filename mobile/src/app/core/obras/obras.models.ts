@@ -73,7 +73,12 @@ export interface ObraCampo {
   idModeloFoto?: string | null;
   fotos: FotoCampo[];
   pendenciasFoto: PendenciaFoto[];
+  /** Itens pendentes da obra fora de qualquer programação: o que a equipe pode fazer além do programado. */
+  itensExtras?: ItemCampo[];
 }
+
+/** Obra em aberto da base, só para achar sem sinal (os pontos chegam quando houver sinal). */
+export interface ObraResumo { id: string; numero: string; titulo?: string | null; municipio?: string | null }
 
 export interface Sugestao { riscos: string[]; medidas: string[] }
 export interface ModeloApr { riscos: string[]; medidas: string[]; verificacoes: string[]; sugestoes: Record<string, Sugestao> }
@@ -97,7 +102,12 @@ export interface PacoteObras {
   modeloApr: ModeloApr;
   modelosFoto: ModeloFoto[];
   avisos: AvisoProgramacao[];
+  /** APRs concluídas e "sem condição" da equipe hoje, de qualquer aparelho. */
+  liberacaoDoDia?: LiberacaoDia[];
+  obrasAbertas?: ObraResumo[];
 }
+
+export interface LiberacaoDia { tipo: 'APR' | 'IMPEDIMENTO'; idObra: string; idLocal?: string | null; em: string }
 
 // ---------- Registros da equipe no aparelho ----------
 

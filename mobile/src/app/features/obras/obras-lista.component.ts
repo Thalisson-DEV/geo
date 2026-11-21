@@ -24,7 +24,7 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
           <span class="geo-selo geo-selo--ok"><geo-icone nome="check" /></span><span>Pronto para trabalhar sem sinal</span>
         } @else if (ctx.pacote.projetosFaltando().length) {
           <span class="geo-selo geo-selo--atencao"><geo-icone nome="alerta" /></span>
-          <span>Faltam {{ ctx.pacote.projetosFaltando().length }} {{ ctx.pacote.projetosFaltando().length === 1 ? 'projeto' : 'projetos' }} no aparelho. {{ rede.isOnline() ? 'Baixando…' : 'Conecte para baixar.' }}</span>
+          <span>{{ ctx.pacote.projetosFaltando().length === 1 ? 'Falta 1 projeto' : 'Faltam ' + ctx.pacote.projetosFaltando().length + ' projetos' }} no aparelho. {{ rede.isOnline() ? 'Baixando…' : 'Conecte para baixar.' }}</span>
         } @else if (!ctx.pacote.ultimaSync()) {
           <span class="geo-selo geo-selo--atencao"><geo-icone nome="sem_rede" /></span><span>A agenda ainda não foi baixada. Conecte para baixar.</span>
         }
@@ -40,7 +40,7 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
               <span class="geo-linha__texto">
                 <span class="geo-linha__titulo">Obra {{ p.numeroObra }} · {{ ctx.ref(p) }}</span>
                 <span class="geo-linha__apoio">{{ p.descricao }}</span>
-                <span class="geo-linha__apoio geo-num">{{ resumo(p).feitos }} de {{ resumo(p).total }} pontos{{ ctx.condicoes(p).length ? ' · ' + ctx.condicoes(p).join(' · ') : '' }}</span>
+                <span class="geo-linha__apoio geo-num">{{ resumo(p).total ? resumo(p).feitos + ' de ' + resumo(p).total + ' pontos' : 'Os pontos chegam com o sinal' }}{{ ctx.condicoes(p).length ? ' · ' + ctx.condicoes(p).join(' · ') : '' }}</span>
               </span>
               <geo-icone nome="avancar" [tamanho]="18" />
             </a></li>

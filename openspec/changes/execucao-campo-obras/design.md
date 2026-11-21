@@ -99,6 +99,20 @@ Equipes de Obras são separadas das comerciais.
   (`programacoes.avulsa`, V266) e inclui nela só os itens apontados, com o valor vigente — nada fica preso como programado e
   o valor entra na medição. A programação avulsa do servidor não volta ao app (ele usa a local). Sem sinal na hora da busca,
   não há execução avulsa (o app explica); com a obra já buscada, tudo funciona sem sinal.
+- **Avaliação no Chrome com o backend real (21/11/2026)**:
+  - A liberação do dia vem também do servidor (`liberacaoDoDia` no pacote): APR feita em outro aparelho, ou antes de sair e
+    entrar, não é pedida de novo.
+  - **Além do programado**: o pacote traz, por obra da agenda, os itens pendentes fora de qualquer programação
+    (`itensExtras`); a equipe executa pontos extras da mesma obra sem sinal ("Ir além do programado" → avulsa local com
+    motivo "Além do programado"). Mesmo mecanismo da avulsa no servidor; o supervisor vê como programação avulsa.
+  - **Avulsa sem sinal**: o pacote traz as obras em aberto da base da equipe (`obrasAbertas`: número, título, município).
+    Sem sinal, a equipe acha a obra e começa (chegada, APR, ocorrências); os pontos, os itens e o projeto chegam sozinhos
+    quando o sinal volta (`completarAvulsas`). Obra de outra base sem sinal: o app explica e pede o sinal.
+  - Foto de avulsa aceita pelo servidor em obra em aberto (antes era recusada por "não está na agenda"). Registro recusado:
+    "Enviar de novo" (nova operação com o mesmo id do aparelho) ou "Descartar" — antes só "Refazer", que apagava a foto.
+  - **Checklist do veículo**: continua obrigatório na abertura do turno quando a frota cadastrou checklist para o veículo;
+    veículo sem checklist cadastrado (sem ficha ou sem tipo) e catálogo não baixado agora aparecem com aviso, em vez de
+    passarem em silêncio. A tela de abrir turno atualiza o catálogo da frota quando há sinal.
 - **Clareza para a equipe** (revisão de 21/11/2026): cada ponto diz os serviços ("Instalar poste · Lançar cabo (faltam 20 M)")
   em vez de contagens; o próximo ponto é destacado; barra de progresso; ficha com "O que fazer" (serviços somados); projeto
   com zoom (botões e pinça), tela cheia e marcadores de 40 px com contorno; na ficha, o passo antes de chegar é "Cheguei na obra".

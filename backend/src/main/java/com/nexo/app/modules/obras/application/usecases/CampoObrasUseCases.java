@@ -312,7 +312,9 @@ public class CampoObrasUseCases {
         }
         boolean programada = programacaoRepository.listarDaObraComItens(idObra).stream()
                 .anyMatch(p -> p.getIdEquipe().equals(equipe.get()));
-        if (!programada) {
+        // Fora da agenda vale a obra em aberto: é a execução avulsa (a foto pode chegar antes do primeiro apontamento).
+        boolean emAberto = obraRepository.findById(idObra).map(o -> o.isAtivo() && !o.getStatusObra().isConcluida()).orElse(false);
+        if (!programada && !emAberto) {
             throw new AcessoNegadoException("A obra não está na agenda da sua equipe.");
         }
     }

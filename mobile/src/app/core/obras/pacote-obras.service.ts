@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
 import { db } from '../db/app-db';
 import { ArquivosCampoService } from './arquivos-campo.service';
-import { AvisoProgramacao, ItemCampo, ModeloApr, ModeloFoto, ObraCampo, PacoteObras, ProgramacaoCampo } from './obras.models';
+import { AvisoProgramacao, ItemCampo, LiberacaoDia, ObraResumo, ModeloApr, ModeloFoto, ObraCampo, PacoteObras, ProgramacaoCampo } from './obras.models';
 
 const CHAVE_DESDE = 'obras_pacote_desde';
 const CHAVE_MODELOS = 'obras_modelos';
@@ -14,6 +14,8 @@ const CHAVE_AVISOS_VISTOS = 'obras_avisos_vistos';
 const CHAVE_EQUIPE = 'obras_equipe';
 /** Hora do aparelho em que o último pacote chegou: o que foi enviado antes disso já vem na execução do pacote. */
 const CHAVE_RECEBIDO_EM = 'obras_pacote_recebido_em';
+const CHAVE_LIBERACAO = 'obras_liberacao_do_dia';
+const CHAVE_ABERTAS = 'obras_abertas_da_base';
 
 /** Chave do arquivo do projeto da obra no armazenamento de arquivos. */
 /** Tempo máximo para baixar um PDF de projeto (arquivos grandes em 4G fraco). */
@@ -58,6 +60,10 @@ export class PacoteObrasService {
   readonly avisosVistos = signal<string[]>([]);
   readonly ultimaSync = signal<string | null>(null);
   readonly recebidoEm = signal<string | null>(null);
+  /** O que o servidor sabe da APR do dia (feita em outro aparelho ou antes de sair e entrar). */
+  readonly liberacaoServidor = signal<LiberacaoDia[]>([]);
+  /** Obras em aberto da base: sem sinal, a equipe ainda acha a obra da execução avulsa. */
+  readonly obrasAbertas = signal<ObraResumo[]>([]);
   readonly codigoEquipe = signal<string | null>(null);
   readonly sincronizando = signal(false);
   readonly erro = signal<string | null>(null);
@@ -74,15 +80,17 @@ export class PacoteObrasService {
 
   /** Lê o que já está no aparelho (abre sem rede). */
   async carregarLocal(): Promise<void> {
-    const [programacoes, obras, desde, modelos, avisos, vistos, equipe, recebido] = await Promise.all([
+    const [programacoes, obras, desde, modelos, avisos, vistos, equipe, recebido, liberacao, abertas] = await Promise.all([
       db.obrasProgramacoes.toArray(), db.obrasObras.toArray(), db.config.get(CHAVE_DESDE), db.config.get(CHAVE_MODELOS),
       db.config.get(CHAVE_AVISOS), db.config.get(CHAVE_AVISOS_VISTOS), db.config.get(CHAVE_EQUIPE),
-      db.config.get(CHAVE_RECEBIDO_EM),
+      db.config.get(CHAVE_RECEBIDO_EM), db.config.get(CHAVE_LIBERACAO), db.config.get(CHAVE_ABERTAS),
     ]);
     this.programacoes.set(programacoes);
     this.obras.set(obras);
     this.ultimaSync.set(desde?.value ?? null);
     this.recebidoEm.set(recebido?.value ?? null);
+    this.liberacaoServidor.set(liberacao?.value ?? []);
+    this.obrasAbertas.set(abertas?.value ?? []);
     this.modeloApr.set(modelos?.value?.apr ?? null);
     this.modelosFoto.set(modelos?.value?.fotos ?? []);
     this.avisos.set(avisos?.value ?? []);
@@ -124,17 +132,52 @@ export class PacoteObrasService {
     try {
       if (!this.carregado()) await this.carregarLocal();
       void this.arquivos.pedirPersistencia();
-      const desde = this.ultimaSync();
+      // Obra guardada antes dos itens além do programado (pacote antigo): pede o pacote completo uma vez.
+      const desde = this.obras().some(o => o.itensExtras === undefined) ? null : this.ultimaSync();
       const params: Record<string, string> = desde ? { desde } : {};
       const pacote = await firstValueFrom(this.http.get<PacoteObras>(`${this.baseUrl}/v1/obras/campo/pacote`,
         { params, headers: { 'X-Silent-Error': 'true' } }));
       await this.aplicar(pacote, !desde);
+      await this.completarAvulsas();
       await this.baixarProjetos();
       await this.arquivos.medirEspaco();
     } catch {
       this.erro.set('Sem conexão com o servidor: o app segue com a agenda que já está no aparelho.');
     } finally {
       this.sincronizando.set(false);
+    }
+  }
+
+  /**
+   * A obra para a execução avulsa sem ir ao servidor: obra da agenda (os itens além do programado vêm no pacote) ou,
+   * sem sinal, a obra em aberto da base, ainda sem pontos (eles chegam com o sinal, em {@link completarAvulsas}).
+   */
+  avulsaNoAparelho(numero: string): (ObraAvulsa & { semDados?: boolean }) | null {
+    const n = numero.trim();
+    const daAgenda = this.obras().find(o => o.numero === n);
+    if (daAgenda) return { obra: daAgenda, itens: daAgenda.itensExtras ?? [], programadosEmOutra: 0 };
+    const resumo = this.obrasAbertas().find(o => o.numero === n);
+    if (!resumo) return null;
+    return {
+      obra: { id: resumo.id, numero: resumo.numero, titulo: resumo.titulo, municipio: resumo.municipio, pontos: [], vaos: [], fotos: [], pendenciasFoto: [], itensExtras: [] },
+      itens: [], programadosEmOutra: 0, semDados: true,
+    };
+  }
+
+  /** Avulsas começadas sem sinal: com sinal, busca os pontos, o projeto e os itens da obra e completa a do aparelho. */
+  async completarAvulsas(): Promise<void> {
+    const incompletas = this.programacoes().filter(p => p.avulsa && !p.itens.length);
+    for (const p of incompletas) {
+      const dados = await this.buscarAvulsa(p.numeroObra ?? '').catch(() => null);
+      if (!dados) continue;
+      await db.transaction('rw', [db.obrasProgramacoes, db.obrasObras], async () => {
+        await db.obrasObras.put(dados.obra);
+        await db.obrasProgramacoes.put({ ...p, itens: dados.itens });
+      });
+    }
+    if (incompletas.length) {
+      await this.carregarLocal();
+      await this.baixarProjetos();
     }
   }
 
@@ -199,6 +242,8 @@ export class PacoteObrasService {
         { key: CHAVE_AVISOS, value: avisos },
         { key: CHAVE_EQUIPE, value: pacote.codigoEquipe ?? null },
         { key: CHAVE_RECEBIDO_EM, value: recebidoEm },
+        { key: CHAVE_LIBERACAO, value: pacote.liberacaoDoDia ?? [] },
+        ...(pacote.obrasAbertas ? [{ key: CHAVE_ABERTAS, value: pacote.obrasAbertas }] : []),
       ]);
     });
     await this.carregarLocal();

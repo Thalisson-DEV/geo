@@ -26,7 +26,7 @@ const RAIO_CHEGADA_M = 400;
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (programacao(); as p) {
-      <geo-barra-topo [titulo]="'Obra ' + (p.numeroObra ?? '')" [subtitulo]="p.avulsa ? 'Execução avulsa (fora da agenda)' : 'Programação #' + p.numero"
+      <geo-barra-topo [titulo]="'Obra ' + (p.numeroObra ?? '')" [subtitulo]="p.avulsa ? (ctx.ref(p) === 'além do programado' ? 'Além do programado (pontos sem programação)' : 'Execução avulsa (fora da agenda)') : 'Programação #' + p.numero"
         [navegacao]="layout.expandido() ? 'nenhuma' : 'voltar'" (voltar)="voltar()" />
 
       @if (aviso(); as a) {

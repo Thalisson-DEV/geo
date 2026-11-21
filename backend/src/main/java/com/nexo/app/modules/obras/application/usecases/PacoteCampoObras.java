@@ -2,6 +2,7 @@ package com.nexo.app.modules.obras.application.usecases;
 
 import com.nexo.app.modules.obras.application.dto.CampoObrasResponses;
 import com.nexo.app.modules.obras.application.dto.DownloadAnexoObraDTO;
+import com.nexo.app.modules.execucao.TurnoApi;
 import com.nexo.app.modules.obras.domain.AnexoObra;
 import com.nexo.app.modules.obras.domain.EstruturaChecklist;
 import com.nexo.app.modules.obras.domain.EventoProgramacao;
@@ -15,10 +16,13 @@ import com.nexo.app.modules.obras.domain.PlanejamentoObra;
 import com.nexo.app.modules.obras.domain.PontoPlanejamento;
 import com.nexo.app.modules.obras.domain.Programacao;
 import com.nexo.app.modules.obras.domain.ProgramacaoItem;
+import com.nexo.app.modules.obras.domain.StatusAprTurno;
 import com.nexo.app.modules.obras.domain.StatusItemPlanejado;
 import com.nexo.app.modules.obras.domain.StatusProgramacao;
 import com.nexo.app.modules.obras.domain.VaoPlanejamento;
 import com.nexo.app.modules.obras.infrastructure.persistence.AnexoObraRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.AprTurnoRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.OcorrenciaTurnoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.EventoProgramacaoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.EvidenciaPontoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.FichaAsBuiltRepository;
@@ -99,6 +103,9 @@ public class PacoteCampoObras {
     private final EventoProgramacaoRepository eventoRepository;
     private final ObjectStorageService objectStorage;
     private final KitAplicadoRepository kitRepository;
+    private final AprTurnoRepository aprRepository;
+    private final OcorrenciaTurnoRepository ocorrenciaRepository;
+    private final TurnoApi turnoApi;
 
     /**
      * @param idEquipe opcional para o encarregado (vale a equipe dele; outra equipe é 403); obrigatório para quem não
@@ -150,7 +157,8 @@ public class PacoteCampoObras {
                         e.getIdObra(), e.getNumeroObra(), textoAviso(e, equipe), e.getDataCriacao()))
                 .toList();
         return new CampoObrasResponses.Pacote(agora, desde, equipe, dadosEquipe.codigo(), hoje, fim, programacoes,
-                List.copyOf(removidas), obrasCampo, modeloApr(), modelosFoto(), avisos);
+                List.copyOf(removidas), obrasCampo, modeloApr(), modelosFoto(), avisos, liberacaoDoDia(equipe, hoje),
+                obrasAbertas(dadosEquipe));
     }
 
     /**
@@ -168,27 +176,44 @@ public class PacoteCampoObras {
         CampoObrasResponses.ObraCampo obraCampo = obraCampo(obra, locaisPorObra);
         Map<UUID, String> locais = locaisPorObra.getOrDefault(obra.getId(), Map.of());
         Optional<Programacao> avulsa = programacaoRepository.buscarAvulsa(obra.getId(), equipe, LocalDate.now(FUSO));
-        List<CampoObrasResponses.ItemCampo> itens = new ArrayList<>();
-        int emOutra = 0;
-        for (KitAplicado kit : kitRepository.listarComItens(obra.getId())) {
-            if (!kit.isAtivo()) {
-                continue;
-            }
-            for (ItemPlanejado item : kit.getItensAtivos()) {
-                boolean naAvulsa = avulsa.map(p -> p.contem(item.getId())).orElse(false);
-                if (!item.programavel() && !naAvulsa) {
-                    if (item.getStatus() == StatusItemPlanejado.PROGRAMADO) {
-                        emOutra++;
-                    }
-                    continue;
-                }
-                UUID local = kit.getIdPonto() != null ? kit.getIdPonto() : kit.getIdVao();
-                itens.add(new CampoObrasResponses.ItemCampo(item.getId(), kit.getIdPonto(), kit.getIdVao(), locais.get(local),
-                        item.getTipo(), item.getIdMaterial(), item.getCodigo(), item.getDescricao(), item.getUnidade(),
-                        kit.getCodigoKit(), item.getQuantidadePrevista(), item.getQuantidadeExecutada(), item.getStatus()));
-            }
+        Programaveis programaveis = itensProgramaveis(obra.getId(), locais, avulsa);
+        return new CampoObrasResponses.ObraAvulsa(obraCampo, programaveis.itens(), programaveis.emOutra());
+    }
+
+    /**
+     * APRs concluídas e impedimentos da equipe hoje, de todos os turnos do dia: o app junta com o que tem no aparelho, para
+     * não pedir de novo a APR feita em outro aparelho ou antes de sair e entrar.
+     */
+    /** Obras em aberto da base da equipe (até 2000): sem sinal, a equipe ainda acha a obra para começar uma avulsa. */
+    private List<CampoObrasResponses.ObraResumo> obrasAbertas(EquipeResponse equipe) {
+        if (equipe.baseOperacional() == null) {
+            return List.of();
         }
-        return new CampoObrasResponses.ObraAvulsa(obraCampo, itens, emOutra);
+        List<Obra> abertas = obraRepository.listarAbertasDaBase(equipe.baseOperacional().id());
+        Map<UUID, String> municipios = new HashMap<>();
+        return abertas.stream().limit(2000).map(o -> new CampoObrasResponses.ObraResumo(o.getId(), o.getNumero(), o.getTitulo(),
+                o.getIdMunicipio() == null ? null : municipios.computeIfAbsent(o.getIdMunicipio(),
+                        id -> municipioApi.buscarPorIdResponse(id).map(MunicipioResponse::nome).orElse(null)))).toList();
+    }
+
+    private List<CampoObrasResponses.LiberacaoDia> liberacaoDoDia(UUID equipe, LocalDate hoje) {
+        OffsetDateTime inicio = hoje.atStartOfDay(FUSO).toOffsetDateTime();
+        List<UUID> turnos = turnoApi.listarSobrepostosAoPeriodo(inicio, inicio.plusDays(1), List.of(equipe)).stream()
+                .map(com.nexo.app.modules.execucao.application.dto.TurnoResponse::id).toList();
+        if (turnos.isEmpty()) {
+            return List.of();
+        }
+        List<CampoObrasResponses.LiberacaoDia> lista = new ArrayList<>();
+        aprRepository.findByIdTurnoInAndAtivoTrue(turnos).stream()
+                .filter(a -> a.getStatus() == StatusAprTurno.CONCLUIDA && a.getDataConclusao() != null
+                        && a.getDataConclusao().atZoneSameInstant(FUSO).toLocalDate().equals(hoje))
+                .forEach(a -> lista.add(new CampoObrasResponses.LiberacaoDia("APR", a.getIdObra(),
+                        a.getCampo() != null ? a.getCampo().getIdLocal() : null, a.getDataConclusao())));
+        ocorrenciaRepository.findByIdTurnoInAndAtivoTrue(turnos).stream()
+                .filter(o -> o.isImpedeExecucao() && o.momento() != null && o.momento().atZoneSameInstant(FUSO).toLocalDate().equals(hoje))
+                .forEach(o -> lista.add(new CampoObrasResponses.LiberacaoDia("IMPEDIMENTO", o.getIdObra(),
+                        o.getCampo() != null ? o.getCampo().getIdLocal() : null, o.momento())));
+        return lista;
     }
 
     /** Projeto em PDF da obra, para o aparelho guardar offline. */
@@ -284,7 +309,36 @@ public class PacoteCampoObras {
                 idModelo,
                 fotos.stream().filter(f -> !f.reprovada()).map(f -> new CampoObrasResponses.FotoCampo(f.getId(), f.getIdLocal(), f.getIdPonto(), f.getIdVao(),
                         f.getIdModelo(), f.getIdItem(), f.getEtapa() != null ? f.getEtapa().name() : null)).toList(),
-                pendenciasFoto(obra.getId(), pontos, fotos, fichas, idModelo));
+                pendenciasFoto(obra.getId(), pontos, fotos, fichas, idModelo),
+                itensProgramaveis(obra.getId(), locais, Optional.empty()).itens());
+    }
+
+    private record Programaveis(List<CampoObrasResponses.ItemCampo> itens, int emOutra) {
+    }
+
+    /** Itens da obra que a equipe pode executar fora da programação: pendentes, ou já na avulsa dela hoje. */
+    private Programaveis itensProgramaveis(UUID idObra, Map<UUID, String> locais, Optional<Programacao> avulsa) {
+        List<CampoObrasResponses.ItemCampo> itens = new ArrayList<>();
+        int emOutra = 0;
+        for (KitAplicado kit : kitRepository.listarComItens(idObra)) {
+            if (!kit.isAtivo()) {
+                continue;
+            }
+            for (ItemPlanejado item : kit.getItensAtivos()) {
+                boolean naAvulsa = avulsa.map(p -> p.contem(item.getId())).orElse(false);
+                if (!item.programavel() && !naAvulsa) {
+                    if (item.getStatus() == StatusItemPlanejado.PROGRAMADO) {
+                        emOutra++;
+                    }
+                    continue;
+                }
+                UUID local = kit.getIdPonto() != null ? kit.getIdPonto() : kit.getIdVao();
+                itens.add(new CampoObrasResponses.ItemCampo(item.getId(), kit.getIdPonto(), kit.getIdVao(), locais.get(local),
+                        item.getTipo(), item.getIdMaterial(), item.getCodigo(), item.getDescricao(), item.getUnidade(),
+                        kit.getCodigoKit(), item.getQuantidadePrevista(), item.getQuantidadeExecutada(), item.getStatus()));
+            }
+        }
+        return new Programaveis(itens, emOutra);
     }
 
     /**

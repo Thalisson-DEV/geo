@@ -40,7 +40,14 @@ public final class CampoObrasResponses {
                          @JsonFormat(pattern = "dd/MM/yyyy") LocalDate inicioJanela,
                          @JsonFormat(pattern = "dd/MM/yyyy") LocalDate fimJanela,
                          List<ProgramacaoCampo> programacoes, List<UUID> programacoesRemovidas,
-                         List<ObraCampo> obras, ModeloApr modeloApr, List<ModeloFoto> modelosFoto, List<Aviso> avisos) {
+                         List<ObraCampo> obras, ModeloApr modeloApr, List<ModeloFoto> modelosFoto, List<Aviso> avisos,
+                         /** APRs concluídas e "sem condição" da equipe hoje, em qualquer aparelho: a liberação do dia no app. */
+                         List<LiberacaoDia> liberacaoDoDia,
+                         List<ObraResumo> obrasAbertas) {
+    }
+
+    /** {@code tipo}: APR (concluída) ou IMPEDIMENTO ("sem condição de executar"). {@code idLocal}: id do aparelho, se veio do app. */
+    public record LiberacaoDia(String tipo, UUID idObra, UUID idLocal, OffsetDateTime em) {
     }
 
     public record ProgramacaoCampo(UUID id, long numero, UUID idObra, String numeroObra,
@@ -68,7 +75,13 @@ public final class CampoObrasResponses {
     public record ObraCampo(UUID id, String numero, String titulo, String endereco, String referencia, Double latitude,
                             Double longitude, String municipio, ProjetoPdf projeto, Map<String, Integer> rotacoes,
                             List<PontoCampo> pontos, List<VaoCampo> vaos, UUID idModeloFoto, List<FotoCampo> fotos,
-                            List<PendenciaFoto> pendenciasFoto) {
+                            List<PendenciaFoto> pendenciasFoto,
+                            /** Itens pendentes da obra fora de qualquer programação: a equipe pode ir além do programado. */
+                            List<ItemCampo> itensExtras) {
+    }
+
+    /** Obra em aberto da base da equipe, para começar uma execução avulsa sem sinal (os pontos chegam com o sinal). */
+    public record ObraResumo(UUID id, String numero, String titulo, String municipio) {
     }
 
     /** Versão do projeto em PDF: o app baixa de novo só quando o hash muda. */

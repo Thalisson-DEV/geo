@@ -142,7 +142,7 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
               <div class="campos">
                 <label class="medida" [class.medida--erro]="(tentou() && r.medicao === null) || !!erroMedicao()">
                   <span class="geo-sr-only">{{ horas() ? 'Horas no horímetro' : 'KM no painel' }}</span>
-                  <input class="medida__valor geo-num" type="text" inputmode="numeric" autocomplete="off" placeholder="0"
+                  <input class="medida__valor geo-num" type="text" inputmode="numeric" autocomplete="off" [placeholder]="horas() ? 'Horas do painel' : 'KM do painel'"
                     [value]="r.medicao ?? ''" (input)="definirMedicao($any($event.target).value)"
                     [attr.aria-invalid]="(tentou() && r.medicao === null) || erroMedicao() ? 'true' : null">
                   <span class="medida__unidade">{{ horas() ? 'h' : 'km' }}</span>

@@ -529,6 +529,10 @@ O encarregado usa o app no tablet ou no celular. Tudo funciona sem sinal; o que 
 
 **Execução avulsa (obra fora da agenda).** Em `Obras → Execução avulsa`, busque a obra pelo número (precisa de sinal só nessa hora), escolha o motivo (emergência, pedido da supervisão…) e toque em **Começar execução**. A obra entra no Hoje e funciona como as programadas: APR do dia, pontos, fotos e relatório. O que a equipe apontar entra numa programação avulsa criada pelo sistema, com o valor vigente, e vai para a medição. Itens já programados para outra equipe não aparecem.
 
+**Ir além do programado.** Na tela de pontos de uma obra da agenda, **Ir além do programado** mostra os pontos da mesma obra ainda sem programação; funciona sem sinal. Sem sinal, a **Execução avulsa** também acha as obras em aberto da base da equipe: dá para começar (chegada, APR, ocorrências) e os pontos chegam quando o sinal volta.
+
+**Checklist do veículo.** É obrigatório para abrir o turno quando a frota cadastrou checklist para o veículo. Se o veículo não tem checklist cadastrado, o app avisa para falar com a supervisão.
+
 Se o servidor recusar um registro (por exemplo, a programação foi cancelada enquanto a equipe estava sem sinal), o Hoje mostra o motivo e o caso fica com o backoffice em **Sincronização**.
 
 **O supervisor no app** tem a aba **Obras**: a situação de cada equipe agora (a caminho, na obra, executando, parada, sem condição), a visita prévia e o pedido de As Built e de book.

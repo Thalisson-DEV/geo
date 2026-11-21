@@ -184,8 +184,14 @@ export function formularioDaApr(r: AprRascunho, verificacoes: string[], local?: 
 }
 
 /** Como a equipe vê a referência da programação: "#12" ou "avulsa". */
-export function referenciaProgramacao(p: Pick<ProgramacaoCampo, 'numero' | 'avulsa'>): string {
-  return p.avulsa ? 'avulsa' : `#${p.numero}`;
+export function referenciaProgramacao(p: Pick<ProgramacaoCampo, 'numero' | 'avulsa' | 'observacao'>): string {
+  if (p.avulsa) return ehAlemDoProgramado(p) ? 'além do programado' : 'avulsa';
+  return `#${p.numero}`;
+}
+
+/** Avulsa começada pelo "Ir além do programado" (mesma obra da agenda). */
+export function ehAlemDoProgramado(p: Pick<ProgramacaoCampo, 'avulsa' | 'observacao'>): boolean {
+  return !!p.avulsa && !!p.observacao?.startsWith('Além do programado');
 }
 
 // ---------- Liberação no aparelho ----------
@@ -311,15 +317,20 @@ export function relatorioDoDia(programacoes: ProgramacaoCampo[], registros: Regi
   const atendidas = programacoes.filter(p => doDia.some(r => r.idProgramacao === p.id || r.idObra === p.idObra));
   for (const p of atendidas) {
     const feitos = pontosFeitos(p);
-    linhas.push(`Obra ${p.numeroObra ?? ''} (${p.avulsa ? 'execução avulsa' : `programação #${p.numero}`}): ${feitos.length ? `pontos feitos ${feitos.join(', ')}` : 'sem pontos concluídos'}.`);
+    const tipo = !p.avulsa ? `programação #${p.numero}` : ehAlemDoProgramado(p) ? 'além do programado'
+      : `execução avulsa${p.observacao ? ' — ' + p.observacao : ''}`;
+    linhas.push(`Obra ${p.numeroObra ?? ''} (${tipo}): ${feitos.length ? `pontos feitos ${feitos.join(', ')}` : 'sem pontos concluídos'}.`);
   }
-  for (const r of doDia.filter(x => x.tipo === 'ATIVIDADE')) {
-    linhas.push(`Obra não programada: ${(r.comando as { motivo?: string }).motivo ?? ''}`.trim());
+  // Atividade fora da agenda sem a avulsa no aparelho (registro antigo): fica a linha com o motivo.
+  for (const r of doDia.filter(x => x.tipo === 'ATIVIDADE' && !atendidas.some(p => p.avulsa && p.idObra === x.idObra))) {
+    linhas.push(`Obra fora da agenda: ${(r.comando as { motivo?: string }).motivo ?? ''}`.trim());
   }
+  const numeroDa = (idObra?: string | null) => programacoes.find(p => p.idObra === idObra)?.numeroObra;
   const ocorrencias = doDia.filter(r => r.tipo === 'OCORRENCIA');
   for (const o of ocorrencias) {
     const c = o.comando as { tipo?: string; descricao?: string; impedeExecucao?: boolean };
-    linhas.push(`${c.impedeExecucao ? 'Sem condição de executar' : 'Ocorrência'} (${(c.tipo ?? '').toLowerCase()}): ${c.descricao ?? ''}`);
+    const obra = numeroDa(o.idObra);
+    linhas.push(`${c.impedeExecucao ? 'Sem condição de executar' : 'Ocorrência'}${obra ? ` na obra ${obra}` : ''} (${(c.tipo ?? '').toLowerCase()}): ${c.descricao ?? ''}`);
   }
   if (pendenciasFoto) linhas.push(`Fotos pendentes: ${pendenciasFoto}.`);
   if (!linhas.length) linhas.push('Sem lançamentos no dia.');

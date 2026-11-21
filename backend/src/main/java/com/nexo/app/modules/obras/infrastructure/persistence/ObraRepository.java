@@ -23,6 +23,10 @@ public interface ObraRepository
 
     Optional<Obra> findByNumeroIgnoreCaseAndAtivoTrue(String numero);
 
+    /** Obras em aberto (status que não conclui) de uma base, pelo número. */
+    @Query("select o from Obra o where o.ativo = true and o.idBaseOperacional = :idBase and o.statusObra.concluida = false order by o.numero")
+    List<Obra> listarAbertasDaBase(@Param("idBase") UUID idBase);
+
     Optional<Obra> findByNumeroIgnoreCase(String numero);
 
     boolean existsByNumeroIgnoreCaseAndAtivoTrue(String numero);

@@ -35,7 +35,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
   host: { '[class.dividido]': 'layout.expandido()', '[class.geo-tela-larga]': 'layout.expandido()' },
   template: `
     @if (programacao(); as p) {
-      <geo-barra-topo titulo="Pontos e projeto" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + (p.avulsa ? ' · execução avulsa' : ' · #' + p.numero)" (voltar)="voltar()" />
+      <geo-barra-topo titulo="Pontos e projeto" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + ' · ' + ctx.ref(p)" (voltar)="voltar()" />
       <div class="progresso" role="progressbar" [attr.aria-valuenow]="feitos()" aria-valuemin="0" [attr.aria-valuemax]="pontos().length"
         [attr.aria-label]="feitos() + ' de ' + pontos().length + ' pontos feitos'">
         <span class="progresso__texto"><strong class="geo-num">{{ feitos() }} de {{ pontos().length }}</strong> {{ pontos().length === 1 ? 'ponto feito' : 'pontos feitos' }}
@@ -91,7 +91,22 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
                   </li>
                 }
               </ul>
-              @if (!pontos().length) { <geo-vazio icone="local" titulo="Nenhum ponto nesta programação" /> }
+              @if (!pontos().length) {
+                @if (p.avulsa) {
+                  <geo-vazio icone="sem_rede" titulo="Os pontos desta obra ainda não chegaram" texto="Eles chegam sozinhos quando houver sinal. Enquanto isso: chegada, APR e ocorrências já funcionam." />
+                } @else {
+                  <geo-vazio icone="local" titulo="Nenhum ponto nesta programação" />
+                }
+              }
+              @if (!p.avulsa && extras() ; as n) {
+                <ul class="geo-grupo alem">
+                  <li><a class="geo-linha geo-linha--acao" [routerLink]="['/obras/nao-programada']" [queryParams]="{ obra: p.numeroObra, motivo: 'Além do programado' }" data-testid="alem-programado">
+                    <span class="geo-selo"><geo-icone nome="mais" /></span>
+                    <span class="geo-linha__texto"><span class="geo-linha__titulo">Ir além do programado</span>
+                      <span class="geo-linha__apoio">{{ n === 1 ? '1 ponto desta obra' : n + ' pontos desta obra' }} ainda sem programação. Funciona sem sinal.</span></span>
+                    <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+                </ul>
+              }
               @if (pendencias().length) {
                 <p class="nota"><geo-icone nome="camera" [tamanho]="16" /> {{ fotosPendentes(pendencias().length) }} do modelo. Tire quando puder; não bloqueia o envio.</p>
               }
@@ -203,6 +218,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
     .progresso__barra span { display: block; height: 100%; background: var(--geo-ok); border-radius: inherit; transition: width 200ms var(--geo-curva); }
     .fazer { font: var(--geo-t-apoio); color: var(--geo-texto); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .proximo { margin-left: var(--geo-e2); vertical-align: middle; }
+    .alem { margin-top: var(--geo-e3); }
     .nota { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .detalhe { padding: 0 0 var(--geo-e6); }
     .detalhe__topo { display: flex; align-items: center; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-margem); }
@@ -250,6 +266,8 @@ export class ExecucaoComponent implements OnDestroy {
   readonly obra = computed(() => this.ctx.pacote.obra(this.programacao()?.idObra));
   readonly pontos = computed(() => (this.programacao() ? this.ctx.pontos(this.programacao()!) : []));
   readonly feitos = computed(() => this.pontos().filter(p => p.situacao === 'FEITO').length);
+  /** Pontos/vãos da obra com itens pendentes fora de qualquer programação (vêm no pacote). */
+  readonly extras = computed(() => new Set((this.obra()?.itensExtras ?? []).map(i => i.idPonto ?? i.idVao)).size);
   /** O primeiro ponto ainda não feito, na ordem do projeto: o "próximo" que a equipe vê destacado. */
   readonly proximo = computed(() => this.pontos().find(p => p.situacao !== 'FEITO') ?? null);
   readonly liberacao = computed(() => (this.programacao() ? this.ctx.liberacao(this.programacao()!) : 'PENDENTE'));
@@ -259,7 +277,9 @@ export class ExecucaoComponent implements OnDestroy {
     const obra = this.obra();
     if (!obra) return [];
     const feitos = this.pontos().filter(p => p.situacao !== 'A_FAZER').map(p => ({ id: p.id, rotulo: p.rotulo }));
-    return pendenciasDeFoto(obra, this.itensFoto(), feitos, this.ctx.registros.registros());
+    // Só os pontos desta tela: a obra pode ter pendências de outra programação (que aparecem lá).
+    const daqui = new Set(this.pontos().map(p => p.id));
+    return pendenciasDeFoto(obra, this.itensFoto(), feitos, this.ctx.registros.registros()).filter(x => daqui.has(x.idPonto));
   });
   readonly marcadores = computed<MarcadorPonto[]>(() => this.pontos()
     .filter(p => p.ponto?.x != null && p.ponto?.y != null)
@@ -344,6 +364,8 @@ export class ExecucaoComponent implements OnDestroy {
       tipo: 'APONTAMENTO', idObra: p.idObra, idProgramacao: p.id, idPonto: ponto.id, dependeDe: apr?.id ?? null,
       comando: { idProgramacao: p.id, idPonto: ponto.id, pontoInteiro: true, itens: null, idApr: apr?.id ?? null },
     });
+    // Com o ponto feito, as fotos que faltam são as de depois.
+    this.etapa.set('DEPOIS');
     const faltam = this.itensFoto().filter(i => i.obrigatoria).length;
     this.toast.desfazer(`${ponto.rotulo}: tudo feito${faltam ? ' · tire as fotos do modelo' : ''}`, () => void this.ctx.registros.desfazer(r.id));
   }
@@ -368,6 +390,7 @@ export class ExecucaoComponent implements OnDestroy {
     });
     this.parcial.set(false);
     this.quantidades.set({});
+    this.etapa.set('DURANTE');
     this.toast.desfazer('Parcial registrado', () => void this.ctx.registros.desfazer(r.id));
   }
 

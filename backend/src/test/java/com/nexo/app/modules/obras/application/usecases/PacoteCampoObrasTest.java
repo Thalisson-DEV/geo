@@ -51,6 +51,10 @@ class PacoteCampoObrasTest {
     @Mock ModeloChecklistObraRepository modeloRepository;
     @Mock EventoProgramacaoRepository eventoRepository;
     @Mock ObjectStorageService objectStorage;
+    @Mock com.nexo.app.modules.obras.infrastructure.persistence.KitAplicadoRepository kitRepository;
+    @Mock com.nexo.app.modules.obras.infrastructure.persistence.AprTurnoRepository aprRepository;
+    @Mock com.nexo.app.modules.obras.infrastructure.persistence.OcorrenciaTurnoRepository ocorrenciaRepository;
+    @Mock com.nexo.app.modules.execucao.TurnoApi turnoApi;
     @InjectMocks PacoteCampoObras pacote;
 
     private final UUID usuario = UUID.randomUUID();

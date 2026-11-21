@@ -146,7 +146,7 @@ test.describe('Obras offline', () => {
     await page.getByTestId('tudo-feito-4').click();
     await irParaHoje(page);
     const conflito = page.getByTestId('conflito-obra');
-    await expect(conflito).toContainText('Apontamento recusado', { timeout: 15_000 });
+    await expect(conflito).toContainText('Apontamento: recusado pelo servidor', { timeout: 15_000 });
     await expect(conflito).toContainText('cancelada ou excluída');
   });
 
