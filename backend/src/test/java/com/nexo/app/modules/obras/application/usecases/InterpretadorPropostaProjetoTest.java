@@ -414,4 +414,19 @@ class InterpretadorPropostaProjetoTest {
         assertThat(interpretador.concluir().pontos().get(0).kits())
                 .extracting(PropostaPlanejamento.KitSugerido::codigo).containsExactly("IM-1");
     }
+
+    @Test
+    void folhaSemCotaUsaAProporcaoDasOutrasFolhasDaObra() {
+        InterpretadorPropostaProjeto interpretador = novo(Set.of());
+        interpretador.adicionarCamada(new LeitorCamadaProjeto.CamadaPagina(List.of(), 1000, 1000, 1000));
+        interpretador.usarProporcaoDaObra(0.5);
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"11","x":0.1,"y":0.5,"confianca":0.9},{"numero":"12","x":0.2,"y":0.5,"confianca":0.9}],
+                 "vaos":[{"de":"11","para":"12","confianca":0.9}]}
+                """, PAGINA_INTEIRA);
+
+        PropostaPlanejamento.VaoSugerido vao = interpretador.concluir().vaos().get(0);
+        assertThat(vao.metragem()).isEqualByComparingTo("50.0");
+        assertThat(vao.textosLidos()).contains("metragem estimada pelas cotas das outras folhas");
+    }
 }

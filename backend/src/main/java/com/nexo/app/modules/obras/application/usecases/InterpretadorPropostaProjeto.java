@@ -74,6 +74,9 @@ final class InterpretadorPropostaProjeto {
     private final Map<String, String> caixasUnidas = new LinkedHashMap<>();
     private final Set<String> avisos = new LinkedHashSet<>();
 
+    /** Metros por ponto de PDF tirados das cotas já planejadas em outras folhas da obra; nulo quando não há. */
+    private Double proporcaoDaObra;
+
     /** Tamanho da folha em metros por unidade de [0,1], quando a escala é conhecida. */
     private Integer escala;
     private double larguraPt;
@@ -137,6 +140,14 @@ final class InterpretadorPropostaProjeto {
             texto.append('\n');
         }
         return texto.toString();
+    }
+
+    /**
+     * Proporção das outras folhas do mesmo projeto: folha sem cota escrita ainda estima o vão pelo desenho, em vez de
+     * cair na escala do carimbo (que não vale para prancha impressa reduzida).
+     */
+    void usarProporcaoDaObra(Double metrosPorPonto) {
+        this.proporcaoDaObra = metrosPorPonto != null && metrosPorPonto > 0 ? metrosPorPonto : null;
     }
 
     void avisar(String aviso) {
@@ -266,7 +277,9 @@ final class InterpretadorPropostaProjeto {
 
         List<VaoSugerido> vaosSugeridos = new ArrayList<>();
         List<String> semPonto = new ArrayList<>();
-        Double metrosPorPonto = proporcaoDasCotas();
+        Double daFolha = proporcaoDasCotas();
+        Double metrosPorPonto = daFolha != null ? daFolha : proporcaoDaObra;
+        String origemEstimativa = daFolha != null ? "metragem estimada pelas cotas da folha" : "metragem estimada pelas cotas das outras folhas";
         for (VaoLido vao : vaos.values()) {
             String a = existente(vao.a());
             String b = existente(vao.b());
@@ -281,7 +294,7 @@ final class InterpretadorPropostaProjeto {
             Double pelaFolha = metrosPorPonto != null ? distanciaPt(a, b) : null;
             if (metragem == null && pelaFolha != null) {
                 metragem = BigDecimal.valueOf(pelaFolha * metrosPorPonto).setScale(1, RoundingMode.HALF_UP);
-                textos.add("metragem estimada pelas cotas da folha");
+                textos.add(origemEstimativa);
             } else if (metragem == null) {
                 metragem = estimarMetragem(a, b);
                 if (metragem != null) {

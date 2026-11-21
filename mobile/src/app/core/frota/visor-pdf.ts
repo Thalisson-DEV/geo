@@ -27,6 +27,11 @@ export interface DocumentoPdf {
 
 /** Desenho em andamento por canvas: um novo (ao ampliar) cancela o anterior, que o pdf.js não aceita em paralelo. */
 const emAndamento = new WeakMap<HTMLCanvasElement, { cancel(): void }>();
+/**
+ * Último pedido de desenho de cada canvas. Abrir a página é assíncrono: sem isso, dois pedidos seguidos (trocar de
+ * folha e redimensionar) desenhavam ao mesmo tempo e o canvas ficava com as duas folhas sobrepostas.
+ */
+const ultimoPedido = new WeakMap<HTMLCanvasElement, number>();
 
 /** Desenho interrompido por outro mais novo: não é erro para a pessoa. */
 export function desenhoCancelado(e: unknown): boolean {
@@ -39,8 +44,13 @@ export async function abrirPdf(blob: Blob): Promise<DocumentoPdf> {
   return {
     paginas: doc.numPages,
     async desenhar(numero, canvas, largura, rotacao = 0) {
+      const pedido = (ultimoPedido.get(canvas) ?? 0) + 1;
+      ultimoPedido.set(canvas, pedido);
       emAndamento.get(canvas)?.cancel();
       const pagina = await doc.getPage(numero);
+      // Outro pedido chegou enquanto a página abria: ele desenha, este desiste antes de mexer no canvas.
+      if (ultimoPedido.get(canvas) !== pedido) return;
+      emAndamento.get(canvas)?.cancel();
       const giro = (((pagina.rotate + rotacao) % 360) + 360) % 360;
       const base = pagina.getViewport({ scale: 1, rotation: giro });
       const escala = largura / base.width;

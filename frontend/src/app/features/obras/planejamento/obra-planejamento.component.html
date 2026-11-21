@@ -360,7 +360,7 @@
                 </button>
               </div>
             } @else {
-              <app-planejamento-arvore [plano]="p" [recolhidos]="recolhidos()" [locaisSelecionados]="locaisSelecionados()" [itensSelecionados]="itensSelecionados()" [ativo]="ativo()?.id ?? null" [podeProgramar]="podeProgramar" (selecionarPendentes)="selecionarPendentes()"
+              <app-planejamento-arvore [plano]="p" [recolhidos]="recolhidos()" [locaisSelecionados]="locaisSelecionados()" [itensSelecionados]="itensSelecionados()" [ativo]="ativo()?.id ?? null" [podeProgramar]="podeProgramar" (selecionarPendentes)="selecionarPendentes()" (selecionarSemKit)="selecionarSemKit()"
                 (abrirProgramacao)="abrirProgramacao($event)" (retirar)="retirarDaProgramacao($event)"
                 (alternar)="alternarRecolhido($event)" (marcarLocal)="alternarLocal($event)" (marcarItem)="alternarItem($event)" (abrirLocal)="abrirDaArvore($event)" (irPagina)="irParaPagina($event)"></app-planejamento-arvore>
 

@@ -141,11 +141,17 @@ public class PacoteCampoObras {
             }
         }
 
-        // Visita prévia registrada depois do último pacote também reenvia a obra: a equipe precisa ver o recado do supervisor.
-        Set<UUID> comVisitaNova = desde == null || vigentes.isEmpty() ? Set.of()
-                : Set.copyOf(visitaRepository.obrasComVisitaDesde(vigentes.stream().map(Programacao::getIdObra).distinct().toList(), desde));
+        // Visita prévia registrada depois do último pacote também reenvia a obra (a equipe precisa ver o recado do
+        // supervisor), assim como projeto girado ou ponto mexido no planejamento (o desenho e os marcadores mudam).
+        Set<UUID> comNovidadeNaObra = new java.util.HashSet<>();
+        if (desde != null && !vigentes.isEmpty()) {
+            List<UUID> idsObras = vigentes.stream().map(Programacao::getIdObra).distinct().toList();
+            comNovidadeNaObra.addAll(visitaRepository.obrasComVisitaDesde(idsObras, desde));
+            comNovidadeNaObra.addAll(planejamentoRepository.obrasComProjetoAlteradoDesde(idsObras, desde));
+            comNovidadeNaObra.addAll(pontoRepository.obrasComPontoAlteradoDesde(idsObras, desde));
+        }
         List<Programacao> enviadas = desde == null ? vigentes
-                : vigentes.stream().filter(p -> mudouDesde(p, desde, eventos) || comVisitaNova.contains(p.getIdObra())).toList();
+                : vigentes.stream().filter(p -> mudouDesde(p, desde, eventos) || comNovidadeNaObra.contains(p.getIdObra())).toList();
         Map<UUID, Obra> obras = new LinkedHashMap<>();
         for (Programacao p : enviadas) {
             obras.computeIfAbsent(p.getIdObra(), id -> obraRepository.findById(id).orElse(null));

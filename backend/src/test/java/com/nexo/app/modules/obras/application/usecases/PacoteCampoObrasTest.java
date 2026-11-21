@@ -124,6 +124,26 @@ class PacoteCampoObrasTest {
     }
 
     @Test
+    void projetoGiradoDepoisDoUltimoPacoteReenviaAObra() {
+        UUID idObra = UUID.randomUUID();
+        Programacao semMudanca = new Programacao(20, idObra, equipe, hoje, hoje,
+                new Programacao.Condicoes("Rede", false, false, false, TurnoProgramacao.DIA_TODO, SituacaoIntervencao.CRIADO, null));
+        ReflectionTestUtils.setField(semMudanca, "id", UUID.randomUUID());
+        when(programacaoRepository.listarDaEquipeNoPeriodoComItens(any(), any(), any())).thenReturn(List.of(semMudanca));
+        Obra obra = mock(Obra.class);
+        when(obra.getId()).thenReturn(idObra);
+        when(obra.getNumero()).thenReturn("417559");
+        when(obraRepository.findById(idObra)).thenReturn(Optional.of(obra));
+        java.time.OffsetDateTime desde = java.time.OffsetDateTime.now().minusHours(1);
+
+        assertThat(pacote.montar(usuario, null, desde).programacoes()).isEmpty();
+
+        when(planejamentoRepository.obrasComProjetoAlteradoDesde(any(), any())).thenReturn(List.of(idObra));
+        assertThat(pacote.montar(usuario, null, desde).programacoes())
+                .extracting(CampoObrasResponses.ProgramacaoCampo::numero).containsExactly(20L);
+    }
+
+    @Test
     void visitaPreviaMostraTextoLivreERespostaForaDoEsperado() {
         var tipo = com.nexo.app.modules.obras.domain.EstruturaChecklist.TipoPergunta.class;
         var texto = new com.nexo.app.modules.obras.domain.RespostasChecklist.Item("t", "g", "Observações para a equipe",

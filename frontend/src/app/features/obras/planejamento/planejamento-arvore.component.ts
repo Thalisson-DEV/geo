@@ -17,8 +17,10 @@ const ALTURA_LINHA = 36;
         <input type="search" placeholder="Buscar ponto, material ou serviço" aria-label="Buscar no planejamento"
           [value]="busca()" (input)="busca.set($any($event.target).value)" />
       </span>
-      @if (podeProgramar() && temPendente()) {
-        <geo-icon-button icon="pi pi-check-square" variant="ghost" size="icon-sm" label="Selecionar tudo o que está pendente" tooltip="Selecionar pendentes" (pressed)="selecionarPendentes.emit()"></geo-icon-button>
+      @if (soSemKit()) {
+        <geo-icon-button icon="pi pi-check-square" variant="ghost" size="icon-sm" label="Selecionar os pontos e vãos sem kit" tooltip="Selecionar os sem kit" (pressed)="selecionarSemKit.emit()"></geo-icon-button>
+      } @else if (podeProgramar() && temPendente()) {
+        <geo-icon-button icon="pi pi-check-square" variant="ghost" size="icon-sm" label="Selecionar tudo o que falta programar" tooltip="Selecionar o que falta programar" (pressed)="selecionarPendentes.emit()"></geo-icon-button>
       }
       <geo-icon-button [icon]="soServicos() ? 'pi pi-wrench' : 'pi pi-box'" variant="ghost" size="icon-sm"
         [label]="soServicos() ? 'Mostrando só serviços. Mostrar também materiais' : 'Mostrando serviços e materiais. Mostrar só serviços'"
@@ -160,6 +162,8 @@ export class PlanejamentoArvoreComponent {
   readonly ativo = input<string | null>(null);
   readonly podeProgramar = input(false);
   readonly selecionarPendentes = output<void>();
+  /** Com o filtro "Sem kit" ligado, o mesmo botão marca o que está na lista: os locais que ainda pedem kit. */
+  readonly selecionarSemKit = output<void>();
   readonly abrirProgramacao = output<string>();
   readonly retirar = output<{ idProgramacao: string; idItem: string; descricao: string }>();
 

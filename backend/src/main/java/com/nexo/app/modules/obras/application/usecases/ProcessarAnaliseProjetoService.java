@@ -9,6 +9,8 @@ import com.nexo.app.modules.obras.infrastructure.persistence.KitConstrutivoRepos
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.PlanejamentoObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.PontoPlanejamentoRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.VaoPlanejamentoRepository;
+import com.nexo.app.modules.obras.domain.VaoPlanejamento;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -90,6 +92,7 @@ public class ProcessarAnaliseProjetoService {
     private final KitConstrutivoRepository kitRepository;
     private final PlanejamentoObraRepository planejamentoRepository;
     private final PlanejamentoObraUseCases planejamentoUseCases;
+    private final VaoPlanejamentoRepository vaoRepository;
 
     @Async
     public void processar(UUID idAnalise, boolean orientacaoConferida) {
@@ -121,6 +124,7 @@ public class ProcessarAnaliseProjetoService {
 
         LeitorCamadaProjeto.CamadaPagina camada = leitorCamada.ler(pdf, analise.getPagina());
         interpretador.adicionarCamada(camada);
+        interpretador.usarProporcaoDaObra(proporcaoDaObra(analise.getIdObra(), existentes, camada));
         int rotacao = rotacao(analise, pdf, orientacaoConferida, interpretador);
         if (camada.candidatos().isEmpty()) {
             lerPorBlocos(analise.getId(), pdf, analise.getPagina(), rotacao, interpretador);
@@ -165,6 +169,35 @@ public class ProcessarAnaliseProjetoService {
     }
 
     /** A letra escolhida vira a rotação: A = 0°, B = 90°, C = 180°, D = 270°. */
+    /**
+     * Metros por ponto de PDF das cotas já planejadas na obra (vãos com metragem e os dois pontos na mesma folha). Usa
+     * o tamanho da folha lida: as folhas de um projeto têm o mesmo formato. Pede ao menos três vãos e fica com a
+     * mediana, para um vão errado não puxar a conta.
+     */
+    private Double proporcaoDaObra(UUID idObra, List<PontoPlanejamento> pontos, LeitorCamadaProjeto.CamadaPagina folha) {
+        Map<UUID, PontoPlanejamento> porId = new HashMap<>();
+        pontos.forEach(p -> porId.put(p.getId(), p));
+        List<Double> proporcoes = new ArrayList<>();
+        for (VaoPlanejamento vao : vaoRepository.findByIdObraAndAtivoTrue(idObra)) {
+            PontoPlanejamento a = porId.get(vao.getIdPontoA());
+            PontoPlanejamento b = porId.get(vao.getIdPontoB());
+            if (vao.getMetragem() == null || a == null || b == null || a.getX() == null || b.getX() == null
+                    || !java.util.Objects.equals(a.getPagina(), b.getPagina())) {
+                continue;
+            }
+            double distancia = Math.hypot((a.getX().doubleValue() - b.getX().doubleValue()) * folha.larguraPt(),
+                    (a.getY().doubleValue() - b.getY().doubleValue()) * folha.alturaPt());
+            if (distancia > 0) {
+                proporcoes.add(vao.getMetragem().doubleValue() / distancia);
+            }
+        }
+        if (proporcoes.size() < 3) {
+            return null;
+        }
+        proporcoes.sort(Double::compareTo);
+        return proporcoes.get(proporcoes.size() / 2);
+    }
+
     static int graus(String resposta) {
         Matcher letra = IMAGEM.matcher(resposta != null ? resposta : "");
         return letra.find() ? (letra.group(1).charAt(0) - 'A') * 90 : 0;

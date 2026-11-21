@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,10 @@ import java.util.UUID;
 
 @Repository
 public interface PontoPlanejamentoRepository extends JpaRepository<PontoPlanejamento, UUID> {
+
+    /** Obras com ponto marcado, movido ou tirado da folha depois de uma data: os marcadores do app mudam. */
+    @Query("select distinct p.idObra from PontoPlanejamento p where p.idObra in :obras and p.dataUltimaAlteracao > :desde")
+    List<UUID> obrasComPontoAlteradoDesde(@Param("obras") Collection<UUID> obras, @Param("desde") OffsetDateTime desde);
 
     /** Pontos ainda sem kit por obra: [idObra, quantidade]. */
     @Query("""

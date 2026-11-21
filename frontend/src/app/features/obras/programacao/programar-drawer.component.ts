@@ -167,8 +167,8 @@ import { locaisProgramaveis } from './programar.logic';
             <geo-callout tone="danger" [dense]="true">
               {{ previa()!.materiaisForaDeObras!.length === 1 ? 'Este material não é do processo Obras e impede programar:' : 'Estes materiais não são do processo Obras e impedem programar:' }}
               @for (material of previa()!.materiaisForaDeObras!; track material; let ultimo = $last) {
-                <a [href]="linkMaterial(material)" target="_blank" rel="noopener" [title]="'Abrir o cadastro de ' + material + ' em outra aba'">{{ material }}</a>{{ ultimo ? '' : '; ' }}
-              }. Ajuste o processo no cadastro do material (abre em outra aba, sem perder esta programação) ou tire o item do kit.
+                <a class="programar__material" [href]="linkMaterial(material)" target="_blank" rel="noopener" [title]="'Abrir o cadastro de ' + material + ' em outra aba'">{{ material }}</a>{{ ultimo ? '.' : '; ' }}
+              } Ajuste o processo no cadastro do material (abre em outra aba, sem perder esta programação) ou tire o item do kit.
             </geo-callout>
           }
           @if (saqueEmCimaDaHora()) {
@@ -196,6 +196,7 @@ import { locaisProgramaveis } from './programar.logic';
     .programar__locais-topo { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; font-size: var(--geo-font-control); }
     .programar__locais-acoes { display: inline-flex; gap: 0.75rem; }
     .programar__link { padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; font-weight: 600; cursor: pointer; }
+    .programar__material { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
     .programar__link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .programar__locais { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; max-height: 16rem; margin: 0;
       padding: 0.5rem 0.75rem; overflow-y: auto; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); list-style: none; }
@@ -254,6 +255,8 @@ export class ProgramarDrawerComponent {
   });
   /** Obra para a qual o almoxarifado já foi sugerido, para não sobrescrever a escolha do usuário. */
   private almoxarifadoSugeridoPara: string | null = null;
+  /** Base operacional de cada almoxarifado físico, para sugerir o da base da obra. */
+  private basePorAlmoxarifado = new Map<string, string | null>();
 
   protected readonly previa = signal<PreviaProgramacao | null>(null);
 
@@ -446,26 +449,30 @@ export class ProgramarDrawerComponent {
   }
 
   /**
-   * Almoxarifados físicos para atender. Sugere o da última solicitação técnica da obra; sem histórico e com um só
-   * almoxarifado, ele já vem escolhido.
+   * Almoxarifados físicos para atender. Sugere o da última solicitação técnica da obra; sem histórico, o almoxarifado
+   * da base operacional da obra (ou o único que houver).
    */
   private sugerirAlmoxarifado(idObra: string): void {
     this.almoxarifadoSugeridoPara = idObra;
     this.carregandoAlmoxarifados.set(true);
     forkJoin({
       estoques: this.opcoesAlmoxarifado().length ? of(null) : this.almoxarifadoApi.listarEstoquesAtivos().pipe(catchError(() => of(null))),
-      ultima: this.solicitacoesApi.listar({ idObra, contexto: 'TECNICO', page: 0, size: 1, sort: 'dataSolicitacao,desc' }).pipe(catchError(() => of(null)))
-    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ estoques, ultima }) => {
+      ultima: this.solicitacoesApi.listar({ idObra, contexto: 'TECNICO', page: 0, size: 1, sort: 'dataSolicitacao,desc' }).pipe(catchError(() => of(null))),
+      obra: this.obrasApi.buscarObraPorId(idObra).pipe(catchError(() => of(null)))
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ estoques, ultima, obra }) => {
       this.carregandoAlmoxarifados.set(false);
       if (estoques) {
-        this.opcoesAlmoxarifado.set(estoques.content
-          .filter((e) => e.tipoEstoque?.nome === 'FISICO')
-          .map((e) => ({ value: e.id, label: e.nomeIdentificador })));
+        const fisicos = estoques.content.filter((e) => e.tipoEstoque?.nome === 'FISICO');
+        this.basePorAlmoxarifado = new Map(fisicos.map((e) => [e.id, e.idBaseOperacional ?? null]));
+        this.opcoesAlmoxarifado.set(fisicos.map((e) => ({ value: e.id, label: e.nomeIdentificador })));
       }
       if (this.idAlmoxarifado() || this.obraEfetiva() !== idObra) return;
       const opcoes = this.opcoesAlmoxarifado();
       const anterior = ultima?.content[0]?.idAlmoxarifadoAtendimento;
+      const daBase = obra?.baseOperacionalId
+        ? opcoes.filter((o) => this.basePorAlmoxarifado.get(o.value) === obra.baseOperacionalId) : [];
       if (anterior && opcoes.some((o) => o.value === anterior)) this.idAlmoxarifado.set(anterior);
+      else if (daBase.length === 1) this.idAlmoxarifado.set(daBase[0].value);
       else if (opcoes.length === 1) this.idAlmoxarifado.set(opcoes[0].value);
     });
   }

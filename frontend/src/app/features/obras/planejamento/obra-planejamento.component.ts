@@ -1059,6 +1059,16 @@ export class ObraPlanejamentoComponent {
     this.itensSelecionados.set(new Set());
   }
 
+  /** Pontos e vãos ainda sem nenhum kit: é o que o filtro "Sem kit" mostra, pronto para o "Aplicar kit". */
+  protected selecionarSemKit(): void {
+    const plano = this.plano();
+    if (!plano) return;
+    const comKit = new Set(plano.kits.map((k) => k.idPonto ?? k.idVao).filter((id): id is string => !!id));
+    const locais = new Set<string>([...plano.pontos, ...plano.vaos].map((l) => l.id).filter((id) => !comKit.has(id)));
+    this.locaisSelecionados.set(locais);
+    this.itensSelecionados.set(new Set());
+  }
+
   protected aoProgramar(): void {
     this.limparSelecao();
     this.carregar();

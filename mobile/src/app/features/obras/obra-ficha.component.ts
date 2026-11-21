@@ -9,7 +9,7 @@ import { TurnoService } from '../../core/turno/turno.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { db } from '../../core/db/app-db';
 import { LocalizacaoService } from '../../core/obras/localizacao.service';
-import { MaterialPrevisto, distanciaMetros, linkComoChegar, executadoPorItem, materialPrevisto, nomeLocais, contarLocais } from '../../core/obras/obras-regras';
+import { MaterialPrevisto, distanciaMetros, linkComoChegar, executadoPorItem, materialPrevisto, nomeLocais, contarLocais, isoDeBr, hojeLocal } from '../../core/obras/obras-regras';
 import { ObrasContexto, diaCurto } from './obras-contexto';
 
 /** Raio para sugerir "Cheguei" pela posição do aparelho. */
@@ -114,8 +114,8 @@ const RAIO_CHEGADA_M = 400;
       <h2 class="geo-secao"><span>Execução</span><span class="geo-num">{{ feitos() }} de {{ pontos().length }} {{ nomeLocais(pontos()) }}</span></h2>
       <ul class="geo-grupo">
         <li><a class="geo-linha geo-linha--acao" [routerLink]="['/obras', p.id, 'apr']">
-          <span class="geo-selo" [class.geo-selo--ok]="liberacao() === 'LIBERADA'" [class.geo-selo--erro]="liberacao() === 'IMPEDIDA'"
-            [class.geo-selo--atencao]="liberacao() === 'PENDENTE' || liberacao() === 'EM_PREENCHIMENTO'"><geo-icone nome="escudo" /></span>
+          <span class="geo-selo" [class.geo-selo--ok]="!inicioFuturo() && liberacao() === 'LIBERADA'" [class.geo-selo--erro]="!inicioFuturo() && liberacao() === 'IMPEDIDA'"
+            [class.geo-selo--atencao]="!inicioFuturo() && (liberacao() === 'PENDENTE' || liberacao() === 'EM_PREENCHIMENTO')"><geo-icone nome="escudo" /></span>
           <span class="geo-linha__texto"><span class="geo-linha__titulo">APR</span>
             <span class="geo-linha__apoio">{{ textoLiberacao() }}</span></span>
           <geo-icone nome="avancar" [tamanho]="18" /></a></li>
@@ -239,7 +239,15 @@ export class ObraFichaComponent implements OnInit {
   });
   readonly restantes = computed(() => this.servicosDoDia().filter(s => !s.feito).length);
 
-  readonly textoLiberacao = computed(() => ({
+  /** Programação que começa depois de hoje: a APR de hoje (de outra obra) não vale para ela. */
+  readonly inicioFuturo = computed(() => {
+    const p = this.programacao();
+    return p && isoDeBr(p.inicio) > hojeLocal() ? p.inicio : null;
+  });
+
+  readonly textoLiberacao = computed(() => this.inicioFuturo()
+    ? `A APR é feita no dia: começa em ${this.inicioFuturo()!.slice(0, 5)}`
+    : ({
     LIBERADA: 'APR do dia concluída: serviços liberados',
     EM_PREENCHIMENTO: 'Em preenchimento',
     IMPEDIDA: 'Sem condição de executar registrada',
