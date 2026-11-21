@@ -20,6 +20,7 @@ import {
 } from './models';
 import { ChecklistVeiculoLocal } from '../frota/checklist-veiculo.models';
 import { AbastecimentoLocal } from '../frota/abastecimento.models';
+import { AprRascunho, ObraCampo, ProgramacaoCampo, RegistroObraLocal } from '../obras/obras.models';
 
 export class AppDatabase extends Dexie {
   equipe!: Table<EquipeLocal>;
@@ -44,6 +45,13 @@ export class AppDatabase extends Dexie {
   /** Pedidos de abastecimento: rascunho, fila, a situação do servidor e o realizado (com as fotos até subirem). */
   abastecimentos!: Table<AbastecimentoLocal>;
   outbox!: Table<OutboxItem>;
+  /** Obras (v14): agenda da equipe, obras do pacote, registros lançados, rascunhos da APR e arquivos de reserva. */
+  obrasProgramacoes!: Table<ProgramacaoCampo>;
+  obrasObras!: Table<ObraCampo>;
+  obrasRegistros!: Table<RegistroObraLocal>;
+  obrasAprRascunhos!: Table<AprRascunho & { chave: string }>;
+  /** PDFs e fotos quando o navegador não tem OPFS (reserva). */
+  obrasArquivos!: Table<{ chave: string; dados: ArrayBuffer; tipo: string; tamanho: number; criadoEm: string }>;
   config!: Table<{ key: string, value: any }>;
 
   constructor() {
@@ -74,7 +82,13 @@ export class AppDatabase extends Dexie {
       checklistsVeiculo: 'id, statusSync, idVeiculo, criadoEm',
       abastecimentos: 'id, statusSync, idVeiculo, criadoEm',
       outbox: 'id, status, criadoEm',
-      config: 'key'
+      config: 'key',
+      // v14: Obras offline.
+      obrasProgramacoes: 'id, idObra, numero',
+      obrasObras: 'id, numero',
+      obrasRegistros: 'id, tipo, idObra, idProgramacao, envio, dia, criadoEm',
+      obrasAprRascunhos: 'chave',
+      obrasArquivos: 'chave'
     });
   }
 }

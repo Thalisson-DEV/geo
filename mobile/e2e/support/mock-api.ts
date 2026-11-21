@@ -26,6 +26,8 @@ export interface MockOptions {
   /** Execuções já registradas no servidor (histórico da equipe), espalhadas nos últimos dias. */
   /** Transferências já sincronizadas do estoque da equipe (histórico grande para os testes de lista). */
   transferencias?: number;
+  /** Encarregado de equipe de Obras (perfil EQUIPE_OBRAS) ou supervisor de Obras (administrativo). */
+  obras?: boolean;
 }
 
 export const IDS = {
@@ -43,8 +45,9 @@ function b64url(obj: unknown): string {
 }
 
 /** JWT não assinado: o app só decodifica (jwt-decode), quem valida é o backend. */
-export function fakeJwt(perfil: Perfil, expiraEmSegundos = 8 * 3600): string {
+export function fakeJwt(perfil: Perfil, expiraEmSegundos = 8 * 3600, permissions: string[] = []): string {
   const payload = {
+    permissions,
     sub: IDS.usuario,
     nome: perfil === 'CAMPO' ? 'José Encarregado' : 'Ana Técnica SST',
     equipeId: perfil === 'CAMPO' ? IDS.equipe : undefined,
@@ -101,6 +104,7 @@ export class MockApi {
     this.turnoAberto = opts.turnoAberto ?? true;
     this.expiraEm = opts.expiraEmSegundos ?? 8 * 3600;
     this.transferencias = opts.transferencias ?? 0;
+    this.obras = opts.obras ?? false;
   }
 
   /** Transferências sincronizadas, 1 a cada 20 min para trás (formato do resumo de /v1/movimentacoes-estoque). */
@@ -116,8 +120,24 @@ export class MockApi {
   }
 
   get token(): string {
-    return fakeJwt(this.perfil, this.expiraEm);
+    return fakeJwt(this.perfil, this.expiraEm, this.permissoes());
   }
+
+  private permissoes(): string[] {
+    if (!this.obras) return [];
+    return this.perfil === 'CAMPO'
+      ? ['obras:turno:read', 'obras:turno:write', 'obras:execucao:write', 'obras:campo:read']
+      : ['obras:campo:read', 'obras:central:read', 'obras:documentacao:write'];
+  }
+
+  /** Registros de Obras recebidos pelo envio durável, na ordem de chegada (um por id do aparelho). */
+  readonly operacoesObras: { tipo: string; payload: Record<string, unknown>; anexos: unknown[] }[] = [];
+  private readonly respostasObras = new Map<string, unknown>();
+  /** Recusa do servidor por tipo de registro (ex.: programação cancelada enquanto a equipe estava sem sinal). */
+  recusarObras: Partial<Record<string, string>> = {};
+  /** O pacote devolve a programação #12 como cancelada (removida da agenda). */
+  programacaoCancelada = false;
+  readonly obras: boolean;
 
   escritasEm(path: string | RegExp): EscritaRecebida[] {
     return this.escritas.filter(e => (typeof path === 'string' ? e.path === path : path.test(e.path)));
@@ -179,7 +199,7 @@ export class MockApi {
         return this.json(route, 401, { title: 'Sessão Encerrada', detail: 'Sua sessão expirou. Entre novamente.', code: 'SESSAO_INVALIDA' });
       }
       this.renovacoes++;
-      this.tokenRenovado = fakeJwt(this.perfil, 8 * 3600 + this.renovacoes);
+      this.tokenRenovado = fakeJwt(this.perfil, 8 * 3600 + this.renovacoes, this.permissoes());
       return this.json(route, 200, { token: this.tokenRenovado });
     }
     const autorizacao = request.headers()['authorization'] ?? '';
@@ -357,6 +377,35 @@ export class MockApi {
       const lote = (this.escritas.at(-1)?.body ?? {}) as { eventos?: unknown[] };
       return this.json(route, 202, { recebidos: lote.eventos?.length ?? 0, descartados: 0 });
     }
+    // ---------- Obras (app de campo) ----------
+    if (path === '/v1/obras/campo/pacote') {
+      return this.json(route, 200, pacoteObras(url.searchParams.get('desde'), this.programacaoCancelada));
+    }
+    if (/^\/v1\/obras\/campo\/obras\/[^/]+\/projeto$/.test(path)) {
+      return route.fulfill({ status: 200, contentType: 'application/pdf', body: pdfMinimo() });
+    }
+    if (path === '/v1/obras/campo/status-equipes') {
+      return this.json(route, 200, [
+        { idEquipe: IDS.equipe, codigo: 'EQ-101', status: 'EM_EXECUCAO', rotulo: 'Executando', idObraAtual: 'o-1', numeroObraAtual: '7000001',
+          programacoesHoje: 1, concluidas: 0, aprsPendentes: 0, ocorrenciasImpeditivas: 0, ultimaAtividade: new Date().toISOString(), lider: 'José Encarregado' },
+        { idEquipe: 'e-2', codigo: 'EQ-202', status: 'IMPEDIDA', rotulo: 'Sem condição de executar', programacoesHoje: 2, concluidas: 0,
+          aprsPendentes: 1, ocorrenciasImpeditivas: 1, lider: 'Rita Líder' },
+      ]);
+    }
+    if (path === '/v1/sincronizacao/operacoes' && method === 'POST') {
+      const corpo = (this.escritas.at(-1)?.body ?? {}) as { idOperacaoLocal: string; tipo: string; payload: Record<string, unknown>; anexos?: unknown[] };
+      if (corpo.tipo?.startsWith('OBRA_')) {
+        const repetida = this.respostasObras.get(corpo.idOperacaoLocal);
+        if (repetida) return this.json(route, 200, repetida);
+        this.operacoesObras.push({ tipo: corpo.tipo, payload: corpo.payload, anexos: corpo.anexos ?? [] });
+        const motivo = this.recusarObras[corpo.tipo];
+        const resposta = motivo
+          ? { idOperacaoLocal: corpo.idOperacaoLocal, tipo: corpo.tipo, status: 'EM_TRATAMENTO', backofficeInformado: true, idCaso: 'caso-obra', motivo, idsRegistros: [] }
+          : { idOperacaoLocal: corpo.idOperacaoLocal, tipo: corpo.tipo, status: 'RESOLVIDO', backofficeInformado: false, idsRegistros: [`srv-${this.operacoesObras.length}`] };
+        this.respostasObras.set(corpo.idOperacaoLocal, resposta);
+        return this.json(route, motivo ? 201 : 202, resposta);
+      }
+    }
     if (path.startsWith('/v1/sincronizacao/operacoes')) {
       return method === 'GET' ? this.json(route, 404, { title: 'Não encontrada' }) : this.json(route, 201, { idCaso: 'caso-1' });
     }
@@ -365,6 +414,78 @@ export class MockApi {
     if (method === 'GET') return this.json(route, 200, page([]));
     return this.json(route, 501, { title: 'Sem mock', detail: `${method} ${path}` });
   }
+}
+
+/** Hoje em dd/MM/yyyy no fuso dos testes (Fortaleza). */
+export function diaBr(somarDias = 0): string {
+  const d = new Date(Date.now() + somarDias * 86_400_000);
+  return new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Fortaleza', day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
+}
+
+/** Pacote offline da equipe EQ-101: a programação #12 hoje (obra 7000001, 2 pontos) e a #13 amanhã. */
+export function pacoteObras(desde: string | null, cancelada = false) {
+  const hoje = diaBr();
+  const amanha = diaBr(1);
+  const p12 = {
+    id: 'p-12', numero: 12, idObra: 'o-1', numeroObra: '7000001', inicio: hoje, fim: hoje, descricao: 'Implantar rede de baixa tensão',
+    turno: 'DIA_TODO', linhaViva: false, desligamento: true, horaDesligamentoInicio: '08:00', horaDesligamentoFim: '12:00', numeroManobra: '4471',
+    finalizaObra: false, situacaoIntervencao: 'CRIADO', observacao: null, situacao: 'PROGRAMADA', versao: 1,
+    itens: [
+      { idItem: 'i-1', idPonto: 'pt-4', local: 'P4', tipo: 'SERVICO', codigo: 'S1', descricao: 'Instalar poste', unidade: 'UN', kit: 'LMI-0168', quantidade: 1, executada: 0, status: 'PROGRAMADO' },
+      { idItem: 'i-2', idPonto: 'pt-4', local: 'P4', tipo: 'MATERIAL', idMaterial: 'm-medidor', codigo: 'MD-01', descricao: 'Medidor monofásico', unidade: 'UN', kit: 'LMI-0168', quantidade: 4, executada: 0, status: 'PROGRAMADO' },
+      { idItem: 'i-3', idPonto: 'pt-5', local: 'P5', tipo: 'SERVICO', codigo: 'S2', descricao: 'Lançar cabo', unidade: 'M', kit: 'LMI-0200', quantidade: 30, executada: 10, status: 'EM_ANDAMENTO' },
+    ],
+  };
+  const p13 = { ...p12, id: 'p-13', numero: 13, inicio: amanha, fim: amanha, descricao: 'Ligação de ramal', desligamento: false,
+    horaDesligamentoInicio: null, horaDesligamentoFim: null, numeroManobra: null,
+    itens: [{ idItem: 'i-9', idPonto: 'pt-5', local: 'P5', tipo: 'SERVICO', codigo: 'S9', descricao: 'Ligar ramal', unidade: 'UN', quantidade: 1, executada: 0, status: 'PROGRAMADO' }] };
+  return {
+    geradoEm: new Date().toISOString(), desde, idEquipe: IDS.equipe, codigoEquipe: 'EQ-101', inicioJanela: hoje, fimJanela: diaBr(7),
+    programacoes: cancelada ? [p13] : [p12, p13],
+    programacoesRemovidas: cancelada ? ['p-12'] : [],
+    obras: [{
+      id: 'o-1', numero: '7000001', titulo: 'Rede Vila Nova', endereco: 'Rua das Flores, 100 - Vila Nova', referencia: 'Ao lado da escola',
+      latitude: -3.7319, longitude: -38.5267, municipio: 'Fortaleza', projeto: { idAnexo: 'an-1', nome: 'projeto.pdf', tamanhoBytes: 900, hash: 'h1' },
+      rotacoes: {}, idModeloFoto: 'mf-1', fotos: [], pendenciasFoto: [],
+      pontos: [
+        { id: 'pt-4', numero: '4', pagina: 1, x: 0.3, y: 0.4, tipo: 'POSTE', tipoExecucao: null, temPoda: false, temAterramento: false },
+        { id: 'pt-5', numero: '5', pagina: 1, x: 0.6, y: 0.5, tipo: 'POSTE', tipoExecucao: null, temPoda: false, temAterramento: false },
+      ],
+      vaos: [],
+    }],
+    modeloApr: {
+      riscos: ['Choque elétrico', 'Arco elétrico', 'Queda de altura', 'Queda de materiais ou ferramentas'],
+      medidas: ['Desenergização', 'Bloqueio e aterramento', 'Sinalização e isolamento da área', 'EPI e EPC'],
+      verificacoes: ['Conversa sobre os riscos feita com a equipe', 'Área sinalizada', 'Desligamento confirmado'],
+      sugestoes: {
+        SEMPRE: { riscos: ['Queda de materiais ou ferramentas'], medidas: ['Sinalização e isolamento da área', 'EPI e EPC'] },
+        DESLIGAMENTO: { riscos: ['Choque elétrico', 'Arco elétrico'], medidas: ['Desenergização', 'Bloqueio e aterramento'] },
+      },
+    },
+    modelosFoto: [{ id: 'mf-1', titulo: 'Book padrão', itens: [{ id: 'depois', titulo: 'Poste instalado', obrigatoria: true }] }],
+    avisos: cancelada
+      ? [{ id: 'ev-1', tipo: 'CANCELADA', idProgramacao: 'p-12', numeroProgramacao: 12, idObra: 'o-1', numeroObra: '7000001',
+          texto: 'Programação #12 da obra 7000001 foi cancelada: desligamento negado.', em: new Date().toISOString() }]
+      : [],
+  };
+}
+
+/** PDF de uma página (A4 deitado) com uma linha, válido para o pdf.js. */
+export function pdfMinimo(): Buffer {
+  const conteudo = '0 0 1 RG 4 w 100 100 m 742 495 l S';
+  const objetos = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Contents 4 0 R >>',
+    `<< /Length ${conteudo.length} >>\nstream\n${conteudo}\nendstream`,
+  ];
+  let corpo = '%PDF-1.4\n';
+  const offsets: number[] = [];
+  objetos.forEach((o, i) => { offsets.push(corpo.length); corpo += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+  const xref = corpo.length;
+  corpo += `xref\n0 ${objetos.length + 1}\n0000000000 65535 f \n` + offsets.map(o => `${String(o).padStart(10, '0')} 00000 n \n`).join('');
+  corpo += `trailer\n<< /Size ${objetos.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return Buffer.from(corpo, 'latin1');
 }
 
 /**

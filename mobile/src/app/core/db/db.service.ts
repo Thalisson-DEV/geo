@@ -138,6 +138,10 @@ export class DbService {
     await db.turnos.put(turno);
   }
 
+  async deleteTurno(id: string): Promise<void> {
+    await db.turnos.delete(id);
+  }
+
   async getTurnoAtivo(): Promise<TurnoLocal | undefined> {
     return db.turnos.where('status').equals('ABERTO').first();
   }

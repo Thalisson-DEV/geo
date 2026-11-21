@@ -1,0 +1,186 @@
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BarraTopoComponent, IconeComponent, VazioComponent } from '../../ui';
+import { ToastService } from '../../core/ui/toast.service';
+import { ConnectivityService } from '../../core/sync/connectivity.service';
+import { DocumentacaoObra, ModeloChecklist, PerguntaChecklist, SupervisaoService } from '../../core/obras/supervisao.service';
+
+/**
+ * Documentação técnica da obra pelo supervisor no app: resumo (visitas, fichas As Built, documentos), visita prévia
+ * pelo modelo de checklist e geração do As Built e do book. Os lançamentos entram na fila: sem sinal, saem depois.
+ */
+@Component({
+  selector: 'app-documentacao-obra',
+  standalone: true,
+  imports: [BarraTopoComponent, IconeComponent, VazioComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <geo-barra-topo [titulo]="'Obra ' + numero" subtitulo="Documentação técnica" (voltar)="voltar()" />
+    @if (doc(); as d) {
+      @if (!modelo()) {
+        <h2 class="geo-secao">Situação</h2>
+        <ul class="geo-grupo">
+          <li class="geo-linha"><span class="geo-selo" [class.geo-selo--ok]="d.visitaRealizada"><geo-icone nome="inspecao" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Visita prévia</span>
+              <span class="geo-linha__apoio">{{ d.visitas.length ? d.visitas.length + ' registrada(s)' : 'Ainda não feita' }}</span></span></li>
+          <li class="geo-linha"><span class="geo-selo" [class.geo-selo--ok]="d.asBuilt.pontosExecutados > 0 && !d.asBuilt.pontosPendentes.length"><geo-icone nome="documento" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">As Built</span>
+              <span class="geo-linha__apoio geo-num">{{ d.asBuilt.fichasCompletas }} de {{ d.asBuilt.pontosExecutados }} fichas completas{{ d.asBuilt.pontosSemEvidencia.length ? ' · ' + d.asBuilt.pontosSemEvidencia.length + ' sem foto' : '' }}</span></span></li>
+          <li class="geo-linha"><span class="geo-selo"><geo-icone nome="documento" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Documentos</span>
+              <span class="geo-linha__apoio">{{ d.documentos.length ? d.documentos.map(rotuloDoc).join(', ') : 'Nenhum gerado' }}</span></span></li>
+        </ul>
+        <h2 class="geo-secao">Lançar</h2>
+        <ul class="geo-grupo">
+          @for (m of modelos(); track m.id) {
+            <li><button type="button" class="geo-linha geo-linha--acao" (click)="iniciar(m)">
+              <span class="geo-selo geo-selo--destaque"><geo-icone nome="mais" /></span>
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">Visita prévia</span><span class="geo-linha__apoio">{{ m.titulo }}</span></span>
+              <geo-icone nome="avancar" [tamanho]="18" /></button></li>
+          }
+          <li><button type="button" class="geo-linha geo-linha--acao" (click)="gerar('as-built')">
+            <span class="geo-selo"><geo-icone nome="documento" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Gerar As Built</span><span class="geo-linha__apoio">Sai quando houver sinal</span></span></button></li>
+          <li><button type="button" class="geo-linha geo-linha--acao" (click)="gerar('book')">
+            <span class="geo-selo"><geo-icone nome="imagem" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Gerar book de fotos</span><span class="geo-linha__apoio">Sai quando houver sinal</span></span></button></li>
+        </ul>
+      } @else {
+        <h2 class="geo-secao">{{ modelo()!.titulo }}</h2>
+        @for (g of modelo()!.estrutura.grupos; track g.titulo) {
+          <h3 class="grupo">{{ g.titulo }}</h3>
+          @for (p of g.perguntas; track p.id) {
+            <div class="pergunta">
+              <span class="enunciado">{{ p.enunciado }}{{ p.obrigatoria ? '' : ' (opcional)' }}</span>
+              @if (p.tipo === 'ESCOLHA_UNICA' || p.tipo === 'MULTIPLA_ESCOLHA') {
+                <div class="opcoes">
+                  @for (o of opcoesDe(p); track o) {
+                    <button type="button" class="opcao" [attr.aria-pressed]="marcada(p, o)" (click)="marcar(p, o)">{{ o }}</button>
+                  }
+                </div>
+              } @else {
+                <input class="geo-input" [type]="p.tipo === 'NUMERO' ? 'number' : p.tipo === 'DATA' ? 'date' : 'text'" [value]="respostas()[p.id]?.valor ?? ''"
+                  (input)="texto(p, $any($event.target).value)">
+              }
+            </div>
+          }
+        }
+        <label class="geo-campo"><span>Observações</span>
+          <textarea class="geo-input" rows="3" maxlength="2000" [value]="observacoes()" (input)="observacoes.set($any($event.target).value)"></textarea></label>
+        @if (faltando().length) { <p class="falta" role="status">Faltam {{ faltando().length }} resposta(s) obrigatória(s).</p> }
+        <div class="geo-respiro"></div>
+        <div class="geo-rodape-acoes" data-acao-fixa>
+          <button type="button" class="geo-btn geo-btn--neutro" (click)="modelo.set(null)">Cancelar</button>
+          <button type="button" class="geo-btn geo-btn--principal" [disabled]="faltando().length > 0" (click)="salvarVisita()">Registrar visita</button>
+        </div>
+      }
+    } @else if (erro()) {
+      <geo-vazio icone="sem_rede" titulo="Precisa de internet" texto="A documentação da obra é consultada no servidor. Conecte e tente de novo." />
+    }
+  `,
+  styles: [`
+    .grupo { margin: var(--geo-e4) var(--geo-margem) var(--geo-e2); font: var(--geo-t-corpo-forte); }
+    .pergunta { display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-margem); }
+    .enunciado { font: var(--geo-t-corpo); }
+    .opcoes { display: flex; flex-wrap: wrap; gap: var(--geo-e2); }
+    .opcao { min-height: var(--geo-alvo); padding: 0 var(--geo-e4); border-radius: var(--geo-r-pilula); border: 1px solid var(--geo-borda-campo);
+      background: var(--geo-superficie); color: var(--geo-texto); font: 500 .9375rem/1 var(--geo-fonte); }
+    .opcao[aria-pressed='true'] { background: var(--geo-destaque-suave); color: var(--geo-destaque); border-color: transparent; font-weight: 600; }
+    .geo-campo { margin: var(--geo-e4) var(--geo-margem) 0; }
+    .falta { margin: var(--geo-e2) var(--geo-margem); font: var(--geo-t-apoio); color: var(--geo-erro); }
+  `],
+})
+export class DocumentacaoObraComponent implements OnInit {
+  private readonly rota = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly servico = inject(SupervisaoService);
+  private readonly toast = inject(ToastService);
+  readonly rede = inject(ConnectivityService);
+
+  readonly id = this.rota.snapshot.paramMap.get('id') ?? '';
+  readonly numero = this.rota.snapshot.queryParamMap.get('numero') ?? '';
+  readonly doc = signal<DocumentacaoObra | null>(null);
+  readonly erro = signal(false);
+  readonly modelos = signal<ModeloChecklist[]>([]);
+  readonly modelo = signal<ModeloChecklist | null>(null);
+  readonly respostas = signal<Record<string, { valor?: string; selecionadas?: string[] }>>({});
+  readonly observacoes = signal('');
+  readonly faltando = computed(() => (this.modelo()?.estrutura.grupos ?? []).flatMap(g => g.perguntas)
+    .filter(p => p.obrigatoria && !this.respondida(p)));
+
+  async ngOnInit(): Promise<void> {
+    try {
+      const [doc, modelos] = await Promise.all([this.servico.documentacao(this.id), this.servico.modelos('VISITA_PREVIA')]);
+      this.doc.set(doc);
+      this.modelos.set(modelos);
+    } catch {
+      this.erro.set(true);
+    }
+  }
+
+  rotuloDoc = (d: { tipo: string; numeroVersao: number; status: string }): string =>
+    `${d.tipo === 'BOOK' ? 'Book' : 'As Built'} v${d.numeroVersao}${d.status === 'CONCLUIDO' ? '' : ' (' + d.status.toLowerCase() + ')'}`;
+
+  opcoesDe(p: PerguntaChecklist): string[] {
+    return p.aceitaNaoSeAplica ? [...p.opcoes, 'Não se aplica'] : p.opcoes;
+  }
+
+  iniciar(m: ModeloChecklist): void {
+    this.respostas.set({});
+    this.observacoes.set('');
+    this.modelo.set(m);
+  }
+
+  marcada(p: PerguntaChecklist, o: string): boolean {
+    const r = this.respostas()[p.id];
+    return p.tipo === 'MULTIPLA_ESCOLHA' ? !!r?.selecionadas?.includes(o) : r?.valor === o;
+  }
+
+  marcar(p: PerguntaChecklist, o: string): void {
+    this.respostas.update(rs => {
+      const atual = rs[p.id] ?? {};
+      if (p.tipo === 'MULTIPLA_ESCOLHA') {
+        const sel = atual.selecionadas ?? [];
+        return { ...rs, [p.id]: { selecionadas: sel.includes(o) ? sel.filter(x => x !== o) : [...sel, o] } };
+      }
+      return { ...rs, [p.id]: { valor: o } };
+    });
+  }
+
+  texto(p: PerguntaChecklist, valor: string): void {
+    this.respostas.update(rs => ({ ...rs, [p.id]: { valor } }));
+  }
+
+  async salvarVisita(): Promise<void> {
+    const m = this.modelo();
+    if (!m || this.faltando().length) return;
+    const respostas = m.estrutura.grupos.flatMap(g => g.perguntas).map(p => {
+      const r = this.respostas()[p.id] ?? {};
+      const naoSeAplica = r.valor === 'Não se aplica';
+      return { idPergunta: p.id, valor: naoSeAplica ? null : r.valor ?? null, selecionadas: r.selecionadas ?? [], naoSeAplica };
+    });
+    const hoje = new Date();
+    const data = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+    await this.servico.registrarVisita(this.id, { idModelo: m.id, dataVisita: data, observacoes: this.observacoes().trim() || null, respostas });
+    this.modelo.set(null);
+    this.toast.success(this.rede.isOnline() ? 'Visita prévia registrada' : 'Visita guardada: sai quando houver sinal');
+  }
+
+  async gerar(tipo: 'as-built' | 'book'): Promise<void> {
+    await this.servico.gerar(this.id, tipo);
+    this.toast.success(tipo === 'book' ? 'Book pedido: fica pronto no web' : 'As Built pedido: fica pronto no web');
+  }
+
+  voltar(): void {
+    if (this.modelo()) {
+      this.modelo.set(null);
+      return;
+    }
+    void this.router.navigate(['/supervisao']);
+  }
+
+  private respondida(p: PerguntaChecklist): boolean {
+    const r = this.respostas()[p.id];
+    return !!(r?.valor?.toString().trim() || r?.selecionadas?.length);
+  }
+}

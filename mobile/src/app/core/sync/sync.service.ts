@@ -1,3 +1,6 @@
+import { idAtual } from './ids-trocados';
+import { OBRAS_ENDPOINT, RegistrosObrasService } from '../obras/registros-obras.service';
+import { PacoteObrasService } from '../obras/pacote-obras.service';
 import { registrarIdTrocado } from './ids-trocados';
 import { Injectable, InjectionToken, signal, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -153,6 +156,8 @@ export class SyncService {
   private readonly checklistVeiculo = inject(ChecklistVeiculoService);
   private readonly documentosVeiculo = inject(DocumentosVeiculoService);
   private readonly abastecimento = inject(AbastecimentoService);
+  private readonly registrosObras = inject(RegistrosObrasService);
+  private readonly pacoteObras = inject(PacoteObrasService);
 
   readonly isSyncing = signal(false);
   readonly lastSyncAt = signal<Date | null>(null);
@@ -248,6 +253,9 @@ export class SyncService {
       if (this.authService.isCampo()) {
         await this.runStep('Turno ativo', 'clock', () => this.turnoService.syncTurnoAtivoComServidor(), falhas);
       }
+      if (this.authService.ehEquipeObras() || this.authService.ehSupervisorObras()) {
+        await this.runStep('Agenda das obras', 'map', () => this.pacoteObras.sincronizar(), falhas);
+      }
 
       this.currentStep.set({ label: 'Atualizando saldos e listas operacionais...', icon: 'refresh-cw' });
       await this.pullParcialData(falhas);
@@ -305,6 +313,9 @@ export class SyncService {
         await this.runStep('Composição e meta da equipe', 'users', async () => {
           await this.turnoService.sincronizarComposicao();
         }, falhas);
+        if (this.authService.ehEquipeObras()) {
+          await this.runStep('Agenda e projetos das obras', 'map', () => this.pacoteObras.sincronizar(), falhas);
+        }
       } else if (this.authService.isAdministrativo()) {
         await this.runStep('Equipes', 'settings', () => this.syncTodasEquipes(), falhas);
         await this.runStep('Colaboradores', 'users', () => this.syncTodosColaboradores(), falhas);
@@ -781,6 +792,8 @@ export class SyncService {
               await this.checklistVeiculo.processarEnvio(item);
             } else if (item.endpoint === ABASTECIMENTO_ENDPOINT) {
               await this.abastecimento.processarEnvio(item);
+            } else if (item.endpoint === OBRAS_ENDPOINT) {
+              await this.registrosObras.processarEnvio(item);
             } else if (item.endpoint?.includes('eventos')) {
               // Itens legados de eventos de turno nunca são descartados: o payload
               // original precisa permanecer disponível para o tratamento administrativo.
@@ -791,9 +804,15 @@ export class SyncService {
               );
               continue;
             } else {
+              // Fechamento de turno aberto sem sinal: o id provisório vira o do servidor.
+              const endpoint = item.endpoint.replace(/local-[0-9a-f-]{36}/, (tmp) => idAtual(tmp) ?? tmp);
+              if (/local-[0-9a-f-]{36}/.test(endpoint)) {
+                // A abertura ainda não saiu: espera na fila sem gastar tentativa.
+                throw Object.assign(new Error('Aguardando a abertura do turno.'), { status: 0 });
+              }
               const response = await firstValueFrom(
-                this.http.request<any>(item.method, `${this.baseUrl}${item.endpoint}`, {
-                  body: item.endpoint === '/v1/movimentacoes-estoque/transferencia' && item.payload?.tempId
+                this.http.request<any>(item.method, `${this.baseUrl}${endpoint}`, {
+                  body: (item.endpoint === '/v1/movimentacoes-estoque/transferencia' || item.endpoint === '/v1/turnos/abrir') && item.payload?.tempId
                     ? (({ tempId: _tempId, ...request }) => request)(item.payload)
                     : item.payload,
                   ...this.opcoesDeEscrita(item.id)
@@ -810,6 +829,11 @@ export class SyncService {
                   status: response.receiptStatus ?? 'RECEIVED'
                 });
               }
+
+              if (item.endpoint === '/v1/turnos/abrir' && item.payload?.tempId && response?.id) {
+                await this.turnoService.trocarIdTurnoLocal(item.payload.tempId, response);
+              }
+              if (/^\/v1\/turnos\/[^/]+\/fechar\?dataFim=/.test(item.endpoint)) this.turnoService.fechamentoEnviado();
 
               // Se for uma transferência, atualizar o registro local
               if (item.endpoint === '/v1/movimentacoes-estoque/transferencia' && item.payload?.tempId) {

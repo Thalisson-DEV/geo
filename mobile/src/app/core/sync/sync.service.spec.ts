@@ -30,6 +30,8 @@ describe('SyncService', () => {
         isCampo: any;
         podeAcessarInspecoes: any;
         podeAcessarLogistica: any;
+        ehEquipeObras: any;
+        ehSupervisorObras: any;
         currentUser: any;
         requireReauthentication: Mock;
         tokenAtualizado: Mock;
@@ -56,6 +58,8 @@ describe('SyncService', () => {
             isCampo: signal(true),
             podeAcessarInspecoes: signal(false),
             podeAcessarLogistica: signal(true),
+            ehEquipeObras: signal(false),
+            ehSupervisorObras: signal(false),
             currentUser: signal({ id: '123', equipeId: '456' }),
             requireReauthentication: vi.fn().mockName('requireReauthentication'),
             tokenAtualizado: vi.fn().mockName('tokenAtualizado').mockResolvedValue('token-valido')

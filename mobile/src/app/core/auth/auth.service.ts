@@ -292,6 +292,11 @@ export class AuthService {
    * SyncService não divirjam.
    */
   readonly podeAcessarInspecoes = computed(() => this.isAdministrativo());
+
+  /** Encarregado de equipe de Obras (perfil EQUIPE_OBRAS): turno, APR e execução pelo app, offline. */
+  readonly ehEquipeObras = computed(() => this.isCampo() && this.temPermissao('obras:turno:write'));
+  /** Supervisor/administrativo de Obras no app: visita prévia, As Built, book e acompanhamento das equipes. */
+  readonly ehSupervisorObras = computed(() => this.isAdministrativo() && this.temPermissao('obras:campo:read'));
   readonly podeAcessarDescontos = computed(() => this.isAdministrativo());
 
   /**

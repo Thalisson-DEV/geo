@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, Injector, OnInit, compu
 import { liveQuery } from 'dexie';
 import { Router } from '@angular/router';
 import { TurnoService } from '../../core/turno/turno.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { ChecklistVeiculoLocal, diaLocal } from '../../core/frota/checklist-veiculo.models';
 import { ChecklistVeiculoService } from '../../core/frota/checklist-veiculo.service';
 import { ConnectivityService } from '../../core/sync/connectivity.service';
@@ -135,13 +136,15 @@ interface RascunhoTurno {
 
     @if (composicao()) {
       <footer class="rodape" data-acao-fixa>
-        @if (!rede.isOnline()) {
+        @if (!rede.isOnline() && !obras()) {
           <p class="sem-rede"><geo-icone nome="sem_rede" [tamanho]="16" />Abrir o turno precisa de internet. A conferência fica salva.</p>
+        } @else if (!rede.isOnline()) {
+          <p class="sem-rede"><geo-icone nome="sem_rede" [tamanho]="16" />Sem sinal: o turno abre no aparelho e vai ao servidor com a hora de agora.</p>
         }
         @if (faltaChecklist()) {
           <p class="sem-rede"><geo-icone nome="alerta" [tamanho]="16" />Faça o checklist do {{ veiculo()?.placa }} para abrir o turno.</p>
         }
-        <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="abrirTurno()" [disabled]="enviando() || !rede.isOnline() || faltaChecklist()">
+        <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="abrirTurno()" [disabled]="enviando() || (!rede.isOnline() && !obras()) || faltaChecklist()">
           {{ enviando() ? 'Abrindo…' : (houveAlteracao() ? 'Abrir turno com as mudanças' : 'Abrir turno') }}
         </button>
       </footer>
@@ -208,6 +211,7 @@ export class AbrirTurnoComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly rascunhos = inject(RascunhoService);
+  private readonly auth = inject(AuthService);
   private readonly injector = inject(Injector);
   private readonly checklists = inject(ChecklistVeiculoService);
   private readonly destroyRef = inject(DestroyRef);
@@ -394,6 +398,9 @@ export class AbrirTurnoComponent implements OnInit {
     this.membros.update(lista => lista.filter(m => m.responsavel || m.idColaborador !== idColaborador));
   }
 
+  /** Equipe de Obras abre o turno também sem sinal. */
+  readonly obras = computed(() => this.auth.ehEquipeObras());
+
   async abrirTurno(): Promise<void> {
     if (this.enviando() || this.faltaChecklist()) return;
     this.enviando.set(true);
@@ -405,7 +412,15 @@ export class AbrirTurnoComponent implements OnInit {
             idsColaboradores: this.membros().filter(m => !m.responsavel).map(m => m.idColaborador),
           }
         : undefined;
-      await this.turnoService.abrirTurno(escolha);
+      if (this.obras()) {
+        const titulares = new Set((this.composicao()?.membros ?? []).map(m => m.idColaborador));
+        const lider = this.membros().find(m => m.responsavel);
+        await this.turnoService.abrirTurnoObras(
+          { idVeiculo: this.veiculo()?.id ?? null, idsColaboradores: this.membros().filter(m => !m.responsavel).map(m => m.idColaborador) },
+          { idLider: lider?.idColaborador ?? null, idsSubstitutos: this.membros().filter(m => !titulares.has(m.idColaborador)).map(m => m.idColaborador) });
+      } else {
+        await this.turnoService.abrirTurno(escolha);
+      }
       await this.rascunho?.concluir();
       this.toast.success(escolha ? 'Turno aberto e equipe atualizada' : 'Turno aberto. Bom trabalho!');
       await this.router.navigate(['/hoje'], { replaceUrl: true });

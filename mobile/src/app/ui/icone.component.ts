@@ -6,7 +6,7 @@ import {
   Download, Ellipsis, FileText, Flag, Flashlight, FolderCheck, Fuel, History, Image, Info, Kanban, Keyboard, List, ListFilter,
   ListOrdered, LocateFixed, LogOut, MapPin, Maximize2, Minimize2, Minus, Moon, Package, Pencil, Plus, RefreshCw,
   ScanBarcode, Search, Share, ShieldCheck, ShoppingCart, Signature, Smartphone, Star, Sun, Trash2, TriangleAlert, Truck,
-  Undo2, Upload, UserRoundX, Users, Warehouse, WifiOff, Wrench, X,
+  Undo2, Upload, UserRoundX, Users, Warehouse, WifiOff, Wrench, X, HardHat, Navigation, Map as Mapa, Hammer, CircleCheckBig, Bell, Ban, Layers, QrCode, Phone,
   type IconNode,
 } from 'lucide';
 
@@ -81,6 +81,17 @@ export const ICONES = {
   fechamento: FolderCheck,
   carrinho: ShoppingCart,
   pessoa_fora: UserRoundX,
+  // Obras
+  obra: HardHat,
+  navegar: Navigation,
+  mapa: Mapa,
+  ferramenta: Hammer,
+  tudo_feito: CircleCheckBig,
+  aviso: Bell,
+  impedido: Ban,
+  camadas: Layers,
+  qr: QrCode,
+  telefone: Phone,
 } satisfies Record<string, IconNode>;
 
 export type NomeIcone = keyof typeof ICONES;

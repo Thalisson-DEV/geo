@@ -8,6 +8,15 @@ import { AuthService } from '../auth/auth.service';
 import { ComposicaoEquipeLocal, ColaboradorLocal, TurnoLocal } from '../db/models';
 import { silentContext } from '../http/http-context';
 import { corteDoTurno, turnoVencido } from './turno-regras';
+import { idAtual, registrarIdTrocado } from '../sync/ids-trocados';
+
+/** Id provisório do turno aberto sem sinal (troca pelo do servidor quando a abertura sai da fila). */
+export const PREFIXO_TURNO_LOCAL = 'local-';
+const CHAVE_FECHADO_NA_FILA = 'geo_turno_fechado_na_fila';
+
+function lerFechadoNaFila(): string | null {
+  try { return localStorage.getItem(CHAVE_FECHADO_NA_FILA); } catch { return null; }
+}
 
 /** Escolhas do responsável na conferência da equipe ao abrir o turno. */
 export interface ComposicaoTurnoEscolhida {
@@ -73,6 +82,10 @@ export class TurnoService {
       });
 
       const turnoLocal = this.turnoAtivo();
+      // Abertura ou fechamento feitos sem sinal ainda na fila: o aparelho é que está certo até a fila sair.
+      if (turnoLocal?.id.startsWith(PREFIXO_TURNO_LOCAL)) return;
+      const fechadoNaFila = lerFechadoNaFila();
+      if (fechadoNaFila && turnoAtivoServer?.id && (turnoAtivoServer.id === fechadoNaFila || idAtual(fechadoNaFila) === turnoAtivoServer.id)) return;
 
       if (turnoAtivoServer && turnoAtivoServer.status === 'ABERTO') {
         if (!turnoLocal || turnoLocal.id !== turnoAtivoServer.id) {
@@ -277,6 +290,80 @@ export class TurnoService {
       void this.sincronizarComposicao().catch(() => {});
     }
   }
+
+  /**
+   * Abertura do turno de Obras, também sem sinal: com rede, abre no servidor na hora; sem rede (ou se a rede falha),
+   * o turno abre no aparelho com id provisório e a abertura vai pela fila com a hora real. Os registros de Obras
+   * referem-se ao turno pela hora, então nada espera a troca do id.
+   */
+  async abrirTurnoObras(escolha: ComposicaoTurnoEscolhida, papeis: { idLider?: string | null; idsSubstitutos?: string[] } = {}): Promise<void> {
+    const user = this.authService.currentUser();
+    if (!user?.equipeId) throw new Error('Usuário ou equipe não identificado para abrir o turno.');
+    const dataInicio = new Date().toISOString();
+    const corpo = {
+      idEquipe: user.equipeId, idVeiculo: escolha.idVeiculo ?? null, idsColaboradores: escolha.idsColaboradores,
+      idLider: papeis.idLider ?? null, idsSubstitutos: papeis.idsSubstitutos ?? [], dataInicio,
+    };
+    if (typeof navigator === 'undefined' || navigator.onLine) {
+      try {
+        const response = await firstValueFrom(this.http.post<any>(`${this.baseUrl}/v1/turnos/abrir`, corpo, { headers: { 'X-Silent-Error': 'true' } }));
+        const turno: TurnoLocal = { id: response.id, idEquipe: response.idEquipe, idUsuarioAbertura: response.idUsuarioAbertura,
+          dataInicio: response.dataInicio, status: 'ABERTO', idVeiculo: response.idVeiculo ?? null, idsColaboradores: response.idsColaboradores ?? [] };
+        await this.dbService.saveTurno(turno);
+        this.turnoAtivo.set(turno);
+        this.encerramentoAutomatico.set(null);
+        return;
+      } catch (error: any) {
+        const status = error?.status;
+        // Recusa do servidor (ex.: turno já aberto) não vira turno no aparelho: o servidor sabe.
+        if (status && status >= 400 && status < 500) {
+          if (status === 422 || status === 400) await this.syncTurnoAtivoComServidor();
+          if (this.turnoAtivo()) return;
+          throw error;
+        }
+      }
+    }
+    const tempId = `${PREFIXO_TURNO_LOCAL}${crypto.randomUUID()}`;
+    const turno: TurnoLocal = { id: tempId, idEquipe: user.equipeId, idUsuarioAbertura: user.id, dataInicio, status: 'ABERTO',
+      idVeiculo: escolha.idVeiculo ?? null, idsColaboradores: escolha.idsColaboradores };
+    await this.dbService.saveTurno(turno);
+    this.turnoAtivo.set(turno);
+    this.encerramentoAutomatico.set(null);
+    await this.outboxService.enqueue({ endpoint: '/v1/turnos/abrir', method: 'POST', payload: { ...corpo, tempId }, operationType: 'TURNO' });
+  }
+
+  /** Fechamento do turno de Obras, também sem sinal: fecha no aparelho e o servidor recebe a hora real pela fila. */
+  async fecharTurnoObras(): Promise<void> {
+    const turno = this.turnoAtivo();
+    if (!turno) return;
+    const dataFim = new Date().toISOString();
+    await this.outboxService.enqueue({
+      endpoint: `/v1/turnos/${encodeURIComponent(turno.id)}/fechar?dataFim=${encodeURIComponent(dataFim)}`,
+      method: 'POST', payload: { idTurno: turno.id, dataFim }, operationType: 'TURNO',
+    });
+    await this.dbService.fecharTurnoLocal(turno.id, dataFim);
+    this.turnoAtivo.set(null);
+    try { localStorage.setItem(CHAVE_FECHADO_NA_FILA, turno.id); } catch { /* sem armazenamento */ }
+  }
+
+  /** O fechamento feito sem sinal chegou ao servidor. */
+  fechamentoEnviado(): void {
+    try { localStorage.removeItem(CHAVE_FECHADO_NA_FILA); } catch { /* sem armazenamento */ }
+  }
+
+  /** O servidor aceitou a abertura feita sem sinal: o turno do aparelho passa a ter o id real. */
+  async trocarIdTurnoLocal(tempId: string, real: { id: string; dataInicio?: string }): Promise<void> {
+    const local = (await this.dbService.getTurnoAtivo()) ?? null;
+    const alvo = local?.id === tempId ? local : null;
+    if (alvo) {
+      await this.dbService.deleteTurno(tempId);
+      const novo = { ...alvo, id: real.id };
+      await this.dbService.saveTurno(novo);
+      if (this.turnoAtivo()?.id === tempId) this.turnoAtivo.set(novo);
+    }
+    registrarIdTrocado(tempId, real.id);
+  }
+
 
   /**
    * Fecha o turno atual da equipe.

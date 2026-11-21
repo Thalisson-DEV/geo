@@ -1,3 +1,4 @@
+import { AvisosPushService } from '../../core/obras/avisos-push.service';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { TurnoService } from '../../core/turno/turno.service';
@@ -75,6 +76,20 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, 
     </ul>
     @if (rede.isBloqueadoPorDadosMoveis()) {
       <p class="aviso"><geo-icone nome="alerta" [tamanho]="18" />Você está no 4G com dados móveis desligados. Tudo fica guardado no aparelho até conectar no Wi-Fi.</p>
+    }
+
+    @if (auth.ehEquipeObras() || auth.ehSupervisorObras()) {
+      <h2 class="geo-secao">Avisos</h2>
+      <ul class="geo-grupo">
+        <li><button type="button" role="switch" class="geo-linha geo-linha--acao interruptor" [attr.aria-checked]="push.ativo()" (click)="alternarAvisos()"
+          [disabled]="!push.disponivel()">
+          <span class="geo-linha__texto">
+            <span class="geo-linha__titulo">Avisos de mudança na agenda</span>
+            <span class="geo-linha__apoio quebra">{{ push.disponivel() ? (push.ativo() ? 'Reprogramação e cancelamento chegam no aparelho' : 'Ligue para saber das mudanças sem abrir o app') : 'Instale o app na tela inicial para receber avisos. Ao abrir, o app sempre mostra as mudanças.' }}</span>
+          </span>
+          <span class="geo-interruptor" aria-hidden="true"><span></span></span>
+        </button></li>
+      </ul>
     }
 
     <h2 class="geo-secao" id="titulo-aparencia">Aparência</h2>
@@ -166,6 +181,19 @@ export class PerfilComponent implements OnInit {
   private readonly appUpdate = inject(AppUpdateService);
   private readonly sessao = inject(SessaoService);
   private readonly db = inject(DbService);
+  readonly push = inject(AvisosPushService);
+
+  async alternarAvisos(): Promise<void> {
+    if (this.push.ativo()) {
+      await this.push.desativar();
+      this.toast.info('Avisos desligados neste aparelho.');
+      return;
+    }
+    const r = await this.push.ativar().catch(() => 'indisponivel' as const);
+    const textos = { ok: 'Avisos ligados.', indisponivel: 'Avisos indisponíveis agora. Tente com internet.', negado: 'O aparelho não permitiu os avisos.',
+      'sem-chave': 'O servidor ainda não envia avisos; as mudanças aparecem ao abrir o app.' };
+    (r === 'ok' ? this.toast.success.bind(this.toast) : this.toast.info.bind(this.toast))(textos[r]);
+  }
   private readonly equipe = signal('');
 
   readonly versao = environment.versaoApp;

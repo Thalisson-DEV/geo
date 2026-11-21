@@ -11,6 +11,7 @@ import { RascunhoStore, ResumoRascunho } from '../../core/sessao/rascunho.store'
 import { SessaoService } from '../../core/sessao/sessao.service';
 import { FolhaComponent, IconeComponent, IndicadorRedeComponent, TituloGrandeComponent } from '../../ui';
 import { FolhaEnviosComponent } from './folha-envios.component';
+import { HojeObrasComponent } from './hoje-obras.component';
 import { AvaliacaoConviteComponent } from '../avaliacao/avaliacao-convite.component';
 import { catchError, forkJoin, map, of } from 'rxjs';
 import { AlmoxService } from '../../core/almox/almox.service';
@@ -34,7 +35,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
   standalone: true,
   imports: [
     RouterLink, TituloGrandeComponent, IndicadorRedeComponent, IconeComponent, FolhaComponent, FolhaEnviosComponent,
-    AvaliacaoConviteComponent,
+    AvaliacaoConviteComponent, HojeObrasComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -57,6 +58,10 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
         </section>
       }
 
+      @if (auth.ehEquipeObras()) {
+        <app-hoje-obras [checklistFeito]="!!checklistHoje()" />
+      }
+
       @if (auth.isCampo()) {
         <h2 class="geo-secao">Turno</h2>
         <div class="geo-grupo">
@@ -67,7 +72,11 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
                 <span class="geo-linha__titulo">Turno aberto</span>
                 <span class="geo-linha__apoio geo-num">desde {{ hora(t.dataInicio) }}{{ pessoas() }}</span>
               </div>
-              <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto encerrar" (click)="confirmarEncerrar.set(true)">Encerrar</button>
+              @if (auth.ehEquipeObras()) {
+                <a class="geo-btn geo-btn--texto geo-btn--compacto encerrar" routerLink="/obras/relatorio">Fechar o dia</a>
+              } @else {
+                <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto encerrar" (click)="confirmarEncerrar.set(true)">Encerrar</button>
+              }
             </div>
           } @else {
             <div class="geo-linha">
@@ -193,7 +202,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
       <div class="respiro"></div>
     </div>
 
-    @if ((auth.isCampo() && !turno.turnoAtivo()) || (!auth.isCampo() && !auth.podeAcessarAlmoxarifado())) {
+    @if (!auth.ehEquipeObras() && ((auth.isCampo() && !turno.turnoAtivo()) || (!auth.isCampo() && !auth.podeAcessarAlmoxarifado()))) {
     <div class="doca" data-acao-fixa>
       @if (!auth.isCampo()) {
         <a class="geo-btn geo-btn--principal geo-btn--bloco" routerLink="/inspecoes/nova"><geo-icone nome="mais" />Nova inspeção</a>

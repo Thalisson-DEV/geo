@@ -5,6 +5,7 @@ import { adminGuard } from './core/auth/admin.guard';
 import { desviosGuard } from './core/auth/desvios.guard';
 import { logisticaGuard } from './core/auth/logistica.guard';
 import { campoGuard } from './core/auth/campo.guard';
+import { obrasGuard, supervisaoObrasGuard } from './core/auth/obras.guard';
 import { almoxGuard, fechamentoCriarGuard } from './core/auth/almox.guard';
 import { retomadaGuard } from './core/sessao/retomada.guard';
 
@@ -56,6 +57,18 @@ export const routes: Routes = [
         path: 'transferencias',
         canMatch: [logisticaGuard],
         loadChildren: () => import('./features/transferencias/transferencias.routes').then(m => m.TRANSFERENCIAS_ROUTES)
+      },
+      {
+        // Obras da equipe de campo: agenda, ficha, APR, execução e fechamento do dia (offline).
+        path: 'obras',
+        canMatch: [obrasGuard],
+        loadChildren: () => import('./features/obras/obras.routes').then(m => m.OBRAS_ROUTES)
+      },
+      {
+        // Supervisor de Obras no app: acompanhamento das equipes, visita prévia, As Built e book.
+        path: 'supervisao',
+        canMatch: [supervisaoObrasGuard],
+        loadChildren: () => import('./features/supervisao/supervisao.routes').then(m => m.SUPERVISAO_ROUTES)
       },
       {
         path: 'turno/abrir',

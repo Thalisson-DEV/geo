@@ -1,4 +1,7 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { ConnectivityService } from '../../core/sync/connectivity.service';
+import { PacoteObrasService } from '../../core/obras/pacote-obras.service';
+import { RegistrosObrasService } from '../../core/obras/registros-obras.service';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
@@ -9,7 +12,7 @@ import { Aba, BarraAbasComponent, ModoNavegacao } from '../../ui';
 import { AvisoSessaoComponent } from '../../ui/aviso-sessao.component';
 
 /** Telas de topo: mostram a barra de abas. Lançamentos e detalhes ocupam a tela toda. */
-const TELAS_DE_TOPO = /^\/(hoje|material|material\/saldo|frota|transferencias|perfil|inspecoes|desvios|almox\/solicitacoes|almox\/tecnicas|almox\/movimentacoes|almox\/fechamento|fechamento)(\?|$)/;
+const TELAS_DE_TOPO = /^\/(hoje|obras|supervisao|material|material\/saldo|frota|transferencias|perfil|inspecoes|desvios|almox\/solicitacoes|almox\/tecnicas|almox\/movimentacoes|almox\/fechamento|fechamento)(\?|$)/;
 
 /** Checklist e abastecimento valem para todos os perfis do app (campo e administrativo). */
 const ABA_FROTA: Aba = { rota: '/frota', rotulo: 'Frota', icone: 'caminhao', ativaEm: ['/checklist', '/abastecimento'] };
@@ -59,6 +62,9 @@ export class AppShellComponent implements AfterViewInit {
   private readonly outbox = inject(OutboxService);
   private readonly sessao = inject(SessaoService);
   readonly layout = inject(LayoutService);
+  private readonly pacoteObras = inject(PacoteObrasService);
+  private readonly registrosObras = inject(RegistrosObrasService);
+  private readonly rede = inject(ConnectivityService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly rolagem = viewChild.required<ElementRef<HTMLElement>>('rolagem');
 
@@ -87,11 +93,29 @@ export class AppShellComponent implements AfterViewInit {
         { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
       ];
     }
+    if (this.auth.isAdministrativo() && this.auth.ehSupervisorObras()) {
+      return [
+        { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
+        { rota: '/supervisao', rotulo: 'Obras', icone: 'obra', ativaEm: ['/supervisao'] },
+        { rota: '/inspecoes', rotulo: 'Segurança', icone: 'escudo', ativaEm: ['/desvios'] },
+        ABA_FROTA,
+        { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
+      ];
+    }
     if (this.auth.isAdministrativo()) {
       return [
         { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
         { rota: '/inspecoes', rotulo: 'Inspeções', icone: 'inspecao' },
         { rota: '/desvios', rotulo: 'Desvios', icone: 'desvio' },
+        ABA_FROTA,
+        { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
+      ];
+    }
+    if (this.auth.ehEquipeObras()) {
+      return [
+        { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
+        { rota: '/obras', rotulo: 'Obras', icone: 'obra', ativaEm: ['/obras'] },
+        { rota: '/material', rotulo: 'Material', icone: 'material', ativaEm: ['/transferencias'] },
         ABA_FROTA,
         { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
       ];
@@ -115,6 +139,14 @@ export class AppShellComponent implements AfterViewInit {
       document.documentElement.setAttribute('data-nav', nav);
     });
     this.destroyRef.onDestroy(() => document.documentElement.removeAttribute('data-nav'));
+    // Obras: abre com o que está no aparelho e, com rede, baixa o pacote sozinho (ao abrir e ao voltar a rede).
+    if (this.auth.ehEquipeObras() || this.auth.ehSupervisorObras()) {
+      void this.pacoteObras.carregarLocal();
+      void this.registrosObras.carregar().then(() => this.registrosObras.limparEnviados());
+      effect(() => {
+        if (this.rede.isOnline()) untracked(() => void this.pacoteObras.sincronizar());
+      });
+    }
     // Ouve desde já: a casca nasce DURANTE a primeira navegação, e o NavigationEnd
     // dela chega antes do ngAfterViewInit. Sem isto a rolagem iria para a rota errada.
     const sub = this.router.events

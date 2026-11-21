@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ToastService, Toast } from '../../../core/ui/toast.service';
-import { IconeComponent, NomeIcone } from '../../../ui';
+import { FolhaComponent, IconeComponent, NomeIcone } from '../../../ui';
 
 const ICONES: Record<string, NomeIcone> = { success: 'check', error: 'alerta', warning: 'alerta', info: 'info' };
 
@@ -14,7 +14,7 @@ const ICONES: Record<string, NomeIcone> = { success: 'check', error: 'alerta', w
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="pilha">
+    <div class="pilha" [class.no-topo]="folhaAberta()">
       @for (t of toastService.toasts(); track t.id) {
         <div class="aviso" [class]="'aviso ' + t.type" [attr.role]="t.type === 'error' ? 'alert' : 'status'" (click)="toastService.remove(t.id)">
           <geo-icone class="icone" [nome]="icone(t)" [tamanho]="20" />
@@ -30,6 +30,8 @@ const ICONES: Record<string, NomeIcone> = { success: 'check', error: 'alerta', w
     :host { display: contents; }
     .pilha { position: fixed; left: var(--geo-nav-lateral); right: 0; z-index: 100; display: grid; justify-items: center; gap: var(--geo-e2); pointer-events: none;
       padding: 0 var(--geo-e3); bottom: calc(var(--geo-barra-abas) + var(--geo-rodape-acao) + var(--geo-safe-base) + var(--geo-e3)); }
+    /* Folha aberta: o aviso vai para o topo, longe do conteúdo da folha (assinatura, leitor, botões do rodapé). */
+    .pilha.no-topo { bottom: auto; top: calc(var(--geo-safe-topo) + var(--geo-e3)); }
     .aviso { pointer-events: auto; width: min(100%, 520px); display: flex; align-items: center; gap: var(--geo-e3); min-height: 52px;
       padding: var(--geo-e2) var(--geo-e2) var(--geo-e2) var(--geo-e4); border-radius: 14px; background: var(--geo-inverso); color: var(--geo-inverso-texto);
       box-shadow: var(--geo-sombra-flutuante); font: 500 .9375rem/1.35 var(--geo-fonte); animation: subir 220ms var(--geo-curva); cursor: pointer; }
@@ -47,6 +49,7 @@ const ICONES: Record<string, NomeIcone> = { success: 'check', error: 'alerta', w
 })
 export class ToastComponent {
   readonly toastService = inject(ToastService);
+  readonly folhaAberta = computed(() => FolhaComponent.abertas() > 0);
 
   icone(t: Toast): NomeIcone {
     return ICONES[t.type] ?? 'info';

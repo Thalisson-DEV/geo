@@ -135,6 +135,7 @@ export class FolhaComponent implements OnDestroy {
       history.pushState({ ...(history.state ?? {}), geoFolha: true }, '');
       this.empurrouHistorico = true;
       FolhaComponent.pilha.push(this);
+      FolhaComponent.marcarAberta();
       if (!FolhaComponent.ouvindo) {
         FolhaComponent.ouvindo = true;
         window.addEventListener('popstate', FolhaComponent.aoVoltarGlobal);
@@ -150,8 +151,19 @@ export class FolhaComponent implements OnDestroy {
     this.liberarHistorico();
   }
 
+  /**
+   * Quantas folhas estão abertas. Com folha aberta, os avisos (toast) sobem para o topo e não cobrem o conteúdo dela (ex.:
+   * o quadro de assinatura). Sinal, e não atributo na raiz: mudar a raiz recalcula o estilo da página inteira.
+   */
+  static readonly abertas = signal(0);
+
+  private static marcarAberta(): void {
+    FolhaComponent.abertas.set(FolhaComponent.pilha.length);
+  }
+
   private liberarHistorico(): void {
     FolhaComponent.pilha = FolhaComponent.pilha.filter(f => f !== this);
+    FolhaComponent.marcarAberta();
     if (this.empurrouHistorico) {
       this.empurrouHistorico = false;
       // Fechou pela UI: consome o estado que a folha empurrou, sem que isso feche outra folha.
@@ -166,5 +178,6 @@ export class FolhaComponent implements OnDestroy {
     if (this.timer) clearTimeout(this.timer);
     // Saiu da tela com a folha aberta: só sai da pilha (a navegação já mudou o histórico).
     FolhaComponent.pilha = FolhaComponent.pilha.filter(f => f !== this);
+    FolhaComponent.marcarAberta();
   }
 }

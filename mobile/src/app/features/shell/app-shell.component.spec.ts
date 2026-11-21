@@ -21,7 +21,7 @@ describe('AppShellComponent', () => {
       imports: [AppShellComponent],
       providers: [
         provideRouter([]),
-        { provide: AuthService, useValue: { isAdministrativo: () => admin, podeAcessarAlmoxarifado: () => almox, podeCriarFechamento: () => criaFechamento, reautenticacaoNecessaria: () => false, entrarNovamente: () => {} } },
+        { provide: AuthService, useValue: { isAdministrativo: () => admin, podeAcessarAlmoxarifado: () => almox, podeCriarFechamento: () => criaFechamento, ehEquipeObras: () => false, ehSupervisorObras: () => false, reautenticacaoNecessaria: () => false, entrarNovamente: () => {} } },
         { provide: OutboxService, useValue: { pendingCount: signal(3) } },
         { provide: SessaoService, useValue: { estadoTela: () => ({}), definirEstadoTela: () => {} } },
       ],
