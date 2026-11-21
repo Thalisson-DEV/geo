@@ -182,6 +182,10 @@ public class PlanejamentoObraUseCases {
         return montar(obra);
     }
 
+    boolean existeVao(UUID idObra, UUID idPontoA, UUID idPontoB) {
+        return vaoRepository.findByIdObraAndAtivoTrue(idObra).stream().anyMatch(v -> v.liga(idPontoA) && v.liga(idPontoB));
+    }
+
     VaoPlanejamento criarVao(UUID idObra, UUID idPontoA, UUID idPontoB, BigDecimal metragem, OrigemPlanejamento origem) {
         PontoPlanejamento a = buscarPonto(idObra, idPontoA);
         PontoPlanejamento b = buscarPonto(idObra, idPontoB);

@@ -64,6 +64,21 @@ public class AnalisePlanejamento extends BaseEntity {
         this.dataConclusao = OffsetDateTime.now();
     }
 
+    /**
+     * Leitura que passou do prazo sem terminar foi interrompida (o servidor reiniciou no meio): falha, para a tela parar
+     * de esperar e a pessoa poder pedir de novo.
+     *
+     * @return true quando a leitura acabou de ser encerrada aqui
+     */
+    public boolean expirarSeTravada(OffsetDateTime agora, java.time.Duration prazo) {
+        if (status != StatusAnalisePlanejamento.PROCESSANDO || getDataCriacao() == null
+                || getDataCriacao().plus(prazo).isAfter(agora)) {
+            return false;
+        }
+        falhar("A leitura foi interrompida antes de terminar. Peça a leitura de novo.");
+        return true;
+    }
+
     public void falhar(String mensagem) {
         this.mensagem = mensagem != null && mensagem.length() > 1000 ? mensagem.substring(0, 1000) : mensagem;
         this.status = StatusAnalisePlanejamento.FALHOU;

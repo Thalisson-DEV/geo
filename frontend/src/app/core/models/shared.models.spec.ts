@@ -24,4 +24,9 @@ describe('getErrorMessage', () => {
     expect(getErrorMessage({ error: { erros: { placa: 'Placa repetida.' } } })).toBe('placa: Placa repetida.');
     expect(getErrorMessage({ error: { detail: 'Turno já encerrado.' } })).toBe('Turno já encerrado.');
   });
+
+  it('sem resposta do servidor diz o que aconteceu em vez da mensagem técnica', () => {
+    const erro = { status: 0, message: 'Http failure response for http://x/api: 0 Unknown Error', error: new ProgressEvent('error') };
+    expect(getErrorMessage(erro)).toBe('Não foi possível falar com o servidor. Confira a conexão e tente de novo.');
+  });
 });

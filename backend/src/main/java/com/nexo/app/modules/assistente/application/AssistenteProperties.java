@@ -38,6 +38,15 @@ public class AssistenteProperties {
         private String titleModel = "";
         private String visionModel = "";
         private String visionReasoningEffort = "low";
+        /**
+         * Modelo com visão só para ler os projetos das obras (folhas densas, com balões pequenos). Vazio = usa o
+         * visionModel. Separado para o planejamento usar um modelo mais forte sem encarecer as outras análises.
+         */
+        private String projectVisionModel = "";
+        /** Raciocínio do modelo de projeto; vazio = padrão do provedor. */
+        private String projectVisionReasoningEffort = "";
+        /** Leitura de projeto roda em segundo plano e o modelo raciocina sobre folhas densas: precisa de mais tempo. */
+        private int projectVisionTimeoutSeconds = 180;
         private String reasoningEffort = "";
         private String titleReasoningEffort = "none";
         private double temperature = 0.1;

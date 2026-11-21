@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +40,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AnalisePlanejamentoUseCases {
+
+    /** Folha densa com modelo forte leva alguns minutos; passado isso sem resposta, a leitura foi interrompida. */
+    static final Duration PRAZO_LEITURA = Duration.ofMinutes(30);
 
     private final AnalisePlanejamentoRepository analiseRepository;
     private final PontoPlanejamentoRepository pontoRepository;
@@ -52,12 +57,12 @@ public class AnalisePlanejamentoUseCases {
                 .filter(AnalisePlanejamento::isAtivo)
                 .map(AnalisePlanejamentoUseCases::paraResponse)
                 .orElse(null);
-        return new DisponibilidadeAnalise(copiloto.visaoDisponivel(), ultima);
+        return new DisponibilidadeAnalise(copiloto.visaoProjetoDisponivel(), ultima);
     }
 
     @Transactional
-    public AnaliseResponse iniciar(UUID idObra, int pagina) {
-        if (!copiloto.visaoDisponivel()) {
+    public AnaliseResponse iniciar(UUID idObra, int pagina, boolean orientacaoConferida) {
+        if (!copiloto.visaoProjetoDisponivel()) {
             throw new InvarianteVioladaException("A leitura de projetos pela Bússola não está configurada neste ambiente.");
         }
         planejamento.buscarObra(idObra);
@@ -66,21 +71,23 @@ public class AnalisePlanejamentoUseCases {
             throw new InvarianteVioladaException("Anexe o projeto mestre antes de pedir a leitura.");
         }
         AnalisePlanejamento analise = analiseRepository.save(
-                new AnalisePlanejamento(idObra, dados.getIdAnexoMestre(), pagina, copiloto.modeloVisao()));
+                new AnalisePlanejamento(idObra, dados.getIdAnexoMestre(), pagina, copiloto.modeloVisaoProjeto()));
         UUID id = analise.getId();
         // Só processa depois do commit: o processamento roda em outra thread e precisa enxergar o registro.
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                processador.processar(id);
+                processador.processar(id, orientacaoConferida);
             }
         });
         return paraResponse(analise);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AnaliseResponse buscar(UUID idObra, UUID idAnalise) {
-        return paraResponse(buscarAnalise(idObra, idAnalise));
+        AnalisePlanejamento analise = buscarAnalise(idObra, idAnalise);
+        analise.expirarSeTravada(OffsetDateTime.now(), PRAZO_LEITURA);
+        return paraResponse(analise);
     }
 
     @Transactional
@@ -110,6 +117,10 @@ public class AnalisePlanejamentoUseCases {
             if (a == null || b == null) {
                 throw new InvarianteVioladaException("O vão " + aceito.referenciaA() + " — " + aceito.referenciaB()
                         + " depende de um ponto que não foi aceito.");
+            }
+            // A rede continua de uma folha para a outra e o trecho da emenda aparece nas duas: o que já existe fica como está.
+            if (planejamento.existeVao(idObra, a, b)) {
+                continue;
             }
             VaoPlanejamento vao = planejamento.criarVao(idObra, a, b, aceito.metragem(), OrigemPlanejamento.COPILOTO);
             aplicarKits(obra, aceito.idsKits(), List.of(), List.of(vao.getId()));

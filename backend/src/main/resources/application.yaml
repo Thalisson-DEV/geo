@@ -217,6 +217,11 @@ geo:
       # Opcional: modelo com visao usado para ler os projetos das obras. Vazio = recurso indisponivel.
       vision-model: ${AI_LLM_VISION_MODEL:}
       vision-reasoning-effort: ${AI_LLM_VISION_REASONING_EFFORT:low}
+      # Opcional: modelo com visao mais forte so para a leitura dos projetos pela Bussola
+      # (ex.: accounts/fireworks/models/kimi-k3p1-pro). Vazio = usa o vision-model.
+      project-vision-model: ${AI_LLM_PROJECT_VISION_MODEL:}
+      project-vision-reasoning-effort: ${AI_LLM_PROJECT_VISION_REASONING_EFFORT:}
+      project-vision-timeout-seconds: ${AI_LLM_PROJECT_VISION_TIMEOUT_SECONDS:180}
       title-model: ${AI_LLM_TITLE_MODEL:}
       # Vazio = padrao do provedor (DeepSeek V4 na Fireworks: raciocinio ligado no nivel low).
       # O raciocinio nunca e exibido nem persistido; so e devolvido ao modelo dentro do mesmo turno.

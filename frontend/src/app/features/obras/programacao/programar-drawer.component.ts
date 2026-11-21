@@ -166,7 +166,9 @@ import { locaisProgramaveis } from './programar.logic';
           @if (previa()?.materiaisForaDeObras?.length) {
             <geo-callout tone="danger" [dense]="true">
               {{ previa()!.materiaisForaDeObras!.length === 1 ? 'Este material não é do processo Obras e impede programar:' : 'Estes materiais não são do processo Obras e impedem programar:' }}
-              {{ previa()!.materiaisForaDeObras!.join('; ') }}. Ajuste o processo no cadastro do material ou tire o item do kit.
+              @for (material of previa()!.materiaisForaDeObras!; track material; let ultimo = $last) {
+                <a [href]="linkMaterial(material)" target="_blank" rel="noopener" [title]="'Abrir o cadastro de ' + material + ' em outra aba'">{{ material }}</a>{{ ultimo ? '' : '; ' }}
+              }. Ajuste o processo no cadastro do material (abre em outra aba, sem perder esta programação) ou tire o item do kit.
             </geo-callout>
           }
           @if (saqueEmCimaDaHora()) {
@@ -254,6 +256,12 @@ export class ProgramarDrawerComponent {
   private almoxarifadoSugeridoPara: string | null = null;
 
   protected readonly previa = signal<PreviaProgramacao | null>(null);
+
+  /** "300045 - CONECTOR…" → cadastro de materiais já filtrado pelo código. */
+  protected linkMaterial(material: string): string {
+    const codigo = material.split(' - ')[0].trim();
+    return `/almoxarifado/materiais?busca=${encodeURIComponent(codigo)}`;
+  }
   protected readonly erroPrevia = signal<string | null>(null);
   protected readonly carregando = signal(false);
   protected readonly salvando = signal(false);

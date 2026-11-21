@@ -213,6 +213,22 @@ export class GeoPdfCanvasComponent implements OnDestroy {
     this.zoom.set(limitarZoom((this.area().nativeElement.clientWidth - folga) / base.largura));
   }
 
+  /**
+   * Cabe a folha inteira na área. Ao abrir é o que se espera: folha em pé numa tela larga, ajustada só pela largura,
+   * abria em 230% mostrando o branco do topo.
+   */
+  fitPage(): void {
+    const base = this.tamanhoBase();
+    if (!base) return;
+    const area = this.area().nativeElement;
+    const estilo = getComputedStyle(area);
+    const folgaX = parseFloat(estilo.paddingLeft) + parseFloat(estilo.paddingRight);
+    const folgaY = parseFloat(estilo.paddingTop) + parseFloat(estilo.paddingBottom);
+    const porLargura = (area.clientWidth - folgaX) / base.largura;
+    const porAltura = area.clientHeight > folgaY ? (area.clientHeight - folgaY) / base.altura : porLargura;
+    this.zoom.set(limitarZoom(Math.min(porLargura, porAltura)));
+  }
+
   /** Mostra uma posição da tela da folha, em [0,1], no centro da área visível. */
   centralizar(x: number, y: number): void {
     const area = this.area().nativeElement;
@@ -345,7 +361,7 @@ export class GeoPdfCanvasComponent implements OnDestroy {
     this.tamanhoBase.set({ largura: viewport.width, altura: viewport.height });
     if (this.ajustarAoAbrir) {
       this.ajustarAoAbrir = false;
-      this.fitWidth();
+      this.fitPage();
     }
     this.agendarRender(0);
   }

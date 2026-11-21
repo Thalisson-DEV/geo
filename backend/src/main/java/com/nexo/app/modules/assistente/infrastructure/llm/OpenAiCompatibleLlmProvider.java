@@ -75,7 +75,7 @@ public class OpenAiCompatibleLlmProvider implements LlmProvider {
         ensureConfigured();
         ObjectNode body = buildBody(request, false);
         HttpResponse<String> response = sendWithRetry(body, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8),
-                () -> false);
+                () -> false, request.timeoutSeconds());
         JsonNode root = readTree(response.body());
         JsonNode error = root.get("error");
         if (error != null && !error.isNull()) throw providerError(response.statusCode(), error);
@@ -95,7 +95,7 @@ public class OpenAiCompatibleLlmProvider implements LlmProvider {
         ensureConfigured();
         LlmStreamListener sink = listener == null ? LlmStreamListener.NOOP : listener;
         ObjectNode body = buildBody(request, true);
-        HttpResponse<InputStream> response = sendWithRetry(body, HttpResponse.BodyHandlers.ofInputStream(), cancelled);
+        HttpResponse<InputStream> response = sendWithRetry(body, HttpResponse.BodyHandlers.ofInputStream(), cancelled, null);
 
         StreamAccumulator accumulator = new StreamAccumulator(sink);
         AtomicLong lastActivity = new AtomicLong(System.nanoTime());
@@ -225,10 +225,11 @@ public class OpenAiCompatibleLlmProvider implements LlmProvider {
         return node;
     }
 
-    private <T> HttpResponse<T> sendWithRetry(ObjectNode body, HttpResponse.BodyHandler<T> handler, BooleanSupplier cancelled) {
+    private <T> HttpResponse<T> sendWithRetry(ObjectNode body, HttpResponse.BodyHandler<T> handler, BooleanSupplier cancelled,
+                                              Integer timeoutSeconds) {
         AssistenteProperties.Llm config = properties.getLlm();
         aplicarModeloDisponivel(body);
-        HttpRequest request = buildRequest(body);
+        HttpRequest request = buildRequest(body, timeoutSeconds);
 
         int attempts = Math.max(0, config.getMaxRetries()) + 1;
         LlmException last = null;
@@ -241,7 +242,7 @@ public class OpenAiCompatibleLlmProvider implements LlmProvider {
                 String errorBody = drain(response.body());
                 if (status == 404 && modeloIndisponivel(errorBody) && trocarParaReserva(body)) {
                     // O modelo principal saiu do ar no provedor: segue com o modelo reserva configurado.
-                    request = buildRequest(body);
+                    request = buildRequest(body, timeoutSeconds);
                     attempt--;
                     continue;
                 }
@@ -249,6 +250,11 @@ public class OpenAiCompatibleLlmProvider implements LlmProvider {
                 last = new LlmException(describeHttpError(status, errorBody), status, retryable);
                 if (!retryable || attempt == attempts) throw last;
                 sleepBackoff(attempt, response.headers().firstValue("Retry-After").orElse(null));
+            } catch (java.net.http.HttpTimeoutException exception) {
+                // Com tempo limite próprio (leituras longas em segundo plano), repetir só multiplica a espera.
+                last = new LlmException("O provedor de IA não respondeu a tempo", 504, timeoutSeconds == null, exception);
+                if (timeoutSeconds != null || attempt == attempts) throw last;
+                sleepBackoff(attempt, null);
             } catch (IOException exception) {
                 last = new LlmException("Falha de comunicacao com o provedor de IA", 503, true, exception);
                 if (attempt == attempts) throw last;
@@ -261,7 +267,8 @@ public class OpenAiCompatibleLlmProvider implements LlmProvider {
         throw last == null ? new LlmException("Falha desconhecida no provedor", 500, false) : last;
     }
 
-    private HttpRequest buildRequest(ObjectNode body) {
+    /** @param timeoutSeconds tempo limite da chamada; nulo = o do provedor (primeiro token) */
+    private HttpRequest buildRequest(ObjectNode body, Integer timeoutSeconds) {
         AssistenteProperties.Llm config = properties.getLlm();
         String payload;
         try {
@@ -270,7 +277,7 @@ public class OpenAiCompatibleLlmProvider implements LlmProvider {
             throw new LlmException("Falha ao serializar requisicao ao provedor", 0, false, exception);
         }
         return HttpRequest.newBuilder(URI.create(stripTrailingSlash(config.getBaseUrl()) + "/chat/completions"))
-                .timeout(Duration.ofSeconds(Math.max(5, config.getFirstTokenTimeoutSeconds())))
+                .timeout(Duration.ofSeconds(Math.max(5, timeoutSeconds != null ? timeoutSeconds : config.getFirstTokenTimeoutSeconds())))
                 .header("Authorization", "Bearer " + config.getApiKey().trim())
                 .header("Content-Type", "application/json")
                 .header("Accept", body.path("stream").asBoolean() ? "text/event-stream" : "application/json")

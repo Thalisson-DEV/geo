@@ -10,9 +10,16 @@ public record LlmRequest(
         Double temperature,
         Integer maxTokens,
         Boolean parallelToolCalls,
-        String reasoningEffort) {
+        String reasoningEffort,
+        Integer timeoutSeconds) {
 
     public enum ToolChoice { AUTO, NONE, REQUIRED }
+
+    /** Sem tempo limite próprio: vale o do provedor. */
+    public LlmRequest(String model, List<LlmMessage> messages, List<LlmToolDefinition> tools, ToolChoice toolChoice,
+                      Double temperature, Integer maxTokens, Boolean parallelToolCalls, String reasoningEffort) {
+        this(model, messages, tools, toolChoice, temperature, maxTokens, parallelToolCalls, reasoningEffort, null);
+    }
 
     public LlmRequest {
         messages = messages == null ? List.of() : List.copyOf(messages);

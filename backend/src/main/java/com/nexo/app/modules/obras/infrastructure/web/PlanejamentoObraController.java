@@ -196,7 +196,7 @@ public class PlanejamentoObraController implements PlanejamentoObraControllerDoc
     @PreAuthorize(GRAVAR)
     public ResponseEntity<PlanejamentoObraRequests.AnaliseResponse> iniciarAnalise(
             @PathVariable UUID idObra, @Valid @RequestBody PlanejamentoObraRequests.IniciarAnalise request) {
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(analises.iniciar(idObra, request.pagina()));
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(analises.iniciar(idObra, request.pagina(), Boolean.TRUE.equals(request.orientacaoConferida())));
     }
 
     @Override

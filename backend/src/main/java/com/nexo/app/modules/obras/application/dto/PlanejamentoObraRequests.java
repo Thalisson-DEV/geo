@@ -98,7 +98,11 @@ public final class PlanejamentoObraRequests {
                                  Long versao) {
     }
 
-    public record IniciarAnalise(@NotNull @Min(1) Integer pagina) {
+    /**
+     * @param orientacaoConferida a pessoa confirmou que a folha está de pé na tela: a Bússola não tenta adivinhar a
+     *                            rotação. Nulo ou falso = ela confere sozinha quando não há rotação salva.
+     */
+    public record IniciarAnalise(@NotNull @Min(1) Integer pagina, Boolean orientacaoConferida) {
     }
 
     /** Só o que o usuário manteve na revisão da proposta da Bússola, já com os ajustes dele. */

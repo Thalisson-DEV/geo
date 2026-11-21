@@ -18,6 +18,18 @@ const TOM_STATUS: Record<StatusItemPlanejado, GeoTone> = {
 export interface AplicacaoKit {
   idKit: string;
   operacao: OperacaoItemKit;
+  /** Grupo do kit (ex.: VÃO BT): kit de rede só faz sentido nos vãos. */
+  grupo?: string | null;
+}
+
+/** Kit de poste, estrutura ou equipamento: fica no ponto, nunca no vão. */
+export function kitDePonto(grupo: string | null | undefined): boolean {
+  return !!grupo && /^(estrutura|poste|transformador|aterramento|estai|equipamento|prote|ramal)/i.test(grupo.trim());
+}
+
+/** Kit de rede (grupo VÃO …): é medido em metros e só se aplica a vãos. */
+export function kitDeVao(grupo: string | null | undefined): boolean {
+  return !!grupo && /^v[aã]o(\s|$)/i.test(grupo.trim());
 }
 
 /** Busca de kits com filtro pela tensão da obra e, opcionalmente, a lista dos kits já aplicados no local. */
@@ -76,7 +88,7 @@ export interface AplicacaoKit {
           <ul class="resultados">
             @for (kit of usadosNaObra(); track kit.idKit) {
               <li>
-                <button type="button" (click)="aplicar.emit({ idKit: kit.idKit, operacao: operacao() })" [disabled]="jaAplicado(kit.idKit)">
+                <button type="button" (click)="aplicar.emit({ idKit: kit.idKit, operacao: operacao(), grupo: kit.grupo })" [disabled]="jaAplicado(kit.idKit)">
                   <code>{{ kit.codigo }}</code>
                   <span>{{ kit.descricao }}</span>
                   @if (jaAplicado(kit.idKit)) { <small>já aplicado</small> } @else { <i class="pi pi-plus" aria-hidden="true"></i> }
@@ -208,7 +220,7 @@ export class PlanejamentoKitsComponent {
   private readonly kitsService = inject(ObrasKitService);
 
   /** Kits já usados na obra, a um clique quando a busca está vazia. */
-  readonly usadosNaObra = input<readonly { idKit: string; codigo: string; descricao: string }[]>([]);
+  readonly usadosNaObra = input<readonly { idKit: string; codigo: string; descricao: string; grupo?: string | null }[]>([]);
   readonly kits = input<readonly KitAplicado[]>([]);
   readonly idContrato = input<string | null | undefined>(null);
   readonly classeTensao = input<ClasseTensao | null | undefined>(null);
@@ -280,7 +292,7 @@ export class PlanejamentoKitsComponent {
   }
 
   protected escolher(kit: KitConstrutivoResponse): void {
-    this.aplicar.emit({ idKit: kit.id, operacao: this.operacao() });
+    this.aplicar.emit({ idKit: kit.id, operacao: this.operacao(), grupo: kit.grupo });
     this.termo.set('');
     this.resultados.set([]);
   }

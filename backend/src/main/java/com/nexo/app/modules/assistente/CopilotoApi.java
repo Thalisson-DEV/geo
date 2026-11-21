@@ -38,6 +38,16 @@ public interface CopilotoApi {
     String completarComImagens(String sistema, String usuario, List<Imagem> imagens, double temperatura, int limiteTokens,
                                boolean comRaciocinio);
 
+    /** Há modelo com visão para ler projetos: o próprio de projeto ou, sem ele, o de visão geral. */
+    boolean visaoProjetoDisponivel();
+
+    /** Modelo que lê os projetos das obras, para registro. Nulo quando não há. */
+    String modeloVisaoProjeto();
+
+    /** Como {@link #completarComImagens}, com o modelo de leitura de projetos. */
+    String completarComImagensProjeto(String sistema, String usuario, List<Imagem> imagens, double temperatura,
+                                      int limiteTokens, boolean comRaciocinio);
+
     /**
      * Pede uma análise ao agente em nome do usuário e espera a resposta. A conversa fica
      * salva no histórico do usuário (é possível continuar perguntando depois).

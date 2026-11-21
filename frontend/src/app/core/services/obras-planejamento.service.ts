@@ -127,8 +127,9 @@ export class ObrasPlanejamentoService extends BaseService {
     });
   }
 
-  iniciarAnalise(idObra: string, pagina: number): Observable<AnalisePlanejamento> {
-    return this.http.post<AnalisePlanejamento>(this.url(idObra, '/analises'), { pagina });
+  /** @param orientacaoConferida a pessoa confirmou que a folha está de pé: a Bússola não tenta adivinhar a rotação. */
+  iniciarAnalise(idObra: string, pagina: number, orientacaoConferida = false): Observable<AnalisePlanejamento> {
+    return this.http.post<AnalisePlanejamento>(this.url(idObra, '/analises'), { pagina, orientacaoConferida });
   }
 
   buscarAnalise(idObra: string, id: string): Observable<AnalisePlanejamento> {

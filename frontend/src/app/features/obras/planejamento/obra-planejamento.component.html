@@ -85,7 +85,7 @@
               <p class="plan-dica" role="status"><i class="pi pi-info-circle" aria-hidden="true"></i> {{ texto }}</p>
             }
             @if (analisando()) {
-              <p class="plan-dica" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> A Bússola está lendo a página {{ pagina() }}. Pode continuar trabalhando: nada será gravado sem a sua revisão.</p>
+              <p class="plan-dica" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> A Bússola está lendo a página {{ pagina() }}@if (progressoLeitura(); as andamento) { ({{ andamento }})}. Pode continuar trabalhando: nada será gravado sem a sua revisão.</p>
             }
           </div>
           @if (erroPdf()) {

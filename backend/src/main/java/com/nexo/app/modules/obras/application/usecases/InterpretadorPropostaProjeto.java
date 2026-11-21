@@ -35,6 +35,20 @@ import java.util.regex.Pattern;
 final class InterpretadorPropostaProjeto {
 
     private static final int MAXIMO_KITS_POR_TEXTO = 3;
+    private static final int MAXIMO_VAOS_CITADOS = 3;
+    /** Termos do kit: separados por espaço, parênteses, vírgula, ponto e vírgula e "+" (mantém "IM-1" e "9/400" inteiros). */
+    private static final Pattern SEPARADOR_TERMOS = Pattern.compile("[\\s(),;+]+");
+    private static final int TERMO_LONGO = 6;
+    /** Cotas lidas necessárias para calibrar a proporção da folha. */
+    private static final int MINIMO_COTAS_PROPORCAO = 3;
+    /** Quanto a cota pode fugir da proporção das outras antes de pedir conferência (60% a mais ou a menos). */
+    private static final double DESVIO_COTA = 1.6;
+    private static final double CONFIANCA_COTA_DUVIDOSA = 0.4;
+    private static final Pattern FASES = Pattern.compile("(\\d)\\s*#\\s*(\\d+)");
+    /** Balão riscado com X na folha: estrutura existente que sai. */
+    static final String A_RETIRAR = "A retirar";
+    /** Balão riscado e balão novo para o mesmo ponto. */
+    static final String TROCA = "Troca de estrutura: a existente sai";
     private static final double CONFIANCA_CAMADA = 0.95;
     private static final double ALCANCE_SIMBOLO = 0.06;
     /** 1 ponto de PDF em metros no papel. */
@@ -148,12 +162,18 @@ final class InterpretadorPropostaProjeto {
         }
         int semIdentificacao = 0;
         for (JsonNode no : raiz.path("pontos")) {
-            double x = limitar(bloco.inicioX() + no.path("x").asDouble(0.5) * bloco.largura());
-            double y = limitar(bloco.inicioY() + no.path("y").asDouble(0.5) * bloco.altura());
+            double[] naPagina = RenderizadorPaginaProjeto.paraPagina(
+                    limitar(bloco.inicioX() + no.path("x").asDouble(0.5) * bloco.largura()),
+                    limitar(bloco.inicioY() + no.path("y").asDouble(0.5) * bloco.altura()), bloco.rotacao());
+            double x = limitar(naPagina[0]);
+            double y = limitar(naPagina[1]);
             List<String> textos = new ArrayList<>();
             adicionar(textos, texto(no, "poste"));
             for (JsonNode estrutura : no.path("estruturas")) {
                 adicionar(textos, estrutura.asText(null));
+            }
+            if (no.path("retirar").asBoolean(false)) {
+                adicionar(textos, A_RETIRAR);
             }
             String id = identificador(no);
             if (id == null) {
@@ -178,6 +198,35 @@ final class InterpretadorPropostaProjeto {
         if (semIdentificacao > 0) {
             avisos.add("Há pontos na folha sem número legível: confira e marque manualmente.");
         }
+        lerVaos(raiz);
+        return true;
+    }
+
+    /**
+     * Resposta da passada final, em que o modelo vê a folha inteira com os pontos já marcados e só liga um ao outro.
+     * Os pontos que ele devolver são ignorados: a posição deles já veio dos blocos, com mais resolução.
+     */
+    boolean adicionarVaos(String resposta) {
+        JsonNode raiz = lerJson(resposta);
+        if (raiz == null) {
+            return false;
+        }
+        lerVaos(raiz);
+        return true;
+    }
+
+    /** Pontos lidos até agora, com o rótulo que o modelo vai ver desenhado na folha. */
+    List<RenderizadorPaginaProjeto.Marcador> marcadores() {
+        return pontos.values().stream()
+                .map(p -> new RenderizadorPaginaProjeto.Marcador(p.numero() != null ? p.numero() : p.referencia(), p.x(), p.y()))
+                .toList();
+    }
+
+    int quantidadePontos() {
+        return pontos.size();
+    }
+
+    private void lerVaos(JsonNode raiz) {
         for (JsonNode no : raiz.path("vaos")) {
             String de = texto(no, "de");
             String para = texto(no, "para");
@@ -192,9 +241,16 @@ final class InterpretadorPropostaProjeto {
             String chave = a.compareTo(b) < 0 ? a + "|" + b : b + "|" + a;
             VaoLido novo = new VaoLido(a, b, metragem(no.path("metragem")), texto(no, "condutor"),
                     limitar(no.path("confianca").asDouble(0.5)));
-            vaos.merge(chave, novo, (atual, outro) -> outro.confianca() > atual.confianca() ? outro : atual);
+            vaos.merge(chave, novo, InterpretadorPropostaProjeto::unirVao);
         }
-        return true;
+    }
+
+    /** Fica o mais confiável, sem perder a metragem e o condutor que só o outro leu. */
+    private static VaoLido unirVao(VaoLido atual, VaoLido outro) {
+        VaoLido base = outro.confianca() > atual.confianca() ? outro : atual;
+        VaoLido resto = base == outro ? atual : outro;
+        return new VaoLido(base.a(), base.b(), base.metragem() != null ? base.metragem() : resto.metragem(),
+                base.condutor() != null ? base.condutor() : resto.condutor(), base.confianca());
     }
 
     PropostaPlanejamento concluir() {
@@ -203,29 +259,57 @@ final class InterpretadorPropostaProjeto {
                 .sorted(Comparator.comparing(p -> numeros.get(p.referencia()), InterpretadorPropostaProjeto::compararNumero))
                 .map(p -> new PontoSugerido(p.referencia(), numeros.get(p.referencia()), p.tipo(), pagina, coordenada(p.x()),
                         coordenada(p.y()), p.barramento(), p.textos(), p.confianca(),
-                        numerosExistentes.contains(numeros.get(p.referencia())), kits(p.textos(), false)))
+                        numerosExistentes.contains(numeros.get(p.referencia())),
+                        // Estrutura que sai não recebe kit de instalação: a retirada é planejada à parte.
+                        p.textos().contains(A_RETIRAR) ? List.of() : kits(p.textos(), false)))
                 .toList();
 
         List<VaoSugerido> vaosSugeridos = new ArrayList<>();
+        List<String> semPonto = new ArrayList<>();
+        Double metrosPorPonto = proporcaoDasCotas();
         for (VaoLido vao : vaos.values()) {
             String a = existente(vao.a());
             String b = existente(vao.b());
             if (!conhecido(a) || !conhecido(b)) {
-                avisos.add("O vão " + vao.a() + " — " + vao.b() + " cita um ponto que não foi encontrado e ficou de fora.");
+                semPonto.add(vao.a() + " — " + vao.b());
                 continue;
             }
             List<String> textos = new ArrayList<>();
             adicionar(textos, vao.condutor());
             BigDecimal metragem = vao.metragem();
-            if (metragem == null) {
+            double confianca = vao.confianca();
+            Double pelaFolha = metrosPorPonto != null ? distanciaPt(a, b) : null;
+            if (metragem == null && pelaFolha != null) {
+                metragem = BigDecimal.valueOf(pelaFolha * metrosPorPonto).setScale(1, RoundingMode.HALF_UP);
+                textos.add("metragem estimada pelas cotas da folha");
+            } else if (metragem == null) {
                 metragem = estimarMetragem(a, b);
                 if (metragem != null) {
                     textos.add("metragem estimada pela escala 1:" + escala);
                 }
+            } else if (pelaFolha != null && pelaFolha > 0) {
+                // Cota fora da proporção das outras: costuma ser outro número lido (bitola, poste) no lugar da metragem.
+                double esperado = pelaFolha * metrosPorPonto;
+                double razao = metragem.doubleValue() / esperado;
+                if (razao < 1 / DESVIO_COTA || razao > DESVIO_COTA) {
+                    textos.add("confira a metragem: pela folha seria cerca de " + Math.round(esperado) + " m");
+                    confianca = Math.min(confianca, CONFIANCA_COTA_DUVIDOSA);
+                }
             }
-            vaosSugeridos.add(new VaoSugerido(a, b, metragem, textos, vao.confianca(), kits(textos, true)));
+            vaosSugeridos.add(new VaoSugerido(a, b, metragem, textos, confianca, kits(textos, true)));
         }
+        avisarVaosSemPonto(semPonto);
         return new PropostaPlanejamento(sugeridos, vaosSugeridos, List.copyOf(avisos));
+    }
+
+    /** Até três vãos são citados um a um; mais que isso vira um aviso só, para a revisão não virar uma lista enorme. */
+    private void avisarVaosSemPonto(List<String> semPonto) {
+        if (semPonto.size() <= MAXIMO_VAOS_CITADOS) {
+            semPonto.forEach(vao -> avisos.add("O vão " + vao + " cita um ponto que não foi encontrado e ficou de fora."));
+        } else {
+            avisos.add(semPonto.size() + " vãos citam pontos que não foram encontrados e ficaram de fora (ex.: "
+                    + String.join(", ", semPonto.subList(0, MAXIMO_VAOS_CITADOS)) + "). Confira as ligações na folha.");
+        }
     }
 
     /** Mantém o número escrito na folha; os demais seguem a rede, a partir do próximo número livre da obra. */
@@ -281,6 +365,35 @@ final class InterpretadorPropostaProjeto {
         double distanciaPt = Math.hypot((pa.x() - pb.x()) * larguraPt, (pa.y() - pb.y()) * alturaPt);
         double metros = distanciaPt * METROS_POR_PONTO * escala;
         return metros > 0 ? BigDecimal.valueOf(metros).setScale(1, RoundingMode.HALF_UP) : null;
+    }
+
+    /**
+     * Metros por ponto de PDF tirados das próprias cotas lidas (a mediana, para uma cota errada não puxar a conta).
+     * Vale mais que a escala do carimbo: prancha impressa reduzida em A4 continua dizendo 1:1.000.
+     */
+    private Double proporcaoDasCotas() {
+        List<Double> proporcoes = new ArrayList<>();
+        for (VaoLido vao : vaos.values()) {
+            Double distancia = distanciaPt(vao.a(), vao.b());
+            if (vao.metragem() != null && distancia != null && distancia > 0) {
+                proporcoes.add(vao.metragem().doubleValue() / distancia);
+            }
+        }
+        if (proporcoes.size() < MINIMO_COTAS_PROPORCAO) {
+            return null;
+        }
+        proporcoes.sort(Double::compareTo);
+        return proporcoes.get(proporcoes.size() / 2);
+    }
+
+    /** Distância entre dois pontos desta leitura, em pontos de PDF; nula se algum não foi lido aqui. */
+    private Double distanciaPt(String a, String b) {
+        Lido pa = pontos.get(a);
+        Lido pb = pontos.get(b);
+        if (larguraPt <= 0 || pa == null || pb == null) {
+            return null;
+        }
+        return Math.hypot((pa.x() - pb.x()) * larguraPt, (pa.y() - pb.y()) * alturaPt);
     }
 
     private boolean conhecido(String referencia) {
@@ -348,18 +461,49 @@ final class InterpretadorPropostaProjeto {
     private List<KitSugerido> kits(List<String> textos, boolean paraVao) {
         Map<UUID, KitSugerido> achados = new LinkedHashMap<>();
         for (String texto : textos) {
+            if (TROCA.equals(texto) || A_RETIRAR.equals(texto)) {
+                continue;
+            }
             for (String termo : termos(texto, paraVao)) {
                 List<KitCatalogo> candidatos = catalogo.stream()
                         .filter(k -> paraVao == kitDeVao(k))
-                        .filter(k -> normalizar(k.codigo() + " " + k.descricao()).contains(termo))
+                        .filter(k -> casa(k, termo))
                         .sorted(Comparator.comparing(KitCatalogo::codigo))
                         .toList();
                 boolean unico = candidatos.size() == 1;
+                if (candidatos.isEmpty() && !paraVao) {
+                    // Estrutura com sufixo da folha (N1M, S1-T) e kit com o código-base (N1, S1): sugere sem marcar.
+                    candidatos = catalogo.stream()
+                            .filter(k -> !kitDeVao(k) && kitDeEstrutura(k))
+                            .filter(k -> normalizar(k.codigo()).length() >= 2 && termo.startsWith(normalizar(k.codigo())))
+                            .sorted(Comparator.comparing(KitCatalogo::codigo))
+                            .toList();
+                    unico = false;
+                }
+                boolean marcado = unico;
                 candidatos.stream().limit(MAXIMO_KITS_POR_TEXTO).forEach(k -> achados.putIfAbsent(k.id(),
-                        new KitSugerido(k.id(), k.codigo(), k.descricao(), texto, unico)));
+                        new KitSugerido(k.id(), k.codigo(), k.descricao(), texto, marcado)));
             }
         }
         return List.copyOf(achados.values());
+    }
+
+    /**
+     * O termo lido casa com um termo inteiro do código ou da descrição do kit ("IM-1" com "(IM-1)", "N1" com "N1 - CCT").
+     * Trecho no meio de outra palavra só vale para termos longos: "IT-R" não pode casar dentro de "KIT-RET-01".
+     */
+    private static boolean casa(KitCatalogo kit, String termo) {
+        String texto = kit.codigo() + " " + kit.descricao();
+        for (String parte : SEPARADOR_TERMOS.split(texto)) {
+            if (!parte.isBlank() && normalizar(parte).equals(termo)) {
+                return true;
+            }
+        }
+        return termo.length() >= TERMO_LONGO && normalizar(texto).contains(termo);
+    }
+
+    private static boolean kitDeEstrutura(KitCatalogo kit) {
+        return normalizar(kit.grupo() != null ? kit.grupo() : "").startsWith("ESTRUTURA");
     }
 
     private static boolean kitDeVao(KitCatalogo kit) {
@@ -377,6 +521,11 @@ final class InterpretadorPropostaProjeto {
             if (!bitolas.isEmpty()) {
                 return List.of(bitolas.iterator().next());
             }
+            // "3#35(35)": três fases de 35 mm², como o catálogo escreve "3x1x35".
+            Matcher fases = FASES.matcher(texto);
+            if (fases.find()) {
+                return List.of(fases.group(1) + "X1X" + fases.group(2));
+            }
         }
         String termo = normalizar(texto);
         return termo.length() >= 2 ? List.of(termo) : List.of();
@@ -392,6 +541,12 @@ final class InterpretadorPropostaProjeto {
     private static Lido unir(Lido atual, Lido outro) {
         Set<String> textos = new LinkedHashSet<>(atual.textos());
         textos.addAll(outro.textos());
+        // Mesmo ponto com um balão riscado e outro não: a estrutura existente sai e a nova entra no lugar.
+        boolean umSai = atual.textos().contains(A_RETIRAR) != outro.textos().contains(A_RETIRAR);
+        if (umSai) {
+            textos.remove(A_RETIRAR);
+            textos.add(TROCA);
+        }
         if (atual.daCamada()) {
             // O texto do PDF é exato. Do modelo vêm o tipo e a posição do símbolo, desde que perto da etiqueta.
             boolean perto = Math.hypot(atual.x() - outro.x(), atual.y() - outro.y()) <= ALCANCE_SIMBOLO;
@@ -403,6 +558,11 @@ final class InterpretadorPropostaProjeto {
                 : atual.barramento() != null ? atual.barramento() : outro.barramento();
         return new Lido(base.referencia(), base.numero(), base.tipo(), base.x(), base.y(), barramento, List.copyOf(textos),
                 base.confianca(), false);
+    }
+
+    /** Pode ser chamado de várias threads: só confere se a resposta é o JSON esperado. */
+    static boolean respostaValida(String resposta) {
+        return lerJson(resposta) != null;
     }
 
     private static JsonNode lerJson(String resposta) {

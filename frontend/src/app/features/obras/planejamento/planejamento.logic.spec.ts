@@ -113,3 +113,23 @@ describe('planejamento.logic', () => {
     expect(janelaVisivel(5, 30, 0, 600, 2)).toEqual({ inicio: 0, fim: 5 });
   });
 });
+
+describe('kit de rede no lote', () => {
+  it('reconhece o grupo de vão com e sem acento', async () => {
+    const { kitDeVao } = await import('./planejamento-kits.component');
+    expect(kitDeVao('VÃO BT')).toBe(true);
+    expect(kitDeVao('VAO MT')).toBe(true);
+    expect(kitDeVao('ESTRUTURA MT')).toBe(false);
+    expect(kitDeVao('VAOS ESPECIAIS')).toBe(false);
+    expect(kitDeVao(null)).toBe(false);
+  });
+
+  it('reconhece kit que fica no poste', async () => {
+    const { kitDePonto } = await import('./planejamento-kits.component');
+    expect(kitDePonto('ESTRUTURA MT')).toBe(true);
+    expect(kitDePonto('POSTE')).toBe(true);
+    expect(kitDePonto('PROTEÇÃO')).toBe(true);
+    expect(kitDePonto('PODA')).toBe(false);
+    expect(kitDePonto('VÃO BT')).toBe(false);
+  });
+});

@@ -96,14 +96,45 @@ public class CopilotoApiAdapter implements CopilotoApi {
     public String completarComImagens(String sistema, String usuario, List<Imagem> imagens, double temperatura, int limiteTokens,
                                       boolean comRaciocinio) {
         if (!visaoDisponivel()) throw new IllegalStateException("Não há modelo com visão configurado neste ambiente.");
+        String raciocinio = comRaciocinio ? properties.getLlm().getVisionReasoningEffort() : "none";
+        return completarComVisao(modeloVisao(), sistema, usuario, imagens, temperatura, limiteTokens, raciocinio, null);
+    }
+
+    @Override
+    public boolean visaoProjetoDisponivel() {
+        return disponivel() && modeloVisaoProjeto() != null;
+    }
+
+    @Override
+    public String modeloVisaoProjeto() {
+        String modelo = properties.getLlm().getProjectVisionModel();
+        return modelo == null || modelo.isBlank() ? modeloVisao() : modelo;
+    }
+
+    @Override
+    public String completarComImagensProjeto(String sistema, String usuario, List<Imagem> imagens, double temperatura,
+                                             int limiteTokens, boolean comRaciocinio) {
+        if (!visaoProjetoDisponivel()) throw new IllegalStateException("Não há modelo com visão configurado neste ambiente.");
+        String proprio = properties.getLlm().getProjectVisionModel();
+        if (proprio == null || proprio.isBlank()) {
+            return completarComImagens(sistema, usuario, imagens, temperatura, limiteTokens, comRaciocinio);
+        }
+        // Nem todo modelo aceita desligar o raciocínio: sem nível configurado, vale o padrão do provedor nos dois casos.
+        String nivel = properties.getLlm().getProjectVisionReasoningEffort();
+        String raciocinio = nivel == null || nivel.isBlank() ? null : comRaciocinio ? nivel : "none";
+        return completarComVisao(proprio, sistema, usuario, imagens, temperatura, limiteTokens, raciocinio,
+                properties.getLlm().getProjectVisionTimeoutSeconds());
+    }
+
+    private String completarComVisao(String modelo, String sistema, String usuario, List<Imagem> imagens, double temperatura,
+                                     int limiteTokens, String raciocinio, Integer timeoutSegundos) {
         List<LlmMessage> conversa = new ArrayList<>();
         if (sistema != null && !sistema.isBlank()) conversa.add(new LlmMessage.System(sistema));
         conversa.add(new LlmMessage.User(usuario, imagens.stream()
                 .map(imagem -> new LlmMessage.Image(imagem.tipoConteudo(), imagem.base64()))
                 .toList()));
-        String raciocinio = comRaciocinio ? properties.getLlm().getVisionReasoningEffort() : "none";
-        return llm.complete(new LlmRequest(modeloVisao(), conversa, List.of(), LlmRequest.ToolChoice.NONE, temperatura,
-                limiteTokens, false, raciocinio == null || raciocinio.isBlank() ? null : raciocinio)).content();
+        return llm.complete(new LlmRequest(modelo, conversa, List.of(), LlmRequest.ToolChoice.NONE, temperatura,
+                limiteTokens, false, raciocinio == null || raciocinio.isBlank() ? null : raciocinio, timeoutSegundos)).content();
     }
 
     @Override

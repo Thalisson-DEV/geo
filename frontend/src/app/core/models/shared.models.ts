@@ -70,6 +70,12 @@ export function getErrorMessage(error: any): string {
     if (firstKey) return `${firstKey}: ${problem.erros[firstKey]}`;
   }
 
+  // Status 0: a requisição nem chegou ao servidor. A mensagem do Angular ("Http failure response… 0 Unknown Error")
+  // não diz nada a quem usa a tela.
+  if (error?.status === 0) {
+    return 'Não foi possível falar com o servidor. Confira a conexão e tente de novo.';
+  }
+
   return problem?.detail || problem?.title || error?.message || 'Ocorreu um erro inesperado.';
 }
 

@@ -39,7 +39,7 @@ import {
   geoPdfParaTela,
   normalizarRotacao
 } from '@geo/ui';
-import { Observable, filter, finalize, shareReplay, switchMap, take, takeWhile, timer } from 'rxjs';
+import { Observable, filter, finalize, shareReplay, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AnexoObraResponse, OrcamentoObraResponse } from '../../../core/models/obras.models';
 import {
@@ -66,7 +66,7 @@ import { sugerirDescricao } from '../programacao/programacao.logic';
 import { MedicaoDaObra } from '../../../core/models/obras-medicoes.models';
 import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.service';
 import { PlanejamentoArvoreComponent } from './planejamento-arvore.component';
-import { AplicacaoKit, PlanejamentoKitsComponent } from './planejamento-kits.component';
+import { AplicacaoKit, PlanejamentoKitsComponent, kitDePonto, kitDeVao } from './planejamento-kits.component';
 import { PlanejamentoRevisaoComponent, PontoEmRevisao, VaoEmRevisao } from './planejamento-revisao.component';
 import { EstadoLocal, ROTULO_ESTADO, estadoDoLocal, kitsDoLocal, programacoesAtrasadas, proximoNumero, rotuloVao } from './planejamento.logic';
 
@@ -204,6 +204,8 @@ export class ObraPlanejamentoComponent {
   // ---- Bússola ----
   protected readonly leituraDisponivel = signal(false);
   protected readonly analisando = signal(false);
+  /** Andamento da leitura informado pelo servidor ("3 de 12 partes da folha lidas"). */
+  protected readonly progressoLeitura = signal<string | null>(null);
   protected readonly analise = signal<AnalisePlanejamento | null>(null);
   protected readonly ultimaLeitura = signal<AnalisePlanejamento | null>(null);
   protected readonly sugestoes = signal<PontoEmRevisao[]>([]);
@@ -398,8 +400,8 @@ export class ObraPlanejamentoComponent {
 
   /** Kits já usados nesta obra: quase sempre são os mesmos, então ficam a um clique, sem digitar. */
   protected readonly kitsUsadosNaObra = computed(() => {
-    const usados = new Map<string, { idKit: string; codigo: string; descricao: string }>();
-    for (const kit of this.plano()?.kits ?? []) usados.set(kit.idKit, { idKit: kit.idKit, codigo: kit.codigo, descricao: kit.descricao });
+    const usados = new Map<string, { idKit: string; codigo: string; descricao: string; grupo?: string | null }>();
+    for (const kit of this.plano()?.kits ?? []) usados.set(kit.idKit, { idKit: kit.idKit, codigo: kit.codigo, descricao: kit.descricao, grupo: kit.grupo });
     return [...usados.values()].sort((a, b) => a.codigo.localeCompare(b.codigo, 'pt-BR')).slice(0, 8);
   });
 
@@ -409,7 +411,8 @@ export class ObraPlanejamentoComponent {
       pontos ? `${pontos} ${pontos === 1 ? 'ponto' : 'pontos'}` : '',
       vaos ? `${vaos} ${vaos === 1 ? 'vão' : 'vãos'}` : ''
     ].filter(Boolean).join(' e ');
-    return `O kit será aplicado a ${locais}. Quem já tem o kit fica como está.`;
+    const dica = pontos && vaos ? ' Kit de rede vai só para os vãos; estrutura e poste, só para os pontos.' : '';
+    return `O kit será aplicado a ${locais}. Quem já tem o kit fica como está.${dica}`;
   });
 
   protected readonly temSelecao = computed(() => {
@@ -605,8 +608,11 @@ export class ObraPlanejamentoComponent {
   protected aoTeclar(evento: KeyboardEvent): void {
     const alvo = evento.target as HTMLElement;
     const digitando = alvo?.matches?.('input, textarea, select, [contenteditable="true"]');
+    // Com gaveta ou diálogo aberto, a tecla é dele: o Esc que fecha o calendário da programação não pode limpar a
+    // seleção que está sendo programada, nem uma letra trocar a ferramenta da folha por trás.
+    if (this.loteAberto() || this.textoAberto() || this.detalheAberto() || this.projetoAberto() || this.programarAberto()
+      || this.programacaoAberta()) return;
     if (evento.key === 'Escape') {
-      if (this.loteAberto() || this.textoAberto() || this.detalheAberto() || this.projetoAberto()) return;
       if (this.novoPonto() || this.novaAnotacao() || this.modoMover() || this.origemVao()) {
         this.cancelarAcoes();
       } else if (this.ferramenta() !== 'mao') {
@@ -941,12 +947,26 @@ export class ObraPlanejamentoComponent {
     const plano = this.plano();
     if (!plano) return;
     const locais = this.locaisSelecionados();
+    const soVaos = kitDeVao(aplicacao.grupo);
+    const soPontos = kitDePonto(aplicacao.grupo);
+    const idsVaos = soPontos ? [] : plano.vaos.filter((v) => locais.has(v.id)).map((v) => v.id);
+    const idsPontos = soVaos ? [] : plano.pontos.filter((p) => locais.has(p.id)).map((p) => p.id);
+    if (!idsVaos.length && !idsPontos.length) {
+      this.notificacoes.warning(soVaos
+        ? 'Este kit é de rede e só se aplica a vãos. Selecione os vãos que recebem o kit.'
+        : 'Este kit fica no poste e só se aplica a pontos. Selecione os pontos que recebem o kit.');
+      return;
+    }
     this.executarKit({
       idKit: aplicacao.idKit,
       operacao: aplicacao.operacao,
-      idsPontos: plano.pontos.filter((p) => locais.has(p.id)).map((p) => p.id),
-      idsVaos: plano.vaos.filter((v) => locais.has(v.id)).map((v) => v.id)
-    }, () => this.loteAberto.set(false));
+      // Kit de rede é medido em metros (num ponto viraria 1 m de cabo sem sentido) e estrutura fica no poste.
+      idsPontos,
+      idsVaos
+    }, () => {
+      this.loteAberto.set(false);
+      this.limparSelecao();
+    });
   }
 
   private executarKit(comando: Parameters<ObrasPlanejamentoService['aplicarKit']>[1], depois?: () => void): void {
@@ -1091,7 +1111,12 @@ export class ObraPlanejamentoComponent {
     this.projetoAberto.set(true);
     this.carregarPdfsAnexados();
     this.obras.listarTiposAnexosAtivos().pipe(take(1)).subscribe({
-      next: (tipos) => this.tiposAnexo.set(tipos.map((t) => ({ value: t.id, label: t.nome }))),
+      next: (tipos) => {
+        this.tiposAnexo.set(tipos.map((t) => ({ value: t.id, label: t.nome })));
+        // Aqui o anexo é o projeto: já vem escolhido o tipo de projeto, se houver um só.
+        const projetos = tipos.filter((t) => /projeto/i.test(t.nome));
+        if (!this.projetoTipo() && projetos.length === 1) this.projetoTipo.set(projetos[0].id);
+      },
       error: () => this.tiposAnexo.set([])
     });
   }
@@ -1142,15 +1167,41 @@ export class ObraPlanejamentoComponent {
     });
   }
 
-  protected lerComCopiloto(): void {
+  /** Folhas que a pessoa já confirmou de pé nesta tela: não pergunta de novo a cada leitura. */
+  private readonly folhasConferidas = new Set<number>();
+
+  /**
+   * Projeto plotado deitado é comum, e com o texto de lado ou de ponta-cabeça a leitura inventa pontos. Antes da
+   * primeira leitura de uma folha que ninguém girou, a pessoa confirma que o texto está de pé.
+   */
+  protected async lerComCopiloto(): Promise<void> {
+    const pagina = this.pagina();
+    const girada = this.rotacao() !== 0;
+    if (!girada && !this.folhasConferidas.has(pagina)) {
+      const dePe = await this.confirmacao.confirm({
+        title: 'O texto da folha está de pé?',
+        message: 'A Bússola lê melhor com os balões e o carimbo de pé. Se estiverem de lado ou de cabeça para baixo, '
+          + 'gire a folha com os botões ao lado do zoom e peça a leitura de novo.',
+        confirmLabel: 'Está de pé, ler',
+        cancelLabel: 'Vou girar antes'
+      });
+      if (!dePe) return;
+      this.folhasConferidas.add(pagina);
+    }
+    this.iniciarLeitura(pagina);
+  }
+
+  private iniciarLeitura(pagina: number): void {
     this.cancelarAcoes();
     this.ferramenta.set('mao');
     this.analise.set(null);
+    this.progressoLeitura.set(null);
     this.analisando.set(true);
-    this.api.iniciarAnalise(this.idObra, this.pagina()).pipe(
+    this.api.iniciarAnalise(this.idObra, pagina, true).pipe(
       take(1),
       switchMap((inicio) => timer(INTERVALO_ANALISE_MS, INTERVALO_ANALISE_MS).pipe(
         switchMap(() => this.api.buscarAnalise(this.idObra, inicio.id)),
+        tap((analise) => this.progressoLeitura.set(analise.status === 'PROCESSANDO' ? analise.mensagem ?? null : null)),
         takeWhile((analise) => analise.status === 'PROCESSANDO', true),
         filter((analise) => analise.status !== 'PROCESSANDO')
       )),
@@ -1162,6 +1213,8 @@ export class ObraPlanejamentoComponent {
           this.notificacoes.error(analise.mensagem ?? 'Não foi possível ler esta página do projeto.');
           return;
         }
+        // A Bússola pode ter girado uma folha deitada: recarrega para a tela mostrar igual.
+        this.carregar();
         this.abrirRevisao(analise);
       },
       error: (e) => {
@@ -1190,6 +1243,7 @@ export class ObraPlanejamentoComponent {
     const analise = this.analise();
     if (!analise) return;
     this.aceitando.set(true);
+    const vaosAntes = this.plano()?.vaos.length ?? 0;
     this.api.aceitarAnalise(this.idObra, analise.id, aceite).pipe(take(1)).subscribe({
       next: (plano) => {
         this.aceitando.set(false);
@@ -1197,8 +1251,11 @@ export class ObraPlanejamentoComponent {
         this.descartarRevisao();
         this.ultimaLeitura.set(null);
         const pontos = aceite.pontos.length;
-        const vaos = aceite.vaos.length;
-        this.notificacoes.success(`Planejamento atualizado: ${pontos} ${pontos === 1 ? 'ponto' : 'pontos'} e ${vaos} ${vaos === 1 ? 'vão' : 'vãos'} da leitura.`);
+        // Vão da emenda entre folhas já pode existir: o servidor mantém o que estava e não duplica.
+        const vaos = plano.vaos.length - vaosAntes;
+        const repetidos = aceite.vaos.length - vaos;
+        const extra = repetidos > 0 ? (repetidos === 1 ? ' 1 vão já existia e ficou como estava.' : ` ${repetidos} vãos já existiam e ficaram como estavam.`) : '';
+        this.notificacoes.success(`Planejamento atualizado: ${pontos} ${pontos === 1 ? 'ponto' : 'pontos'} e ${vaos} ${vaos === 1 ? 'vão' : 'vãos'} da leitura.${extra}`);
       },
       error: (e) => {
         this.aceitando.set(false);

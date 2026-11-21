@@ -265,4 +265,153 @@ class InterpretadorPropostaProjetoTest {
         assertThat(RenderizadorPaginaProjeto.inicio(1, colunas, tamanho)).isLessThan(tamanho);
         assertThat(RenderizadorPaginaProjeto.quantidade(1000)).isEqualTo(1);
     }
+
+    @Test
+    void folhaGiradaVoltaParaAPosicaoDaPaginaDoPdf() {
+        InterpretadorPropostaProjeto interpretador = novo(Set.of());
+
+        // Folha girada 90° no sentido horário: o canto superior esquerdo da imagem é o inferior esquerdo da página.
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"24","x":0.0,"y":0.0,"confianca":0.9}],"vaos":[]}
+                """, new RenderizadorPaginaProjeto.Bloco(0, 0, 1, 1, "", 90));
+
+        PropostaPlanejamento.PontoSugerido ponto = interpretador.concluir().pontos().get(0);
+        assertThat(ponto.x()).isEqualByComparingTo("0");
+        assertThat(ponto.y()).isEqualByComparingTo("1");
+    }
+
+    @Test
+    void girarEDesgirarDevolveOMesmoPonto() {
+        for (int graus : List.of(0, 90, 180, 270)) {
+            double[] girado = RenderizadorPaginaProjeto.paraFolhaGirada(0.2, 0.7, graus);
+            double[] devolta = RenderizadorPaginaProjeto.paraPagina(girado[0], girado[1], graus);
+            assertThat(devolta[0]).isCloseTo(0.2, org.assertj.core.data.Offset.offset(1e-9));
+            assertThat(devolta[1]).isCloseTo(0.7, org.assertj.core.data.Offset.offset(1e-9));
+        }
+    }
+
+    @Test
+    void balaoRiscadoFicaComoARetirarSemKitDeInstalacao() {
+        InterpretadorPropostaProjeto interpretador = novo(Set.of());
+
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"29","x":0.5,"y":0.5,"poste":"9/400","retirar":true,"confianca":0.9}]}
+                """, PAGINA_INTEIRA);
+
+        PropostaPlanejamento.PontoSugerido ponto = interpretador.concluir().pontos().get(0);
+        assertThat(ponto.textosLidos()).contains(InterpretadorPropostaProjeto.A_RETIRAR);
+        assertThat(ponto.kits()).isEmpty();
+    }
+
+    @Test
+    void passadaDeVaosLigaPontosDeBlocosDiferentesESoAproveitaOsVaos() {
+        InterpretadorPropostaProjeto interpretador = novo(Set.of());
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"24","x":0.1,"y":0.1,"confianca":0.9}]}
+                """, PAGINA_INTEIRA);
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"25","x":0.9,"y":0.9,"confianca":0.9}]}
+                """, PAGINA_INTEIRA);
+
+        assertThat(interpretador.marcadores()).extracting(RenderizadorPaginaProjeto.Marcador::rotulo).containsExactly("24", "25");
+        interpretador.adicionarVaos("""
+                {"pontos":[{"numero":"99","x":0.5,"y":0.5}],"vaos":[{"de":"24","para":"25","metragem":"58","confianca":0.8}]}
+                """);
+
+        PropostaPlanejamento proposta = interpretador.concluir();
+        assertThat(proposta.pontos()).hasSize(2);
+        assertThat(proposta.vaos()).hasSize(1);
+        assertThat(proposta.vaos().get(0).metragem()).isEqualByComparingTo("58");
+    }
+
+    @Test
+    void orientacaoLidaDaResposta() {
+        assertThat(ProcessarAnaliseProjetoService.graus("{\"imagem\": \"D\"}")).isEqualTo(270);
+        assertThat(ProcessarAnaliseProjetoService.graus("{\"imagem\":\"A\"}")).isZero();
+        assertThat(ProcessarAnaliseProjetoService.graus("texto sem json")).isZero();
+    }
+
+    @Test
+    void muitosVaosSemPontoViramUmAvisoSo() {
+        InterpretadorPropostaProjeto interpretador = novo(Set.of());
+        StringBuilder vaos = new StringBuilder();
+        for (int i = 1; i <= 10; i++) {
+            vaos.append(i > 1 ? "," : "").append("{\"de\":\"X").append(i).append("\",\"para\":\"X").append(i + 1).append("\"}");
+        }
+        interpretador.adicionarBloco("{\"pontos\":[],\"vaos\":[" + vaos + "]}", PAGINA_INTEIRA);
+
+        List<String> avisos = interpretador.concluir().avisos();
+        assertThat(avisos).hasSize(1);
+        assertThat(avisos.get(0)).startsWith("10 vãos citam pontos");
+    }
+
+    @Test
+    void estruturaComSufixoDaFolhaSugereOKitDoCodigoBaseSemMarcar() {
+        List<KitCatalogo> catalogo = List.of(
+                new KitCatalogo(UUID.randomUUID(), "N1", "Estrutura primária N1 (passagem)", "ESTRUTURA MT"),
+                new KitCatalogo(UUID.randomUUID(), "S1", "Estrutura secundária S1", "ESTRUTURA BT"),
+                new KitCatalogo(UUID.randomUUID(), "CBT-35", "Rede BT multiplexada 3x1x35+35 mm²", "VÃO BT"));
+        InterpretadorPropostaProjeto interpretador = new InterpretadorPropostaProjeto(1, Set.of(), catalogo);
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"24","x":0.1,"y":0.1,"estruturas":["N1M","S1-D"],"confianca":0.9},
+                           {"numero":"25","x":0.2,"y":0.1,"estruturas":["S1-T"],"confianca":0.9}],
+                 "vaos":[{"de":"24","para":"25","metragem":58,"condutor":"3#35(35-35)","confianca":0.9}]}
+                """, PAGINA_INTEIRA);
+
+        PropostaPlanejamento proposta = interpretador.concluir();
+        assertThat(proposta.pontos().get(0).kits()).extracting(PropostaPlanejamento.KitSugerido::codigo).containsExactly("N1", "S1");
+        assertThat(proposta.pontos().get(0).kits()).noneMatch(PropostaPlanejamento.KitSugerido::marcado);
+        assertThat(proposta.vaos().get(0).kits()).extracting(PropostaPlanejamento.KitSugerido::codigo).containsExactly("CBT-35");
+    }
+
+    @Test
+    void balaoNovoEBalaoRiscadoDoMesmoPontoViramTroca() {
+        InterpretadorPropostaProjeto interpretador = novo(Set.of());
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"29","x":0.5,"y":0.5,"estruturas":["IM1"],"confianca":0.9},
+                           {"numero":"29","x":0.52,"y":0.5,"estruturas":["IM1"],"retirar":true,"confianca":0.8}]}
+                """, PAGINA_INTEIRA);
+
+        PropostaPlanejamento.PontoSugerido ponto = interpretador.concluir().pontos().get(0);
+        assertThat(ponto.textosLidos()).contains(InterpretadorPropostaProjeto.TROCA).doesNotContain(InterpretadorPropostaProjeto.A_RETIRAR);
+        assertThat(ponto.kits()).isNotEmpty();
+    }
+
+    @Test
+    void cotaForaDaProporcaoDasOutrasPedeConferenciaEVaoSemCotaUsaAProporcao() {
+        InterpretadorPropostaProjeto interpretador = novo(Set.of());
+        interpretador.adicionarCamada(new LeitorCamadaProjeto.CamadaPagina(List.of(), 1000, 1000, 1000));
+        // Pontos a 100 pt um do outro numa linha: as cotas boas dizem 50 m por trecho.
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"1","x":0.1,"y":0.5,"confianca":0.9},{"numero":"2","x":0.2,"y":0.5,"confianca":0.9},
+                           {"numero":"3","x":0.3,"y":0.5,"confianca":0.9},{"numero":"4","x":0.4,"y":0.5,"confianca":0.9},
+                           {"numero":"5","x":0.5,"y":0.5,"confianca":0.9},{"numero":"6","x":0.6,"y":0.5,"confianca":0.9}],
+                 "vaos":[{"de":"1","para":"2","metragem":50,"confianca":0.9},{"de":"2","para":"3","metragem":52,"confianca":0.9},
+                         {"de":"3","para":"4","metragem":48,"confianca":0.9},{"de":"4","para":"5","metragem":15,"confianca":0.9},
+                         {"de":"5","para":"6","confianca":0.9}]}
+                """, PAGINA_INTEIRA);
+
+        List<PropostaPlanejamento.VaoSugerido> vaos = interpretador.concluir().vaos();
+        PropostaPlanejamento.VaoSugerido duvidoso = vaos.stream().filter(v -> v.referenciaA().equals("4")).findFirst().orElseThrow();
+        assertThat(duvidoso.confianca()).isLessThan(0.6);
+        assertThat(duvidoso.textosLidos()).anyMatch(t -> t.startsWith("confira a metragem"));
+        PropostaPlanejamento.VaoSugerido semCota = vaos.stream().filter(v -> v.referenciaA().equals("5")).findFirst().orElseThrow();
+        assertThat(semCota.metragem()).isEqualByComparingTo("50.0");
+        assertThat(semCota.textosLidos()).contains("metragem estimada pelas cotas da folha");
+        assertThat(vaos.stream().filter(v -> v.referenciaA().equals("1")).findFirst().orElseThrow().confianca()).isEqualTo(0.9);
+    }
+
+    @Test
+    void termoCurtoNaoCasaNoMeioDeOutraPalavraDoKit() {
+        List<KitCatalogo> catalogo = List.of(
+                new KitCatalogo(UUID.randomUUID(), "KIT-RET-01", "Retirada de poste", "POSTE"),
+                new KitCatalogo(UUID.randomUUID(), "IM-1", "Estrutura BT (IM-1)", "ESTRUTURA BT"));
+        InterpretadorPropostaProjeto interpretador = new InterpretadorPropostaProjeto(1, Set.of(), catalogo);
+        interpretador.adicionarBloco("""
+                {"pontos":[{"numero":"5","x":0.5,"y":0.5,"estruturas":["IT-R","IM-1"],"confianca":0.9}]}
+                """, PAGINA_INTEIRA);
+
+        assertThat(interpretador.concluir().pontos().get(0).kits())
+                .extracting(PropostaPlanejamento.KitSugerido::codigo).containsExactly("IM-1");
+    }
 }
