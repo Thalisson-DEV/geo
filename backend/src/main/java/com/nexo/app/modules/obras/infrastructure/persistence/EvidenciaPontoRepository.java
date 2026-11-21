@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface EvidenciaPontoRepository extends JpaRepository<EvidenciaPonto, UUID> {
+public interface EvidenciaPontoRepository extends JpaRepository<EvidenciaPonto, UUID>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<EvidenciaPonto> {
 
     List<EvidenciaPonto> findByIdObraAndAtivoTrueOrderByDataCriacaoAsc(UUID idObra);
 

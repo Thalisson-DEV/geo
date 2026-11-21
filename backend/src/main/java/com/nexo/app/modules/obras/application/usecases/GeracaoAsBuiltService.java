@@ -200,8 +200,18 @@ public class GeracaoAsBuiltService {
      * o relatório de medição usa as mesmas fotos e o serviço é chamado pelo proxy do {@code @Async}.
      */
     public Map<UUID, List<DocumentoTecnicoPdf.Foto>> fotos(UUID idObra, Set<UUID> pontosExecutados) throws IOException {
+        return fotos(idObra, pontosExecutados, false);
+    }
+
+    /**
+     * Fotos por ponto, na ordem do modelo. Reprovada na revisão nunca entra; com {@code soAprovadas} (relatório de medição
+     * detalhado), só as aprovadas.
+     */
+    public Map<UUID, List<DocumentoTecnicoPdf.Foto>> fotos(UUID idObra, Set<UUID> pontosExecutados, boolean soAprovadas) throws IOException {
         List<EvidenciaPonto> evidencias = evidenciaRepository.findByIdObraAndAtivoTrueOrderByDataCriacaoAsc(idObra).stream()
                 .filter(e -> pontosExecutados.contains(e.getIdPonto()))
+                .filter(e -> !e.reprovada())
+                .filter(e -> !soAprovadas || e.getRevisao() == EvidenciaPonto.Revisao.APROVADA)
                 .toList();
         Map<String, Integer> ordemDosItens = new HashMap<>();
         modeloUseCases.buscarEntidades(evidencias.stream().map(EvidenciaPonto::getIdModelo).filter(Objects::nonNull).collect(Collectors.toSet())).stream()

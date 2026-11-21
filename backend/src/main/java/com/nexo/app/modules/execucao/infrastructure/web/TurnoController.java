@@ -25,8 +25,9 @@ public class TurnoController implements TurnoControllerDoc {
 
     @Override
     @PostMapping("/{id}/fechar")
-    public ResponseEntity<Void> fechar(@PathVariable UUID id) {
-        api.fechar(id);
+    public ResponseEntity<Void> fechar(@PathVariable UUID id,
+                                       @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.OffsetDateTime dataFim) {
+        api.fecharEm(id, dataFim);
         return ResponseEntity.noContent().build();
     }
 

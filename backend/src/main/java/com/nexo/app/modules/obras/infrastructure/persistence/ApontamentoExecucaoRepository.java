@@ -123,4 +123,8 @@ public interface ApontamentoExecucaoRepository extends JpaRepository<Apontamento
     List<Object[]> somarValorPorObra(@Param("ids") Collection<UUID> ids);
 
     List<ApontamentoExecucao> findByCampoIdLocal(UUID idLocal);
+
+    /** Hora do último apontamento ativo de cada turno (para o status da equipe). */
+    @Query("select a.idTurno, max(a.dataCriacao) from ApontamentoExecucao a where a.ativo = true and a.idTurno in :idsTurnos group by a.idTurno")
+    List<Object[]> ultimoPorTurno(@Param("idsTurnos") java.util.Collection<UUID> idsTurnos);
 }

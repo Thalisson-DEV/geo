@@ -6,6 +6,7 @@ import com.nexo.app.modules.obras.application.dto.DownloadAnexoObraDTO;
 import com.nexo.app.modules.obras.application.usecases.AvisosCampoObras;
 import com.nexo.app.modules.obras.application.usecases.CampoObrasUseCases;
 import com.nexo.app.modules.obras.application.usecases.PacoteCampoObras;
+import com.nexo.app.modules.obras.application.usecases.StatusEquipesObras;
 import com.nexo.app.modules.obras.doc.CampoObrasControllerDoc;
 import com.nexo.app.shared.domain.exception.ArmazenamentoException;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
@@ -40,6 +41,14 @@ public class CampoObrasController implements CampoObrasControllerDoc {
     private final PacoteCampoObras pacote;
     private final CampoObrasUseCases useCases;
     private final AvisosCampoObras avisos;
+    private final StatusEquipesObras status;
+
+    @Override
+    @GetMapping("/status-equipes")
+    @PreAuthorize("hasAnyAuthority('obras:central:read', 'obras:campo:read', 'obras:turno:read')")
+    public ResponseEntity<List<StatusEquipesObras.StatusEquipe>> statusEquipes(@RequestParam(required = false) UUID idBase) {
+        return ResponseEntity.ok(status.listar(idBase));
+    }
 
     @Override
     @GetMapping("/pacote")

@@ -292,7 +292,7 @@ public class RelatorioMedicaoDetalhadoUseCases {
         if (executados.isEmpty()) {
             return Map.of();
         }
-        Map<UUID, List<DocumentoTecnicoPdf.Foto>> porPonto = asBuilt.fotos(obra.getId(), executados);
+        Map<UUID, List<DocumentoTecnicoPdf.Foto>> porPonto = asBuilt.fotos(obra.getId(), executados, true);
         Map<String, List<DocumentoTecnicoPdf.Foto>> porNumero = new LinkedHashMap<>();
         for (PontoPlanejamento ponto : pontoRepository.findByIdObraAndAtivoTrueOrderByPaginaAscNumeroAsc(obra.getId())) {
             List<DocumentoTecnicoPdf.Foto> fotos = porPonto.get(ponto.getId());

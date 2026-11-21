@@ -236,7 +236,7 @@ public class PacoteCampoObras {
                         p.isTemPoda(), p.isTemAterramento())).toList(),
                 vaos.stream().map(v -> new CampoObrasResponses.VaoCampo(v.getId(), v.getIdPontoA(), v.getIdPontoB(), v.getMetragem())).toList(),
                 idModelo,
-                fotos.stream().map(f -> new CampoObrasResponses.FotoCampo(f.getId(), f.getIdLocal(), f.getIdPonto(), f.getIdVao(),
+                fotos.stream().filter(f -> !f.reprovada()).map(f -> new CampoObrasResponses.FotoCampo(f.getId(), f.getIdLocal(), f.getIdPonto(), f.getIdVao(),
                         f.getIdModelo(), f.getIdItem(), f.getEtapa() != null ? f.getEtapa().name() : null)).toList(),
                 pendenciasFoto(obra.getId(), pontos, fotos, fichas, idModelo));
     }
@@ -284,11 +284,16 @@ public class PacoteCampoObras {
             if (modelo == null) {
                 continue;
             }
-            Set<String> respondidos = fotos.stream().filter(f -> ponto.getId().equals(f.getIdPonto()) && f.getIdItem() != null)
+            Set<String> respondidos = fotos.stream().filter(f -> ponto.getId().equals(f.getIdPonto()) && f.getIdItem() != null && !f.reprovada())
                     .map(EvidenciaPonto::getIdItem).collect(Collectors.toSet());
             for (EstruturaChecklist.ItemEvidencia item : modelo.getEstrutura().evidencias()) {
                 if (item.obrigatoria() && !respondidos.contains(item.id())) {
-                    pendencias.add(new CampoObrasResponses.PendenciaFoto(ponto.getId(), ponto.getNumero(), item.id(), item.titulo()));
+                    String motivo = fotos.stream()
+                            .filter(f -> ponto.getId().equals(f.getIdPonto()) && item.id().equals(f.getIdItem()) && f.reprovada())
+                            .reduce((a, b) -> b)
+                            .map(f -> f.getInconformidade().rotulo() + (f.getMotivoReprovacao() != null ? ": " + f.getMotivoReprovacao() : ""))
+                            .orElse(null);
+                    pendencias.add(new CampoObrasResponses.PendenciaFoto(ponto.getId(), ponto.getNumero(), item.id(), item.titulo(), motivo));
                 }
             }
         }

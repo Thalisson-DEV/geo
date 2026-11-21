@@ -222,7 +222,7 @@ public class CampoObrasUseCases {
                 comando.legenda(), conteudo, nomeArquivo, contentType,
                 new EvidenciaPonto.Captura(comando.etapa(), origem.latitude(), origem.longitude(), origem.instante()),
                 new EvidenciaPonto.OrigemCampo(comando.campo().idLocal(), hash, comando.idVao(), comando.idProgramacao(),
-                        comando.idApontamento(), origem.precisao()));
+                        comando.idApontamento(), origem.precisao(), equipeDoUsuario(usuario).orElse(null)));
         return resultado(comando.campo(), "EVIDENCIA", List.of(salva.getId()), false, null);
     }
 

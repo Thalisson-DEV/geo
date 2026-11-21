@@ -81,7 +81,8 @@ public final class CampoObrasResponses {
     }
 
     /** Foto exigida pelo modelo que falta num ponto já executado. */
-    public record PendenciaFoto(UUID idPonto, String numeroPonto, String idItem, String titulo) {
+    /** {@code motivoReprovacao}: a foto foi tirada e reprovada na revisão; precisa de outra. */
+    public record PendenciaFoto(UUID idPonto, String numeroPonto, String idItem, String titulo, String motivoReprovacao) {
     }
 
     /** Opções da APR e as sugestões por condição (desligamento, linha viva, poda, aterramento). */

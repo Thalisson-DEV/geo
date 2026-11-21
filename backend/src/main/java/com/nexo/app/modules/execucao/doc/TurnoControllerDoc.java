@@ -26,7 +26,7 @@ public interface TurnoControllerDoc {
     ResponseEntity<ComposicaoTurnoResponse> buscarComposicaoMinhaEquipe();
 
     @Operation(summary = "Fechar o turno atual")
-    ResponseEntity<Void> fechar(UUID id);
+    ResponseEntity<Void> fechar(UUID id, java.time.OffsetDateTime dataFim);
 
     @Operation(
             summary = "Buscar um turno",

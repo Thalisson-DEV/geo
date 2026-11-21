@@ -117,9 +117,86 @@ public class EvidenciaPonto extends BaseEntity {
     @Column(name = "id_apontamento_local", updatable = false)
     private UUID idApontamentoLocal;
 
+    /** Situação da foto na revisão antes da medição. */
+    public enum Revisao {
+        PENDENTE,
+        APROVADA,
+        REPROVADA
+    }
+
+    /** Por que a foto não serve. */
+    public enum Inconformidade {
+        FORA_DE_FOCO("Fora de foco ou escura"),
+        ITEM_ERRADO("Não mostra o item pedido"),
+        ANGULO_RUIM("Ângulo ou enquadramento ruim"),
+        PONTO_ERRADO("Ponto errado"),
+        SEM_CARIMBO("Sem carimbo ou carimbo ilegível"),
+        OUTRA("Outra");
+
+        private final String rotulo;
+
+        Inconformidade(String rotulo) {
+            this.rotulo = rotulo;
+        }
+
+        public String rotulo() {
+            return rotulo;
+        }
+    }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_revisao", nullable = false, length = 10)
+    private Revisao revisao = Revisao.PENDENTE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "inconformidade", length = 30)
+    private Inconformidade inconformidade;
+
+    @Column(name = "motivo_reprovacao", length = 500)
+    private String motivoReprovacao;
+
+    @Column(name = "revisada_por")
+    private String revisadaPor;
+
+    @Column(name = "revisada_em")
+    private OffsetDateTime revisadaEm;
+
+    /** Equipe que tirou a foto (para o ranking); nula na foto lançada pelo web. */
+    @Column(name = "id_equipe")
+    private UUID idEquipe;
+
+    /** Foto boa para a medição e o book. */
+    public void aprovar(String usuario) {
+        this.revisao = Revisao.APROVADA;
+        this.inconformidade = null;
+        this.motivoReprovacao = null;
+        this.revisadaPor = usuario;
+        this.revisadaEm = OffsetDateTime.now();
+    }
+
+    /** Foto recusada: sai da medição e volta a ser pendência para a equipe, com o motivo. */
+    public void reprovar(Inconformidade inconformidade, String motivo, String usuario) {
+        if (inconformidade == null) {
+            throw new InvarianteVioladaException("Escolha a inconformidade da foto.");
+        }
+        String texto = motivo != null && !motivo.isBlank() ? motivo.trim() : null;
+        if (inconformidade == Inconformidade.OUTRA && texto == null) {
+            throw new InvarianteVioladaException("Descreva o motivo da reprovação.");
+        }
+        this.revisao = Revisao.REPROVADA;
+        this.inconformidade = inconformidade;
+        this.motivoReprovacao = texto;
+        this.revisadaPor = usuario;
+        this.revisadaEm = OffsetDateTime.now();
+    }
+
+    public boolean reprovada() {
+        return revisao == Revisao.REPROVADA;
+    }
+
     /** Vínculos da foto que veio do app. */
     public record OrigemCampo(UUID idLocal, String hash, UUID idVao, UUID idProgramacao, UUID idApontamentoLocal,
-                              BigDecimal precisao) {
+                              BigDecimal precisao, UUID idEquipe) {
     }
 
     /** Foto lançada pelo app, com o carimbo já desenhado no aparelho. */
@@ -132,6 +209,7 @@ public class EvidenciaPonto extends BaseEntity {
         evidencia.idVao = origem.idVao();
         evidencia.idProgramacao = origem.idProgramacao();
         evidencia.idApontamentoLocal = origem.idApontamentoLocal();
+        evidencia.idEquipe = origem.idEquipe();
         evidencia.precisao = origem.precisao() != null && origem.precisao().signum() >= 0
                 ? origem.precisao().min(new BigDecimal("9999999")).setScale(1, RoundingMode.HALF_UP) : null;
         return evidencia;

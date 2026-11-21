@@ -17,6 +17,8 @@ public interface PresencaObraRepository extends JpaRepository<PresencaObra, UUID
 
     List<PresencaObra> findByIdTurnoAndAtivoTrueOrderByCampoDataOrigemAsc(UUID idTurno);
 
+    List<PresencaObra> findByIdTurnoInAndAtivoTrueOrderByCampoDataOrigemAsc(Collection<UUID> idsTurnos);
+
     List<PresencaObra> findByIdEquipeInAndCampoDataOrigemGreaterThanEqualAndAtivoTrueOrderByCampoDataOrigemAsc(
             Collection<UUID> idsEquipes, OffsetDateTime desde);
 }

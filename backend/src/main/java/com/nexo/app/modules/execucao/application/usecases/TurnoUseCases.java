@@ -134,6 +134,24 @@ public class TurnoUseCases implements TurnoApi {
         );
     }
 
+    @Override
+    @Transactional
+    @CacheEvict(allEntries = true)
+    public void fecharEm(UUID id, java.time.OffsetDateTime fim) {
+        Turno turno = repository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Turno não encontrado"));
+        if (!turno.isAberto()) {
+            return;
+        }
+        java.time.OffsetDateTime agora = java.time.OffsetDateTime.now();
+        if (fim == null || fim.isAfter(agora) || fim.isBefore(turno.getDataInicio())) {
+            turno.fechar();
+        } else {
+            turno.fecharEm(fim);
+        }
+        repository.save(turno);
+    }
+
     @Transactional
     @CacheEvict(allEntries = true)
     public void fechar(UUID id) {

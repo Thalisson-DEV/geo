@@ -151,6 +151,24 @@ class TurnoUseCasesTest {
     }
 
     @Test
+    @DisplayName("fechar com a hora do aparelho usa essa hora; no futuro ou antes da abertura, a do servidor")
+    void fecharEm_horaDoAparelho() {
+        UUID idTurno = UUID.randomUUID();
+        java.time.OffsetDateTime abertura = java.time.OffsetDateTime.now().minusHours(9);
+        Turno turno = new Turno(idEquipe, idUsuario, abertura);
+        when(repository.findById(idTurno)).thenReturn(Optional.of(turno));
+
+        useCases.fecharEm(idTurno, abertura.plusHours(8));
+        assertThat(turno.getDataFim()).isEqualTo(abertura.plusHours(8));
+
+        Turno outro = new Turno(idEquipe, idUsuario, abertura);
+        UUID idOutro = UUID.randomUUID();
+        when(repository.findById(idOutro)).thenReturn(Optional.of(outro));
+        useCases.fecharEm(idOutro, java.time.OffsetDateTime.now().plusHours(3));
+        assertThat(outro.getDataFim()).isBeforeOrEqualTo(java.time.OffsetDateTime.now());
+    }
+
+    @Test
     @DisplayName("fechar em turno ja fechado deve ser idempotente e nao re-salvar")
     void fechar_turnoJaFechado_deveSerIdempotente() {
         UUID idTurno = UUID.randomUUID();

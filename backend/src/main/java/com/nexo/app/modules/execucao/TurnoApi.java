@@ -18,6 +18,14 @@ public interface TurnoApi {
 
     void fechar(UUID id);
 
+    /**
+     * Fecha na hora em que a equipe fechou no aparelho (fechamento offline enviado depois). Hora no futuro, ou antes
+     * da abertura, vira a hora do servidor.
+     */
+    default void fecharEm(UUID id, OffsetDateTime fim) {
+        fechar(id);
+    }
+
     Optional<TurnoResponse> buscarAtivoPorEquipe(UUID idEquipe);
 
     TurnoResponse buscarPorId(UUID id);

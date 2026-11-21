@@ -23,6 +23,10 @@ public interface CampoObrasControllerDoc {
                     + "O encarregado recebe a própria equipe; pedir outra responde 403.")
     ResponseEntity<CampoObrasResponses.Pacote> pacote(OffsetDateTime desde, UUID idEquipe);
 
+    @Operation(summary = "Status em tempo real das equipes de Obras",
+            description = "Turno, chegada/saída, apontamentos e \"sem condição\" do dia; inatividade configurável em geo.obras.status.minutos-inatividade.")
+    ResponseEntity<List<com.nexo.app.modules.obras.application.usecases.StatusEquipesObras.StatusEquipe>> statusEquipes(UUID idBase);
+
     @Operation(summary = "Baixar o projeto em PDF da obra", description = "O ETag é o hash informado no pacote.")
     ResponseEntity<StreamingResponseBody> projeto(UUID idObra);
 
