@@ -219,6 +219,18 @@ export class ObraFormComponent implements OnInit {
     if (id) this.carregarObra(id);
   }
 
+  /** O município já diz a base que o atende: preenche a base se ela ainda estiver vazia. */
+  protected aoEscolherMunicipio(id: string | null): void {
+    const base = this.municipios().find((m) => m.id === id)?.baseOperacional?.id;
+    if (base && !this.idBaseOperacional() && this.bases().some((b) => b.id === base)) this.idBaseOperacional.set(base);
+  }
+
+  /** Todo supervisor responde a um coordenador: preenche o coordenador se ele ainda estiver vazio. */
+  protected aoEscolherSupervisor(id: string | null): void {
+    const coordenador = this.supervisores().find((s) => s.id === id)?.idCoordenador;
+    if (coordenador && !this.idCoordenador() && this.coordenadores().some((c) => c.id === coordenador)) this.idCoordenador.set(coordenador);
+  }
+
   protected fechar(): void {
     this.aberto.set(false);
     this.aoSair();

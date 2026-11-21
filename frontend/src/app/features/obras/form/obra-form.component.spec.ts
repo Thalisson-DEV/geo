@@ -115,6 +115,22 @@ describe('ObraFormComponent', () => {
     expect(component['erro']('dataInicio')).toBeTruthy();
   });
 
+  it('o município preenche a base e o supervisor preenche o coordenador, sem trocar o que já foi escolhido', () => {
+    const c = component as any;
+    c.bases.set([{ id: 'base-1', nome: 'BONFIM' }, { id: 'base-2', nome: 'JUAZEIRO' }]);
+    c.municipios.set([{ id: 'mun-1', nome: 'SENHOR DO BONFIM', baseOperacional: { id: 'base-1', nome: 'BONFIM' } }]);
+    c.supervisores.set([{ id: 'sup-1', idColaborador: 'colab-1', nomeColaborador: 'CARLOS SILVA', idCoordenador: 'coord-1', nomeCoordenador: 'MARCOS OLIVEIRA' }]);
+
+    c.aoEscolherMunicipio('mun-1');
+    c.aoEscolherSupervisor('sup-1');
+    expect(c.idBaseOperacional()).toBe('base-1');
+    expect(c.idCoordenador()).toBe('coord-1');
+
+    c.idBaseOperacional.set('base-2');
+    c.aoEscolherMunicipio('mun-1');
+    expect(c.idBaseOperacional()).toBe('base-2');
+  });
+
   it('só mostra erro depois da primeira tentativa de salvar', () => {
     expect(component['erro']('numero')).toBeUndefined();
   });

@@ -16,7 +16,9 @@ import {
   GeoTextareaComponent,
   NotificationService
 } from '@geo/ui';
-import { Subscription } from 'rxjs';
+import { Subscription, catchError, forkJoin, map, of } from 'rxjs';
+import { RevisaoFoto } from '../../../core/models/obras-revisao-fotos.models';
+import { ObrasRevisaoFotosService } from '../../../core/services/obras-revisao-fotos.service';
 import {
   CicloMedicao,
   ItemPendenteMedicao,
@@ -69,6 +71,14 @@ const TIPOS: GeoSelectOption<TipoMedicao>[] = [
           <div><dt>Pendente de medição</dt><dd>{{ moeda(o.valorPendente) }} <small>{{ o.pendentes.length }} {{ o.pendentes.length === 1 ? 'serviço' : 'serviços' }}</small></dd></div>
         </dl>
         <a class="medir__link" [routerLink]="['/obras', o.idObra]"><i class="pi pi-building" aria-hidden="true"></i> Ficha da obra</a>
+        @if (fotosPendentes(); as f) {
+          <geo-callout tone="warning" [dense]="true" [title]="f.paraRevisar + f.reprovadas === 1 ? '1 foto desta obra ainda não foi aprovada' : (f.paraRevisar + f.reprovadas) + ' fotos desta obra ainda não foram aprovadas'">
+            @if (f.paraRevisar) { {{ f.paraRevisar }} para revisar. }
+            @if (f.reprovadas) { {{ f.reprovadas }} {{ f.reprovadas === 1 ? 'reprovada, esperando' : 'reprovadas, esperando' }} a equipe refazer. }
+            Só as aprovadas entram no relatório de medição detalhado.
+            <a [routerLink]="['/obras/revisao-fotos']" [queryParams]="{ obra: o.numero, situacao: f.paraRevisar ? 'PENDENTE' : 'REPROVADA' }">Revisar as fotos</a>
+          </geo-callout>
+        }
 
         @if (!o.pendentes.length) {
           <geo-callout tone="success" [dense]="true" title="Nada pendente">
@@ -143,6 +153,9 @@ const TIPOS: GeoSelectOption<TipoMedicao>[] = [
 })
 export class MedirObraDrawerComponent {
   private readonly api = inject(ObrasMedicoesService);
+  private readonly fotos = inject(ObrasRevisaoFotosService);
+  /** Fotos da obra fora do relatório detalhado: avisa antes de medir. `null` quando está tudo aprovado. */
+  protected readonly fotosPendentes = signal<{ paraRevisar: number; reprovadas: number } | null>(null);
   private readonly notificacoes = inject(NotificationService);
   private readonly confirmacao = inject(GeoConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -201,6 +214,7 @@ export class MedirObraDrawerComponent {
   private carregar(id: string): void {
     this.obra.set(null);
     this.ciclo.set(null);
+    this.fotosPendentes.set(null);
     this.erro.set(null);
     this.tipo.set('PARCIAL');
     this.competencia.set(competenciaDe(new Date()));
@@ -209,9 +223,18 @@ export class MedirObraDrawerComponent {
       next: (o) => {
         this.obra.set(o);
         this.selecionados.set(o.pendentes);
+        this.contarFotos(o.numero);
       },
       error: (e) => this.erro.set(getErrorMessage(e))
     });
+  }
+
+  private contarFotos(numeroObra: string): void {
+    const contar = (status: RevisaoFoto) =>
+      this.fotos.listar({ status, numeroObra, size: 1 }).pipe(map((p) => p.page?.totalElements ?? 0), catchError(() => of(0)));
+    forkJoin([contar('PENDENTE'), contar('REPROVADA')]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(([paraRevisar, reprovadas]) =>
+      this.fotosPendentes.set(paraRevisar + reprovadas > 0 ? { paraRevisar, reprovadas } : null)
+    );
   }
 
   protected aoTrocarTipo(): void {

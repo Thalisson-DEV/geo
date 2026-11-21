@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { BarraTopoComponent, FotoExibida, FotosComponent, IconeComponent } from '../../ui';
 import { ToastService } from '../../core/ui/toast.service';
@@ -18,10 +18,16 @@ import { ObrasContexto } from './obras-contexto';
 @Component({
   selector: 'app-ocorrencia-obra',
   standalone: true,
-  imports: [BarraTopoComponent, IconeComponent, FotosComponent],
+  imports: [BarraTopoComponent, IconeComponent, FotosComponent, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <geo-barra-topo [titulo]="impede() ? 'Sem condição de executar' : 'Ocorrência'" [subtitulo]="subtitulo()" (voltar)="voltar()" />
+    @if (!turno.turnoAtivo()) {
+      <div class="turno-fechado" role="status">
+        <span>O turno está fechado. Pode ir escrevendo: para registrar, abra o turno e você volta para cá com o texto.</span>
+        <a class="geo-btn geo-btn--compacto" [routerLink]="['/turno/abrir']" [queryParams]="{ volta: aqui() }">Abrir turno</a>
+      </div>
+    }
     @if (impede()) {
       <p class="explica">O serviço fica registrado como não executado hoje. Para voltar a executar nesta obra, conclua uma nova APR.</p>
     }
@@ -50,6 +56,8 @@ import { ObrasContexto } from './obras-contexto';
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; }
     .explica { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-erro-suave); font: var(--geo-t-apoio); }
+    .turno-fechado { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
+      background: var(--geo-atencao-suave); font: var(--geo-t-apoio); display: flex; align-items: center; gap: var(--geo-e3); justify-content: space-between; }
     .tipos { display: flex; flex-wrap: wrap; gap: var(--geo-e2); padding: 0 var(--geo-margem); }
     .tipo { min-height: var(--geo-alvo); padding: 0 var(--geo-e4); border-radius: var(--geo-r-pilula); border: 1px solid var(--geo-borda-campo);
       background: var(--geo-superficie); color: var(--geo-texto); font: 500 .9375rem/1 var(--geo-fonte); display: inline-flex; align-items: center; gap: 6px; }
@@ -64,20 +72,45 @@ export class OcorrenciaObraComponent {
   private readonly rota = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
-  private readonly turno = inject(TurnoService);
+  readonly turno = inject(TurnoService);
 
   readonly tipos = TIPOS_OCORRENCIA;
   readonly id = toSignal(this.rota.paramMap.pipe(map(p => p.get('id') ?? '')), { initialValue: '' });
   readonly impede = toSignal(this.rota.queryParamMap.pipe(map(q => q.get('impede') === '1')), { initialValue: false });
   readonly tipoInicial = this.rota.snapshot.queryParamMap.get('tipo') as TipoOcorrencia | null;
   readonly programacao = computed(() => this.ctx.pacote.programacao(this.id()));
-  readonly tipo = signal<TipoOcorrencia | null>(this.tipoInicial);
-  readonly descricao = signal('');
+  /** Rascunho do texto: sobrevive à ida para "Abrir turno" (e a um app fechado no meio), até registrar. */
+  private readonly chaveRascunho = `geo_ocorrencia_${this.rota.snapshot.paramMap.get('id') ?? ''}_${this.rota.snapshot.queryParamMap.get('impede') ?? '0'}`;
+  private readonly rascunho = this.lerRascunho();
+  readonly tipo = signal<TipoOcorrencia | null>(this.tipoInicial ?? this.rascunho?.tipo ?? null);
+  readonly descricao = signal(this.rascunho?.descricao ?? '');
+  /** Endereço desta tela, para o "Abrir turno" voltar a ela. */
+  readonly aqui = () => this.router.url;
   readonly fotos = signal<{ id: string; foto: EvidenciaPreparada; url: string }[]>([]);
   readonly fotosExibidas = computed<FotoExibida[]>(() => this.fotos().map(f => ({ id: f.id, url: f.url })));
   readonly salvando = signal(false);
   readonly subtitulo = computed(() => { const p = this.programacao(); return p ? `Obra ${p.numeroObra ?? ''} · ${this.ctx.ref(p)}` : null; });
   readonly carimbo = computed(() => linhasDoCarimbo({ contexto: [this.subtitulo() ?? 'Ocorrência', 'Ocorrência'], data: new Date() }));
+
+  constructor() {
+    effect(() => {
+      const rascunho = { tipo: this.tipo(), descricao: this.descricao(), dia: new Date().toDateString() };
+      try {
+        if (rascunho.descricao.trim() || rascunho.tipo !== this.tipoInicial) localStorage.setItem(this.chaveRascunho, JSON.stringify(rascunho));
+      } catch { /* armazenamento cheio: segue sem rascunho */ }
+    });
+  }
+
+  /** Só o rascunho do mesmo dia: o de ontem já não descreve o que está acontecendo. */
+  private lerRascunho(): { tipo: TipoOcorrencia | null; descricao: string } | null {
+    try {
+      const salvo = localStorage.getItem(this.chaveRascunho);
+      const rascunho = salvo ? JSON.parse(salvo) : null;
+      return rascunho?.dia === new Date().toDateString() ? rascunho : null;
+    } catch {
+      return null;
+    }
+  }
 
   adicionar(foto: EvidenciaPreparada): void {
     this.fotos.update(f => [...f, { id: crypto.randomUUID(), foto, url: URL.createObjectURL(foto.arquivo) }]);
@@ -116,6 +149,7 @@ export class OcorrenciaObraComponent {
         });
       }
       this.fotos().forEach(f => URL.revokeObjectURL(f.url));
+      localStorage.removeItem(this.chaveRascunho);
       this.toast.success(this.impede() ? 'Registrado: sem condição de executar' : 'Ocorrência registrada');
       void this.router.navigate(this.impede() ? ['/hoje'] : ['/obras', p.id], { replaceUrl: true });
     } finally {

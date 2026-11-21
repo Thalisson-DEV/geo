@@ -17,7 +17,7 @@
     <div class="geo-form-grid obra-grade-2">
       <geo-select label="Processo de negócio" [required]="true" [options]="processosOpcoes()" [(value)]="idProcesso" [error]="erro('idProcesso')"></geo-select>
       <geo-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBaseOperacional" [error]="erro('idBaseOperacional')"></geo-select>
-      <geo-select label="Município" [required]="true" [options]="municipiosOpcoes()" [(value)]="idMunicipio" [filter]="true" [error]="erro('idMunicipio')"></geo-select>
+      <geo-select label="Município" [required]="true" [options]="municipiosOpcoes()" [(value)]="idMunicipio" (valueChange)="aoEscolherMunicipio($event)" [filter]="true" [error]="erro('idMunicipio')"></geo-select>
       <geo-select label="Centro de custo" [required]="true" [options]="centrosOpcoes()" [(value)]="idCentroCusto" [error]="erro('idCentroCusto')"></geo-select>
       @if (!editando()) {
         <geo-select label="Contrato" description="Dá os preços dos kits no planejamento." [options]="contratoOpcoes()" [(value)]="idContrato" [filter]="true" [clearable]="true" placeholder="Opcional"></geo-select>
@@ -28,7 +28,7 @@
 
   <geo-form-section title="Responsáveis" icon="pi pi-users">
     <div class="geo-form-grid">
-      <geo-select label="Supervisor" [required]="true" [options]="supervisoresOpcoes()" [(value)]="idSupervisor" [filter]="true" [clearable]="true" [error]="erro('idSupervisor')"></geo-select>
+      <geo-select label="Supervisor" [required]="true" [options]="supervisoresOpcoes()" [(value)]="idSupervisor" (valueChange)="aoEscolherSupervisor($event)" [filter]="true" [clearable]="true" [error]="erro('idSupervisor')"></geo-select>
       <geo-select label="Coordenador" [required]="true" [options]="coordenadoresOpcoes()" [(value)]="idCoordenador" [filter]="true" [clearable]="true" [error]="erro('idCoordenador')"></geo-select>
     </div>
     <geo-select label="Agente responsável" description="Fiscal da concessionária que acompanha a obra." [options]="agentesOpcoes()" [(value)]="idAgenteResponsavel"

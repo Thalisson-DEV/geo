@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, Injector, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { liveQuery } from 'dexie';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TurnoService } from '../../core/turno/turno.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ChecklistVeiculoLocal, diaLocal } from '../../core/frota/checklist-veiculo.models';
@@ -224,6 +224,11 @@ export class AbrirTurnoComponent implements OnInit {
   private readonly turnoService = inject(TurnoService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  /** Tela que mandou abrir o turno (ex.: a ocorrência começada com o turno fechado): volta para ela. Só caminho interno. */
+  private readonly volta = (() => {
+    const v = inject(ActivatedRoute).snapshot.queryParamMap.get('volta');
+    return v && v.startsWith('/') && !v.startsWith('//') ? v : null;
+  })();
   private readonly rascunhos = inject(RascunhoService);
   private readonly auth = inject(AuthService);
   private readonly injector = inject(Injector);
@@ -447,7 +452,7 @@ export class AbrirTurnoComponent implements OnInit {
       }
       await this.rascunho?.concluir();
       this.toast.success(escolha ? 'Turno aberto e equipe atualizada' : 'Turno aberto. Bom trabalho!');
-      await this.router.navigate(['/hoje'], { replaceUrl: true });
+      await (this.volta ? this.router.navigateByUrl(this.volta, { replaceUrl: true }) : this.router.navigate(['/hoje'], { replaceUrl: true }));
     } catch (error: any) {
       this.erro.set(error?.detail || error?.error?.detail || error?.message || 'Tente novamente em instantes.');
     } finally {
@@ -456,7 +461,7 @@ export class AbrirTurnoComponent implements OnInit {
   }
 
   voltar(): void {
-    void this.router.navigate(['/hoje']);
+    void (this.volta ? this.router.navigateByUrl(this.volta) : this.router.navigate(['/hoje']));
   }
 
   private aplicarComposicao(composicao: ComposicaoEquipeLocal): void {
