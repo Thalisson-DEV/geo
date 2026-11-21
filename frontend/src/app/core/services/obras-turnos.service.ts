@@ -6,6 +6,7 @@ import {
   BoletimEquipes,
   FiltroTurnosObra,
   ListaTurnosObra,
+  OcorrenciaDaObra,
   TurnoObraDetalhe
 } from '../models/obras-turnos.models';
 import { BaseService } from './base.service';
@@ -33,6 +34,11 @@ export class ObrasTurnosService extends BaseService {
     if (data) params = params.set('data', data);
     if (idBase) params = params.set('idBase', idBase);
     return this.http.get<BoletimEquipes>(`${this.base}/turnos/boletim`, { params });
+  }
+
+  /** As últimas ocorrências que as equipes lançaram na obra, da mais recente para a mais antiga. */
+  ocorrenciasDaObra(idObra: string): Observable<OcorrenciaDaObra[]> {
+    return this.http.get<OcorrenciaDaObra[]>(`${this.base}/${idObra}/ocorrencias-campo`);
   }
 
   detalhar(id: string): Observable<TurnoObraDetalhe> {

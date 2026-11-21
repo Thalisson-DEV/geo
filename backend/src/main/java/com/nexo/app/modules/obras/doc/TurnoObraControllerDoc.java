@@ -25,6 +25,9 @@ public interface TurnoObraControllerDoc {
     @Operation(summary = "Boletim das equipes", description = "Situação de cada equipe no dia, com programado e executado no ciclo, no dia e no dia útil anterior.")
     ResponseEntity<TurnoObraResponses.Boletim> boletim(LocalDate data, UUID idBase);
 
+    @Operation(summary = "Ocorrências do campo na obra", description = "As últimas 50 ocorrências lançadas pelas equipes na obra, de todos os turnos, da mais recente para a mais antiga.")
+    ResponseEntity<java.util.List<TurnoObraResponses.OcorrenciaDaObra>> ocorrenciasDaObra(UUID idObra);
+
     @Operation(summary = "Detalhar um turno de Obras")
     ResponseEntity<TurnoObraResponses.Detalhe> detalhar(UUID id);
 

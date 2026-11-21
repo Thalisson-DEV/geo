@@ -6,6 +6,7 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 import { MuralHostComponent } from './shared/components/mural-host/mural-host.component';
 import { AtualizacaoDisponivelComponent } from './shared/components/atualizacao-disponivel/atualizacao-disponivel.component';
+import { AvisoSemConexaoComponent } from './shared/components/aviso-sem-conexao/aviso-sem-conexao.component';
 import { AvaliacaoConviteComponent } from './shared/components/avaliacao-app/avaliacao-convite.component';
 import { AvaliacaoDrawerComponent } from './shared/components/avaliacao-app/avaliacao-drawer.component';
 import { SessaoReautenticacaoComponent } from './shared/components/sessao-reautenticacao/sessao-reautenticacao.component';
@@ -42,6 +43,7 @@ const ICONES_AVISO: Record<string, string> = {
     ConfirmDialogModule,
     MuralHostComponent,
     AtualizacaoDisponivelComponent,
+    AvisoSemConexaoComponent,
     AvaliacaoConviteComponent,
     AvaliacaoDrawerComponent,
     SessaoReautenticacaoComponent,

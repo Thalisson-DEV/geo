@@ -15,4 +15,6 @@ public interface OcorrenciaTurnoRepository extends JpaRepository<OcorrenciaTurno
     Optional<OcorrenciaTurno> findByIdAndIdTurnoAndAtivoTrue(UUID id, UUID idTurno);
 
     Optional<OcorrenciaTurno> findByCampoIdLocal(UUID idLocal);
+
+    List<OcorrenciaTurno> findTop50ByIdObraAndAtivoTrueOrderByDataCriacaoDesc(UUID idObra);
 }

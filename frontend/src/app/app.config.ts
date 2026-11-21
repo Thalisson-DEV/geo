@@ -17,6 +17,7 @@ import { routes } from './app.routes';
 import { comModulosOcultos } from './core/white-label/modulos-ocultos';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { idempotencyInterceptor } from './core/interceptors/idempotency.interceptor';
+import { leituraOfflineInterceptor } from './core/interceptors/leitura-offline.interceptor';
 import {
   tratarErroDeNavegacao,
   VersaoObsoletaErrorHandler
@@ -55,7 +56,7 @@ export const appConfig: ApplicationConfig = {
     { provide: ErrorHandler, useClass: VersaoObsoletaErrorHandler },
     // A ordem importa: o de idempotência roda DEPOIS do de autenticação, sendo o último a
     // tocar nos headers antes do envio — é assim que a chave sobrevive até o backend.
-    provideHttpClient(withXhr(), withInterceptors([authInterceptor, idempotencyInterceptor])),
+    provideHttpClient(withXhr(), withInterceptors([authInterceptor, idempotencyInterceptor, leituraOfflineInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     MessageService,
     ConfirmationService,

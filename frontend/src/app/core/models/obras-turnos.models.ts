@@ -145,6 +145,18 @@ export interface OcorrenciaDoTurno {
   data: string;
 }
 
+/** Ocorrência lançada numa obra, de qualquer turno: o bloco "Ocorrências do campo" da ficha. */
+export interface OcorrenciaDaObra {
+  id: string;
+  idTurno: string;
+  codigoEquipe: string | null;
+  tipo: TipoOcorrenciaTurno;
+  descricao: string;
+  impedeExecucao: boolean;
+  /** ISO 8601, hora do aparelho quando veio do app. */
+  momento: string;
+}
+
 export interface FormularioApr {
   local: string | null;
   riscos: string[];

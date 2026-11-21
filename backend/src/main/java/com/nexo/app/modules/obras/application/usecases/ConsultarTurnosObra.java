@@ -97,6 +97,29 @@ public class ConsultarTurnosObra {
     private final AnexoTurnoRepository anexoRepository;
     private final ProgramacaoObraUseCases programacaoUseCases;
 
+    /** As últimas ocorrências lançadas na obra, de qualquer turno, da mais recente para a mais antiga. */
+    @Transactional(readOnly = true)
+    public List<TurnoObraResponses.OcorrenciaDaObra> ocorrenciasDaObra(UUID idObra) {
+        if (!obraRepository.existsById(idObra)) {
+            throw new RecursoNaoEncontradoException("Obra não encontrada com o ID: " + idObra);
+        }
+        List<OcorrenciaTurno> ocorrencias = ocorrenciaRepository.findTop50ByIdObraAndAtivoTrueOrderByDataCriacaoDesc(idObra);
+        Map<UUID, String> equipePorTurno = new HashMap<>();
+        Map<UUID, String> codigoPorEquipe = new HashMap<>();
+        for (UUID idTurno : ocorrencias.stream().map(OcorrenciaTurno::getIdTurno).collect(Collectors.toSet())) {
+            TurnoResponse turno = turnoApi.buscarPorId(idTurno);
+            if (turno != null && turno.idEquipe() != null) {
+                equipePorTurno.put(idTurno, codigoPorEquipe.computeIfAbsent(turno.idEquipe(),
+                        e -> equipeApi.buscarPorIdResponse(e).map(EquipeResponse::codigo).orElse(null)));
+            }
+        }
+        return ocorrencias.stream()
+                .map(o -> new TurnoObraResponses.OcorrenciaDaObra(o.getId(), o.getIdTurno(), equipePorTurno.get(o.getIdTurno()),
+                        o.getTipo(), o.getDescricao(), o.isImpedeExecucao(), o.momento()))
+                .sorted(Comparator.comparing(TurnoObraResponses.OcorrenciaDaObra::momento).reversed())
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public TurnoObraResponses.Lista listar(TurnoObraFilter filtro, Pageable pageable) {
         OffsetDateTime agora = OffsetDateTime.now(ApontamentoExecucaoUseCases.FUSO);

@@ -6,6 +6,7 @@ import { AuthService } from '../auth/auth.service';
 import { db } from '../db/app-db';
 import { ArquivosCampoService } from './arquivos-campo.service';
 import { AvisoProgramacao, ItemCampo, LiberacaoDia, ObraResumo, ModeloApr, ModeloFoto, ObraCampo, PacoteObras, ProgramacaoCampo } from './obras.models';
+import { idadeDaAgenda } from './obras-regras';
 
 const CHAVE_DESDE = 'obras_pacote_desde';
 const CHAVE_MODELOS = 'obras_modelos';
@@ -75,6 +76,8 @@ export class PacoteObrasService {
   readonly avisosNovos = computed(() => this.avisos().filter(a => !this.avisosVistos().includes(a.id)));
   /** Tudo da agenda no aparelho: pacote recebido e PDFs baixados. */
   readonly prontoSemSinal = computed(() => !!this.ultimaSync() && this.projetosFaltando().length === 0);
+  /** De quando é a agenda no aparelho ("agenda das 06:05"; de outro dia, `antiga`). */
+  readonly idadeAgenda = computed(() => idadeDaAgenda(this.recebidoEm()));
 
   private emAndamento: Promise<void> | null = null;
 

@@ -113,4 +113,9 @@ public final class TurnoObraResponses {
     public record AgendaDoDia(UUID idProgramacao, long numero, UUID idObra, String numeroObra, String tituloObra, String descricao,
                               BigDecimal valor, int itens, int itensConcluidos, SituacaoLiberacao liberacao) {
     }
+
+    /** O que as equipes registraram sobre a obra, de todos os turnos, para a ficha. */
+    public record OcorrenciaDaObra(UUID id, UUID idTurno, String codigoEquipe, TipoOcorrenciaTurno tipo, String descricao,
+                                   boolean impedeExecucao, OffsetDateTime momento) {
+    }
 }

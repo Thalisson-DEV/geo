@@ -11,7 +11,7 @@ const DESLOCAMENTO_LONGO_MIN = 90;
 const DIVERGENCIA_RELEVANTE = 0.1;
 
 /** O que a tela faz ao acionar o insight. */
-export type AcaoInsightObra = 'carteira' | 'cadastro' | 'anexo' | 'solicitar' | 'status' | 'visita';
+export type AcaoInsightObra = 'carteira' | 'cadastro' | 'anexo' | 'solicitar' | 'status' | 'visita' | 'ocorrencias';
 
 /** Um ponto de atenção da obra: tom e ícone (nunca só cor) e, quando há, a ação que resolve. */
 export interface InsightObra {
@@ -33,6 +33,8 @@ export interface ContextoInsightsObra {
   dataUltimoStatus: string | null;
   /** Se a obra tem visita prévia; `null` enquanto a documentação não carregou (ou sem permissão para vê-la). */
   visitaRealizada?: boolean | null;
+  /** Última vez em que a equipe disse que não tinha condição de executar, nos últimos dias; `null` sem registro. */
+  impedimentoRecente?: { data: Date; equipe: string | null; tipo: string; descricao: string } | null;
 }
 
 const dias = (n: number) => `${n} ${n === 1 ? 'dia' : 'dias'}`;
@@ -104,6 +106,20 @@ export function insightsDaObra(ctx: ContextoInsightsObra): InsightObra[] {
 
   if (concluida) {
     return [...alertas, ...avisos, ...informativos, ...positivos];
+  }
+
+  // A equipe não conseguiu executar: o escritório precisa reprogramar ou resolver o impedimento.
+  const impedimento = ctx.impedimentoRecente;
+  if (impedimento) {
+    const quando = diferencaDias(new Date(new Date(impedimento.data).setHours(0, 0, 0, 0)), hoje);
+    const dia = quando <= 0 ? 'hoje' : quando === 1 ? 'ontem' : `há ${dias(quando)}`;
+    alertas.push({
+      tom: 'danger',
+      icone: 'pi pi-ban',
+      titulo: `${impedimento.equipe ?? 'Equipe'} sem condição de executar ${dia}`,
+      texto: `${impedimento.tipo}: ${impedimento.descricao}`,
+      acao: { tipo: 'ocorrencias', rotulo: 'Ver ocorrências' }
+    });
   }
 
   // Prazo

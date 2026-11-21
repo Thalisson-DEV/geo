@@ -398,7 +398,29 @@ public enum GatilhoNotificacao {
             ModoGatilho.POR_OCORRENCIA,
             CategoriaNotificacao.OPERACIONAL,
             List.of("colaborador", "tipo", "motivo", "base", "dataFato", "link"),
-            List.of("aplicador"));
+            List.of("aplicador")),
+
+    OBRAS_CAMPO_SEM_CONDICAO(
+            "obras.campo.sem_condicao",
+            "Equipe sem condição de executar a obra",
+            "Dispara quando a equipe informa pelo app que o serviço programado não tem condição de ser feito "
+                    + "(acesso, desligamento, clima, material...). É a hora de reprogramar.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("numeroObra", "tituloObra", "equipe", "tipoRotulo", "descricao", "impedeExecucao",
+                    "idTurno", "idObra", "link"),
+            List.of("supervisor")),
+
+    OBRAS_CAMPO_OCORRENCIA(
+            "obras.campo.ocorrencia",
+            "Ocorrência lançada pela equipe de Obras",
+            "Dispara a cada ocorrência lançada pelo app que não impede a execução: falta de material, "
+                    + "equipamento, terceiros, segurança. Use tipoRotulo nas condições para filtrar.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("numeroObra", "tituloObra", "equipe", "tipoRotulo", "descricao", "impedeExecucao",
+                    "idTurno", "idObra", "link"),
+            List.of("supervisor"));
 
     private final String chave;
     private final String nome;

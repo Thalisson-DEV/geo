@@ -1,4 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
+import { ObrasTurnosService } from '../../../core/services/obras-turnos.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
@@ -67,6 +68,7 @@ describe('ObraDetalheComponent', () => {
         { provide: RhService, useValue: { listarEquipes: vi.fn(() => of({ content: [{ id: 'eq-1', codigo: 'EQ-01', tipoEquipe: { nome: 'LINHA VIVA' }, baseOperacional: { nome: 'BASE JUAZEIRO' } }] })) } },
         { provide: AuthService, useValue: { currentUser: () => ({ permissoes }) } },
         { provide: ObrasMedicoesService, useValue: medicoes },
+        { provide: ObrasTurnosService, useValue: { ocorrenciasDaObra: vi.fn(() => of([])) } },
         { provide: ObrasProgramacaoService, useValue: { resumos: vi.fn(() => of([])), listarDaObra: vi.fn(() => of([])) } },
         { provide: SolicitacaoMaterialTecnicaService, useValue: { obterProjecaoObra: vi.fn(() => of({ idObra: 'obra-1', tipoObra: 'OBRA', ocorrencias: [], solicitacoes: [] })), obterSaldoObra: vi.fn(() => of({ idEstoque: null, itens: [] })) } },
         { provide: ActivatedRoute, useValue: { paramMap: of(convertToParamMap({ id: 'obra-1' })) } }

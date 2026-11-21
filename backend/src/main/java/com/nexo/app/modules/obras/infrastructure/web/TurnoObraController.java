@@ -59,6 +59,13 @@ public class TurnoObraController implements TurnoObraControllerDoc {
     }
 
     @Override
+    @GetMapping("/{idObra}/ocorrencias-campo")
+    @PreAuthorize(LER)
+    public ResponseEntity<java.util.List<TurnoObraResponses.OcorrenciaDaObra>> ocorrenciasDaObra(@PathVariable UUID idObra) {
+        return ResponseEntity.ok(consultas.ocorrenciasDaObra(idObra));
+    }
+
+    @Override
     @GetMapping("/turnos/{id}")
     @PreAuthorize(LER)
     public ResponseEntity<TurnoObraResponses.Detalhe> detalhar(@PathVariable UUID id) {

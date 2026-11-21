@@ -131,7 +131,7 @@ const PASSO_TECLADO = 16;
         @if (!conectado()) {
           <span class="geo-nav__conexao" aria-hidden="true"></span>
           @if (menuVisible() || isMobile()) {
-            <span>Sem conexão: salvando no aparelho</span>
+            <span>Sem conexão</span>
           } @else {
             <span class="geo-sr-only">Sem conexão</span>
           }

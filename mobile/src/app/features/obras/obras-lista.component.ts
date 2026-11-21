@@ -21,8 +21,10 @@ import { nomeLocais } from '../../core/obras/obras-regras';
       <div class="estado" role="status">
         @if (ctx.pacote.sincronizando()) {
           <span class="geo-selo geo-selo--destaque"><geo-icone nome="atualizar" /></span><span>Atualizando a agenda…</span>
+        } @else if (ctx.pacote.prontoSemSinal() && ctx.pacote.idadeAgenda()?.antiga) {
+          <span class="geo-selo geo-selo--atencao"><geo-icone nome="sem_rede" /></span><span>Agenda {{ ctx.pacote.idadeAgenda()!.quando }} no aparelho: conecte para ver se mudou.</span>
         } @else if (ctx.pacote.prontoSemSinal()) {
-          <span class="geo-selo geo-selo--ok"><geo-icone nome="check" /></span><span>Pronto para trabalhar sem sinal</span>
+          <span class="geo-selo geo-selo--ok"><geo-icone nome="check" /></span><span>Pronto para trabalhar sem sinal{{ ctx.pacote.idadeAgenda() ? ' · agenda ' + ctx.pacote.idadeAgenda()!.quando : '' }}</span>
         } @else if (ctx.pacote.projetosFaltando().length) {
           <span class="geo-selo geo-selo--atencao"><geo-icone nome="alerta" /></span>
           <span>{{ ctx.pacote.projetosFaltando().length === 1 ? 'Falta 1 projeto' : 'Faltam ' + ctx.pacote.projetosFaltando().length + ' projetos' }} no aparelho. {{ rede.isOnline() ? 'Baixando…' : 'Conecte para baixar.' }}</span>

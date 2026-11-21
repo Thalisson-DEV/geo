@@ -82,6 +82,7 @@
 
   <!-- Avaliação do GEO: o convite cede a vez ao aviso de versão nova (mesmo canto). -->
   @if (auth.isAuthenticated()) {
+    <app-aviso-sem-conexao></app-aviso-sem-conexao>
     <app-avaliacao-convite></app-avaliacao-convite>
     <app-avaliacao-drawer></app-avaliacao-drawer>
   }

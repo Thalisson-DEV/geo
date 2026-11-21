@@ -1,4 +1,5 @@
 import { DestroyRef, Injectable, Injector, inject, signal, computed, effect, untracked } from '@angular/core';
+import { LeiturasOfflineService } from '../offline/leituras-offline.service';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, firstValueFrom, from, switchMap, tap, catchError, throwError } from 'rxjs';
@@ -48,6 +49,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly lookupCache = inject(LookupCacheService);
+  private readonly leiturasOffline = inject(LeiturasOfflineService);
   private readonly viewState = inject(ViewStateStore);
   private readonly navigationHistory = inject(NavigationHistoryService);
   private readonly injector = inject(Injector);
@@ -139,6 +141,7 @@ export class AuthService {
     void this.concluirLogoutPendente();
 
     this.lookupCache.clear();
+    void this.leiturasOffline.limpar();
     localStorage.removeItem(this.STORAGE_KEY);
     this.session.set(null);
     this.viewState.clear();

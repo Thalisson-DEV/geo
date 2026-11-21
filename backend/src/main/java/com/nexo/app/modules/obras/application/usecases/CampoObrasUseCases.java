@@ -9,6 +9,7 @@ import com.nexo.app.modules.obras.domain.ApontamentoExecucao;
 import com.nexo.app.modules.obras.domain.AprTurno;
 import com.nexo.app.modules.obras.domain.AtividadeTurno;
 import com.nexo.app.modules.obras.domain.EvidenciaPonto;
+import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.OcorrenciaTurno;
 import com.nexo.app.modules.obras.domain.PresencaObra;
 import com.nexo.app.modules.obras.domain.Programacao;
@@ -27,11 +28,14 @@ import com.nexo.app.modules.obras.infrastructure.persistence.RelatorioTurnoRepos
 import com.nexo.app.modules.obras.infrastructure.persistence.VaoPlanejamentoRepository;
 import com.nexo.app.modules.rh.EquipeApi;
 import com.nexo.app.modules.rh.EquipeResponse;
+import com.nexo.app.modules.rh.SupervisorApi;
+import com.nexo.app.shared.domain.events.ObrasOcorrenciaCampoEvent;
 import com.nexo.app.shared.domain.exception.AcessoNegadoException;
 import com.nexo.app.shared.domain.exception.IdLocalReutilizadoException;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,6 +77,8 @@ public class CampoObrasUseCases {
     private final ApontamentoExecucaoUseCases apontamentos;
     private final EvidenciaPontoUseCases evidencias;
     private final ObjectMapper mapper;
+    private final SupervisorApi supervisorApi;
+    private final ApplicationEventPublisher eventos;
 
     @Transactional
     public CampoObrasResponses.Resultado registrarApr(CampoObrasRequests.Apr comando, UUID usuario) {
@@ -129,6 +135,7 @@ public class CampoObrasUseCases {
         RegistroCampo campo = new RegistroCampo(comando.campo().idLocal(), hash, comando.campo().origem(), OffsetDateTime.now());
         OcorrenciaTurno salva = ocorrenciaRepository.save(OcorrenciaTurno.doCampo(turno.id(), comando.idObra(),
                 comando.idProgramacao(), comando.tipo(), comando.descricao(), comando.impedeExecucao(), campo));
+        eventos.publishEvent(avisoDeOcorrencia(salva, turno, usuario));
         return resultado(comando.campo(), "OCORRENCIA", List.of(salva.getId()), false, turno.id());
     }
 
@@ -337,6 +344,19 @@ public class CampoObrasUseCases {
         if (equipe.processo() == null || !obraRepository.listarProcessosComObras().contains(equipe.processo().id())) {
             throw new InvarianteVioladaException("A equipe " + equipe.codigo() + " não é de um processo com obras.");
         }
+    }
+
+    /** Leva ao escritório o que a equipe lançou: o supervisor da obra e quem programa são avisados pelo motor de notificações. */
+    private ObrasOcorrenciaCampoEvent avisoDeOcorrencia(OcorrenciaTurno ocorrencia, TurnoResponse turno, UUID autor) {
+        Obra obra = ocorrencia.getIdObra() != null ? obraRepository.findById(ocorrencia.getIdObra()).orElse(null) : null;
+        UUID supervisor = obra == null ? null : supervisorApi.buscarPorIdResponse(obra.getIdSupervisor())
+                .map(s -> s.colaborador() != null ? s.colaborador().idUsuario() : null)
+                .orElse(null);
+        String equipe = turno.idEquipe() == null ? null
+                : equipeApi.buscarPorIdResponse(turno.idEquipe()).map(EquipeResponse::codigo).orElse(null);
+        return new ObrasOcorrenciaCampoEvent(ocorrencia.getId(), turno.id(), ocorrencia.getIdObra(),
+                obra != null ? obra.getNumero() : null, obra != null ? obra.getTitulo() : null, equipe,
+                ocorrencia.getTipo().rotulo(), ocorrencia.getDescricao(), ocorrencia.isImpedeExecucao(), supervisor, autor);
     }
 
     private void exigirObra(UUID idObra) {

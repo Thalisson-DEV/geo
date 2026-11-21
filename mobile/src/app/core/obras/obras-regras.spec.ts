@@ -1,5 +1,5 @@
 import {
-  pontoNaFolhaGirada, contarLocais,
+  pontoNaFolhaGirada, contarLocais, idadeDaAgenda,
   aprVazia, condicoesDaProgramacao, medidasDoRisco, nomeLocais, faltasDaApr, aprQueLibera, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
   pontosDaExecucao, programacoesDoDia, proximoPasso, relatorioDoDia, sugestoesApr, verificacoesDaApr, EstadoDoDia,
 } from './obras-regras';
@@ -202,5 +202,22 @@ describe('regras de Obras no app', () => {
     expect(contarLocais(3, 0)).toBe('3 pontos');
     expect(contarLocais(0, 1)).toBe('1 vão');
     expect(contarLocais(1, 29)).toBe('1 ponto e 29 vãos');
+  });
+});
+
+describe('idadeDaAgenda', () => {
+  const agora = new Date(2026, 10, 21, 15, 0);
+
+  it('pacote de hoje mostra só a hora', () => {
+    expect(idadeDaAgenda(new Date(2026, 10, 21, 6, 5).toISOString(), agora)).toEqual({ quando: 'das 06:05', antiga: false });
+  });
+
+  it('pacote de ontem ou de antes avisa que pode ter mudado', () => {
+    expect(idadeDaAgenda(new Date(2026, 10, 20, 17, 40).toISOString(), agora)).toEqual({ quando: 'de ontem às 17:40', antiga: true });
+    expect(idadeDaAgenda(new Date(2026, 10, 18, 7, 0).toISOString(), agora)).toEqual({ quando: 'de 18/11 às 07:00', antiga: true });
+  });
+
+  it('sem pacote recebido não diz nada', () => {
+    expect(idadeDaAgenda(null, agora)).toBeNull();
   });
 });

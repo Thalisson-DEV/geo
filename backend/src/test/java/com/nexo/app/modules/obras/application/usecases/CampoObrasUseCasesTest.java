@@ -55,6 +55,8 @@ class CampoObrasUseCasesTest {
     @Mock RelatorioTurnoRepository relatorioRepository;
     @Mock ApontamentoExecucaoUseCases apontamentos;
     @Mock EvidenciaPontoUseCases evidencias;
+    @Mock com.nexo.app.modules.rh.SupervisorApi supervisorApi;
+    @Mock org.springframework.context.ApplicationEventPublisher eventos;
 
     private CampoObrasUseCases useCases;
 
@@ -70,7 +72,7 @@ class CampoObrasUseCasesTest {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         useCases = new CampoObrasUseCases(turnoApi, equipeApi, obraRepository, programacaoRepository, aprRepository,
                 ocorrenciaRepository, atividadeRepository, apontamentoRepository, presencaRepository, evidenciaRepository,
-                vaoRepository, relatorioRepository, apontamentos, evidencias, mapper);
+                vaoRepository, relatorioRepository, apontamentos, evidencias, mapper, supervisorApi, eventos);
         when(equipeApi.buscarIdEquipePorUsuario(usuario)).thenReturn(Optional.of(equipe));
         EquipeResponse dados = mock(EquipeResponse.class);
         var proc = mock(com.nexo.app.modules.rh.ProcessoNegocioResponse.class);
@@ -96,6 +98,33 @@ class CampoObrasUseCasesTest {
 
     private CampoObrasRequests.Ocorrencia ocorrencia(UUID idLocal, UUID idTurno, String descricao) {
         return new CampoObrasRequests.Ocorrencia(campo(idLocal, idTurno), obra, null, TipoOcorrenciaTurno.CLIMA, descricao, true);
+    }
+
+    @Test
+    void semCondicaoDeExecutarAvisaOSupervisorDaObra() {
+        UUID idSupervisor = UUID.randomUUID();
+        UUID usuarioSupervisor = UUID.randomUUID();
+        com.nexo.app.modules.obras.domain.Obra dadosObra = mock(com.nexo.app.modules.obras.domain.Obra.class);
+        when(dadosObra.getNumero()).thenReturn("417559");
+        when(dadosObra.getTitulo()).thenReturn("MP - POV. LAGOA DE DENTRO");
+        when(dadosObra.getIdSupervisor()).thenReturn(idSupervisor);
+        when(obraRepository.findById(obra)).thenReturn(Optional.of(dadosObra));
+        com.nexo.app.modules.rh.SupervisorResponse supervisor = mock(com.nexo.app.modules.rh.SupervisorResponse.class);
+        com.nexo.app.modules.rh.ColaboradorResponse colaborador = mock(com.nexo.app.modules.rh.ColaboradorResponse.class);
+        when(colaborador.idUsuario()).thenReturn(usuarioSupervisor);
+        when(supervisor.colaborador()).thenReturn(colaborador);
+        when(supervisorApi.buscarPorIdResponse(idSupervisor)).thenReturn(Optional.of(supervisor));
+        when(turnoApi.buscarPorId(turno.id())).thenReturn(turno);
+
+        useCases.registrarOcorrencia(ocorrencia(UUID.randomUUID(), turno.id(), "Cliente não liberou o acesso"), usuario);
+
+        ArgumentCaptor<com.nexo.app.shared.domain.events.ObrasOcorrenciaCampoEvent> aviso =
+                ArgumentCaptor.forClass(com.nexo.app.shared.domain.events.ObrasOcorrenciaCampoEvent.class);
+        verify(eventos).publishEvent(aviso.capture());
+        assertThat(aviso.getValue().chaveGatilho()).isEqualTo("obras.campo.sem_condicao");
+        assertThat(aviso.getValue().contexto()).containsEntry("numeroObra", "417559").containsEntry("equipe", "FIC-01")
+                .containsEntry("tipoRotulo", "Clima").containsEntry("link", "/obras/turnos/" + turno.id());
+        assertThat(aviso.getValue().papeis()).containsEntry("supervisor", java.util.Set.of(usuarioSupervisor));
     }
 
     @Test

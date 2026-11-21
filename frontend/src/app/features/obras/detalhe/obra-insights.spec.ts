@@ -43,6 +43,16 @@ const contexto = (parcial: Partial<ContextoInsightsObra> = {}): ContextoInsights
 const titulos = (ctx: Partial<ContextoInsightsObra>) => insightsDaObra(contexto(ctx)).map((i) => i.titulo);
 
 describe('insightsDaObra', () => {
+  it('equipe sem condição de executar vira alerta no topo, com a ação de ver as ocorrências', () => {
+    const [primeiro] = insightsDaObra(
+      contexto({ impedimentoRecente: { data: new Date(2026, 9, 29, 9, 30), equipe: 'CON-BNF-01', tipo: 'Acesso ao local', descricao: 'Portão trancado' } })
+    );
+    expect(primeiro.tom).toBe('danger');
+    expect(primeiro.titulo).toBe('CON-BNF-01 sem condição de executar ontem');
+    expect(primeiro.texto).toBe('Acesso ao local: Portão trancado');
+    expect(primeiro.acao?.tipo).toBe('ocorrencias');
+  });
+
   it('obra em dia e completa não gera alerta', () => {
     expect(insightsDaObra(contexto()).filter((i) => i.tom === 'danger' || i.tom === 'warning')).toEqual([]);
   });

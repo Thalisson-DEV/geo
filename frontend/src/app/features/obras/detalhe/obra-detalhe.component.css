@@ -1342,3 +1342,17 @@ a.obra-lista__titulo:hover,
     display: flex;
   }
 }
+
+/* Ocorrências do campo: o impedimento se destaca pela marca vermelha, além do selo com texto. */
+.obra-ocorrencia--impede .obra-linha-tempo__marca {
+  background: var(--geo-danger);
+  box-shadow: 0 0 0 3px var(--geo-danger-soft);
+}
+
+.obra-linha-tempo__titulo .geo-status {
+  margin-left: 0.375rem;
+}
+
+.obra-ocorrencia__turno {
+  color: var(--geo-brand);
+}

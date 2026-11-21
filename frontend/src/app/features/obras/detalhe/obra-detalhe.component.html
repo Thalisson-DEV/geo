@@ -328,12 +328,12 @@
             </header>
             @if (resumoPlanejamento(); as r) {
               @if (r.temKits) {
-                <div class="obra-programacao__avanco" role="img" [attr.aria-label]="numeroProgramacao(r.percentualConcluido) + '% concluído e ' + numeroProgramacao(r.percentualProgramado) + '% programado'">
+                <div class="obra-programacao__avanco" role="img" [attr.aria-label]="numeroProgramacao(r.percentualConcluido) + '% concluído e ' + numeroProgramacao(r.percentualProgramado) + '% programado a executar'">
                   <span class="obra-programacao__parte" data-tipo="concluido" [style.width.%]="r.percentualConcluido"></span>
                   <span class="obra-programacao__parte" data-tipo="programado" [style.width.%]="r.percentualProgramado"></span>
                 </div>
                 <p class="obra-programacao__legenda">
-                  {{ numeroProgramacao(r.percentualConcluido) }}% concluído · {{ numeroProgramacao(r.percentualProgramado) }}% programado · {{ moeda(r.valorPendente) }} por programar de {{ moeda(r.valorTotal) }}
+                  {{ numeroProgramacao(r.percentualConcluido) }}% concluído · {{ numeroProgramacao(r.percentualProgramado) }}% programado a executar · {{ r.valorPendente > 0 ? moeda(r.valorPendente) + ' por programar de ' + moeda(r.valorTotal) : 'tudo programado (' + moeda(r.valorTotal) + ')' }}
                   @if (r.pontosSemKit) { · {{ r.pontosSemKit }} {{ r.pontosSemKit === 1 ? 'ponto' : 'pontos' }} sem kit }
                 </p>
               }
@@ -380,6 +380,53 @@
             }
           }
         </section>
+
+        <!-- Ocorrências do campo: o que as equipes lançaram pelo app, de todos os turnos -->
+        @if (podeVerOcorrencias) {
+          <section class="obra-card" aria-labelledby="ocorrencias-titulo">
+            <header class="obra-card__cabecalho">
+              <h2 id="ocorrencias-titulo"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i> Ocorrências do campo
+                @if ((dados(ocorrencias())?.length ?? 0) > 0) { <span class="obra-card__contagem">{{ dados(ocorrencias())!.length }}</span> }</h2>
+              <a class="obra-programacao__acao" [routerLink]="['/obras/turnos']" [queryParams]="{ obra: o.numero, comOcorrencia: true }"><i class="pi pi-clock" aria-hidden="true"></i> Turnos com ocorrência</a>
+            </header>
+            @switch (ocorrencias().estado) {
+              @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Carregando as ocorrências"></geo-async-state> }
+              @case ('error') {
+                <geo-async-state state="error" [compact]="true" title="Não foi possível carregar as ocorrências" [description]="mensagem(ocorrencias())"
+                  actionLabel="Tentar de novo" (action)="carregarOcorrencias()"></geo-async-state>
+              }
+              @default {
+                @if (ocorrenciasExibidas().length) {
+                  <ol class="obra-linha-tempo">
+                    @for (oc of ocorrenciasExibidas(); track oc.id) {
+                      <li class="obra-linha-tempo__item" [class.obra-ocorrencia--impede]="oc.impedeExecucao">
+                        <span class="obra-linha-tempo__marca" aria-hidden="true"></span>
+                        <div class="obra-linha-tempo__corpo">
+                          <span class="obra-linha-tempo__titulo">
+                            <i [class]="tipoOcorrencia[oc.tipo].icone" aria-hidden="true"></i>
+                            {{ tipoOcorrencia[oc.tipo].rotulo }}
+                            @if (oc.impedeExecucao) { <geo-status tone="danger" icon="pi-ban">Sem condição de executar</geo-status> }
+                          </span>
+                          <span class="obra-linha-tempo__observacao">{{ oc.descricao }}</span>
+                          <span class="obra-linha-tempo__meta">
+                            {{ dataHora(oc.momento) }}{{ oc.codigoEquipe ? ' · ' + oc.codigoEquipe : '' }} ·
+                            <a class="obra-ocorrencia__turno" [routerLink]="['/obras/turnos', oc.idTurno]">Ver turno</a>
+                          </span>
+                        </div>
+                      </li>
+                    }
+                  </ol>
+                  @if ((dados(ocorrencias())?.length ?? 0) > ocorrenciasExibidas().length || todasOcorrencias()) {
+                    <geo-button variant="ghost" size="sm" [label]="todasOcorrencias() ? 'Mostrar menos' : 'Ver todas (' + dados(ocorrencias())!.length + ')'"
+                      (pressed)="todasOcorrencias.set(!todasOcorrencias())"></geo-button>
+                  }
+                } @else {
+                  <p class="obra-card__vazio">Nenhuma ocorrência lançada pelas equipes nesta obra.</p>
+                }
+              }
+            }
+          </section>
+        }
 
         <!-- Execução e medição: o que foi executado, o que já foi medido e o que falta medir -->
         @if (podeVerMedicao) {

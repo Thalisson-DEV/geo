@@ -32,9 +32,10 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
       <a class="geo-btn geo-btn--principal geo-btn--bloco" [routerLink]="passo().rota" data-testid="proximo-passo">
         <geo-icone [nome]="$any(passo().icone)" />{{ passo().rotulo }}</a>
       @if (passo().apoio) { <span class="passo__apoio">{{ passo().apoio }}</span> }
-      <span class="pronto" [class.pronto--ok]="ctx.pacote.prontoSemSinal()">
+      <span class="pronto" [class.pronto--ok]="ctx.pacote.prontoSemSinal() && !ctx.pacote.idadeAgenda()?.antiga">
         <geo-icone [nome]="ctx.pacote.prontoSemSinal() ? 'check' : 'sem_rede'" [tamanho]="16" />
-        {{ ctx.pacote.prontoSemSinal() ? 'Pronto para trabalhar sem sinal' : !ctx.pacote.ultimaSync() ? 'Agenda ainda não baixada' : ctx.pacote.sincronizando() ? 'Baixando projetos das obras…'
+        {{ ctx.pacote.prontoSemSinal() ? (ctx.pacote.idadeAgenda()?.antiga ? 'Agenda ' + ctx.pacote.idadeAgenda()!.quando + ' no aparelho: conecte para ver se mudou'
+            : 'Pronto para trabalhar sem sinal' + (ctx.pacote.idadeAgenda() ? ' · agenda ' + ctx.pacote.idadeAgenda()!.quando : '')) : !ctx.pacote.ultimaSync() ? 'Agenda ainda não baixada' : ctx.pacote.sincronizando() ? 'Baixando projetos das obras…'
           : 'Sem o projeto da obra ' + ctx.pacote.projetosFaltando().join(', ') + ': os pontos aparecem em lista' }}
       </span>
     </section>

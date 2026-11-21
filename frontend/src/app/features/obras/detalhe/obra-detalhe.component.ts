@@ -90,6 +90,9 @@ import {
   statusTone
 } from '../obras-ui';
 import { AcaoInsightObra, insightsDaObra } from './obra-insights';
+import { OcorrenciaDaObra } from '../../../core/models/obras-turnos.models';
+import { ObrasTurnosService } from '../../../core/services/obras-turnos.service';
+import { TIPO_OCORRENCIA } from '../turnos/turnos-obra.logic';
 import { ProgramacaoDetalhe, ResumoPlanejamentoObra } from '../../../core/models/obras-programacao.models';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { ProgramacaoDetalheComponent } from '../programacao/programacao-detalhe.component';
@@ -108,6 +111,11 @@ function dataOrdenavel(data: string | null | undefined): string {
   const [d, m, a] = (data ?? '').split('/');
   return a && m && d ? `${a}${m}${d}` : '';
 }
+
+/** Ocorrências mostradas antes de "Ver todas". */
+const OCORRENCIAS_VISIVEIS = 5;
+/** Até quantos dias um "sem condição de executar" continua como ponto de atenção. */
+const IMPEDIMENTO_RECENTE_DIAS = 7;
 
 type Carga<T> = { estado: 'loading' } | { estado: 'error'; mensagem: string } | { estado: 'ready'; dados: T };
 
@@ -230,6 +238,24 @@ export class ObraDetalheComponent {
   protected readonly podeAnexar = this.permissoes.includes('obras:anexos:write');
   protected readonly podeVerMedicao = this.permissoes.includes('obras:medicao:read');
   protected readonly podeMedir = this.podeVerMedicao && this.permissoes.includes('obras:medicao:write');
+  /** O que as equipes lançaram na obra pelo app; quem vê turnos vê também as ocorrências. */
+  protected readonly podeVerOcorrencias = this.permissoes.includes('obras:turno:read');
+  private readonly apiTurnos = inject(ObrasTurnosService);
+  protected readonly ocorrencias = signal<Carga<OcorrenciaDaObra[]>>({ estado: 'loading' });
+  protected readonly tipoOcorrencia = TIPO_OCORRENCIA;
+  protected readonly todasOcorrencias = signal(false);
+  protected readonly ocorrenciasExibidas = computed(() => {
+    const lista = this.dados(this.ocorrencias()) ?? [];
+    return this.todasOcorrencias() ? lista : lista.slice(0, OCORRENCIAS_VISIVEIS);
+  });
+  /** Impedimento dos últimos dias: vira ponto de atenção no topo da ficha. */
+  private readonly impedimentoRecente = computed(() => {
+    const limite = Date.now() - IMPEDIMENTO_RECENTE_DIAS * 86_400_000;
+    const ultimo = (this.dados(this.ocorrencias()) ?? []).find((o) => o.impedeExecucao && new Date(o.momento).getTime() >= limite);
+    return ultimo
+      ? { data: new Date(ultimo.momento), equipe: ultimo.codigoEquipe, tipo: TIPO_OCORRENCIA[ultimo.tipo].rotulo, descricao: ultimo.descricao }
+      : null;
+  });
   private readonly apiMedicoes = inject(ObrasMedicoesService);
   protected readonly medicao = signal<Carga<MedicaoDaObra>>({ estado: 'loading' });
   protected readonly medindo = signal(false);
@@ -373,7 +399,8 @@ export class ObraDetalheComponent {
       totalProximas: this.dados(this.proximas())?.length ?? null,
       raioKm: this.raio(),
       dataUltimoStatus: this.dados(this.historico())?.[0]?.data ?? null,
-      visitaRealizada: this.visitaRealizada()
+      visitaRealizada: this.visitaRealizada(),
+      impedimentoRecente: this.impedimentoRecente()
     }).map((i) => (i.acao && !this.podeAcionar(i.acao.tipo) ? { ...i, acao: undefined } : i));
   });
   /** Do cadastro ao encerramento: a situação de cada etapa com o que já se sabe da obra. */
@@ -679,6 +706,7 @@ export class ObraDetalheComponent {
         this.carregarOrcamento(dados.id);
         this.carregarProgramacoes(dados.id);
         this.carregarMedicao(dados.id);
+        this.carregarOcorrencias(dados.id);
         if (dados.latitude != null && dados.longitude != null) {
           this.carregarProximas(dados.id, this.raio());
         } else {
@@ -710,6 +738,15 @@ export class ObraDetalheComponent {
     this.apiMedicoes.daObra(id).subscribe({
       next: (dados) => this.medicao.set({ estado: 'ready', dados }),
       error: (e) => this.medicao.set({ estado: 'error', mensagem: getErrorMessage(e) })
+    });
+  }
+
+  protected carregarOcorrencias(id = this.obra()!.id): void {
+    if (!this.podeVerOcorrencias) return;
+    if (!this.dados(this.ocorrencias())) this.ocorrencias.set({ estado: 'loading' });
+    this.apiTurnos.ocorrenciasDaObra(id).subscribe({
+      next: (dados) => this.ocorrencias.set({ estado: 'ready', dados }),
+      error: (e) => this.ocorrencias.set({ estado: 'error', mensagem: getErrorMessage(e) })
     });
   }
 
@@ -868,6 +905,7 @@ export class ObraDetalheComponent {
   private podeAcionar(tipo: AcaoInsightObra): boolean {
     if (tipo === 'anexo') return this.podeAnexar;
     if (tipo === 'visita') return this.podeVerDocumentacao;
+    if (tipo === 'ocorrencias') return this.podeVerOcorrencias;
     return tipo === 'solicitar' || this.podeEscrever;
   }
 
@@ -885,6 +923,8 @@ export class ObraDetalheComponent {
         return this.abrirStatus();
       case 'visita':
         return this.irParaDocumentacao();
+      case 'ocorrencias':
+        return this.irParaSecao('ocorrencias-titulo');
     }
   }
 

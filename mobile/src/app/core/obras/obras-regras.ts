@@ -429,3 +429,21 @@ export function pontoNaFolhaGirada(x: number, y: number, rotacao: number): { x: 
     default: return { x, y };
   }
 }
+
+/**
+ * De quando é a agenda guardada no aparelho. "Pronto para trabalhar sem sinal" sozinho não diz se o pacote é de hoje:
+ * sem rede desde ontem, a equipe sairia com uma agenda que o escritório pode ter mudado.
+ */
+export function idadeDaAgenda(recebidoEm: string | null, agora = new Date()): { quando: string; antiga: boolean } | null {
+  if (!recebidoEm) return null;
+  const recebido = new Date(recebidoEm);
+  if (Number.isNaN(recebido.getTime())) return null;
+  const hora = `${String(recebido.getHours()).padStart(2, '0')}:${String(recebido.getMinutes()).padStart(2, '0')}`;
+  if (recebido.toDateString() === agora.toDateString()) return { quando: `das ${hora}`, antiga: false };
+  const ontem = new Date(agora);
+  ontem.setDate(agora.getDate() - 1);
+  const dia = recebido.toDateString() === ontem.toDateString()
+    ? 'ontem'
+    : `${String(recebido.getDate()).padStart(2, '0')}/${String(recebido.getMonth() + 1).padStart(2, '0')}`;
+  return { quando: `de ${dia} às ${hora}`, antiga: true };
+}
