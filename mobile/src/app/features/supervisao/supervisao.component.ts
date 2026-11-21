@@ -32,7 +32,7 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
               <span class="geo-linha__titulo">{{ e.codigo }} · {{ e.rotulo }}</span>
               <span class="geo-linha__apoio">{{ detalhe(e) }}</span>
             </span>
-            @if (e.aprsPendentes || e.ocorrenciasImpeditivas) {
+            @if (e.status !== 'IMPEDIDA' && (e.aprsPendentes || e.ocorrenciasImpeditivas)) {
               <span class="geo-etiqueta" [class.geo-etiqueta--erro]="e.ocorrenciasImpeditivas > 0" [class.geo-etiqueta--atencao]="!e.ocorrenciasImpeditivas">
                 {{ e.ocorrenciasImpeditivas ? e.ocorrenciasImpeditivas + ' sem condição' : e.aprsPendentes + ' APR pendente' }}</span>
             }
@@ -46,7 +46,7 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
     </section><section>
     <h2 class="geo-secao">Documentação da obra</h2>
     <div class="buscar">
-      <input class="geo-input geo-num" inputmode="numeric" aria-label="Número da obra" [value]="busca()" (input)="busca.set($any($event.target).value)" (keyup.enter)="buscar()" placeholder="Número da obra, ex.: 7000001">
+      <input class="geo-input geo-num" inputmode="numeric" aria-label="Número da obra" [value]="busca()" (input)="busca.set($any($event.target).value)" (keyup.enter)="buscar()" placeholder="Ex.: 7000001">
       <button type="button" class="geo-btn geo-btn--tonal" (click)="buscar()" [disabled]="!busca().trim() || !rede.isOnline()">Buscar</button>
     </div>
     <ul class="geo-grupo">
@@ -61,10 +61,12 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
     <div class="geo-respiro"></div>
   `,
   styles: [`
+    :host { display: block; }
     .colunas.duas { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); column-gap: var(--geo-e5); align-items: start; }
     .aviso { margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .buscar { display: flex; gap: var(--geo-e2); align-items: center; padding: 0 var(--geo-margem) var(--geo-e2); }
-    .buscar .geo-btn { min-height: var(--geo-alvo-principal); }
+    .buscar .geo-input { flex: 1; }
+    .buscar .geo-btn { flex: none; min-height: var(--geo-alvo-principal); }
   `],
 })
 export class SupervisaoComponent implements OnInit {

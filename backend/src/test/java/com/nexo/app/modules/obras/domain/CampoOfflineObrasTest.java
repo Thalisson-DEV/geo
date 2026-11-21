@@ -25,7 +25,8 @@ class CampoOfflineObrasTest {
     private static final UUID TURNO = UUID.randomUUID();
     private static final UUID PONTO = UUID.randomUUID();
     private static final UUID RESPONSAVEL = UUID.randomUUID();
-    private static final LocalDate HOJE = LocalDate.now(FUSO);
+    /** Ontem: "08:10 de hoje" ainda está no futuro quando o teste roda de madrugada. */
+    private static final LocalDate HOJE = LocalDate.now(FUSO).minusDays(1);
 
     private final KitConstrutivo catalogo = new KitConstrutivo(UUID.randomUUID(), "LMI-0168", "POSTE", "POSTE", Set.of());
     private final KitAplicado kit = KitAplicado.noPonto(OBRA, PONTO, catalogo, null, BigDecimal.ONE, List.of(

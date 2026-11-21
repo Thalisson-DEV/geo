@@ -70,7 +70,7 @@ button, a, [role='button'], [role='tab'], .geo-tocavel {
   &--texto { background: transparent; color: var(--geo-destaque); padding: 0 var(--geo-e3); }
   &--perigo { background: var(--geo-erro-suave); color: var(--geo-erro); }
   // Desabilitado sem sumir (o perigo claro a 45% desaparecia no escuro).
-  &--perigo:disabled, &--principal:disabled { opacity: 1; background: var(--geo-superficie-2); color: var(--geo-texto-3); }
+  &--perigo:disabled, &--principal:disabled, &--tonal:disabled { opacity: 1; background: var(--geo-superficie-2); color: var(--geo-texto-3); }
   &--bloco { width: 100%; min-height: var(--geo-alvo-principal); font-size: 1rem; }
   &--compacto { position: relative; min-height: 40px; padding: 0 var(--geo-e3); font-size: .875rem; }
   // O visual é compacto, o alvo de toque não: a área se estende até 48 px.
