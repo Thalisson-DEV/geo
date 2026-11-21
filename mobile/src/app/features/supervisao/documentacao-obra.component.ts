@@ -23,9 +23,9 @@ import { TokenService } from '../../core/auth/token.service';
       @if (!modelo()) {
         <h2 class="geo-secao">Situação</h2>
         <ul class="geo-grupo">
-          <li class="geo-linha"><span class="geo-selo" [class.geo-selo--ok]="d.visitaRealizada"><geo-icone nome="inspecao" /></span>
+          <li class="geo-linha"><span class="geo-selo" [class.geo-selo--ok]="d.visitaRealizada || visitasNaFila() > 0"><geo-icone nome="inspecao" /></span>
             <span class="geo-linha__texto"><span class="geo-linha__titulo">Visita prévia</span>
-              <span class="geo-linha__apoio">{{ d.visitas.length ? d.visitas.length + (d.visitas.length === 1 ? ' registrada' : ' registradas') : 'Ainda não feita' }}</span></span></li>
+              <span class="geo-linha__apoio">{{ totalVisitas() ? totalVisitas() + (totalVisitas() === 1 ? ' registrada' : ' registradas') + (rede.isOnline() ? '' : ' · sai quando houver sinal') : 'Ainda não feita' }}</span></span></li>
           <li class="geo-linha"><span class="geo-selo" [class.geo-selo--ok]="d.asBuilt.pontosExecutados > 0 && !d.asBuilt.pontosPendentes.length"><geo-icone nome="documento" /></span>
             <span class="geo-linha__texto"><span class="geo-linha__titulo">As Built</span>
               <span class="geo-linha__apoio geo-num">{{ d.asBuilt.fichasCompletas }} de {{ d.asBuilt.pontosExecutados }} fichas completas{{ d.asBuilt.pontosSemEvidencia.length ? ' · ' + d.asBuilt.pontosSemEvidencia.length + ' sem foto' : '' }}</span></span></li>
@@ -73,7 +73,7 @@ import { TokenService } from '../../core/auth/token.service';
             <option value="">Escolha quem fez a visita</option>
             @for (c of colaboradores(); track c.id) { <option [value]="c.id" [selected]="c.id === responsavel()">{{ c.nomeCompleto }}</option> }
           </select></label>
-        <label class="geo-campo"><span>Observações</span>
+        <label class="geo-campo"><span>Observações gerais (opcional)</span>
           <textarea class="geo-input" rows="3" maxlength="2000" [value]="observacoes()" (input)="observacoes.set($any($event.target).value)"></textarea></label>
         @if (faltando().length) { <p class="falta" role="status">{{ faltando().length === 1 ? 'Falta 1 resposta obrigatória.' : 'Faltam ' + faltando().length + ' respostas obrigatórias.' }}</p> }
         <div class="geo-respiro"></div>
@@ -93,7 +93,7 @@ import { TokenService } from '../../core/auth/token.service';
     .opcoes { display: flex; flex-wrap: wrap; gap: var(--geo-e2); }
     .opcao { min-height: var(--geo-alvo); padding: 0 var(--geo-e4); border-radius: var(--geo-r-pilula); border: 1px solid var(--geo-borda-campo);
       background: var(--geo-superficie); color: var(--geo-texto); font: 500 .9375rem/1 var(--geo-fonte); }
-    .opcao[aria-pressed='true'] { background: var(--geo-destaque-suave); color: var(--geo-destaque); border-color: transparent; font-weight: 600; }
+    .opcao[aria-pressed='true'] { background: var(--geo-destaque-suave); color: var(--geo-destaque); border: 2px solid var(--geo-destaque); padding: 0 calc(var(--geo-e4) - 1px); font-weight: 600; }
     .geo-campo { margin: var(--geo-e4) var(--geo-margem) 0; }
     .falta { margin: var(--geo-e2) var(--geo-margem); font: var(--geo-t-apoio); color: var(--geo-erro); }
   `],
@@ -115,6 +115,9 @@ export class DocumentacaoObraComponent implements OnInit {
   readonly observacoes = signal('');
   /** Colaborador responsável pela visita (o servidor exige): o do próprio usuário, se houver, ou um escolhido. */
   readonly responsavel = signal<string | null>(null);
+  /** Visitas registradas neste aparelho desde que a tela abriu (já contam antes de a fila sair). */
+  readonly visitasNaFila = signal(0);
+  readonly totalVisitas = computed(() => (this.doc()?.visitas.length ?? 0) + this.visitasNaFila());
   readonly colaboradores = signal<ColaboradorLocal[]>([]);
   private readonly token = inject(TokenService);
   readonly faltando = computed(() => (this.modelo()?.estrutura.grupos ?? []).flatMap(g => g.perguntas)
@@ -182,6 +185,7 @@ export class DocumentacaoObraComponent implements OnInit {
     const data = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
     await this.servico.registrarVisita(this.id, { idModelo: m.id, dataVisita: data, idColaborador: this.responsavel(), observacoes: this.observacoes().trim() || null, respostas });
     this.modelo.set(null);
+    this.visitasNaFila.update(n => n + 1);
     this.toast.success(this.rede.isOnline() ? 'Visita prévia registrada' : 'Visita guardada: sai quando houver sinal');
   }
 

@@ -556,6 +556,15 @@ export class SyncService {
   }
 
   /**
+   * Aparelho que entrou pela sessão salva (cookie) sem nunca ter feito a carga inicial: os catálogos
+   * (colaboradores, veículos, municípios…) estão vazios. Faz a carga completa uma vez, em segundo plano.
+   */
+  async completarCargaInicial(): Promise<void> {
+    if (await this.dbService.getConfig('lastSyncAt')) return;
+    await this.syncTotal();
+  }
+
+  /**
    * Força uma sincronização geral bidirecional (Push do Outbox + Pull e reconciliação de todas as entidades).
    */
   async forceFullSync(): Promise<SyncResult> {

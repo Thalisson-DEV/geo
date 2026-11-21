@@ -77,7 +77,14 @@ public final class CampoObrasResponses {
                             List<PontoCampo> pontos, List<VaoCampo> vaos, UUID idModeloFoto, List<FotoCampo> fotos,
                             List<PendenciaFoto> pendenciasFoto,
                             /** Itens pendentes da obra fora de qualquer programação: a equipe pode ir além do programado. */
-                            List<ItemCampo> itensExtras) {
+                            List<ItemCampo> itensExtras,
+                            /** Última visita prévia: o que o supervisor deixou para a equipe ver antes de começar. */
+                            VisitaCampo visitaPrevia) {
+    }
+
+    /** {@code atencao}: respostas de texto e as fora do esperado pelo modelo ("pergunta: resposta"). */
+    public record VisitaCampo(@JsonFormat(pattern = "dd/MM/yyyy") LocalDate data, String responsavel, String observacoes,
+                              List<String> atencao) {
     }
 
     /** Obra em aberto da base da equipe, para começar uma execução avulsa sem sinal (os pontos chegam com o sinal). */

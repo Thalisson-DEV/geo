@@ -57,6 +57,14 @@ export interface VaoCampo { id: string; idPontoA: string; idPontoB: string; metr
 export interface FotoCampo { id: string; idLocal?: string | null; idPonto: string; idVao?: string | null; idModelo?: string | null; idItem?: string | null; etapa?: string | null }
 export interface PendenciaFoto { idPonto: string; numeroPonto: string; idItem: string; titulo: string }
 
+/** Recado da visita prévia: data (dd/MM/yyyy), quem visitou, observações e respostas que pedem atenção. */
+export interface VisitaCampo {
+  data: string;
+  responsavel?: string | null;
+  observacoes?: string | null;
+  atencao: string[];
+}
+
 export interface ObraCampo {
   id: string;
   numero: string;
@@ -75,6 +83,8 @@ export interface ObraCampo {
   pendenciasFoto: PendenciaFoto[];
   /** Itens pendentes da obra fora de qualquer programação: o que a equipe pode fazer além do programado. */
   itensExtras?: ItemCampo[];
+  /** Última visita prévia do supervisor (null = nenhuma; ausente = pacote antigo). */
+  visitaPrevia?: VisitaCampo | null;
 }
 
 /** Obra em aberto da base, só para achar sem sinal (os pontos chegam quando houver sinal). */

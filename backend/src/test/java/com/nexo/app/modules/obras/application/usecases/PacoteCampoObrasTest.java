@@ -55,6 +55,7 @@ class PacoteCampoObrasTest {
     @Mock com.nexo.app.modules.obras.infrastructure.persistence.AprTurnoRepository aprRepository;
     @Mock com.nexo.app.modules.obras.infrastructure.persistence.OcorrenciaTurnoRepository ocorrenciaRepository;
     @Mock com.nexo.app.modules.execucao.TurnoApi turnoApi;
+    @Mock com.nexo.app.modules.obras.infrastructure.persistence.VisitaPreviaObraRepository visitaRepository;
     @InjectMocks PacoteCampoObras pacote;
 
     private final UUID usuario = UUID.randomUUID();
@@ -120,5 +121,23 @@ class PacoteCampoObrasTest {
         assertThat(p.programacoesRemovidas()).containsExactly(cancelada.getId());
         assertThat(p.obras()).singleElement().satisfies(o -> assertThat(o.endereco()).isEqualTo("Rua das Flores, 100"));
         assertThat(p.modeloApr().sugestoes().get("DESLIGAMENTO").riscos()).contains("Choque elétrico", "Arco elétrico");
+    }
+
+    @Test
+    void visitaPreviaMostraTextoLivreERespostaForaDoEsperado() {
+        var tipo = com.nexo.app.modules.obras.domain.EstruturaChecklist.TipoPergunta.class;
+        var texto = new com.nexo.app.modules.obras.domain.RespostasChecklist.Item("t", "g", "Observações para a equipe",
+                Enum.valueOf(tipo, "TEXTO"), false, " Calçada estreita no P3 ", List.of(), false, null);
+        var fora = new com.nexo.app.modules.obras.domain.RespostasChecklist.Item("a", "g", "Há necessidade de poda?",
+                Enum.valueOf(tipo, "ESCOLHA_UNICA"), true, null, List.of("Sim"), false, "Não");
+        var conforme = new com.nexo.app.modules.obras.domain.RespostasChecklist.Item("b", "g", "O acesso requer autorização?",
+                Enum.valueOf(tipo, "ESCOLHA_UNICA"), true, null, List.of("Não"), false, "Não");
+        var naoSeAplica = new com.nexo.app.modules.obras.domain.RespostasChecklist.Item("c", "g", "Linha viva?",
+                Enum.valueOf(tipo, "ESCOLHA_UNICA"), true, null, List.of(), true, "Sim");
+
+        assertThat(PacoteCampoObras.pontoDeAtencao(texto)).isEqualTo("Observações para a equipe: Calçada estreita no P3");
+        assertThat(PacoteCampoObras.pontoDeAtencao(fora)).isEqualTo("Há necessidade de poda? Sim");
+        assertThat(PacoteCampoObras.pontoDeAtencao(conforme)).isNull();
+        assertThat(PacoteCampoObras.pontoDeAtencao(naoSeAplica)).isNull();
     }
 }

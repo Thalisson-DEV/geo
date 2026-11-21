@@ -177,6 +177,10 @@ export class AppShellComponent implements AfterViewInit {
         if (this.rede.isOnline()) untracked(() => void this.pacoteObras.sincronizar());
       });
     }
+    // Entrou pela sessão salva sem a carga inicial (aparelho limpo): baixa os catálogos assim que houver rede.
+    effect(() => {
+      if (this.rede.isOnline()) untracked(() => void this.sync.completarCargaInicial().catch(() => undefined));
+    });
     // Ouve desde já: a casca nasce DURANTE a primeira navegação, e o NavigationEnd
     // dela chega antes do ngAfterViewInit. Sem isto a rolagem iria para a rota errada.
     const sub = this.router.events

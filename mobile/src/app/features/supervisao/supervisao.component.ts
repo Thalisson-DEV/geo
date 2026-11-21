@@ -34,7 +34,7 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
             </span>
             @if (e.status !== 'IMPEDIDA' && (e.aprsPendentes || e.ocorrenciasImpeditivas)) {
               <span class="geo-etiqueta" [class.geo-etiqueta--erro]="e.ocorrenciasImpeditivas > 0" [class.geo-etiqueta--atencao]="!e.ocorrenciasImpeditivas">
-                {{ e.ocorrenciasImpeditivas ? e.ocorrenciasImpeditivas + ' sem condição' : e.aprsPendentes + ' APR pendente' }}</span>
+                {{ e.ocorrenciasImpeditivas ? e.ocorrenciasImpeditivas + ' sem condição' : e.aprsPendentes + (e.aprsPendentes === 1 ? ' APR pendente' : ' APRs pendentes') }}</span>
             }
           </li>
         }

@@ -34,7 +34,8 @@ const RAIO_CHEGADA_M = 400;
       }
 
       <section class="cabeca">
-        <p class="descricao">{{ p.descricao }}</p>
+        @if (obra()?.titulo) { <p class="titulo-obra">{{ obra()!.titulo }}</p> }
+        <p class="descricao" [class.descricao--apoio]="!!obra()?.titulo">{{ p.descricao }}</p>
         <p class="periodo geo-num">{{ dia(p.inicio) }}{{ p.fim !== p.inicio ? ' a ' + dia(p.fim) : '' }}</p>
         @if (ctx.condicoes(p).length) {
           <ul class="condicoes" aria-label="Condições da intervenção">
@@ -43,6 +44,22 @@ const RAIO_CHEGADA_M = 400;
         }
         @if (p.observacao) { <p class="obs">@if (p.avulsa) { <strong>Motivo:</strong>{{ " " }}}{{ p.observacao }}</p> }
       </section>
+
+      @if (obra()?.visitaPrevia; as v) {
+        @if (v.observacoes || v.atencao.length) {
+          <h2 class="geo-secao"><span>Recado da visita prévia</span><span class="geo-num">{{ v.data }}{{ v.responsavel ? ' · ' + v.responsavel : '' }}</span></h2>
+          <ul class="geo-grupo" aria-label="Recado da visita prévia" data-testid="recado-visita">
+            @for (a of v.atencao; track a) {
+              <li class="geo-linha"><span class="geo-selo geo-selo--atencao" aria-hidden="true"><geo-icone nome="alerta" [tamanho]="18" /></span>
+                <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ a }}</span></span></li>
+            }
+            @if (v.observacoes) {
+              <li class="geo-linha"><span class="geo-selo" aria-hidden="true"><geo-icone nome="documento" [tamanho]="18" /></span>
+                <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ v.observacoes }}</span></span></li>
+            }
+          </ul>
+        }
+      }
 
       @if (servicosDoDia().length) {
         <h2 class="geo-secao"><span>O que fazer</span><span class="geo-num">{{ restantes() ? restantes() + (restantes() === 1 ? ' serviço a fazer' : ' serviços a fazer') : 'tudo feito' }}</span></h2>
@@ -153,7 +170,9 @@ const RAIO_CHEGADA_M = 400;
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; }
     .cabeca { padding: var(--geo-e3) var(--geo-margem) 0; display: grid; gap: var(--geo-e2); }
+    .titulo-obra { font: var(--geo-t-corpo-forte); }
     .descricao { font: var(--geo-t-corpo-forte); }
+    .descricao--apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .periodo, .obs { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .condicoes { display: flex; flex-wrap: wrap; gap: var(--geo-e2); list-style: none; padding: 0; margin: 0; }
     .faixa { display: flex; gap: var(--geo-e3); align-items: center; margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3); border-radius: var(--geo-r-grupo); font: var(--geo-t-apoio); }

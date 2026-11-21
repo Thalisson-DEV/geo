@@ -108,7 +108,7 @@ test.describe('Obras offline', () => {
     // Fecha o dia com o relatório montado (navegando no app: sem rede não há recarga).
     await irParaHoje(page);
     await page.getByRole('link', { name: 'Fechar o dia' }).click();
-    await expect(page.getByTestId('texto-relatorio')).toHaveValue(/Obra 7000001 \(programação #12\): pontos feitos 4\./);
+    await expect(page.getByTestId('texto-relatorio')).toHaveValue(/Obra 7000001 \(programação #12\): pontos feitos 4; parcial em 5\./);
     await page.getByTestId('fechar-dia').click();
     await expect(page).toHaveURL(/\/hoje$/);
     expect(api.operacoesObras).toHaveLength(0);

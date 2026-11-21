@@ -64,7 +64,8 @@ export class RelatorioDiaComponent implements OnInit {
     await Promise.all([this.ctx.pacote.carregado() ? null : this.ctx.pacote.carregarLocal(), this.ctx.registros.carregar()]);
     if (this.texto().trim()) return;
     this.texto.set(relatorioDoDia(this.ctx.doDia(), this.ctx.registros.registros(), this.ctx.hoje(),
-      p => this.ctx.pontos(p).filter(x => x.situacao === 'FEITO').map(x => x.numero), this.pendenciasFoto()));
+      p => this.ctx.pontos(p).filter(x => x.situacao === 'FEITO').map(x => x.numero), this.pendenciasFoto(),
+      p => this.ctx.pontos(p).filter(x => x.situacao === 'PARCIAL').map(x => x.numero)));
   }
 
   async fechar(): Promise<void> {

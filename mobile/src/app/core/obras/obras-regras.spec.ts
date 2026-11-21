@@ -150,6 +150,12 @@ describe('regras de Obras no app', () => {
     expect(texto).toContain('Fotos pendentes: 1.');
   });
 
+  it('relatório montado cita os pontos com parcial', () => {
+    const texto = relatorioDoDia([programacao()], [registro('OCORRENCIA', { tipo: 'MATERIAL', descricao: 'x', impedeExecucao: false }, '2026-11-20T09:00:00-03:00')],
+      '2026-11-20', () => ['4'], 0, () => ['Vão 4–5']);
+    expect(texto).toContain('Obra 7000001 (programação #12): pontos feitos 4; parcial em Vão 4–5.');
+  });
+
   it('"Como chegar" usa a coordenada; sem ela, o endereço; sem nada, nulo', () => {
     expect(linkComoChegar({ latitude: -3.7, longitude: -38.5 })).toContain('destination=-3.7,-38.5');
     expect(linkComoChegar({ endereco: 'Rua A, 10', municipio: 'Fortaleza' }, true)).toContain('maps.apple.com/?daddr=Rua%20A%2C%2010%2C%20Fortaleza');

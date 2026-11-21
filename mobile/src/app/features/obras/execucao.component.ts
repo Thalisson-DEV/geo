@@ -168,9 +168,9 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
           <div class="etapa"><geo-segmentado rotulo="Etapa da foto" [opcoes]="etapas" [(valor)]="etapa" /></div>
           @for (item of itensFoto(); track item.id) {
             <div class="foto-item">
-              <div class="foto-item__titulo"><span>{{ item.titulo }}{{ item.obrigatoria ? '' : ' (opcional)' }}</span>
-                @if (item.obrigatoria && !temFoto(ponto.id, item.id) && ponto.situacao !== 'A_FAZER') { <span class="geo-etiqueta geo-etiqueta--erro">Pendente</span> }</div>
-              <geo-fotos [rotulo]="item.titulo + (item.obrigatoria ? '' : ' (opcional)')" [fotos]="fotosDoItem(ponto.id, item.id)"
+              <div class="foto-item__titulo"><span>{{ item.titulo }}{{ item.obrigatoria && !ponto.vao ? '' : ' (opcional)' }}</span>
+                @if (item.obrigatoria && !ponto.vao && !temFoto(ponto.id, item.id) && ponto.situacao !== 'A_FAZER') { <span class="geo-etiqueta geo-etiqueta--erro">Pendente</span> }</div>
+              <geo-fotos [rotulo]="item.titulo + (item.obrigatoria && !ponto.vao ? '' : ' (opcional)')" [fotos]="fotosDoItem(ponto.id, item.id)"
                 [carimbo]="carimbo(ponto, item.titulo)" [removivel]="false" [galeria]="false" (adicionada)="foto(ponto, item.id, $event)" />
             </div>
           }
@@ -366,7 +366,7 @@ export class ExecucaoComponent implements OnDestroy {
     });
     // Com o ponto feito, as fotos que faltam são as de depois.
     this.etapa.set('DEPOIS');
-    const faltam = this.itensFoto().filter(i => i.obrigatoria).length;
+    const faltam = ponto.vao ? 0 : this.itensFoto().filter(i => i.obrigatoria).length;
     this.toast.desfazer(`${ponto.rotulo}: tudo feito${faltam ? ' · tire as fotos do modelo' : ''}`, () => void this.ctx.registros.desfazer(r.id));
   }
 

@@ -39,7 +39,7 @@ import { IconeComponent, IndicadorRedeComponent, TituloGrandeComponent } from '.
         </div>
         <p class="atual__origem"><geo-icone nome="info" [tamanho]="16" />{{ a.origem }}{{ a.base ? ' · ' + a.base : '' }}</p>
         <p class="atual__checklist" [class.atual__checklist--ok]="!!a.checklistHoje" [class.atual__checklist--falta]="!a.checklistHoje">
-          <geo-icone [nome]="a.checklistHoje ? 'check' : 'alerta'" [tamanho]="16" />{{ a.checklistHoje ?? 'Checklist de hoje ainda não feito neste celular' }}
+          <geo-icone [nome]="a.checklistHoje ? 'check' : 'alerta'" [tamanho]="16" />{{ a.checklistHoje ?? 'Checklist de hoje ainda não feito neste aparelho' }}
         </p>
         <div class="atual__acoes">
           <a class="geo-btn geo-btn--tonal geo-btn--compacto" routerLink="/frota/veiculo" [queryParams]="{ veiculo: a.idVeiculo }"><geo-icone nome="caminhao" [tamanho]="16" />Ficha</a>

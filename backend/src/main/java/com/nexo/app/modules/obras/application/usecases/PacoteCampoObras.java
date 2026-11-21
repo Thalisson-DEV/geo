@@ -33,6 +33,9 @@ import com.nexo.app.modules.obras.infrastructure.persistence.PlanejamentoObraRep
 import com.nexo.app.modules.obras.infrastructure.persistence.PontoPlanejamentoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ProgramacaoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.VaoPlanejamentoRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.VisitaPreviaObraRepository;
+import com.nexo.app.modules.obras.domain.RespostasChecklist;
+import com.nexo.app.modules.obras.domain.EstruturaChecklist;
 import com.nexo.app.modules.rh.EquipeApi;
 import com.nexo.app.modules.rh.EquipeResponse;
 import com.nexo.app.modules.rh.MunicipioApi;
@@ -106,6 +109,7 @@ public class PacoteCampoObras {
     private final AprTurnoRepository aprRepository;
     private final OcorrenciaTurnoRepository ocorrenciaRepository;
     private final TurnoApi turnoApi;
+    private final VisitaPreviaObraRepository visitaRepository;
 
     /**
      * @param idEquipe opcional para o encarregado (vale a equipe dele; outra equipe é 403); obrigatório para quem não
@@ -137,7 +141,11 @@ public class PacoteCampoObras {
             }
         }
 
-        List<Programacao> enviadas = desde == null ? vigentes : vigentes.stream().filter(p -> mudouDesde(p, desde, eventos)).toList();
+        // Visita prévia registrada depois do último pacote também reenvia a obra: a equipe precisa ver o recado do supervisor.
+        Set<UUID> comVisitaNova = desde == null || vigentes.isEmpty() ? Set.of()
+                : Set.copyOf(visitaRepository.obrasComVisitaDesde(vigentes.stream().map(Programacao::getIdObra).distinct().toList(), desde));
+        List<Programacao> enviadas = desde == null ? vigentes
+                : vigentes.stream().filter(p -> mudouDesde(p, desde, eventos) || comVisitaNova.contains(p.getIdObra())).toList();
         Map<UUID, Obra> obras = new LinkedHashMap<>();
         for (Programacao p : enviadas) {
             obras.computeIfAbsent(p.getIdObra(), id -> obraRepository.findById(id).orElse(null));
@@ -310,7 +318,35 @@ public class PacoteCampoObras {
                 fotos.stream().filter(f -> !f.reprovada()).map(f -> new CampoObrasResponses.FotoCampo(f.getId(), f.getIdLocal(), f.getIdPonto(), f.getIdVao(),
                         f.getIdModelo(), f.getIdItem(), f.getEtapa() != null ? f.getEtapa().name() : null)).toList(),
                 pendenciasFoto(obra.getId(), pontos, fotos, fichas, idModelo),
-                itensProgramaveis(obra.getId(), locais, Optional.empty()).itens());
+                itensProgramaveis(obra.getId(), locais, Optional.empty()).itens(),
+                visitaPrevia(obra.getId()));
+    }
+
+    private CampoObrasResponses.VisitaCampo visitaPrevia(UUID idObra) {
+        return visitaRepository.findByIdObraAndAtivoTrueOrderByDataVisitaDescDataCriacaoDesc(idObra).stream().findFirst()
+                .map(v -> new CampoObrasResponses.VisitaCampo(v.getDataVisita(), v.getResponsavel(), v.getObservacoes(),
+                        v.getRespostas() == null ? List.of() : v.getRespostas().itens().stream()
+                                .map(PacoteCampoObras::pontoDeAtencao).filter(Objects::nonNull).toList()))
+                .orElse(null);
+    }
+
+    /** "Há poda?" + "Sim" vira "Há poda? Sim"; "Zona" + "Rural" vira "Zona: Rural". */
+    private static String rotulo(String enunciado) {
+        String e = enunciado == null ? "" : enunciado.trim();
+        return e.endsWith("?") ? e + " " : e + ": ";
+    }
+
+    /** Texto livre preenchido ou escolha diferente da esperada pelo modelo vira um ponto de atenção para a equipe. */
+    static String pontoDeAtencao(RespostasChecklist.Item item) {
+        if (item.naoSeAplica()) return null;
+        if (item.tipo() == EstruturaChecklist.TipoPergunta.TEXTO && item.valor() != null && !item.valor().isBlank()) {
+            return rotulo(item.enunciado()) + item.valor().trim();
+        }
+        List<String> sel = item.selecionadas() == null ? List.of() : item.selecionadas();
+        if (item.opcaoConforme() != null && !sel.isEmpty() && !sel.contains(item.opcaoConforme())) {
+            return rotulo(item.enunciado()) + String.join(", ", sel);
+        }
+        return null;
     }
 
     private record Programaveis(List<CampoObrasResponses.ItemCampo> itens, int emOutra) {

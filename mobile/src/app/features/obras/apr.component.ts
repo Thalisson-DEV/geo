@@ -7,7 +7,7 @@ import { db } from '../../core/db/app-db';
 import { TurnoService } from '../../core/turno/turno.service';
 import { ToastService } from '../../core/ui/toast.service';
 import {
-  aprVazia, condicoesDaProgramacao, faltasDaApr, formularioDaApr, sugestoesApr, verificacoesDaApr,
+  aprVazia, condicoesDaProgramacao, medidasDoRisco, faltasDaApr, formularioDaApr, sugestoesApr, verificacoesDaApr,
 } from '../../core/obras/obras-regras';
 import { AprRascunho } from '../../core/obras/obras.models';
 import { ObrasContexto } from './obras-contexto';
@@ -73,7 +73,8 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
                   <li><button type="button" class="geo-linha geo-linha--acao" role="checkbox" [attr.aria-checked]="r.medidas.includes(x)" (click)="alternar('medidas', x)">
                     <span class="geo-selo geo-selo--caixa" [class.marcada]="r.medidas.includes(x)" aria-hidden="true"><geo-icone nome="check" [tamanho]="18" /></span>
                     <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ x }}</span>
-                      @if (sugestao().medidas.includes(x)) { <span class="geo-linha__apoio">Sugerida pelas condições</span> }</span>
+                      @if (sugestao().medidas.includes(x)) { <span class="geo-linha__apoio">Sugerida pelas condições</span> }
+                      @else if (pedidaPelosRiscos(x)) { <span class="geo-linha__apoio">Pedida pelos riscos marcados</span> }</span>
                   </button></li>
                 }
               </ul>
@@ -195,7 +196,21 @@ export class AprComponent implements OnInit {
   nome = (id: string): string => this.membros().find(m => m.idColaborador === id)?.nome ?? 'Participante';
 
   alternar(campo: 'riscos' | 'medidas' | 'participantes', valor: string): void {
-    this.mudar(r => ({ ...r, [campo]: r[campo].includes(valor) ? r[campo].filter(x => x !== valor) : [...r[campo], valor] }));
+    this.mudar(r => {
+      const marcando = !r[campo].includes(valor);
+      const novo = { ...r, [campo]: marcando ? [...r[campo], valor] : r[campo].filter(x => x !== valor) };
+      // Marcar um risco já traz a medida que ele pede (ex.: queda de altura → inspeção de escada e cinto).
+      if (campo === 'riscos' && marcando && this.modelo()) {
+        const extras = medidasDoRisco(this.modelo()!, valor).filter(m => !novo.medidas.includes(m));
+        if (extras.length) novo.medidas = [...novo.medidas, ...extras];
+      }
+      return novo;
+    });
+  }
+
+  pedidaPelosRiscos(medida: string): boolean {
+    const m = this.modelo();
+    return !!m && (this.r()?.riscos ?? []).some(risco => medidasDoRisco(m, risco).includes(medida));
   }
 
   campo(campo: 'outroRisco' | 'medidasAdicionais', valor: string): void {

@@ -282,7 +282,7 @@ export class AbrirTurnoComponent implements OnInit {
     if (feito) {
       const hora = new Date(feito.preenchidoEm!).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
       const fila = feito.statusSync === 'ENVIADO' ? '' : ' · enviando quando houver sinal';
-      return { estado: 'feito', texto: `Às ${hora} neste celular${feito.condutorNome ? ' · ' + feito.condutorNome : ''}${fila}`, rascunho: false };
+      return { estado: 'feito', texto: `Às ${hora} neste aparelho${feito.condutorNome ? ' · ' + feito.condutorNome : ''}${fila}`, rascunho: false };
     }
     const servidor = this.noServidor();
     if (servidor?.idVeiculo === id && servidor.estado === 'achou') return { estado: 'feito', texto: servidor.texto ?? '', rascunho: false };

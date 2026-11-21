@@ -133,7 +133,7 @@ export class PacoteObrasService {
       if (!this.carregado()) await this.carregarLocal();
       void this.arquivos.pedirPersistencia();
       // Obra guardada antes dos itens além do programado (pacote antigo): pede o pacote completo uma vez.
-      const desde = this.obras().some(o => o.itensExtras === undefined) ? null : this.ultimaSync();
+      const desde = this.obras().some(o => o.itensExtras === undefined || o.visitaPrevia === undefined) ? null : this.ultimaSync();
       const params: Record<string, string> = desde ? { desde } : {};
       const pacote = await firstValueFrom(this.http.get<PacoteObras>(`${this.baseUrl}/v1/obras/campo/pacote`,
         { params, headers: { 'X-Silent-Error': 'true' } }));

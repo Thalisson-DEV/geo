@@ -151,6 +151,22 @@ export function sugestoesApr(modelo: ModeloApr, condicoes: CondicaoApr[]): { ris
   return { riscos: modelo.riscos.filter(r => riscos.has(r)), medidas: modelo.medidas.filter(m => medidas.has(m)) };
 }
 
+/** Medida que cada risco pede: ao marcar o risco na APR, a medida vem marcada junto (dá para desmarcar). */
+const MEDIDAS_DO_RISCO: Record<string, string[]> = {
+  'Queda de altura': ['Inspeção de escada e cinto'],
+  'Movimentação de carga': ['Plano de içamento', 'Sinalização e isolamento da área'],
+  'Tráfego de veículos': ['Sinalização e isolamento da área'],
+  'Escavação': ['Sinalização e isolamento da área'],
+  'Calor ou esforço físico': ['Revezamento e hidratação'],
+  'Choque elétrico': ['EPI e EPC'],
+  'Arco elétrico': ['EPI e EPC'],
+};
+
+/** Medidas do modelo que o risco pede (só as que existem no modelo). */
+export function medidasDoRisco(modelo: Pick<ModeloApr, 'medidas'>, risco: string): string[] {
+  return (MEDIDAS_DO_RISCO[risco] ?? []).filter(m => modelo.medidas.includes(m));
+}
+
 /** Verificações que fazem sentido: "Desligamento confirmado" só com desligamento. */
 export function verificacoesDaApr(modelo: ModeloApr, condicoes: CondicaoApr[]): string[] {
   return modelo.verificacoes.filter(v => !/desligamento/i.test(v) || condicoes.includes('DESLIGAMENTO'));
@@ -311,7 +327,8 @@ function arred(n: number): number {
 
 /** Texto do relatório diário montado com o que a equipe lançou; o encarregado revisa e completa. */
 export function relatorioDoDia(programacoes: ProgramacaoCampo[], registros: RegistroObraLocal[], dia: string,
-                               pontosFeitos: (p: ProgramacaoCampo) => string[], pendenciasFoto: number): string {
+                               pontosFeitos: (p: ProgramacaoCampo) => string[], pendenciasFoto: number,
+                               pontosParciais: (p: ProgramacaoCampo) => string[] = () => []): string {
   const doDia = registros.filter(r => r.dia === dia);
   const linhas: string[] = [];
   const atendidas = programacoes.filter(p => doDia.some(r => r.idProgramacao === p.id || r.idObra === p.idObra));
@@ -319,7 +336,9 @@ export function relatorioDoDia(programacoes: ProgramacaoCampo[], registros: Regi
     const feitos = pontosFeitos(p);
     const tipo = !p.avulsa ? `programação #${p.numero}` : ehAlemDoProgramado(p) ? 'além do programado'
       : `execução avulsa${p.observacao ? ' — ' + p.observacao : ''}`;
-    linhas.push(`Obra ${p.numeroObra ?? ''} (${tipo}): ${feitos.length ? `pontos feitos ${feitos.join(', ')}` : 'sem pontos concluídos'}.`);
+    const parciais = pontosParciais(p);
+    linhas.push(`Obra ${p.numeroObra ?? ''} (${tipo}): ${feitos.length ? `pontos feitos ${feitos.join(', ')}` : 'sem pontos concluídos'}`
+      + `${parciais.length ? `; parcial em ${parciais.join(', ')}` : ''}.`);
   }
   // Atividade fora da agenda sem a avulsa no aparelho (registro antigo): fica a linha com o motivo.
   for (const r of doDia.filter(x => x.tipo === 'ATIVIDADE' && !atendidas.some(p => p.avulsa && p.idObra === x.idObra))) {
