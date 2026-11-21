@@ -4,6 +4,7 @@ import { IconeComponent, IndicadorRedeComponent, ListaDetalheComponent, TituloGr
 import { ConnectivityService } from '../../core/sync/connectivity.service';
 import { ObrasContexto, diaCurto } from './obras-contexto';
 import { ProgramacaoCampo } from '../../core/obras/obras.models';
+import { nomeLocais } from '../../core/obras/obras-regras';
 
 /** Aba Obras: a agenda da equipe (hoje e próximos dias). No tablet deitado a ficha abre ao lado. */
 @Component({
@@ -40,7 +41,7 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
               <span class="geo-linha__texto">
                 <span class="geo-linha__titulo">Obra {{ p.numeroObra }} · {{ ctx.ref(p) }}</span>
                 <span class="geo-linha__apoio">{{ p.descricao }}</span>
-                <span class="geo-linha__apoio geo-num">{{ resumo(p).total ? resumo(p).feitos + ' de ' + resumo(p).total + ' pontos' : 'Os pontos chegam com o sinal' }}{{ ctx.condicoes(p).length ? ' · ' + ctx.condicoes(p).join(' · ') : '' }}</span>
+                <span class="geo-linha__apoio geo-num">{{ resumo(p).total ? resumo(p).feitos + ' de ' + resumo(p).total + ' ' + resumo(p).nome : 'Os pontos chegam com o sinal' }}{{ ctx.condicoes(p).length ? ' · ' + ctx.condicoes(p).join(' · ') : '' }}</span>
               </span>
               <geo-icone nome="avancar" [tamanho]="18" />
             </a></li>
@@ -99,7 +100,7 @@ export class ObrasListaComponent {
 
   resumo(p: ProgramacaoCampo) {
     const pontos = this.ctx.pontos(p);
-    return { feitos: pontos.filter(x => x.situacao === 'FEITO').length, total: pontos.length };
+    return { feitos: pontos.filter(x => x.situacao === 'FEITO').length, total: pontos.length, nome: nomeLocais(pontos) };
   }
 
   dia(data: string): string {

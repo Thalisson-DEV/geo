@@ -51,7 +51,7 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
     </div>
     <ul class="geo-grupo">
       @for (o of obras(); track o.id) {
-        <li><a class="geo-linha geo-linha--acao" [routerLink]="['/supervisao/obras', o.id]" [queryParams]="{ numero: o.numero }">
+        <li><a class="geo-linha geo-linha--acao" [routerLink]="['/supervisao/obras', o.id]" [queryParams]="{ numero: o.numero, titulo: o.titulo, municipio: o.municipioNome }">
           <span class="geo-selo"><geo-icone nome="obra" /></span>
           <span class="geo-linha__texto"><span class="geo-linha__titulo">Obra {{ o.numero }}</span><span class="geo-linha__apoio">{{ o.titulo }}</span></span>
           <geo-icone nome="avancar" [tamanho]="18" /></a></li>

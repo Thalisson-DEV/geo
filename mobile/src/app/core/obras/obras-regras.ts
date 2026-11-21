@@ -123,9 +123,15 @@ export function pendenciasDeFoto(obra: ObraCampo, itensModelo: { id: string; tit
   return [...lista.values()];
 }
 
+/** Nome do que se conta na execução: "pontos e vãos" quando há vão, senão "ponto(s)". */
+export function nomeLocais(locais: { vao?: unknown }[]): string {
+  if (locais.some(l => !!l.vao)) return 'pontos e vãos';
+  return locais.length === 1 ? 'ponto' : 'pontos';
+}
+
 // ---------- APR ----------
 
-export type CondicaoApr = 'SEMPRE' | 'DESLIGAMENTO' | 'LINHA_VIVA' | 'PODA' | 'ATERRAMENTO';
+export type CondicaoApr = 'SEMPRE' | 'DESLIGAMENTO' | 'LINHA_VIVA' | 'PODA' | 'ATERRAMENTO' | 'POSTE' | 'TRAFEGO';
 
 /** Condições do serviço que puxam sugestões na APR. */
 export function condicoesDaProgramacao(p: ProgramacaoCampo, obra?: ObraCampo): CondicaoApr[] {
@@ -136,6 +142,10 @@ export function condicoesDaProgramacao(p: ProgramacaoCampo, obra?: ObraCampo): C
   if (p.linhaViva) c.push('LINHA_VIVA');
   if (pontos.some(pt => pt.temPoda)) c.push('PODA');
   if (pontos.some(pt => pt.temAterramento)) c.push('ATERRAMENTO');
+  // Serviço de poste (implantar, retirar, substituir) puxa içamento, cava e altura.
+  if (p.itens.some(i => i.tipo === 'SERVICO' && /\bposte\b/i.test(i.descricao ?? ''))) c.push('POSTE');
+  // A visita prévia apontou fluxo de veículos ou interdição da via.
+  if ((obra?.visitaPrevia?.atencao ?? []).some(a => /fluxo de ve[ií]culos|tr[aá]fego|interditar/i.test(a))) c.push('TRAFEGO');
   return c;
 }
 
@@ -298,24 +308,38 @@ export function proximoPasso(e: EstadoDoDia): PassoDoDia {
 
 // ---------- Material previsto × saldo do caminhão ----------
 
-export interface MaterialPrevisto { idMaterial: string | null; codigo?: string | null; descricao: string; unidade?: string | null; previsto: number; saldo: number | null; falta: number }
+export interface MaterialPrevisto {
+  idMaterial: string | null; codigo?: string | null; descricao: string; unidade?: string | null;
+  /** Total previsto na programação. */
+  previsto: number;
+  /** Já lançado como usado pela equipe (servidor + o que está no aparelho). */
+  usado: number;
+  saldo: number | null;
+  /** O que ainda falta usar e não está no caminhão. */
+  falta: number;
+}
 
-/** Material a instalar previsto pela programação (o restante) contra o saldo do caminhão. */
-export function materialPrevisto(programacoes: ProgramacaoCampo[], saldoPorMaterial: Map<string, number>): MaterialPrevisto[] {
+/**
+ * Material previsto pela programação, o que a equipe já lançou como usado e o saldo do caminhão. O saldo só baixa no
+ * fechamento técnico da obra, então "usado" mostra o andamento no dia.
+ */
+export function materialPrevisto(programacoes: ProgramacaoCampo[], saldoPorMaterial: Map<string, number>,
+                                 executado: (p: ProgramacaoCampo) => Map<string, number> = p => new Map(p.itens.map(i => [i.idItem, i.executada]))): MaterialPrevisto[] {
   const soma = new Map<string, MaterialPrevisto>();
   for (const p of programacoes) {
+    const feito = executado(p);
     for (const i of p.itens.filter(x => x.tipo === 'MATERIAL')) {
-      const restante = Math.max(0, i.quantidade - i.executada);
-      if (!restante) continue;
       const chave = i.idMaterial ?? `${i.codigo}|${i.descricao}`;
-      const atual = soma.get(chave) ?? { idMaterial: i.idMaterial ?? null, codigo: i.codigo, descricao: i.descricao ?? 'Material', unidade: i.unidade, previsto: 0, saldo: null, falta: 0 };
-      atual.previsto += restante;
+      const atual = soma.get(chave) ?? { idMaterial: i.idMaterial ?? null, codigo: i.codigo, descricao: i.descricao ?? 'Material', unidade: i.unidade, previsto: 0, usado: 0, saldo: null, falta: 0 };
+      atual.previsto += i.quantidade;
+      atual.usado += Math.min(i.quantidade, feito.get(i.idItem) ?? i.executada);
       soma.set(chave, atual);
     }
   }
   return [...soma.values()].map(m => {
     const saldo = m.idMaterial ? (saldoPorMaterial.get(m.idMaterial) ?? 0) : null;
-    return { ...m, saldo, falta: saldo == null ? 0 : Math.max(0, arred(m.previsto - saldo)) };
+    const aUsar = Math.max(0, arred(m.previsto - m.usado));
+    return { ...m, previsto: arred(m.previsto), usado: arred(m.usado), saldo, falta: saldo == null ? 0 : Math.max(0, arred(aUsar - saldo)) };
   }).sort((a, b) => b.falta - a.falta || a.descricao.localeCompare(b.descricao));
 }
 

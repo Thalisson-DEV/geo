@@ -8,6 +8,7 @@ import com.nexo.app.modules.obras.domain.KitAplicado;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.OperacaoItemKit;
 import com.nexo.app.modules.obras.domain.PontoPlanejamento;
+import com.nexo.app.modules.obras.domain.TipoExecucaoPonto;
 import com.nexo.app.modules.obras.domain.Programacao;
 import com.nexo.app.modules.obras.domain.ProgramacaoItem;
 import com.nexo.app.modules.obras.domain.StatusItemPlanejado;
@@ -63,6 +64,7 @@ public class ProgramacaoObraUseCases {
     private final EquipeApi equipeApi;
     private final ProjecaoEquipesObra projecao;
     private final ApplicationEventPublisher eventos;
+    private final com.nexo.app.modules.estoque.EstoqueApi estoqueApi;
 
     /** O que a seleção vira ao programar: os itens programáveis e o que fica de fora. */
     record Selecao(Set<ItemPlanejado> itens, int materiaisIncluidos, int ignoradosProgramados, int ignoradosConcluidos) {
@@ -80,7 +82,7 @@ public class ProgramacaoObraUseCases {
             return new ProgramacaoResponses.Previa(itens.size(), servicos, itens.size() - servicos, 0, 0, 0, 0, List.of(), valor,
                     obra.getDataPrevisaoFim(), obra.getPrazoRegulado(),
                     projecao.projetar(obra, request.inicio(), request.fim(), request.idBase(), request.idTipoEquipe(), valor, programacao.getId()),
-                    0, obra.getTipoObra().name(), !obra.possuiLocalizacao());
+                    0, obra.getTipoObra().name(), !obra.possuiLocalizacao(), List.of(), null);
         }
         Selecao selecao = selecionar(idObra, request.idsItens());
         Map<UUID, Map<UUID, BigDecimal>> valores = new HashMap<>();
@@ -102,12 +104,25 @@ public class ProgramacaoObraUseCases {
             }
         }
         BigDecimal total = valor.setScale(2, RoundingMode.HALF_UP);
+        List<ProgramacaoObraEvent.Material> materiais = materiaisASolicitar(selecao.itens().stream()
+                .map(i -> new ItemQuantidade(i, i.getQuantidadePrevista())).toList());
         return new ProgramacaoResponses.Previa(selecao.itens().size(), servicos, selecao.itens().size() - servicos,
                 selecao.materiaisIncluidos(), selecao.ignoradosProgramados(), selecao.ignoradosConcluidos(), semValor,
                 List.copyOf(nomesSemValor), total, obra.getDataPrevisaoFim(), obra.getPrazoRegulado(),
                 projecao.projetar(obra, request.inicio(), request.fim(), request.idBase(), request.idTipoEquipe(), total, null),
-                materiaisASolicitar(selecao.itens().stream().map(i -> new ItemQuantidade(i, i.getQuantidadePrevista())).toList()).size(),
-                obra.getTipoObra().name(), !obra.possuiLocalizacao());
+                materiais.size(), obra.getTipoObra().name(), !obra.possuiLocalizacao(),
+                estoqueApi.materiaisForaDaSolicitacaoTecnica(materiais.stream().map(ProgramacaoObraEvent.Material::idMaterial).toList()),
+                desligamentoSugerido(selecao.itens()));
+    }
+
+    /** Com desligamento se algum ponto pede; sem desligamento só se todos os pontos estão definidos como sem. */
+    private Boolean desligamentoSugerido(Collection<ItemPlanejado> itens) {
+        Set<UUID> idsPontos = itens.stream().map(i -> i.getKitAplicado().getIdPonto()).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (idsPontos.isEmpty()) return null;
+        List<TipoExecucaoPonto> tipos = pontoRepository.findAllById(idsPontos).stream().map(PontoPlanejamento::getTipoExecucao)
+                .map(t -> t == null ? TipoExecucaoPonto.NAO_DEFINIDO : t).toList();
+        if (tipos.contains(TipoExecucaoPonto.COM_DESLIGAMENTO)) return true;
+        return !tipos.isEmpty() && tipos.stream().allMatch(t -> t == TipoExecucaoPonto.SEM_DESLIGAMENTO) ? false : null;
     }
 
     @Transactional

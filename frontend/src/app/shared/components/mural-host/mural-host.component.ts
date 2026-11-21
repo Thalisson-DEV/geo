@@ -161,6 +161,15 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
                 styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !py-2.5 !px-8 !font-bold !text-[10px]"
               ></p-button>
             } @else {
+              @if (mural.modais().length > 1) {
+                <p-button
+                  label="FECHAR TODOS POR AGORA"
+                  icon="pi pi-times"
+                  [text]="true"
+                  (onClick)="fecharTodosPorAgora()"
+                  styleClass="!text-slate-500 !font-bold !text-[10px]"
+                ></p-button>
+              }
               @if (item.permiteAdiar) {
                 <p-button
                   label="VER DEPOIS"
@@ -352,6 +361,11 @@ export class MuralHostComponent {
       const item = this.modalAtual();
       if (item) untracked(() => this.mural.registrarVisualizacao(item));
     });
+  }
+
+  /** Vários comunicados em fila no login: fecha os que não exigem confirmação até a próxima sessão. */
+  protected fecharTodosPorAgora(): void {
+    for (const item of this.mural.modais().filter((m) => !m.exigeConfirmacao)) this.mural.ocultarNaSessao(item.id);
   }
 
   protected abrirDetalhe(item: ComunicadoMuralResponse): void {

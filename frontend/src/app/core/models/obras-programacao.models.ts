@@ -83,6 +83,10 @@ export interface PreviaProgramacao {
   tipoObra: string;
   /** Obra sem coordenada nem endereço: a equipe não terá "Como chegar" no app. */
   obraSemLocalizacao?: boolean;
+  /** Materiais a pedir que o cadastro não deixa ir para a solicitação técnica ("código - descrição"). */
+  materiaisForaDeObras?: string[];
+  /** Pelos pontos do planejamento: true = com desligamento, false = sem, null = não definido. */
+  desligamentoSugerido?: boolean | null;
 }
 
 export interface CondicoesProgramacao {

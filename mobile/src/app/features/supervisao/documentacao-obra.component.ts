@@ -18,7 +18,7 @@ import { TokenService } from '../../core/auth/token.service';
   imports: [BarraTopoComponent, IconeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <geo-barra-topo [titulo]="'Obra ' + numero" subtitulo="Documentação técnica" (voltar)="voltar()" />
+    <geo-barra-topo [titulo]="'Obra ' + numero" [subtitulo]="subtitulo" (voltar)="voltar()" />
     @if (doc(); as d) {
       @if (!modelo()) {
         <h2 class="geo-secao">Situação</h2>
@@ -107,6 +107,9 @@ export class DocumentacaoObraComponent implements OnInit {
 
   readonly id = this.rota.snapshot.paramMap.get('id') ?? '';
   readonly numero = this.rota.snapshot.queryParamMap.get('numero') ?? '';
+  /** Nome e município da obra (vêm da busca): o supervisor confere que está na obra certa. */
+  readonly subtitulo = [this.rota.snapshot.queryParamMap.get('titulo'), this.rota.snapshot.queryParamMap.get('municipio')]
+    .filter(Boolean).join(' · ') || 'Documentação técnica';
   readonly doc = signal<DocumentacaoObra | null>(null);
   readonly erro = signal(false);
   readonly modelos = signal<ModeloChecklist[]>([]);

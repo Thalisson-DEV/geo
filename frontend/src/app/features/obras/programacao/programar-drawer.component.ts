@@ -163,6 +163,12 @@ import { locaisProgramaveis } from './programar.logic';
                 [error]="tentou() && !ocorrencia().trim() ? 'Informe a OC/OS.' : undefined"></geo-text-input>
             }
           </div>
+          @if (previa()?.materiaisForaDeObras?.length) {
+            <geo-callout tone="danger" [dense]="true">
+              {{ previa()!.materiaisForaDeObras!.length === 1 ? 'Este material não é do processo Obras e impede programar:' : 'Estes materiais não são do processo Obras e impedem programar:' }}
+              {{ previa()!.materiaisForaDeObras!.join('; ') }}. Ajuste o processo no cadastro do material ou tire o item do kit.
+            </geo-callout>
+          }
           @if (saqueEmCimaDaHora()) {
             <geo-callout tone="warning" [dense]="true">Saque com menos de 48 horas: o almoxarifado vê a solicitação como fora do prazo.</geo-callout>
           }
@@ -327,6 +333,8 @@ export class ProgramarDrawerComponent {
         this.carregando.set(false);
         this.previa.set(previa);
         this.pularFeriadoDaSugestao(previa);
+        // O desligamento marcado nos pontos do planejamento já vem respondido (dá para trocar).
+        if (previa?.desligamentoSugerido != null && this.desligamento() === null) this.desligamento.set(previa.desligamentoSugerido);
       });
 
     effect(() => {

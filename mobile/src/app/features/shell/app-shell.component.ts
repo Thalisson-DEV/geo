@@ -17,6 +17,9 @@ import { AvisoSessaoComponent } from '../../ui/aviso-sessao.component';
 /** Telas de topo: mostram a barra de abas. Lançamentos e detalhes ocupam a tela toda. */
 const TELAS_DE_TOPO = /^\/(hoje|obras|supervisao|material|material\/saldo|frota|transferencias|perfil|inspecoes|desvios|almox\/solicitacoes|almox\/tecnicas|almox\/movimentacoes|almox\/fechamento|fechamento)(\?|$)/;
 
+/** Detalhes que, no tablet deitado, aparecem ao lado da lista (a ficha da obra). */
+const LISTA_DETALHE = /^\/obras\/(?!nao-programada|relatorio)[^/?]+(\?|$)/;
+
 /** Checklist e abastecimento valem para todos os perfis do app (campo e administrativo). */
 const ABA_FROTA: Aba = { rota: '/frota', rotulo: 'Frota', icone: 'caminhao', ativaEm: ['/checklist', '/abastecimento'] };
 
@@ -160,7 +163,12 @@ export class AppShellComponent implements AfterViewInit {
   readonly rotas = computed(() => this.abas().map(a => a.rota));
   /** Tablet deitado (≥ 900 × 600 px): navegação em barra lateral; abaixo disso, abas embaixo. */
   readonly modoNavegacao = computed<ModoNavegacao>(() => (this.layout.expandido() ? 'lateral' : 'inferior'));
-  readonly mostrarAbas = computed(() => TELAS_DE_TOPO.test(this.url()));
+  /**
+   * Telas de topo mostram a navegação. No tablet deitado a ficha da obra abre ao lado da lista (lista + detalhe) e não tem
+   * Voltar: a barra lateral precisa continuar lá, senão a equipe fica presa na tela.
+   */
+  readonly mostrarAbas = computed(() => TELAS_DE_TOPO.test(this.url())
+    || (this.layout.expandido() && LISTA_DETALHE.test(this.url())));
 
   constructor() {
     // Os elementos fixos (rodapés, avisos, botão flutuante) leem o modo pelo atributo na raiz.

@@ -469,6 +469,12 @@ public class PacoteCampoObras {
                 List.of("Inspeção de escada e cinto")));
         sugestoes.put("ATERRAMENTO", new CampoObrasResponses.Sugestao(List.of("Choque elétrico", "Escavação"),
                 List.of("Bloqueio e aterramento")));
+        // Implantar ou retirar poste: içamento com guindauto, cava e trabalho em altura.
+        sugestoes.put("POSTE", new CampoObrasResponses.Sugestao(List.of("Movimentação de carga", "Escavação", "Queda de altura"),
+                List.of("Plano de içamento", "Sinalização e isolamento da área", "Inspeção de escada e cinto")));
+        // Visita prévia apontou fluxo de veículos ou interdição da via.
+        sugestoes.put("TRAFEGO", new CampoObrasResponses.Sugestao(List.of("Tráfego de veículos"),
+                List.of("Sinalização e isolamento da área")));
         return new CampoObrasResponses.ModeloApr(RISCOS, MEDIDAS, VERIFICACOES, sugestoes);
     }
 

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { RouterLink } from '@angular/router';
 import { IconeComponent, LinhaArrastoComponent } from '../../ui';
 import { TurnoService } from '../../core/turno/turno.service';
-import { proximoPasso } from '../../core/obras/obras-regras';
+import { nomeLocais, proximoPasso } from '../../core/obras/obras-regras';
 import { ObrasContexto } from '../obras/obras-contexto';
 import { ProgramacaoCampo } from '../../core/obras/obras.models';
 
@@ -127,7 +127,7 @@ export class HojeObrasComponent {
     if (lib === 'IMPEDIDA') return 'Sem condição de executar registrada';
     if (feitos === pontos.length && pontos.length) return 'Tudo feito';
     const apr = lib === 'LIBERADA' ? 'APR ok' : 'APR pendente';
-    return `${pontos.length ? `${feitos} de ${pontos.length} pontos` : 'Os pontos chegam com o sinal'} · ${apr}`;
+    return `${pontos.length ? `${feitos} de ${pontos.length} ${nomeLocais(pontos)}` : 'Os pontos chegam com o sinal'} · ${apr}`;
   }
 
   rotuloTipo(tipo: string): string {

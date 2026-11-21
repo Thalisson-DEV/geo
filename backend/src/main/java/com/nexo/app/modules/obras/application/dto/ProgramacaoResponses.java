@@ -33,7 +33,11 @@ public final class ProgramacaoResponses {
                          @JsonFormat(pattern = "dd/MM/yyyy") LocalDate prazoRegulado,
                          List<EquipeProjetada> equipes, int materiaisASolicitar, String tipoObra,
                          /** Sem coordenada nem endereço: a equipe não terá "Como chegar" no app. */
-                         boolean obraSemLocalizacao) {
+                         boolean obraSemLocalizacao,
+                         /** Materiais a pedir que o cadastro não deixa ir para a solicitação técnica ("código - descrição"). */
+                         List<String> materiaisForaDeObras,
+                         /** Pelos pontos marcados no planejamento: true = com desligamento, false = sem; null = não definido. */
+                         Boolean desligamentoSugerido) {
     }
 
     /**

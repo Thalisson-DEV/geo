@@ -52,6 +52,9 @@ let drawerSequence = 0;
  * que alarga o painel da largura de `size` até `GEO_FORM_DRAWER_MAX_VW`% da janela; com `openExpanded`,
  * cada abertura já começa no máximo. Na tela compacta o drawer vira folha inferior e não redimensiona.
  */
+/** Overlays que o Esc fecha antes do drawer (lista, calendário, autocompletar, confirmação). */
+const OVERLAYS_ABERTOS = '.p-select-overlay, .p-multiselect-overlay, .p-autocomplete-overlay, .p-datepicker-panel, .p-confirmdialog, .p-dialog-mask';
+
 @Component({
   selector: 'geo-form-drawer',
   standalone: true,
@@ -167,13 +170,24 @@ export class GeoFormDrawerComponent {
   private readonly janela = signal(typeof window === 'undefined' ? 1280 : window.innerWidth);
   protected readonly redimensionando = signal(false);
 
+  /** Esc que chegou com um overlay aberto: a lista do PrimeNG fecha antes do listener do documento, então anota na captura. */
+  private escFechouOverlay = false;
+
   constructor() {
+    const destroyRef = inject(DestroyRef);
     // Fechou e saiu da tela antes do fim da animação: o p-drawer não remove a máscara sozinho
     // (ver geo-drawer). Sobrou máscara, ela sai junto com o drawer.
-    inject(DestroyRef).onDestroy(() => {
+    destroyRef.onDestroy(() => {
       const drawer = this.drawer();
       if (drawer?.mask) drawer.destroyModal();
     });
+    if (typeof document !== 'undefined') {
+      const anotar = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') this.escFechouOverlay = !!document.querySelector(OVERLAYS_ABERTOS);
+      };
+      document.addEventListener('keydown', anotar, true);
+      destroyRef.onDestroy(() => document.removeEventListener('keydown', anotar, true));
+    }
     // Guarda quem abriu o drawer antes de o foco entrar nele, para devolver ao fechar.
     effect(() => {
       if (this.visible() && !this.origemFoco) this.origemFoco = document.activeElement as HTMLElement | null;
@@ -255,11 +269,13 @@ export class GeoFormDrawerComponent {
   }
 
   protected onEscape(event: Event): void {
-    if (!this.visible() || event.defaultPrevented) return;
+    const fechouOverlay = this.escFechouOverlay;
+    this.escFechouOverlay = false;
+    if (!this.visible() || event.defaultPrevented || fechouOverlay) return;
     // Esc com um overlay aberto (select, datepicker, confirmação) fecha só o overlay.
     const alvo = event.target as HTMLElement | null;
     if (alvo?.closest?.('.p-overlay, .p-select-overlay, .p-datepicker-panel, .p-confirmdialog')) return;
-    if (document.querySelector('.p-select-overlay, .p-datepicker-panel, .p-confirmdialog, .p-dialog-mask')) return;
+    if (document.querySelector(OVERLAYS_ABERTOS)) return;
     // Só o drawer de cima responde.
     const paineis = Array.from(document.querySelectorAll('.p-drawer'));
     const meu = this.body()?.nativeElement.closest('.p-drawer');

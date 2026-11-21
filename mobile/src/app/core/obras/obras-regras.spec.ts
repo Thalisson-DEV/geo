@@ -1,5 +1,5 @@
 import {
-  aprVazia, condicoesDaProgramacao, faltasDaApr, aprQueLibera, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
+  aprVazia, condicoesDaProgramacao, medidasDoRisco, nomeLocais, faltasDaApr, aprQueLibera, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
   pontosDaExecucao, programacoesDoDia, proximoPasso, relatorioDoDia, sugestoesApr, verificacoesDaApr, EstadoDoDia,
 } from './obras-regras';
 import { ModeloApr, ObraCampo, ProgramacaoCampo, RegistroObraLocal } from './obras.models';
@@ -68,7 +68,7 @@ describe('regras de Obras no app', () => {
 
   it('APR sugere choque e arco com desligamento e exige "Desligamento confirmado"', () => {
     const condicoes = condicoesDaProgramacao(programacao(), OBRA);
-    expect(condicoes).toEqual(['SEMPRE', 'DESLIGAMENTO', 'PODA']);
+    expect(condicoes).toEqual(['SEMPRE', 'DESLIGAMENTO', 'PODA', 'POSTE']);
     const s = sugestoesApr(MODELO, condicoes);
     expect(s.riscos).toEqual(['Choque elétrico', 'Arco elétrico', 'Queda de materiais ou ferramentas']);
     expect(s.medidas).toContain('Bloqueio e aterramento');
@@ -131,7 +131,12 @@ describe('regras de Obras no app', () => {
 
   it('material previsto contra o saldo do caminhão mostra o que falta', () => {
     const m = materialPrevisto([programacao()], new Map([['m-cruzeta', 2]]));
-    expect(m).toEqual([expect.objectContaining({ descricao: 'Cruzeta', previsto: 4, saldo: 2, falta: 2 })]);
+    expect(m).toEqual([expect.objectContaining({ descricao: 'Cruzeta', previsto: 4, usado: 0, saldo: 2, falta: 2 })]);
+  });
+
+  it('material usado no dia abate o que ainda falta', () => {
+    const m = materialPrevisto([programacao()], new Map([['m-cruzeta', 2]]), () => new Map([['i-2', 3]]));
+    expect(m).toEqual([expect.objectContaining({ previsto: 4, usado: 3, saldo: 2, falta: 0 })]);
   });
 
   it('pendência de foto: ponto feito sem a foto obrigatória do modelo; some quando a foto é tirada', () => {
@@ -160,5 +165,26 @@ describe('regras de Obras no app', () => {
     expect(linkComoChegar({ latitude: -3.7, longitude: -38.5 })).toContain('destination=-3.7,-38.5');
     expect(linkComoChegar({ endereco: 'Rua A, 10', municipio: 'Fortaleza' }, true)).toContain('maps.apple.com/?daddr=Rua%20A%2C%2010%2C%20Fortaleza');
     expect(linkComoChegar({})).toBeNull();
+  });
+
+  it('APR: tráfego vem da visita prévia; sem poste no serviço, não há sugestão de poste', () => {
+    const p = programacao({ itens: [{ idItem: 'i-3', idPonto: 'pt-5', tipo: 'SERVICO', descricao: 'Lançar cabo', quantidade: 30, executada: 0, status: 'PROGRAMADO' }] });
+    const obra = { ...OBRA, visitaPrevia: { data: '21/11/2026', atencao: ['Há fluxo de veículos na via do local? Sim'] } };
+    expect(condicoesDaProgramacao(p, obra)).toContain('TRAFEGO');
+    expect(condicoesDaProgramacao(p, obra)).not.toContain('POSTE');
+    expect(condicoesDaProgramacao(p, OBRA)).not.toContain('TRAFEGO');
+  });
+
+  it('APR: o risco marcado traz a medida que existe no modelo', () => {
+    const modelo = { medidas: ['Inspeção de escada e cinto', 'EPI e EPC'] };
+    expect(medidasDoRisco(modelo, 'Queda de altura')).toEqual(['Inspeção de escada e cinto']);
+    expect(medidasDoRisco(modelo, 'Movimentação de carga')).toEqual([]);
+    expect(medidasDoRisco(modelo, 'Risco sem medida')).toEqual([]);
+  });
+
+  it('contagem diz "pontos e vãos" quando há vão', () => {
+    expect(nomeLocais([{}, { vao: { id: 'v' } }])).toBe('pontos e vãos');
+    expect(nomeLocais([{}, {}])).toBe('pontos');
+    expect(nomeLocais([{}])).toBe('ponto');
   });
 });

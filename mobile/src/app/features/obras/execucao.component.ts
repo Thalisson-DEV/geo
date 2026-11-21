@@ -12,7 +12,7 @@ import { ToastService } from '../../core/ui/toast.service';
 import { TurnoService } from '../../core/turno/turno.service';
 import { ArquivosCampoService } from '../../core/obras/arquivos-campo.service';
 import { LocalizacaoService, Posicao } from '../../core/obras/localizacao.service';
-import { PontoDaExecucao, aprQueLibera, pendenciasDeFoto } from '../../core/obras/obras-regras';
+import { PontoDaExecucao, aprQueLibera, nomeLocais, pendenciasDeFoto } from '../../core/obras/obras-regras';
 import { linhasDoCarimbo } from '../../core/fotos/carimbo';
 import { EvidenciaPreparada } from '../../core/sst/evidencia-foto.util';
 import { ObrasContexto } from './obras-contexto';
@@ -37,8 +37,8 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
     @if (programacao(); as p) {
       <geo-barra-topo titulo="Pontos e projeto" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + ' · ' + ctx.ref(p)" (voltar)="voltar()" />
       <div class="progresso" role="progressbar" [attr.aria-valuenow]="feitos()" aria-valuemin="0" [attr.aria-valuemax]="pontos().length"
-        [attr.aria-label]="feitos() + ' de ' + pontos().length + ' pontos feitos'">
-        <span class="progresso__texto"><strong class="geo-num">{{ feitos() }} de {{ pontos().length }}</strong> {{ pontos().length === 1 ? 'ponto feito' : 'pontos feitos' }}
+        [attr.aria-label]="feitos() + ' de ' + pontos().length + ' ' + nomeLocais(pontos()) + ' feitos'">
+        <span class="progresso__texto"><strong class="geo-num">{{ feitos() }} de {{ pontos().length }}</strong> {{ nomeLocais(pontos()) }} {{ pontos().length === 1 ? 'feito' : 'feitos' }}
           @if (proximo(); as prox) { · próximo: <strong>{{ prox.rotulo }}</strong> }</span>
         <span class="progresso__barra"><span [style.width.%]="pontos().length ? (feitos() / pontos().length) * 100 : 0"></span></span>
       </div>
@@ -140,7 +140,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
                   <span class="geo-num">{{ item.tipo === 'MATERIAL' ? 'Material · ' : '' }}{{ num(item.feito) }} de {{ num(item.quantidade) }} {{ item.unidade ?? '' }}{{ item.kit ? ' · kit ' + item.kit : '' }}</span></span>
                 @if (parcial()) {
                   <geo-quantidade [minimo]="0" [rotulo]="'Feito agora de ' + item.descricao" [unidade]="item.unidade ?? null" [valor]="quantidades()[item.idItem] ?? 0"
-                    (valorChange)="definirQuantidade(item.idItem, $event)" />
+                    (valorChange)="definirQuantidade(item.idItem, $event, ponto)" />
                 }
               </li>
             }
@@ -239,6 +239,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
   `],
 })
 export class ExecucaoComponent implements OnDestroy {
+  readonly nomeLocais = nomeLocais;
   readonly ctx = inject(ObrasContexto);
   readonly layout = inject(LayoutService);
   private readonly rota = inject(ActivatedRoute);
@@ -281,10 +282,24 @@ export class ExecucaoComponent implements OnDestroy {
     const daqui = new Set(this.pontos().map(p => p.id));
     return pendenciasDeFoto(obra, this.itensFoto(), feitos, this.ctx.registros.registros()).filter(x => daqui.has(x.idPonto));
   });
-  readonly marcadores = computed<MarcadorPonto[]>(() => this.pontos()
-    .filter(p => p.ponto?.x != null && p.ponto?.y != null)
-    .map(p => ({ id: p.id, numero: p.ponto!.numero, pagina: p.ponto!.pagina ?? 1, x: Number(p.ponto!.x), y: Number(p.ponto!.y),
-      situacao: p.situacao, pendencia: this.pendenciasDoPonto(p.id) > 0 })));
+  readonly marcadores = computed<MarcadorPonto[]>(() => {
+    const doProjeto = new Map((this.obra()?.pontos ?? []).map(pt => [pt.id, pt]));
+    const lista: MarcadorPonto[] = [];
+    for (const p of this.pontos()) {
+      if (p.ponto?.x != null && p.ponto?.y != null) {
+        lista.push({ id: p.id, numero: p.ponto.numero, pagina: p.ponto.pagina ?? 1, x: Number(p.ponto.x), y: Number(p.ponto.y),
+          situacao: p.situacao, pendencia: this.pendenciasDoPonto(p.id) > 0 });
+      } else if (p.vao) {
+        // Vão: marcador no meio dos dois pontos, para a equipe ver no projeto o que falta lançar.
+        const a = doProjeto.get(p.vao.idPontoA);
+        const b = doProjeto.get(p.vao.idPontoB);
+        if (a?.x == null || a?.y == null || b?.x == null || b?.y == null || (a.pagina ?? 1) !== (b.pagina ?? 1)) continue;
+        lista.push({ id: p.id, numero: `${a.numero}–${b.numero}`, pagina: a.pagina ?? 1, x: (Number(a.x) + Number(b.x)) / 2,
+          y: (Number(a.y) + Number(b.y)) / 2, situacao: p.situacao, pendencia: false, vao: true });
+      }
+    }
+    return lista;
+  });
   readonly temQuantidade = computed(() => Object.values(this.quantidades()).some(v => v > 0));
 
   constructor() {
@@ -305,6 +320,7 @@ export class ExecucaoComponent implements OnDestroy {
         this.etapa.set(s === 'A_FAZER' ? 'ANTES' : s === 'PARCIAL' ? 'DURANTE' : 'DEPOIS');
         this.parcial.set(false);
         this.quantidades.set({});
+        this.materiaisAjustados.clear();
         this.serie.set('');
       });
     });
@@ -370,8 +386,21 @@ export class ExecucaoComponent implements OnDestroy {
     this.toast.desfazer(`${ponto.rotulo}: tudo feito${faltam ? ' · tire as fotos do modelo' : ''}`, () => void this.ctx.registros.desfazer(r.id));
   }
 
-  definirQuantidade(idItem: string, valor: number): void {
-    this.quantidades.update(q => ({ ...q, [idItem]: valor }));
+  /** Materiais que a equipe já ajustou à mão no parcial (o preenchimento automático não mexe neles). */
+  private readonly materiaisAjustados = new Set<string>();
+
+  definirQuantidade(idItem: string, valor: number, ponto?: PontoDaExecucao): void {
+    const item = ponto?.itens.find(i => i.idItem === idItem);
+    const novos: Record<string, number> = { [idItem]: valor };
+    if (item?.tipo === 'MATERIAL') this.materiaisAjustados.add(idItem);
+    // Serviço de um kit puxa o material do mesmo kit na mesma proporção (20 de 36,4 m de serviço → 20 m de cabo).
+    if (item?.tipo === 'SERVICO' && item.kit && item.quantidade > 0) {
+      for (const m of ponto!.itens.filter(i => i.tipo === 'MATERIAL' && i.kit === item.kit && !this.materiaisAjustados.has(i.idItem))) {
+        const proporcional = Math.round((valor / item.quantidade) * m.quantidade * 100) / 100;
+        novos[m.idItem] = Math.min(proporcional, Math.max(0, m.quantidade - m.feito));
+      }
+    }
+    this.quantidades.update(q => ({ ...q, ...novos }));
   }
 
   async salvarParcial(ponto: PontoDaExecucao): Promise<void> {
@@ -390,6 +419,7 @@ export class ExecucaoComponent implements OnDestroy {
     });
     this.parcial.set(false);
     this.quantidades.set({});
+    this.materiaisAjustados.clear();
     this.etapa.set('DURANTE');
     this.toast.desfazer('Parcial registrado', () => void this.ctx.registros.desfazer(r.id));
   }

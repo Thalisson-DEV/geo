@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal, viewChildren } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
@@ -37,7 +37,7 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
           @switch (passo()) {
             @case (0) {
               <dl class="geo-dados resumo">
-                <div><dt>Serviço</dt><dd>{{ p.descricao }}</dd></div>
+                <div><dt>Serviço</dt><dd>{{ ctx.pacote.obra(p.idObra)?.titulo || p.descricao }}</dd></div>
                 <div><dt>Data</dt><dd class="geo-num">{{ hoje }}</dd></div>
                 <div><dt>Responsável</dt><dd>{{ responsavel()?.nome ?? 'Encarregado' }}</dd></div>
                 @if (condicoes().length > 1) { <div><dt>Condições</dt><dd>{{ ctx.condicoes(p).join(' · ') }}</dd></div> }
@@ -179,6 +179,7 @@ export class AprComponent implements OnInit {
   readonly responsavel = computed(() => this.membros().find(m => m.responsavel) ?? this.membros()[0]);
 
   readonly r = signal<AprRascunho | null>(null);
+  private readonly quadros = viewChildren(AssinaturaComponent);
   readonly passo = computed(() => this.r()?.passo ?? 0);
   readonly faltas = computed(() => (this.r() ? faltasDaApr(this.r()!, this.verificacoes()) : []));
   readonly salvando = signal(false);
@@ -227,6 +228,11 @@ export class AprComponent implements OnInit {
       if (imagem) assinaturas[id] = imagem; else delete assinaturas[id];
       return { ...r, assinaturas };
     });
+    if (!imagem) return;
+    // O aparelho passa de mão em mão: confirmada uma assinatura, o quadro da próxima pessoa já abre.
+    const r = this.r();
+    const proxima = r?.participantes.findIndex(p => !r.assinaturas[p]) ?? -1;
+    if (proxima >= 0) setTimeout(() => this.quadros()[proxima]?.abrir(), 350);
   }
 
   readonly tentouAvancar = signal(false);

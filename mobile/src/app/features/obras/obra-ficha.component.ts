@@ -9,7 +9,7 @@ import { TurnoService } from '../../core/turno/turno.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { db } from '../../core/db/app-db';
 import { LocalizacaoService } from '../../core/obras/localizacao.service';
-import { MaterialPrevisto, distanciaMetros, linkComoChegar, materialPrevisto } from '../../core/obras/obras-regras';
+import { MaterialPrevisto, distanciaMetros, linkComoChegar, executadoPorItem, materialPrevisto, nomeLocais } from '../../core/obras/obras-regras';
 import { ObrasContexto, diaCurto } from './obras-contexto';
 
 /** Raio para sugerir "Cheguei" pela posição do aparelho. */
@@ -111,7 +111,7 @@ const RAIO_CHEGADA_M = 400;
         </div>
       </div>
 
-      <h2 class="geo-secao"><span>Execução</span><span class="geo-num">{{ feitos() }} de {{ pontos().length }} pontos</span></h2>
+      <h2 class="geo-secao"><span>Execução</span><span class="geo-num">{{ feitos() }} de {{ pontos().length }} {{ nomeLocais(pontos()) }}</span></h2>
       <ul class="geo-grupo">
         <li><a class="geo-linha geo-linha--acao" [routerLink]="['/obras', p.id, 'apr']">
           <span class="geo-selo" [class.geo-selo--ok]="liberacao() === 'LIBERADA'" [class.geo-selo--erro]="liberacao() === 'IMPEDIDA'"
@@ -139,7 +139,7 @@ const RAIO_CHEGADA_M = 400;
               <span class="geo-selo" [class.geo-selo--erro]="m.falta > 0" [class.geo-selo--ok]="m.falta === 0 && m.saldo !== null"><geo-icone nome="material" /></span>
               <span class="geo-linha__texto">
                 <span class="geo-linha__titulo">{{ m.descricao }}</span>
-                <span class="geo-linha__apoio geo-num">Previsto {{ num(m.previsto) }} {{ m.unidade ?? '' }}{{ m.saldo !== null ? ' · no caminhão ' + num(m.saldo) : '' }}</span>
+                <span class="geo-linha__apoio geo-num">Previsto {{ num(m.previsto) }} {{ m.unidade ?? '' }}{{ m.usado ? ' · usado ' + num(m.usado) : '' }}{{ m.saldo !== null ? ' · no caminhão ' + num(m.saldo) : '' }}</span>
               </span>
               @if (m.falta > 0) { <span class="geo-etiqueta geo-etiqueta--erro geo-num">{{ m.falta === 1 ? 'Falta 1' : 'Faltam ' + num(m.falta) }}</span> }
             </li>
@@ -183,6 +183,7 @@ const RAIO_CHEGADA_M = 400;
   `],
 })
 export class ObraFichaComponent implements OnInit {
+  readonly nomeLocais = nomeLocais;
   private readonly rota = inject(ActivatedRoute);
   /** Programação da ficha (a rota é por programação: a mesma obra pode ter mais de uma na agenda). */
   readonly id = toSignal(this.rota.paramMap.pipe(map(p => p.get('id') ?? '')), { initialValue: '' });
@@ -207,7 +208,8 @@ export class ObraFichaComponent implements OnInit {
   readonly liberacao = computed(() => (this.programacao() ? this.ctx.liberacao(this.programacao()!) : 'PENDENTE'));
   readonly temCoordenada = computed(() => this.obra()?.latitude != null && this.obra()?.longitude != null);
   readonly comoChegar = computed(() => (this.obra() ? linkComoChegar(this.obra()!, /iPhone|iPad|Macintosh/.test(navigator.userAgent)) : null));
-  readonly material = computed<MaterialPrevisto[]>(() => (this.programacao() ? materialPrevisto([this.programacao()!], this.saldo()) : []));
+  readonly material = computed<MaterialPrevisto[]>(() => (this.programacao() ? materialPrevisto([this.programacao()!], this.saldo(),
+    p => executadoPorItem(p, this.ctx.registros.registros(), this.ctx.pacote.recebidoEm())) : []));
   readonly faltando = computed(() => this.material().filter(m => m.falta > 0).length);
   readonly aviso = computed(() => {
     const p = this.programacao();

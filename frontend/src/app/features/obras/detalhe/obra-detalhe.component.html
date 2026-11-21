@@ -96,15 +96,36 @@
     <section class="geo-kpis obra-kpis" aria-label="Indicadores da obra">
       <div class="geo-kpi" data-tone="info">
         <span class="geo-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
-        <span class="geo-kpi__body"><span class="geo-kpi__label">Valor de projeto</span><span class="geo-kpi__value">{{ moeda(o.valorProjeto) }}</span></span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Valor de projeto</span>
+          @if (o.valorProjeto) {
+            <span class="geo-kpi__value">{{ moeda(o.valorProjeto) }}</span>
+          } @else if (resumoPlanejamento()?.valorTotal) {
+            <span class="geo-kpi__value">{{ moeda(resumoPlanejamento()!.valorTotal) }}</span><span class="geo-kpi__detail">pelo planejamento · sem valor de projeto na carteira</span>
+          } @else {
+            <span class="geo-kpi__value">—</span><span class="geo-kpi__detail">Não informado</span>
+          }
+        </span>
       </div>
       <div class="geo-kpi">
         <span class="geo-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
-        <span class="geo-kpi__body"><span class="geo-kpi__label">Material previsto</span><span class="geo-kpi__value">{{ moeda($safeNavigationMigration(carteira()?.valorMaterialPrevisto)) }}</span></span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Material previsto</span>
+          @if (carteira()?.valorMaterialPrevisto) {
+            <span class="geo-kpi__value">{{ moeda(carteira()!.valorMaterialPrevisto) }}</span>
+          } @else {
+            <span class="geo-kpi__value">—</span><span class="geo-kpi__detail">Não informado na carteira</span>
+          }
+        </span>
       </div>
       <div class="geo-kpi">
         <span class="geo-kpi__icon"><i class="pi pi-wrench" aria-hidden="true"></i></span>
-        <span class="geo-kpi__body"><span class="geo-kpi__label">Serviço previsto</span><span class="geo-kpi__value">{{ moeda($safeNavigationMigration(carteira()?.valorServicoPrevisto)) }}</span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Serviço previsto</span>
+          @if (carteira()?.valorServicoPrevisto) {
+            <span class="geo-kpi__value">{{ moeda(carteira()!.valorServicoPrevisto) }}</span>
+          } @else if (resumoPlanejamento()?.valorTotal) {
+            <span class="geo-kpi__value">{{ moeda(resumoPlanejamento()!.valorTotal) }}</span><span class="geo-kpi__detail">pelo planejamento</span>
+          } @else {
+            <span class="geo-kpi__value">—</span><span class="geo-kpi__detail">Não informado na carteira</span>
+          }
           @if (dados(orcamento())?.importado) {
             <span class="geo-kpi__detail">{{ moeda(dados(orcamento())!.totalServicosImportados) }} no orçamento importado</span>
           }

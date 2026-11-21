@@ -121,9 +121,13 @@ export class EquipesProjecaoComponent {
 
   protected readonly bases = computed(() => opcoes(this.equipes(), (e) => e.idBase, (e) => e.base));
   protected readonly tipos = computed(() => opcoes(this.equipes(), (e) => e.idTipoEquipe, (e) => e.tipoEquipe));
+  /** Mais perto da obra primeiro (sem distância conhecida vai para o fim); empate pelo código. */
   protected readonly visiveis = computed(() => this.equipes()
     .filter((e) => !this.filtroBase() || e.idBase === this.filtroBase())
-    .filter((e) => !this.filtroTipo() || e.idTipoEquipe === this.filtroTipo()));
+    .filter((e) => !this.filtroTipo() || e.idTipoEquipe === this.filtroTipo())
+    .slice()
+    .sort((a, b) => (a.distanciaKm ?? Number.POSITIVE_INFINITY) - (b.distanciaKm ?? Number.POSITIVE_INFINITY)
+      || (a.codigo ?? '').localeCompare(b.codigo ?? '', 'pt-BR')));
   protected readonly atual = computed(() => this.equipes().find((e) => e.id === this.selecionada()) ?? null);
 
   protected conflitosDe(equipe: EquipeProjetada): ConflitoEquipe[] {

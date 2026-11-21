@@ -2,6 +2,7 @@ package com.nexo.app.modules.estoque;
 
 import com.nexo.app.modules.estoque.application.mappers.MaterialMapper;
 import com.nexo.app.modules.estoque.domain.Estoque;
+import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
 import com.nexo.app.modules.estoque.domain.Material;
 import com.nexo.app.modules.estoque.infrastructure.persistence.EstoqueRepository;
 import com.nexo.app.modules.estoque.infrastructure.persistence.MaterialRepository;
@@ -27,6 +28,7 @@ public class EstoqueApi {
     private final MaterialRepository materialRepository;
     private final EstoqueRepository estoqueRepository;
     private final MaterialMapper materialMapper;
+    private final com.nexo.app.modules.estoque.application.services.ProcessoMaterialService processoMaterial;
 
     /**
      * Converte uma quantidade informada em outra unidade (ex.: metros de fita) para a unidade do
@@ -83,6 +85,20 @@ public class EstoqueApi {
             return List.of();
         }
         return materialRepository.findAllById(ids).stream().map(materialMapper::toResponse).toList();
+    }
+
+    /**
+     * Materiais que o cadastro não deixa ir para a solicitação técnica (processo diferente de Obras), como
+     * "código - descrição". Quem programa vê antes de gravar, em vez de descobrir na recusa.
+     */
+    public List<String> materiaisForaDaSolicitacaoTecnica(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return materialRepository.findAllById(ids).stream()
+                .filter(m -> processoMaterial.incompatibilidade(ContextoSolicitacaoMaterial.TECNICO, m).isPresent())
+                .map(m -> m.getCodigo() + " - " + m.getDescricao())
+                .toList();
     }
 
     /**

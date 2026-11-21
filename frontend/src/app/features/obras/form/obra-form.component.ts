@@ -1,4 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, map, of } from 'rxjs';
+import { CLASSES_TENSAO, ClasseTensao } from '../../../core/models/obras-kit.models';
 import { Router } from '@angular/router';
 import {
   GEO_FORM_KIT,
@@ -34,6 +37,7 @@ import {
 } from '../../../core/models/rh.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ObrasService } from '../../../core/services/obras.service';
+import { ContratoService } from '../../../core/services/contrato.service';
 import { controleObra } from '../obras-controle';
 import { RhService } from '../../../core/services/rh.service';
 import { saidaDoDrawer } from '../../../shared/utils/drawer-navegacao.utils';
@@ -124,6 +128,17 @@ export class ObraFormComponent implements OnInit {
   protected readonly longitude = signal<number | null>(null);
   protected readonly endereco = signal('');
   protected readonly referencia = signal('');
+  /** Só na obra nova: contrato e tensão vão para a carteira logo depois de criar (sem eles o planejamento não tem preço nem kits). */
+  protected readonly idContrato = signal<string | null>(null);
+  protected readonly classeTensao = signal<ClasseTensao | null>(null);
+  protected readonly tensoes = CLASSES_TENSAO;
+  protected readonly contratoOpcoes = toSignal(
+    inject(ContratoService).listarContratosAtivos().pipe(
+      map((p) => p.content.map((c) => ({ label: `${c.numeroContrato} · ${c.cliente}`, value: c.id }))),
+      catchError(() => of([] as { label: string; value: string }[]))
+    ),
+    { initialValue: [] as { label: string; value: string }[] }
+  );
 
   private readonly statusLista = signal<StatusObraResponse[]>([]);
   private readonly tiposObra = signal<TipoDeObraResponse[]>([]);
@@ -280,6 +295,11 @@ export class ObraFormComponent implements OnInit {
         this.notificacoes.success(`Obra ${obra?.numero || request.numero} ${id ? 'atualizada' : 'cadastrada'}.`, {
           action: !id && obra?.id ? { label: 'Abrir obra', run: () => void this.router.navigate(['/obras', obra.id]) } : undefined
         });
+        if (!id && obra?.id && (this.idContrato() || this.classeTensao())) {
+          this.service.informarCarteira(obra.id, { idContrato: this.idContrato(), classeTensao: this.classeTensao() }).subscribe({
+            error: (falha) => this.notificacoes.warning(`Obra cadastrada, mas o contrato e a tensão não foram gravados: ${getErrorMessage(falha)}`)
+          });
+        }
         this.salva.emit(obra);
         this.fechar();
       },

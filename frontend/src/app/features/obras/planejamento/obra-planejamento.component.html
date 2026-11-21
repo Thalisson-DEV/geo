@@ -50,9 +50,15 @@
     </header>
 
     @if (!p.projetoMestre) {
-      <geo-async-state class="plan-estado" state="empty" icon="pi pi-file-pdf" title="Esta obra ainda não tem projeto"
-        description="Anexe o PDF do projeto para marcar pontos, vãos e kits sobre a folha."
-        [actionLabel]="podeEditar ? 'Anexar projeto' : undefined" actionIcon="pi pi-upload" (action)="abrirProjeto()"></geo-async-state>
+      @if (podeEditar && pdfUnico(); as pdf) {
+        <geo-async-state class="plan-estado" state="empty" icon="pi pi-file-pdf" title="Esta obra ainda não tem projeto"
+          [description]="'O PDF ' + pdf.nomeArquivo + ' já está anexado à obra. Use-o como projeto para marcar pontos, vãos e kits sobre a folha.'"
+          actionLabel="Usar este PDF como projeto" actionIcon="pi pi-check" (action)="usarAnexo(pdf)"></geo-async-state>
+      } @else {
+        <geo-async-state class="plan-estado" state="empty" icon="pi pi-file-pdf" title="Esta obra ainda não tem projeto"
+          description="Anexe o PDF do projeto para marcar pontos, vãos e kits sobre a folha."
+          [actionLabel]="podeEditar ? 'Anexar projeto' : undefined" actionIcon="pi pi-upload" (action)="abrirProjeto()"></geo-async-state>
+      }
     } @else {
       <div class="plan-ferramentas" role="toolbar" aria-label="Ferramentas da folha">
         <geo-button size="sm" icon="pi pi-arrows-alt" label="Mão" [variant]="ferramenta() === 'mao' ? 'primary' : 'ghost'" keyShortcut="M" (pressed)="escolherFerramenta('mao')"></geo-button>

@@ -19,6 +19,10 @@
       <geo-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBaseOperacional" [error]="erro('idBaseOperacional')"></geo-select>
       <geo-select label="Município" [required]="true" [options]="municipiosOpcoes()" [(value)]="idMunicipio" [filter]="true" [error]="erro('idMunicipio')"></geo-select>
       <geo-select label="Centro de custo" [required]="true" [options]="centrosOpcoes()" [(value)]="idCentroCusto" [error]="erro('idCentroCusto')"></geo-select>
+      @if (!editando()) {
+        <geo-select label="Contrato" description="Dá os preços dos kits no planejamento." [options]="contratoOpcoes()" [(value)]="idContrato" [filter]="true" [clearable]="true" placeholder="Opcional"></geo-select>
+        <geo-select label="Classe de tensão" description="Filtra os kits que servem para a obra." [options]="tensoes" [(value)]="classeTensao" [clearable]="true" placeholder="Opcional"></geo-select>
+      }
     </div>
   </geo-form-section>
 

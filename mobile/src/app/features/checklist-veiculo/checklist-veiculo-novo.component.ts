@@ -538,6 +538,9 @@ export class ChecklistVeiculoNovoComponent implements OnInit, OnDestroy {
     } else if (!rascunho) {
       await this.sugerirMeuVeiculo();
     }
+    // Veio da abertura do turno com a placa certa: o passo "Veículo" só confirmaria o que já está escolhido.
+    const r = this.registro();
+    if (pedido && r?.idVeiculo === pedido.idVeiculo && (r.passo ?? 1) === 1 && !this.semModelo()) this.atualizar({ passo: 2 });
   }
 
   /** O veículo que está com a pessoa já vem marcado; só fica no aparelho quando ela mexer em algo. */

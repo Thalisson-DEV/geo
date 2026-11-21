@@ -13,6 +13,8 @@ export interface MarcadorPonto {
   y: number;
   situacao: SituacaoPonto;
   pendencia: boolean;
+  /** Marcador de vão: fica no meio entre os dois pontos, menor, com o rótulo "1–2". */
+  vao?: boolean;
 }
 
 /** Níveis de aproximação: o projeto é uma prancha grande; no tablet a 1×, o desenho e os textos ficam pequenos. */
@@ -47,9 +49,9 @@ const NIVEIS = [1, 1.5, 2, 3, 4];
       <div class="folha" #folha [style.width.%]="zoom() * 100">
         <canvas #canvas aria-hidden="true"></canvas>
         @for (m of marcadoresDaPagina(); track m.id) {
-          <button type="button" class="ponto" [attr.data-situacao]="m.situacao" [class.selecionado]="m.id === selecionado()" [class.proximo]="m.id === proximo()" [attr.data-ponto]="m.id"
+          <button type="button" class="ponto" [class.vao]="m.vao" [attr.data-situacao]="m.situacao" [class.selecionado]="m.id === selecionado()" [class.proximo]="m.id === proximo()" [attr.data-ponto]="m.id"
             [style.left.%]="m.x * 100" [style.top.%]="m.y * 100" (click)="escolhido.emit(m.id)"
-            [attr.aria-label]="'Ponto ' + m.numero + ': ' + rotulo(m.situacao) + (m.id === proximo() ? ', próximo' : '') + (m.pendencia ? ', com foto pendente' : '')">
+            [attr.aria-label]="(m.vao ? 'Vão ' : 'Ponto ') + m.numero + ': ' + rotulo(m.situacao) + (m.id === proximo() ? ', próximo' : '') + (m.pendencia ? ', com foto pendente' : '')">
             {{ m.numero }}@if (m.pendencia) { <i class="pendencia" aria-hidden="true"></i> }
           </button>
         }
@@ -82,6 +84,8 @@ const NIVEIS = [1, 1.5, 2, 3, 4];
       background: var(--geo-superficie); color: var(--geo-texto); box-shadow: var(--geo-sombra-cartao); touch-action: manipulation; }
     .ponto::after { content: ''; position: absolute; inset: -6px; }
     /* A fazer: branco sobre o papel branco precisa de contorno para aparecer. */
+    .ponto.vao { min-width: calc(var(--marcador, 40px) * .7); height: calc(var(--marcador, 40px) * .6); border-radius: var(--geo-r-campo);
+      font-size: calc(var(--marcador, 40px) * .3); }
     .ponto[data-situacao='A_FAZER'] { border-color: var(--geo-texto-2); }
     .ponto[data-situacao='PARCIAL'] { background: var(--geo-atencao); color: var(--geo-superficie); }
     .ponto[data-situacao='FEITO'] { background: var(--geo-ok); color: var(--geo-superficie); }

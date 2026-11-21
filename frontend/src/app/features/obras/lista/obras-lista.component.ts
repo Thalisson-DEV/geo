@@ -39,6 +39,7 @@ import {
   IndicadoresCarteiraResponse,
   ObraFilter,
   ObraImportacaoDTO,
+  ObraResponse,
   ObraResumoResponse,
   PRIORIDADES_OBRA,
   PrioridadeObra,
@@ -410,7 +411,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
     </app-ajuda-listagem>
 
     @if (drawerObra.open() && podeEscrever) {
-      <app-obra-form [idObra]="drawerObra.id()" (salva)="lista.reload()" (fechado)="drawerObra.close()"></app-obra-form>
+      <app-obra-form [idObra]="drawerObra.id()" (salva)="aoSalvar($event)" (fechado)="drawerObra.close()"></app-obra-form>
     }
     @if (solicitandoObra(); as idObra) {
       <app-nova-solicitacao-tecnica-drawer [visible]="true" (visibleChange)="!$event && solicitandoObra.set(null)" [idObraInicial]="idObra" (criada)="lista.reload()" />
@@ -425,6 +426,15 @@ export class ObrasListComponent {
   private readonly contratos = inject(ContratoService);
   private readonly rh = inject(RhService);
   private readonly router = inject(Router);
+
+  /** Obra nova cai longe da primeira página (a lista abre por prazo): filtra pelo número para ela aparecer na hora. */
+  protected aoSalvar(obra: ObraResponse | null): void {
+    if (!this.drawerObra.id() && obra?.numero) {
+      this.lista.set('numero', obra.numero);
+      return;
+    }
+    this.lista.reload();
+  }
   private readonly auth = inject(AuthService);
   private readonly notificacoes = inject(NotificationService);
   private readonly confirmacao = inject(GeoConfirmationService);

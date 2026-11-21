@@ -9,6 +9,7 @@ import {
   effect,
   inject,
   signal,
+  untracked,
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -38,7 +39,7 @@ import {
   geoPdfParaTela,
   normalizarRotacao
 } from '@geo/ui';
-import { Observable, filter, switchMap, take, takeWhile, timer } from 'rxjs';
+import { Observable, filter, finalize, shareReplay, switchMap, take, takeWhile, timer } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AnexoObraResponse, OrcamentoObraResponse } from '../../../core/models/obras.models';
 import {
@@ -486,6 +487,13 @@ export class ObraPlanejamentoComponent {
       this.rascunhoBarramento.set(ponto?.barramento ?? '');
     });
     effect(() => this.rascunhoMetragem.set(this.vaoAtivo()?.metragem ?? null));
+    effect(() => {
+      const plano = this.plano();
+      if (plano && !plano.projetoMestre && this.podeEditar && !this.pdfsConferidos) {
+        this.pdfsConferidos = true;
+        untracked(() => this.carregarPdfsAnexados());
+      }
+    });
     effect(() => this.rascunhoAnotacao.set(this.anotacaoAtiva()?.texto ?? ''));
 
     effect(() => {
@@ -888,11 +896,19 @@ export class ObraPlanejamentoComponent {
     else if (this.ferramenta() !== 'vao') this.abrir({ tipo: 'vao', id: vao.id });
   }
 
+  /** Metragem em gravação: o kit aplicado logo em seguida espera por ela (senão as duas gravações se cruzam e dão conflito). */
+  private gravacaoMetragem: Observable<PlanejamentoObra> | null = null;
+
   protected salvarMetragem(): void {
     const vao = this.vaoAtivo();
     const metragem = this.rascunhoMetragem();
-    if (!vao || !this.podeEditar || (metragem ?? null) === (vao.metragem ?? null)) return;
-    this.executar(this.api.editarVao(this.idObra, vao.id, metragem || null, vao.versao));
+    if (!vao || !this.podeEditar || this.gravacaoMetragem || (metragem ?? null) === (vao.metragem ?? null)) return;
+    const gravacao = this.api.editarVao(this.idObra, vao.id, metragem || null, vao.versao).pipe(
+      finalize(() => (this.gravacaoMetragem = null)),
+      shareReplay(1)
+    );
+    this.gravacaoMetragem = gravacao;
+    this.executar(gravacao);
   }
 
   protected async excluirVao(vao: VaoPlanejamento): Promise<void> {
@@ -910,12 +926,15 @@ export class ObraPlanejamentoComponent {
     const ponto = this.pontoAtivo();
     const vao = this.vaoAtivo();
     if (!ponto && !vao) return;
-    this.executarKit({
-      idKit: aplicacao.idKit,
-      operacao: aplicacao.operacao,
-      idsPontos: ponto ? [ponto.id] : [],
-      idsVaos: vao ? [vao.id] : []
-    });
+    const comando = { idKit: aplicacao.idKit, operacao: aplicacao.operacao, idsPontos: ponto ? [ponto.id] : [], idsVaos: vao ? [vao.id] : [] };
+    // Metragem digitada e ainda não gravada (ou gravando): grava primeiro, o kit de cabo usa a metragem nova.
+    if (vao) this.salvarMetragem();
+    const pendente = this.gravacaoMetragem;
+    if (pendente) {
+      pendente.pipe(take(1)).subscribe({ next: () => this.executarKit(comando), error: () => undefined });
+    } else {
+      this.executarKit(comando);
+    }
   }
 
   protected aplicarEmLote(aplicacao: AplicacaoKit): void {
@@ -1070,15 +1089,24 @@ export class ObraPlanejamentoComponent {
   protected abrirProjeto(): void {
     this.projetoArquivo.set(null);
     this.projetoAberto.set(true);
-    this.obras.listarAnexos(this.idObra).pipe(take(1)).subscribe({
-      next: (anexos) => this.anexosPdf.set(anexos.filter((a) => a.contentType === 'application/pdf' || a.nomeArquivo.toLowerCase().endsWith('.pdf'))),
-      error: () => this.anexosPdf.set([])
-    });
+    this.carregarPdfsAnexados();
     this.obras.listarTiposAnexosAtivos().pipe(take(1)).subscribe({
       next: (tipos) => this.tiposAnexo.set(tipos.map((t) => ({ value: t.id, label: t.nome }))),
       error: () => this.tiposAnexo.set([])
     });
   }
+
+  /** PDFs já anexados à obra: o projeto pode ser um deles, sem enviar de novo. */
+  private carregarPdfsAnexados(): void {
+    this.obras.listarAnexos(this.idObra).pipe(take(1)).subscribe({
+      next: (anexos) => this.anexosPdf.set(anexos.filter((a) => a.contentType === 'application/pdf' || a.nomeArquivo.toLowerCase().endsWith('.pdf'))),
+      error: () => this.anexosPdf.set([])
+    });
+  }
+
+  /** Sem projeto e com um único PDF anexado (ex.: anexado como "Projeto CAD"): a tela vazia oferece usar esse PDF direto. */
+  protected readonly pdfUnico = computed(() => (this.anexosPdf().length === 1 ? this.anexosPdf()[0] : null));
+  private pdfsConferidos = false;
 
   protected usarAnexo(anexo: AnexoObraResponse): void {
     this.executar(this.api.definirProjetoMestre(this.idObra, anexo.id), () => this.projetoAberto.set(false));
