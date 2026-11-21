@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { RouterLink } from '@angular/router';
 import { IconeComponent, IndicadorRedeComponent, TituloGrandeComponent, VazioComponent } from '../../ui';
 import { ConnectivityService } from '../../core/sync/connectivity.service';
+import { LayoutService } from '../../core/plataforma/layout.service';
 import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obras/supervisao.service';
 
 /**
@@ -17,6 +18,7 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
     <geo-titulo-grande titulo="Obras" [subtitulo]="subtitulo()"><geo-indicador-rede /></geo-titulo-grande>
     @if (servico.erro()) { <p class="aviso" role="status">{{ servico.erro() }}</p> }
 
+    <div class="colunas" [class.duas]="layout.expandido()"><section>
     <h2 class="geo-secao"><span>Equipes agora</span>
       <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="atualizar()" [disabled]="!rede.isOnline()"><geo-icone nome="atualizar" [tamanho]="16" />Atualizar</button></h2>
     @if (servico.equipes().length) {
@@ -32,7 +34,7 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
             </span>
             @if (e.aprsPendentes || e.ocorrenciasImpeditivas) {
               <span class="geo-etiqueta" [class.geo-etiqueta--erro]="e.ocorrenciasImpeditivas > 0" [class.geo-etiqueta--atencao]="!e.ocorrenciasImpeditivas">
-                {{ e.ocorrenciasImpeditivas ? e.ocorrenciasImpeditivas + ' impedida' : e.aprsPendentes + ' APR' }}</span>
+                {{ e.ocorrenciasImpeditivas ? e.ocorrenciasImpeditivas + ' sem condição' : e.aprsPendentes + ' APR pendente' }}</span>
             }
           </li>
         }
@@ -41,10 +43,12 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
       <geo-vazio icone="pessoas" titulo="Sem leitura das equipes" texto="Conecte para ver a situação das equipes agora." />
     }
 
+    </section><section>
     <h2 class="geo-secao">Documentação da obra</h2>
-    <label class="geo-campo"><span>Número da obra</span>
-      <input class="geo-input geo-num" inputmode="numeric" [value]="busca()" (input)="busca.set($any($event.target).value)" (keyup.enter)="buscar()" placeholder="Ex.: 7000001"></label>
-    <div class="buscar"><button type="button" class="geo-btn geo-btn--neutro" (click)="buscar()" [disabled]="!busca().trim() || !rede.isOnline()">Buscar</button></div>
+    <div class="buscar">
+      <input class="geo-input geo-num" inputmode="numeric" aria-label="Número da obra" [value]="busca()" (input)="busca.set($any($event.target).value)" (keyup.enter)="buscar()" placeholder="Número da obra, ex.: 7000001">
+      <button type="button" class="geo-btn geo-btn--tonal" (click)="buscar()" [disabled]="!busca().trim() || !rede.isOnline()">Buscar</button>
+    </div>
     <ul class="geo-grupo">
       @for (o of obras(); track o.id) {
         <li><a class="geo-linha geo-linha--acao" [routerLink]="['/supervisao/obras', o.id]" [queryParams]="{ numero: o.numero }">
@@ -53,17 +57,20 @@ import { ObraResumo, StatusEquipeObra, SupervisaoService } from '../../core/obra
           <geo-icone nome="avancar" [tamanho]="18" /></a></li>
       }
     </ul>
+    </section></div>
     <div class="geo-respiro"></div>
   `,
   styles: [`
+    .colunas.duas { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); column-gap: var(--geo-e5); align-items: start; }
     .aviso { margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .geo-campo { margin: 0 var(--geo-margem); }
-    .buscar { padding: var(--geo-e2) var(--geo-margem); }
+    .buscar { display: flex; gap: var(--geo-e2); align-items: center; padding: 0 var(--geo-margem) var(--geo-e2); }
+    .buscar .geo-btn { min-height: var(--geo-alvo-principal); }
   `],
 })
 export class SupervisaoComponent implements OnInit {
   readonly servico = inject(SupervisaoService);
   readonly rede = inject(ConnectivityService);
+  readonly layout = inject(LayoutService);
   readonly busca = signal('');
   readonly obras = signal<ObraResumo[]>([]);
   readonly subtitulo = computed(() => {

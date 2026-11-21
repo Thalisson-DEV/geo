@@ -406,9 +406,9 @@ const PREFIXO_BRUTO = 'bruto:';
     .fotos li { position: relative; aspect-ratio: 1; border-radius: var(--geo-r-campo); overflow: hidden; background: var(--geo-superficie-2); max-width: 100%; }
     .fotos img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .sem-previa { position: absolute; inset: 0; display: grid; place-items: center; color: var(--geo-texto-2); }
-    .tam { position: absolute; left: 6px; bottom: 6px; padding: 2px 6px; border-radius: 6px; background: rgba(0, 0, 0, .55); color: #fff; font-size: 11px; }
+    .tam { position: absolute; left: 6px; bottom: 6px; padding: 2px 6px; border-radius: 6px; background: var(--geo-veu-foto); color: var(--geo-veu-foto-texto); font-size: 11px; }
     .tirar { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; border: 0; display: grid; place-items: center;
-      background: rgba(0, 0, 0, .55); color: #fff; cursor: pointer; }
+      background: var(--geo-veu-foto); color: var(--geo-veu-foto-texto); cursor: pointer; }
     .tirar::after { content: ''; position: absolute; inset: -8px; }
     .resumo { margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e2) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .resumo > div { display: flex; justify-content: space-between; gap: var(--geo-e3); padding: var(--geo-e3) 0; border-bottom: 1px solid var(--geo-linha); }

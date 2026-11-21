@@ -330,7 +330,7 @@ const CATEGORIAS: CategoriaProduto[] = ['COMBUSTIVEL', 'ARLA', 'OLEO', 'FLUIDO']
     .foto-grande__tirar { font: 600 1rem/1.2 var(--geo-fonte); }
     .foto-grande__dica { font: var(--geo-t-apoio); color: var(--geo-texto-2); max-width: 22rem; }
     .foto-grande__ok { position: absolute; top: 8px; left: 8px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--geo-ok); color: var(--geo-fundo); }
-    .foto-grande__refazer { position: absolute; right: 8px; bottom: 8px; padding: 6px 10px; border-radius: var(--geo-r-pilula); background: rgba(0, 0, 0, .6); color: #fff; font: 600 .75rem/1 var(--geo-fonte); }
+    .foto-grande__refazer { position: absolute; right: 8px; bottom: 8px; padding: 6px 10px; border-radius: var(--geo-r-pilula); background: var(--geo-veu-foto); color: var(--geo-veu-foto-texto); font: 600 .75rem/1 var(--geo-fonte); }
     .item { display: flex; align-items: center; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e2) var(--geo-e3) var(--geo-e4); min-height: 72px; }
     .item + .item { border-top: 1px solid var(--geo-linha); }
     .item__texto { flex: 1; min-width: 0; display: grid; gap: 2px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }

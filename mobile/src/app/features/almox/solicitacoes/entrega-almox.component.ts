@@ -287,7 +287,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
     .assinaturas { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3); }
     .assinadas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-margem) 0; }
     figure { margin: 0; padding: var(--geo-e2); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); display: grid; gap: 4px; }
-    figure img { width: 100%; height: 64px; object-fit: contain; background: #fff; border-radius: 8px; }
+    figure img { width: 100%; height: 64px; object-fit: contain; background: var(--geo-papel); border-radius: 8px; }
     figcaption { font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
       background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }

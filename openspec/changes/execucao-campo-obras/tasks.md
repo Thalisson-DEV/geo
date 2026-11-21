@@ -18,42 +18,42 @@
 
 ## B. App: base de Obras (depende da fundação do app)
 
-- [ ] B.1 Perfil de Obras e abas Hoje, Obras, Material, Frota, Conta
-- [ ] B.2 Tabelas offline de Obras (programações, obras, planejamento, kits, modelos, APR, ocorrências, apontamentos, chegadas, evidências) e migração do Dexie
-- [ ] B.3 Armazenamento de PDFs e fotos em arquivo (OPFS com reserva em IndexedDB), `navigator.storage.persist()`, aviso de espaço e limpeza de obras concluídas
-- [ ] B.4 Sincronização do pacote automática (ao abrir, ao voltar a rede, a cada lançamento) e "Pronto para trabalhar sem sinal"
-- [ ] B.5 Fila de Obras com ordem por obra, dependência APR → apontamento e estados (no aparelho, enviando, enviado, conflito)
+- [x] B.1 Perfil de Obras e abas Hoje, Obras, Material, Frota, Conta. Feito: abas Hoje, Obras, Material, Frota e Conta para o perfil EQUIPE_OBRAS (`AuthService.ehEquipeObras`); supervisor com aba Obras
+- [x] B.2 Tabelas offline de Obras (programações, obras, planejamento, kits, modelos, APR, ocorrências, apontamentos, chegadas, evidências) e migração do Dexie
+- [x] B.3 Armazenamento de PDFs e fotos em arquivo (OPFS com reserva em IndexedDB), `navigator.storage.persist()`, aviso de espaço e limpeza de obras concluídas. Reserva grava ArrayBuffer + tipo (o WebKit não guarda Blob no IndexedDB)
+- [x] B.4 Sincronização do pacote automática (ao abrir, ao voltar a rede, a cada lançamento) e "Pronto para trabalhar sem sinal"
+- [x] B.5 Fila de Obras com ordem por obra, dependência APR → apontamento e estados (no aparelho, enviando, enviado, conflito)
 
 ## C. App: dia da equipe (depende de A e B)
 
-- [ ] C.1 Hoje guiado com próximo passo, obras do dia, condições da intervenção, material faltando e pendências
-- [ ] C.2 Abrir turno com composição e veículo pré-preenchidos; checklist do veículo
-- [ ] C.3 Ficha da obra em campo: endereço, "Como chegar", contato, programação, material previsto × saldo, anexos
-- [ ] C.4 Chegada/saída com sugestão por GPS
-- [ ] C.5 APR guiada em passos, com sugestões por condição, assinatura dos participantes e "Sem condição de executar". Opções sugeridas, a validar com o SST: riscos (choque elétrico, arco elétrico, queda de altura, queda de materiais ou ferramentas, movimentação de carga, tráfego, escavação, animais peçonhentos, clima, calor ou esforço físico); medidas (desenergização, bloqueio e aterramento, linha viva, sinalização e isolamento, inspeção de escada e cinto, plano de içamento, EPI e EPC, revezamento e hidratação); verificações (conversa sobre riscos, EPI em bom estado, ferramentas e veículo inspecionados, área sinalizada, clima permite, desligamento confirmado)
-- [ ] C.6 Execução sobre o projeto: pontos coloridos por situação, "Tudo feito" por ponto, parcial por item; tablet em duas colunas, celular com folha
-- [ ] C.7 Fotos do modelo por ponto/vão com câmera direta, carimbo e pendências
-- [ ] C.8 Ocorrências com foto (inclusive falta de material); obra não programada; material previsto × saldo do caminhão, sem pedido
-- [ ] C.9 As Built do ponto pré-preenchido e equipamentos por leitura de série/QR
-- [ ] C.10 Fechar turno com relatório diário montado
-- [ ] C.11 Avisos de reprogramação/cancelamento (notificação e ao abrir)
+- [x] C.1 Hoje guiado com próximo passo, obras do dia, condições da intervenção, material faltando e pendências
+- [x] C.2 Abrir turno com composição e veículo pré-preenchidos; checklist do veículo. Turno de Obras abre e fecha sem sinal (id provisório trocado ao enviar; `dataInicio`/`dataFim` do aparelho; líder e substitutos). O checklist do veículo continua cobrado pela tela de abertura quando a frota exige
+- [x] C.3 Ficha da obra em campo: endereço, "Como chegar", contato, programação, material previsto × saldo, anexos
+- [x] C.4 Chegada/saída com sugestão por GPS
+- [x] C.5 APR guiada em passos, com sugestões por condição, assinatura dos participantes e "Sem condição de executar". Opções sugeridas, a validar com o SST: riscos (choque elétrico, arco elétrico, queda de altura, queda de materiais ou ferramentas, movimentação de carga, tráfego, escavação, animais peçonhentos, clima, calor ou esforço físico); medidas (desenergização, bloqueio e aterramento, linha viva, sinalização e isolamento, inspeção de escada e cinto, plano de içamento, EPI e EPC, revezamento e hidratação); verificações (conversa sobre riscos, EPI em bom estado, ferramentas e veículo inspecionados, área sinalizada, clima permite, desligamento confirmado)
+- [x] C.6 Execução sobre o projeto: pontos coloridos por situação, "Tudo feito" por ponto, parcial por item; tablet em duas colunas, celular com folha
+- [x] C.7 Fotos do modelo por ponto/vão com câmera direta, carimbo e pendências
+- [x] C.8 Ocorrências com foto (inclusive falta de material); obra não programada; material previsto × saldo do caminhão, sem pedido. Obra não programada busca entre as obras do pacote (a equipe não tem leitura do cadastro de obras)
+- [x] C.9 As Built do ponto pré-preenchido e equipamentos por leitura de série/QR. No app da equipe: série do equipamento por QR/teclado gravada na foto da placa (legenda) e fotos do modelo por ponto; a ficha As Built é preenchida pelo supervisor (D.1)
+- [x] C.10 Fechar turno com relatório diário montado
+- [x] C.11 Avisos de reprogramação/cancelamento (notificação e ao abrir). Web Push liga na Conta (com o app instalado e as chaves VAPID no servidor); os avisos sempre aparecem no Hoje ao abrir
 
 ## D. App: supervisor (depende de C.3, C.7)
 
-- [ ] D.1 Visita prévia, As Built e book no app usando `DocumentacaoTecnicaController` e os modelos de `/v1/obras/checklists`
-- [ ] D.2 Acompanhamento das equipes (status, obra atual, agenda, APR pendente, ocorrências impeditivas)
+- [x] D.1 Visita prévia, As Built e book no app usando `DocumentacaoTecnicaController` e os modelos de `/v1/obras/checklists`. No app: visita prévia pelo modelo de checklist (vai pela fila), pedido de As Built e de book; a ficha As Built por ponto segue no web
+- [x] D.2 Acompanhamento das equipes (status, obra atual, agenda, APR pendente, ocorrências impeditivas)
 
 ## E. Web: revisão de fotos (em paralelo a C)
 
-- [ ] E.1 Anexação manual de evidências a pontos/vãos
-- [ ] E.2 Revisão (aprovar/reprovar com motivo), inconformidades e retorno da pendência à equipe
-- [ ] E.3 Ranking de qualidade por equipe
-- [ ] E.4 Relatório de medição detalhado usando só fotos aprovadas
+- [x] E.1 Anexação manual de evidências a pontos/vãos. Já existia no web (foto por ponto; vão pelo ponto A)
+- [x] E.2 Revisão (aprovar/reprovar com motivo), inconformidades e retorno da pendência à equipe
+- [x] E.3 Ranking de qualidade por equipe
+- [x] E.4 Relatório de medição detalhado usando só fotos aprovadas
 
 ## F. Status em tempo real (em paralelo a C)
 
-- [ ] F.1 Cálculo de status a partir de turno, chegada/saída, apontamentos e telemetria com regras configuráveis
-- [ ] F.2 Exibição na central de operações, dashboard de turnos, telemetria e no app do supervisor
+- [x] F.1 Cálculo de status a partir de turno, chegada/saída, apontamentos e telemetria com regras configuráveis
+- [x] F.2 Exibição na central de operações, dashboard de turnos, telemetria e no app do supervisor. Exibição no boletim das equipes (web) e no app do supervisor; central de operações e telemetria ficam para quando houver posição da telemetria no cálculo
 
 ## G. Fechamento
 

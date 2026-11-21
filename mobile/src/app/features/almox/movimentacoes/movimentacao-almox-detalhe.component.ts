@@ -96,7 +96,7 @@ interface GrupoMaterial {
     .series span { padding: 3px 8px; border-radius: 6px; background: var(--geo-superficie-2); font: 600 .75rem/1.3 var(--geo-fonte-mono); }
     .assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--geo-e2); padding: 0 var(--geo-e3); }
     figure { margin: 0; padding: var(--geo-e2); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); display: grid; gap: 4px; }
-    figure img { width: 100%; height: 72px; object-fit: contain; background: #fff; border-radius: 8px; }
+    figure img { width: 100%; height: 72px; object-fit: contain; background: var(--geo-papel); border-radius: 8px; }
     figcaption { font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); text-align: center; }
   `],
 })

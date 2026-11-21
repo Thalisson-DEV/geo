@@ -25,6 +25,8 @@ import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementR
   `,
   styles: [`
     :host { display: contents; }
+    /* Numa tela em grade (tablet deitado em duas colunas), o título ocupa a largura toda. */
+    .compacta, .cab { grid-column: 1 / -1; }
     .cab { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--geo-e3);
       padding: calc(var(--geo-safe-topo) + var(--geo-e5)) var(--geo-margem) var(--geo-e1); }
     .txt { flex: 1; min-width: 0; }

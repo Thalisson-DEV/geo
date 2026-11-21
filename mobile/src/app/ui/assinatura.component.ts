@@ -52,12 +52,12 @@ import { IconeComponent } from './icone.component';
     .rotulo { font: 600 .875rem/1.3 var(--geo-fonte); color: var(--geo-texto); }
     .quem { font: var(--geo-t-apoio); color: var(--geo-texto-2); margin-top: -6px; }
     .ok { display: inline-flex; align-items: center; gap: 4px; font: 600 .75rem/1 var(--geo-fonte); color: var(--geo-ok); }
-    img { width: 100%; height: 88px; object-fit: contain; background: #fff; border-radius: 8px; }
+    img { width: 100%; height: 88px; object-fit: contain; background: var(--geo-papel); border-radius: 8px; }
     .vazia { display: flex; align-items: center; justify-content: center; gap: var(--geo-e2); min-height: 88px; color: var(--geo-destaque); font-weight: 600; }
     .quadro { position: relative; padding: 0 var(--geo-e4); }
-    canvas { width: 100%; height: 260px; display: block; border-radius: var(--geo-r-grupo); background: #fff; border: 1px solid var(--geo-linha-forte); touch-action: none; }
-    .linha { position: absolute; left: calc(var(--geo-e4) + 24px); right: calc(var(--geo-e4) + 24px); bottom: 56px; height: 1px; background: #c9d1dc; pointer-events: none; }
-    .dica { position: absolute; left: calc(var(--geo-e4) + 24px); bottom: 64px; font: 500 .8125rem/1 var(--geo-fonte); color: #7c8899; pointer-events: none; }
+    canvas { width: 100%; height: 260px; display: block; border-radius: var(--geo-r-grupo); background: var(--geo-papel); border: 1px solid var(--geo-linha-forte); touch-action: none; }
+    .linha { position: absolute; left: calc(var(--geo-e4) + 24px); right: calc(var(--geo-e4) + 24px); bottom: 56px; height: 1px; background: var(--geo-papel-linha); pointer-events: none; }
+    .dica { position: absolute; left: calc(var(--geo-e4) + 24px); bottom: 64px; font: 500 .8125rem/1 var(--geo-fonte); color: var(--geo-papel-dica); pointer-events: none; }
   `],
 })
 export class AssinaturaComponent {

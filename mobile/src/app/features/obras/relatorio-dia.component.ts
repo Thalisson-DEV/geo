@@ -16,14 +16,14 @@ import { ObrasContexto } from './obras-contexto';
   imports: [BarraTopoComponent, IconeComponent, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <geo-barra-topo titulo="Fechar o dia" subtitulo="Relatório diário" (voltar)="voltar()" />
+    <geo-barra-topo [titulo]="turno.turnoAtivo() ? 'Fechar o dia' : 'Relatório do dia'" subtitulo="Relatório diário" (voltar)="voltar()" />
     @if (pendenciasFoto() || ctx.registros.pendentes()) {
       <ul class="geo-grupo pendencias" aria-label="Pendências">
         @if (pendenciasFoto()) {
           <li><a class="geo-linha geo-linha--acao" routerLink="/obras">
             <span class="geo-selo geo-selo--atencao"><geo-icone nome="camera" /></span>
             <span class="geo-linha__texto"><span class="geo-linha__titulo geo-num">{{ pendenciasFoto() }} {{ pendenciasFoto() === 1 ? 'foto pendente' : 'fotos pendentes' }}</span>
-              <span class="geo-linha__apoio">Pode fechar: elas ficam visíveis para a equipe e para o escritório</span></span>
+              <span class="geo-linha__apoio">Pode fechar: {{ pendenciasFoto() === 1 ? 'ela fica visível' : 'elas ficam visíveis' }} para a equipe e para o escritório</span></span>
             <geo-icone nome="avancar" [tamanho]="18" /></a></li>
         }
         @if (ctx.registros.pendentes()) {

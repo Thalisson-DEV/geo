@@ -80,7 +80,8 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
   `,
   styles: [`
     :host { display: block; height: 100%; }
-    .estado { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .estado { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
+      border-radius: var(--geo-r-grupo); background: var(--geo-superficie); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .estado:empty { display: none; }
     .extra { margin-top: var(--geo-e5); }
     a.ativa { background: var(--geo-destaque-suave); }

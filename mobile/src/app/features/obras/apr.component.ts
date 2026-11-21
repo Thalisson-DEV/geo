@@ -28,7 +28,7 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (programacao(); as p) {
-      <geo-barra-topo [titulo]="'APR · ' + passos[passo()]" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + ' · #' + p.numero" (voltar)="voltar()" />
+      <geo-barra-topo [titulo]="'APR · ' + passos[passo()]" [subtitulo]="'Passo ' + (passo() + 1) + ' de ' + passos.length + ' · Obra ' + (p.numeroObra ?? '') + ' · #' + p.numero" (voltar)="voltar()" />
       <div class="geo-passos" aria-hidden="true">@for (x of passos; track x; let i = $index) { <i [class.feito]="i <= passo()"></i> }</div>
       <p class="geo-sr-only" aria-live="polite">Passo {{ passo() + 1 }} de {{ passos.length }}: {{ passos[passo()] }}</p>
 
@@ -47,8 +47,7 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
                 @for (m of membros(); track m.idColaborador) {
                   <li><button type="button" class="geo-linha geo-linha--acao" role="checkbox" [attr.aria-checked]="r.participantes.includes(m.idColaborador)"
                     (click)="alternar('participantes', m.idColaborador)">
-                    <span class="geo-selo" [class.geo-selo--destaque]="r.participantes.includes(m.idColaborador)">
-                      <geo-icone [nome]="r.participantes.includes(m.idColaborador) ? 'check' : 'pessoas'" /></span>
+                    <span class="geo-selo geo-selo--caixa" [class.marcada]="r.participantes.includes(m.idColaborador)" aria-hidden="true"><geo-icone nome="check" [tamanho]="18" /></span>
                     <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ m.nome }}</span><span class="geo-linha__apoio">{{ m.funcao ?? '' }}</span></span>
                   </button></li>
                 }
@@ -59,7 +58,7 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
               <ul class="geo-grupo">
                 @for (x of modelo()?.riscos ?? []; track x) {
                   <li><button type="button" class="geo-linha geo-linha--acao" role="checkbox" [attr.aria-checked]="r.riscos.includes(x)" (click)="alternar('riscos', x)">
-                    <span class="geo-selo" [class.geo-selo--destaque]="r.riscos.includes(x)"><geo-icone [nome]="r.riscos.includes(x) ? 'check' : 'alerta'" /></span>
+                    <span class="geo-selo geo-selo--caixa" [class.marcada]="r.riscos.includes(x)" aria-hidden="true"><geo-icone nome="check" [tamanho]="18" /></span>
                     <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ x }}</span>
                       @if (sugestao().riscos.includes(x)) { <span class="geo-linha__apoio">Sugerido pelas condições</span> }</span>
                   </button></li>
@@ -72,7 +71,7 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
               <ul class="geo-grupo">
                 @for (x of modelo()?.medidas ?? []; track x) {
                   <li><button type="button" class="geo-linha geo-linha--acao" role="checkbox" [attr.aria-checked]="r.medidas.includes(x)" (click)="alternar('medidas', x)">
-                    <span class="geo-selo" [class.geo-selo--destaque]="r.medidas.includes(x)"><geo-icone [nome]="r.medidas.includes(x) ? 'check' : 'escudo'" /></span>
+                    <span class="geo-selo geo-selo--caixa" [class.marcada]="r.medidas.includes(x)" aria-hidden="true"><geo-icone nome="check" [tamanho]="18" /></span>
                     <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ x }}</span>
                       @if (sugestao().medidas.includes(x)) { <span class="geo-linha__apoio">Sugerida pelas condições</span> }</span>
                   </button></li>
@@ -84,9 +83,10 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
             @case (3) {
               <ul class="verificacoes">
                 @for (v of verificacoes(); track v) {
-                  <li>
+                  <li class="geo-grupo verificacao" [class.sem-resposta]="tentouAvancar() && !r.verificacoes[v]" [attr.aria-invalid]="tentouAvancar() && !r.verificacoes[v] ? true : null">
                     <span class="pergunta">{{ v }}</span>
                     <geo-segmentado [rotulo]="v" [opcoes]="respostas" [valor]="$any(r.verificacoes[v] ?? '')" (valorChange)="responder(v, $any($event))" />
+                    @if (tentouAvancar() && !r.verificacoes[v]) { <span class="nao">Responda.</span> }
                     @if (r.verificacoes[v] === 'NAO') { <span class="nao" role="alert">Corrija antes de executar ou registre "Sem condição de executar".</span> }
                   </li>
                 }
@@ -138,11 +138,12 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; }
     .corpo { flex: 1; padding-bottom: var(--geo-e6); }
-    .dica { margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .dica { margin: var(--geo-e3) var(--geo-margem); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .resumo { margin: var(--geo-e3) var(--geo-margem) 0; }
     .geo-campo { margin: var(--geo-e4) var(--geo-margem) 0; }
-    .verificacoes { list-style: none; margin: var(--geo-e3) 0 0; padding: 0 var(--geo-margem); display: grid; gap: var(--geo-e4); }
-    .verificacoes li { display: grid; gap: var(--geo-e2); }
+    .verificacoes { list-style: none; margin: var(--geo-e3) 0 0; padding: 0; display: grid; gap: var(--geo-e3); }
+    .verificacao { display: grid; gap: var(--geo-e2); padding: var(--geo-e3) var(--geo-e4); margin-top: 0; }
+    .verificacao.sem-resposta { outline: 1.5px solid var(--geo-erro); }
     .pergunta { font: var(--geo-t-corpo-forte); }
     .nao { font: var(--geo-t-apoio); color: var(--geo-erro); }
     .assinatura { margin: var(--geo-e3) var(--geo-margem) 0; }
@@ -213,7 +214,15 @@ export class AprComponent implements OnInit {
     });
   }
 
+  readonly tentouAvancar = signal(false);
+
   irPara(passo: number): void {
+    // Verificações: sem todas respondidas, mostra o que falta (pode seguir; a conclusão é que exige).
+    if (this.passo() === 3 && passo > 3 && this.verificacoes().some(v => !this.r()?.verificacoes[v])) {
+      this.tentouAvancar.set(true);
+      return;
+    }
+    this.tentouAvancar.set(false);
     this.mudar(r => ({ ...r, passo: Math.max(0, Math.min(PASSOS.length - 1, passo)) }));
     document.querySelector('.geo-rolagem, main')?.scrollTo?.({ top: 0 });
   }

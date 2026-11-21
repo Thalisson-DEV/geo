@@ -37,7 +37,8 @@ import { ObrasContexto } from './obras-contexto';
       <textarea class="geo-input" rows="4" maxlength="2000" [value]="descricao()" (input)="descricao.set($any($event.target).value)"
         [placeholder]="tipo() === 'MATERIAL' ? 'Ex.: faltaram 2 cruzetas no caminhão' : 'Descreva, ou toque no microfone do teclado para ditar'"
         data-testid="descricao-ocorrencia"></textarea></label>
-    <geo-fotos rotulo="Fotos" [fotos]="fotosExibidas()" [carimbo]="carimbo()" (adicionada)="adicionar($event)" (removida)="remover($event)" [galeria]="true" />
+    <div class="fotos"><span class="fotos__rotulo">Fotos (opcional)</span>
+      <geo-fotos rotulo="Fotos da ocorrência" [fotos]="fotosExibidas()" [carimbo]="carimbo()" (adicionada)="adicionar($event)" (removida)="remover($event)" [galeria]="true" /></div>
     <div class="geo-respiro"></div>
     <div class="geo-rodape-acoes" data-acao-fixa>
       <button type="button" class="geo-btn" [class.geo-btn--perigo]="impede()" [class.geo-btn--principal]="!impede()"
@@ -54,6 +55,8 @@ import { ObrasContexto } from './obras-contexto';
       background: var(--geo-superficie); color: var(--geo-texto); font: 500 .9375rem/1 var(--geo-fonte); display: inline-flex; align-items: center; gap: 6px; }
     .tipo[aria-checked='true'] { background: var(--geo-destaque-suave); color: var(--geo-destaque); border-color: transparent; font-weight: 600; }
     .geo-campo { margin: var(--geo-e4) var(--geo-margem); }
+    .fotos { padding: 0 var(--geo-margem); }
+    .fotos__rotulo { display: block; margin-bottom: var(--geo-e2); font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
   `],
 })
 export class OcorrenciaObraComponent {

@@ -137,6 +137,8 @@ export class MockApi {
   recusarObras: Partial<Record<string, string>> = {};
   /** O pacote devolve a programação #12 como cancelada (removida da agenda). */
   programacaoCancelada = false;
+  /** "Hoje" da agenda de Obras (as capturas usam relógio fixo). */
+  hojeObras = new Date();
   readonly obras: boolean;
 
   escritasEm(path: string | RegExp): EscritaRecebida[] {
@@ -379,7 +381,7 @@ export class MockApi {
     }
     // ---------- Obras (app de campo) ----------
     if (path === '/v1/obras/campo/pacote') {
-      return this.json(route, 200, pacoteObras(url.searchParams.get('desde'), this.programacaoCancelada));
+      return this.json(route, 200, pacoteObras(url.searchParams.get('desde'), this.programacaoCancelada, this.hojeObras));
     }
     if (/^\/v1\/obras\/campo\/obras\/[^/]+\/projeto$/.test(path)) {
       return route.fulfill({ status: 200, contentType: 'application/pdf', body: pdfMinimo() });
@@ -417,15 +419,15 @@ export class MockApi {
 }
 
 /** Hoje em dd/MM/yyyy no fuso dos testes (Fortaleza). */
-export function diaBr(somarDias = 0): string {
-  const d = new Date(Date.now() + somarDias * 86_400_000);
+export function diaBr(somarDias = 0, base = new Date()): string {
+  const d = new Date(base.getTime() + somarDias * 86_400_000);
   return new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Fortaleza', day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
 }
 
 /** Pacote offline da equipe EQ-101: a programação #12 hoje (obra 7000001, 2 pontos) e a #13 amanhã. */
-export function pacoteObras(desde: string | null, cancelada = false) {
-  const hoje = diaBr();
-  const amanha = diaBr(1);
+export function pacoteObras(desde: string | null, cancelada = false, base = new Date()) {
+  const hoje = diaBr(0, base);
+  const amanha = diaBr(1, base);
   const p12 = {
     id: 'p-12', numero: 12, idObra: 'o-1', numeroObra: '7000001', inicio: hoje, fim: hoje, descricao: 'Implantar rede de baixa tensão',
     turno: 'DIA_TODO', linhaViva: false, desligamento: true, horaDesligamentoInicio: '08:00', horaDesligamentoFim: '12:00', numeroManobra: '4471',
@@ -440,7 +442,7 @@ export function pacoteObras(desde: string | null, cancelada = false) {
     horaDesligamentoInicio: null, horaDesligamentoFim: null, numeroManobra: null,
     itens: [{ idItem: 'i-9', idPonto: 'pt-5', local: 'P5', tipo: 'SERVICO', codigo: 'S9', descricao: 'Ligar ramal', unidade: 'UN', quantidade: 1, executada: 0, status: 'PROGRAMADO' }] };
   return {
-    geradoEm: new Date().toISOString(), desde, idEquipe: IDS.equipe, codigoEquipe: 'EQ-101', inicioJanela: hoje, fimJanela: diaBr(7),
+    geradoEm: new Date().toISOString(), desde, idEquipe: IDS.equipe, codigoEquipe: 'EQ-101', inicioJanela: hoje, fimJanela: diaBr(7, base),
     programacoes: cancelada ? [p13] : [p12, p13],
     programacoesRemovidas: cancelada ? ['p-12'] : [],
     obras: [{

@@ -10,7 +10,7 @@
 .receb__foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .receb__tirar { font: 600 .8125rem/1 var(--geo-fonte); }
 .receb__ok { position: absolute; top: 6px; left: 6px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--geo-ok); color: var(--geo-fundo); }
-.receb__refazer { position: absolute; right: 6px; bottom: 6px; padding: 4px 8px; border-radius: var(--geo-r-pilula); background: rgba(0, 0, 0, .6); color: #fff; font: 600 .6875rem/1 var(--geo-fonte); }
+.receb__refazer { position: absolute; right: 6px; bottom: 6px; padding: 4px 8px; border-radius: var(--geo-r-pilula); background: var(--geo-veu-foto); color: var(--geo-veu-foto-texto); font: 600 .6875rem/1 var(--geo-fonte); }
 .receb__rotulo { font: var(--geo-t-apoio); color: var(--geo-texto); font-weight: 500; padding: 0 2px; }
 
 /* Conferir */
@@ -25,7 +25,7 @@
 .interruptor .txt { flex: 1; display: grid; gap: 2px; }
 .interruptor .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
 .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
-.trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
+.trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--geo-papel); transition: transform var(--geo-m-entrar) var(--geo-curva); }
 [aria-checked='true'] .trilho { background: var(--geo-ok); }
 [aria-checked='true'] .trilho span { transform: translateX(20px); }
 

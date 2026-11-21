@@ -197,7 +197,7 @@ const MAX_CONFERIR = 30;
     .modo { display: grid; justify-items: center; align-content: center; gap: 3px; min-height: 52px; padding: 4px 2px; border: 0; border-radius: 11px;
       background: transparent; color: var(--geo-texto-2); font: 500 .6875rem/1.1 var(--geo-fonte); cursor: pointer; white-space: nowrap;
       transition: background-color var(--geo-m-entrar), color var(--geo-m-entrar); }
-    .modo[aria-selected='true'] { background: var(--geo-superficie); color: var(--geo-destaque); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
+    .modo[aria-selected='true'] { background: var(--geo-superficie); color: var(--geo-destaque); font-weight: 600; box-shadow: var(--geo-sombra-sutil); }
     .area { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e4); }
     .dica { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .sem-camera { display: flex; gap: var(--geo-e3); align-items: flex-start; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);

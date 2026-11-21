@@ -97,7 +97,7 @@ const POR_FAIXA = 30;
       transition: background-color var(--geo-m-entrar), color var(--geo-m-entrar); }
     .atalho strong { min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; display: inline-grid; place-items: center;
       font: 600 .6875rem/1 var(--geo-fonte); background: var(--geo-superficie); color: var(--geo-texto); }
-    .atalho[aria-current='true'] { background: var(--geo-superficie); color: var(--geo-texto); box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
+    .atalho[aria-current='true'] { background: var(--geo-superficie); color: var(--geo-texto); box-shadow: var(--geo-sombra-sutil); }
     .atalho[aria-current='true'][data-tom='atencao'] strong { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
     .atalho[aria-current='true'][data-tom='destaque'] strong { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
     .trilho { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: var(--geo-e3); overflow-x: auto; overscroll-behavior-x: contain; align-items: start;

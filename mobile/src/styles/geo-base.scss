@@ -69,8 +69,12 @@ button, a, [role='button'], [role='tab'], .geo-tocavel {
   &--neutro { background: var(--geo-superficie-2); color: var(--geo-texto); }
   &--texto { background: transparent; color: var(--geo-destaque); padding: 0 var(--geo-e3); }
   &--perigo { background: var(--geo-erro-suave); color: var(--geo-erro); }
+  // Desabilitado sem sumir (o perigo claro a 45% desaparecia no escuro).
+  &--perigo:disabled, &--principal:disabled { opacity: 1; background: var(--geo-superficie-2); color: var(--geo-texto-3); }
   &--bloco { width: 100%; min-height: var(--geo-alvo-principal); font-size: 1rem; }
-  &--compacto { min-height: 40px; padding: 0 var(--geo-e3); font-size: .875rem; }
+  &--compacto { position: relative; min-height: 40px; padding: 0 var(--geo-e3); font-size: .875rem; }
+  // O visual é compacto, o alvo de toque não: a área se estende até 48 px.
+  &--compacto::after { content: ''; position: absolute; inset: -4px 0; }
 }
 
 .geo-btn-icone {
@@ -225,6 +229,9 @@ li + li > .geo-linha::before {
   &--ok { background: var(--geo-ok-suave); color: var(--geo-ok); }
   &--atencao { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
   &--erro { background: var(--geo-erro-suave); color: var(--geo-erro); }
+  // Caixa de seleção: desmarcada = quadrado vazio; marcada = cheia com check (listas de escolha múltipla).
+  &--caixa { width: 28px; height: 28px; margin: 0 6px; border-radius: 8px; background: var(--geo-superficie); border: 1.5px solid var(--geo-borda-campo); color: transparent; }
+  &--caixa.marcada { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
 }
 
 // ---------- coluna do app ----------
@@ -252,6 +259,14 @@ button.geo-linha:disabled { cursor: default; opacity: .55; }
   text-decoration: none; box-shadow: var(--geo-sombra-flutuante); border: 0; cursor: pointer;
   &:active { transform: scale(.97); }
 }
+// Tablet deitado: o botão flutuante sobe para a barra lateral, logo abaixo da marca (Material 3, navigation rail com FAB),
+// só com o ícone; o texto fica para o leitor de tela. Os destinos descem para dar lugar a ele.
+html[data-nav='lateral'] .geo-fab {
+  left: calc(env(safe-area-inset-left, 0px) + (88px - 56px) / 2); right: auto;
+  top: calc(var(--geo-safe-topo) + var(--geo-e4) + 40px + var(--geo-e4)); bottom: auto;
+  width: 56px; height: 56px; min-height: 56px; padding: 0; justify-content: center; gap: 0; font-size: 0; z-index: 20;
+}
+html[data-nav='lateral']:has(.geo-fab) geo-barra-abas .marca { margin-bottom: calc(var(--geo-e4) + 56px + var(--geo-e4)); }
 // Faixa de estado no topo de um detalhe (enviado, na fila, com problema…).
 .geo-faixa-estado {
   display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
@@ -328,6 +343,30 @@ button.geo-linha:disabled { cursor: default; opacity: .55; }
 
 @media (prefers-reduced-motion: reduce) {
   .geo-esqueleto { animation: none; }
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } // lint-estilos: permitido (movimento reduzido precisa vencer os estilos dos componentes)
 }
 }
+
+// ---------- puxar para atualizar ----------
+// Indicador no topo da área rolável: um anel que desce com o dedo, completa ao passar do limite e gira enquanto atualiza.
+.geo-puxar {
+  --geo-puxar: 0px;
+  // Fora do fluxo (a área rolável é flex e daria espaço ao indicador); só aparece com a lista no topo.
+  position: absolute; top: 0; left: 0; right: 0; z-index: 4; height: 0; overflow: visible; display: flex; justify-content: center; pointer-events: none;
+  &::before {
+    content: ''; width: 36px; height: 36px; margin-top: calc(var(--geo-puxar) - 44px); border-radius: 50%;
+    background: var(--geo-superficie); box-shadow: var(--geo-sombra-flutuante);
+    opacity: min(1, calc(var(--geo-puxar) / 54px));
+    transform: rotate(calc(var(--geo-puxar) * 3));
+    transition: margin-top var(--geo-m-sair) var(--geo-curva);
+    border: 3px solid var(--geo-linha);
+    border-top-color: var(--geo-destaque);
+    box-sizing: border-box;
+  }
+  &--pronto::before { border-color: var(--geo-destaque); border-top-color: transparent; }
+  &--girando::before { margin-top: 12px; opacity: 1; animation: geo-girar 0.8s linear infinite; border-color: var(--geo-linha); border-top-color: var(--geo-destaque); }
+}
+@keyframes geo-girar { to { transform: rotate(360deg); } }
+
+// Texto longo: respiro em cima e embaixo (o padding do campo é só lateral).
+textarea.geo-input { padding-block: var(--geo-e3); line-height: 1.45; min-height: 96px; }

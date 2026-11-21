@@ -92,7 +92,20 @@ Equipes de Obras são separadas das comerciais.
   da mudança de programação.
 - **Perfil `EQUIPE_OBRAS`** com `obras:turno:read/write`, `obras:execucao:write` e `obras:campo:read` (nova, também para
   administrador e supervisor, só leitura do pacote). Os perfis do web continuam sem escrita de turno/execução (V205).
-- **Abertura do turno** aceita `dataInicio` (hora do aparelho, até 24 h atrás), `idLider` e `idsSubstitutos`.
+- **Abertura do turno** aceita `dataInicio` (hora do aparelho, até 24 h atrás), `idLider` e `idsSubstitutos`; o fechamento aceita
+  `dataFim`. No app, o turno de Obras abre/fecha sem sinal com id `local-…`, trocado pelo do servidor quando a abertura sai da fila
+  (o fechamento espera a abertura).
+- **Revisão de fotos** (V264): situação na própria `EvidenciaPonto` (pendente/aprovada/reprovada, inconformidade, motivo, quem e
+  quando) e a equipe que tirou (para o ranking). Reprovada nunca entra no As Built/book e volta como pendência no pacote do app
+  com o motivo; o relatório de medição detalhado usa só aprovadas.
+- **Status das equipes** (`StatusOperacionalEquipe`): sem turno, encerrado, a caminho, na obra, executando, parada (sem
+  apontamento há `geo.obras.status.minutos-inatividade`, padrão 90), sem condição, sem obra. Calculado de turno, chegada/saída,
+  apontamentos e "sem condição"; a posição da telemetria (raio da base/obra) fica para quando houver integração no cálculo.
+- **C.9 no app da equipe**: a série do equipamento (QR ou teclado) vai na legenda da foto da placa; a ficha As Built por ponto
+  continua com o supervisor/web, que tem `obras:documentacao:write` (a equipe não tem).
+- **Obra não programada** busca entre as obras do pacote: a equipe não tem leitura do cadastro de obras.
+- **Arquivos no aparelho**: OPFS quando há escrita (Chrome); no Safari a reserva grava ArrayBuffer + tipo no IndexedDB (Blob no
+  IndexedDB falha em alguns WebKit).
 
 ## Risks / Trade-offs
 

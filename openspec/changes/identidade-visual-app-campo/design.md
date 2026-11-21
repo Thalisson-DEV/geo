@@ -48,6 +48,27 @@ zoneless. Público do app: encarregados de campo e administrativo; ~70% tablet, 
 - **Testes**: Vitest em modo navegador (Chromium headless) no lugar de Karma, porque os testes usam IndexedDB, Web Locks e
   Blob reais; Playwright mantém e2e, a11y e visual (claro/escuro × tablet/celular); Cypress sai.
 
+## Decisões tomadas na implementação (20/11/2026)
+
+- **Lint de estilos** (`tools/verificar-estilos.mjs`, `npm run lint:estilos`, roda no `prebuild`): hex/rgb/hsl e `!important`
+  só em `geo-tokens.scss`. Novos tokens: `--geo-papel*` (assinatura, documento e PDF ficam brancos também no escuro: é o que se
+  imprime), `--geo-tinta`, `--geo-sombra-sutil` e `--geo-camera-*` (leitor de código sobre a imagem da câmera, paleta fixa de
+  alto contraste). Exceção só com `lint-estilos: permitido` e motivo (hoje: `prefers-reduced-motion`). `tokens.scss`,
+  `typography.scss` e `animations.scss` eram órfãos e saíram.
+- **Toast com folha aberta vai para o topo** (sinal `FolhaComponent.abertas`, não atributo na raiz: mudar a raiz recalculava o
+  estilo da página inteira). Antes ele cobria o quadro de assinatura e engolia o traço.
+- **Puxar para atualizar** como diretiva na área rolável do shell, só nas telas de topo e só com toque; alternativa visível:
+  "Sincronizar agora" na Conta. Indicador fora do fluxo (`position: absolute`), anunciado como "Atualizando…".
+- **Ação por arrasto** (`geo-linha-arrasto`) só como atalho: a mesma ação fica sempre como botão visível na linha.
+- **FAB na barra lateral** do tablet deitado por CSS global (`html[data-nav='lateral'] .geo-fab`), sem mudar as telas.
+- **Botão compacto** mantém o visual de 40 px e estende o alvo a 48 px por pseudo-elemento; **principal/perigo desabilitados**
+  ficam cinza opaco (a 45% sumiam no escuro).
+- **Caixa de seleção** (`.geo-selo--caixa`) nas escolhas múltiplas (APR): desmarcado precisa parecer vazio, não "alerta".
+- 2.1/2.3–2.6 (migração das telas existentes): as telas já usam as primitivas unificadas (linha, grupo, folha, passos,
+  interruptor) desde a 1.8; o que falta é aplicar lista + detalhe no tablet deitado em Transferências, Inspeções e Almoxarifado e
+  trocar o quadro de assinatura próprio da transferência pelo `geo-assinatura`. Ficou para depois para não mexer nas garantias de
+  retomada (testes de `e2e/piloto/retomada.spec.ts` usam a transferência como fluxo).
+
 ## Risks / Trade-offs
 
 - [Atualização Angular 20 → 22 quebrar telas] → migrar por etapas (21, depois 22) com os testes de caracterização a cada passo.

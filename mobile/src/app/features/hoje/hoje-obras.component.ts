@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IconeComponent } from '../../ui';
+import { IconeComponent, LinhaArrastoComponent } from '../../ui';
 import { TurnoService } from '../../core/turno/turno.service';
 import { proximoPasso } from '../../core/obras/obras-regras';
 import { ObrasContexto } from '../obras/obras-contexto';
@@ -13,7 +13,7 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
 @Component({
   selector: 'app-hoje-obras',
   standalone: true,
-  imports: [IconeComponent, RouterLink],
+  imports: [IconeComponent, RouterLink, LinhaArrastoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (ctx.pacote.avisosNovos().length) {
@@ -67,10 +67,12 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
             <geo-icone nome="avancar" [tamanho]="18" /></a></li>
         }
         @for (c of ctx.registros.conflitos(); track c.id) {
-          <li class="geo-linha" data-testid="conflito-obra"><span class="geo-selo geo-selo--erro"><geo-icone nome="alerta" /></span>
-            <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ rotuloTipo(c.tipo) }} recusado</span>
-              <span class="geo-linha__apoio">{{ c.motivo }}</span></span>
-            <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="ctx.registros.descartarConflito(c.id)">Refazer</button></li>
+          <li><geo-linha-arrasto rotulo="Refazer" icone="desfazer" (acao)="ctx.registros.descartarConflito(c.id)">
+            <div class="geo-linha" data-testid="conflito-obra"><span class="geo-selo geo-selo--erro"><geo-icone nome="alerta" /></span>
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ rotuloTipo(c.tipo) }} recusado</span>
+                <span class="geo-linha__apoio">{{ c.motivo }}</span></span>
+              <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="ctx.registros.descartarConflito(c.id)">Refazer</button></div>
+          </geo-linha-arrasto></li>
         }
       </ul>
     }

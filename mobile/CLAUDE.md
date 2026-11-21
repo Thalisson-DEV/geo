@@ -36,6 +36,14 @@ Material 3 e diretrizes da Apple, com a marca GEO do web e **escala de toque** (
 - **Ícones:** Lucide pelo `<geo-icone>` (`src/app/ui/icone.component.ts`), traço 1,75; ícone novo = importar do `lucide` e mapear.
 - **Componentes:** os do `src/app/ui/` (sem PrimeNG no app). Toda mudança visual termina com screenshots claro/escuro em celular,
   tablet em pé e deitado (`e2e/support/redesign-shots.spec.ts` → `docs/redesign/mobile/`) e revisão do `ui-reviewer`.
+- **Padrões prontos:** folha inferior (`geo-folha`; com folha aberta o toast vai para o topo), lista + detalhe (`geo-lista-detalhe`),
+  passos (`.geo-passos`), interruptor (`.geo-interruptor`), caixa de seleção (`.geo-selo--caixa` + `.marcada`), fotos com carimbo
+  (`geo-fotos`), assinatura (`geo-assinatura`), puxar para atualizar (`geoPuxarAtualizar`, já na área rolável das telas de topo),
+  ação por arrasto (`geo-linha-arrasto`, sempre com o botão visível na linha), desfazer (`ToastService.desfazer`).
+  No tablet deitado o `.geo-fab` sobe sozinho para a barra lateral. `geo-btn--compacto` tem alvo estendido até 48 px.
+- **Cor só por token:** `npm run lint:estilos` (roda antes de todo `npm run build`) barra hex/rgb/hsl e `!important` fora de
+  `geo-tokens.scss`. Papel da assinatura/PDF: `--geo-papel*`; câmera do leitor: `--geo-camera-*`. Exceção justificada leva
+  `lint-estilos: permitido` na linha.
 
 ---
 
@@ -207,9 +215,26 @@ export class ConnectivityService {
 
 ### 7.2 Feature: Hoje (`/hoje`; `/dashboard` redireciona)
 - Título com a data e a equipe, indicador de rede e retomada do trabalho deixado pela metade.
-- Campo: turno (abrir/encerrar), envios pendentes, veículo (checklist e abastecimento). Será o "Hoje guiado" de Obras
-  (change `execucao-campo-obras`): obras do dia e o próximo passo.
+- Campo: turno (abrir/encerrar), envios pendentes, veículo (checklist e abastecimento). Para a equipe de Obras é o "Hoje guiado"
+  (`hoje-obras.component.ts`): próximo passo num botão, obras do dia, avisos de mudança e pendências; duas colunas no tablet deitado.
 - Administrativo: almoxarifado, segurança e aprovações, conforme as permissões.
+
+### 7.2.1 Obras (perfil EQUIPE_OBRAS: `obras:turno:write`) — `core/obras/`, `features/obras/`
+- **Abas:** Hoje, Obras, Material, Frota, Conta. Supervisor de Obras (`obras:campo:read`, administrativo) tem a aba Obras em
+  `/supervisao` (status das equipes agora, visita prévia, pedido de As Built/book).
+- **Pacote offline** (`PacoteObrasService`): `GET /v1/obras/campo/pacote?desde=` ao abrir, ao voltar a rede e no puxar para atualizar;
+  PDFs por hash em `ArquivosCampoService` (OPFS; reserva no IndexedDB como ArrayBuffer — o WebKit não guarda Blob). Banco v14:
+  `obrasProgramacoes`, `obrasObras`, `obrasRegistros`, `obrasAprRascunhos`, `obrasArquivos`.
+- **Registros** (`RegistrosObrasService`): APR, conclusão, ocorrência, atividade, apontamento ("Tudo feito" = `pontoInteiro`),
+  chegada/saída, foto, relatório. Cada um tem id do aparelho (`campo.idLocal`), hora do aparelho com fuso e GPS (só no momento da
+  ação, nunca trava). Vão pela fila (`/_obras/registro`) ao envio durável `OBRA_*`, na ordem; o apontamento depende da APR
+  (`dependeDe`). Recusa = `CONFLITO` com o motivo do servidor (Hoje → "Refazer").
+- **Regras puras** em `core/obras/obras-regras.ts` (próximo passo, sugestões da APR, liberação, pontos coloridos, material × saldo,
+  pendência de foto, relatório montado, "Como chegar"). Teste unitário ao mexer.
+- **Turno de Obras** abre e fecha sem sinal (`TurnoService.abrirTurnoObras/fecharTurnoObras`; id `local-…` trocado ao enviar).
+- **Não existe** pedido de material nem fluxo comercial no app: material vem da programação; falta = ocorrência de material.
+- e2e: `e2e/fase4/obras.spec.ts` (dia inteiro sem sinal, conflito, app morto na APR, aviso, supervisor); mock em
+  `e2e/support/mock-api.ts` (`new MockApi({ obras: true })`).
 
 ### 7.3 Feature: Material (`/material`)
 - Saldo do caminhão (`/material/saldo`) e transferências entre estoques (`/transferencias`, com assinatura).

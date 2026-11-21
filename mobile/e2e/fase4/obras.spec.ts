@@ -86,7 +86,7 @@ test.describe('Obras offline', () => {
     await page.getByTestId('proximo-passo').click();
     await expect(page.getByText('Rua das Flores, 100 - Vila Nova')).toBeVisible();
     await expect(page.getByTestId('como-chegar')).toHaveAttribute('href', /-3.7319,-38.5267/);
-    await expect(page.getByText(/faltam 2/).first()).toBeVisible();
+    await expect(page.getByText(/faltam 2/i).first()).toBeVisible();
     await page.getByTestId('presenca').click();
     await expect(page.getByText('Equipe na obra')).toBeVisible();
 

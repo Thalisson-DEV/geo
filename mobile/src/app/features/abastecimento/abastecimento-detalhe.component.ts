@@ -224,7 +224,7 @@ interface ItemTela {
     .foto--falhou { color: var(--geo-atencao); }
     .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .foto__lupa { position: absolute; right: 6px; bottom: 6px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
-      background: rgba(0, 0, 0, .55); color: #fff; }
+      background: var(--geo-veu-foto); color: var(--geo-veu-foto-texto); }
     .foto__esqueleto { position: absolute; inset: 0; border-radius: 0; }
     .foto__rotulo { font: var(--geo-t-apoio); color: var(--geo-texto); font-weight: 500; padding: 0 2px; }
     .ampliada { display: block; width: calc(100% - 2 * var(--geo-e4)); margin: 0 var(--geo-e4); max-height: 70vh; object-fit: contain; border-radius: var(--geo-r-grupo); }

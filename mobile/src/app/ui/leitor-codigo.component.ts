@@ -96,7 +96,7 @@ function lerModo(): ModoLeitor {
   styles: [`
     :host { display: block; }
     .leitor { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 56dvh; overflow: hidden; border-radius: var(--geo-r-grupo);
-      background: #000; isolation: isolate; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+      background: var(--geo-camera-fundo); isolation: isolate; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
     /* Celular em pé: câmera alta, ocupando a maior parte da tela. */
     @media (max-width: 600px) and (orientation: portrait) { .leitor { aspect-ratio: 3 / 4; max-height: 64dvh; } }
     .leitor.cheio { position: fixed; inset: 0; z-index: 1000; width: 100vw; height: 100dvh; max-height: none; aspect-ratio: auto; border-radius: 0; }
@@ -105,46 +105,46 @@ function lerModo(): ModoLeitor {
 
     /* Janela da mira: só esta faixa é lida. O resto da imagem fica escurecido. */
     .janela { position: absolute; left: 7%; right: 7%; top: 50%; height: clamp(96px, 26%, 220px); transform: translateY(-50%);
-      border-radius: 14px; border: 3px solid rgba(255, 255, 255, .9); box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .5); pointer-events: none;
+      border-radius: 14px; border: 3px solid var(--geo-camera-moldura); box-shadow: 0 0 0 100vmax var(--geo-camera-mascara); pointer-events: none;
       transition: border-color 120ms, background-color 120ms; }
     .laser { position: absolute; left: 4%; right: 4%; top: 50%; height: 3px; margin-top: -1.5px; border-radius: 2px;
-      background: #ff3b30; box-shadow: 0 0 10px 2px rgba(255, 59, 48, .75); transition: background-color 120ms, box-shadow 120ms, opacity 120ms; }
+      background: var(--geo-camera-laser); box-shadow: 0 0 10px 2px var(--geo-camera-laser-brilho); transition: background-color 120ms, box-shadow 120ms, opacity 120ms; }
     .leitor[data-modo='gatilho']:not(.segurando) .laser { opacity: .35; box-shadow: none; }
     .leitor.segurando .laser { height: 5px; margin-top: -2.5px; }
     .pausado .laser { display: none; }
-    .leitor[data-tom='ok'] .janela { border-color: #34c759; background: rgba(52, 199, 89, .18); }
-    .leitor[data-tom='ok'] .laser { background: #34c759; box-shadow: 0 0 12px 3px rgba(52, 199, 89, .8); }
-    .leitor[data-tom='atencao'] .janela { border-color: #ffb020; background: rgba(255, 176, 32, .16); }
-    .leitor[data-tom='erro'] .janela { border-color: #ff5a4f; background: rgba(255, 90, 79, .16); }
+    .leitor[data-tom='ok'] .janela { border-color: var(--geo-camera-ok); background: var(--geo-camera-ok-veu); }
+    .leitor[data-tom='ok'] .laser { background: var(--geo-camera-ok); box-shadow: 0 0 12px 3px var(--geo-camera-ok-brilho); }
+    .leitor[data-tom='atencao'] .janela { border-color: var(--geo-camera-atencao); background: var(--geo-camera-atencao-veu); }
+    .leitor[data-tom='erro'] .janela { border-color: var(--geo-camera-erro); background: var(--geo-camera-erro-veu); }
 
     .topo { position: absolute; left: 12px; right: 12px; top: calc(12px + env(safe-area-inset-top)); display: flex; justify-content: center; pointer-events: none; }
-    .retorno { max-width: 100%; padding: 10px 18px; border-radius: 16px; background: #e7edf5; color: #06121f; text-align: center;
+    .retorno { max-width: 100%; padding: 10px 18px; border-radius: 16px; background: var(--geo-camera-retorno); color: var(--geo-camera-escuro); text-align: center;
       font: 600 1.125rem/1.25 var(--geo-fonte); overflow-wrap: anywhere; animation: surgir 140ms var(--geo-curva); }
-    .retorno[data-tom='ok'] { background: #34c759; }
-    .retorno[data-tom='atencao'] { background: #ffb020; }
-    .retorno[data-tom='erro'] { background: #ff7a6e; }
-    .instrucao { padding: 8px 14px; border-radius: var(--geo-r-pilula); background: rgba(0, 0, 0, .55); color: #fff; font: 600 .9375rem/1.25 var(--geo-fonte); text-align: center; }
+    .retorno[data-tom='ok'] { background: var(--geo-camera-ok); }
+    .retorno[data-tom='atencao'] { background: var(--geo-camera-atencao); }
+    .retorno[data-tom='erro'] { background: var(--geo-camera-erro-retorno); }
+    .instrucao { padding: 8px 14px; border-radius: var(--geo-r-pilula); background: var(--geo-veu-foto); color: var(--geo-veu-foto-texto); font: 600 .9375rem/1.25 var(--geo-fonte); text-align: center; }
     @keyframes surgir { from { opacity: 0; transform: translateY(-6px); } }
 
     .aviso { position: absolute; left: 12px; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-wrap: wrap; align-items: center;
-      justify-content: center; gap: 8px; padding: 12px 14px; border-radius: 14px; background: rgba(11, 16, 23, .88); color: #fff;
+      justify-content: center; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--geo-camera-aviso); color: var(--geo-camera-claro);
       font: 600 .9375rem/1.3 var(--geo-fonte); text-align: center; }
-    .aviso.erro { background: rgba(46, 20, 20, .94); }
+    .aviso.erro { background: var(--geo-camera-aviso-erro); }
     .aviso__texto { flex: 1 1 200px; }
-    .tentar { min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--geo-r-pilula); background: #fff; color: #06121f; font: 600 .9375rem/1 var(--geo-fonte); cursor: pointer; }
+    .tentar { min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--geo-r-pilula); background: var(--geo-papel); color: var(--geo-camera-escuro); font: 600 .9375rem/1 var(--geo-fonte); cursor: pointer; }
 
     .base { position: absolute; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); display: grid; grid-template-columns: 1fr auto 1fr;
       align-items: end; gap: 8px; }
-    .contador { justify-self: start; min-width: 52px; padding: 8px 14px; border-radius: var(--geo-r-pilula); background: rgba(0, 0, 0, .65); color: #fff;
+    .contador { justify-self: start; min-width: 52px; padding: 8px 14px; border-radius: var(--geo-r-pilula); background: var(--geo-camera-contador); color: var(--geo-camera-claro);
       font: 600 1.375rem/1.1 var(--geo-fonte); text-align: center; }
     .controles { justify-self: end; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
     .controle { min-width: 48px; height: 48px; padding: 0 10px; border: 0; border-radius: 24px; display: grid; place-items: center;
-      background: rgba(0, 0, 0, .6); color: #fff; font: 600 .875rem/1 var(--geo-fonte); cursor: pointer; }
-    .controle[aria-pressed='true'] { background: #ffb020; color: #06121f; }
-    .gatilho { width: 84px; height: 84px; border-radius: 50%; border: 4px solid #fff; background: #ff3b30; color: #fff; display: grid; place-items: center;
-      cursor: pointer; box-shadow: 0 4px 16px rgba(0, 0, 0, .45); transition: transform 80ms, background-color 80ms; -webkit-tap-highlight-color: transparent; }
-    .gatilho[aria-pressed='true'] { transform: scale(.92); background: #c4271f; }
-    .concluir { min-height: 52px; padding: 0 24px; border: 0; border-radius: var(--geo-r-pilula); background: #fff; color: #06121f; font: 600 1rem/1 var(--geo-fonte); cursor: pointer; }
+      background: var(--geo-veu-foto); color: var(--geo-veu-foto-texto); font: 600 .875rem/1 var(--geo-fonte); cursor: pointer; }
+    .controle[aria-pressed='true'] { background: var(--geo-camera-atencao); color: var(--geo-camera-escuro); }
+    .gatilho { width: 84px; height: 84px; border-radius: 50%; border: 4px solid var(--geo-camera-claro); background: var(--geo-camera-laser); color: var(--geo-camera-claro); display: grid; place-items: center;
+      cursor: pointer; box-shadow: 0 4px 16px var(--geo-camera-sombra); transition: transform 80ms, background-color 80ms; -webkit-tap-highlight-color: transparent; }
+    .gatilho[aria-pressed='true'] { transform: scale(.92); background: var(--geo-camera-laser-pressionado); }
+    .concluir { min-height: 52px; padding: 0 24px; border: 0; border-radius: var(--geo-r-pilula); background: var(--geo-papel); color: var(--geo-camera-escuro); font: 600 1rem/1 var(--geo-fonte); cursor: pointer; }
     .giro { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: giro .8s linear infinite; }
     @keyframes giro { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) { .retorno, .giro { animation: none; } .janela, .laser, .gatilho { transition: none; } }

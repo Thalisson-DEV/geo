@@ -15,3 +15,5 @@ export * from './leitor-codigo.component';
 export * from './captura-series.component';
 export * from './fotos.component';
 export * from './lista-detalhe.component';
+export * from './puxar-atualizar.directive';
+export * from './linha-arrasto.component';

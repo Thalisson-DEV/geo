@@ -68,7 +68,7 @@ type Estado = 'carregando' | 'pronto' | 'sem-sinal' | 'nao-encontrado' | 'erro' 
     :host { display: block; min-height: 100dvh; background: var(--geo-fundo); }
     .folha { padding: var(--geo-e3); display: grid; gap: var(--geo-e3); justify-items: center; overflow-x: auto; }
     .folha--ampliada { justify-items: start; }
-    .pagina { display: block; width: 100%; height: auto; background: #fff; border-radius: 4px; box-shadow: var(--geo-sombra-flutuante); }
+    .pagina { display: block; width: 100%; height: auto; background: var(--geo-papel); border-radius: 4px; box-shadow: var(--geo-sombra-flutuante); }
     .folha--ampliada .pagina { width: 200%; max-width: none; }
     canvas.pagina { width: auto; }
   `],

@@ -330,7 +330,7 @@ function gravarPreferencia(chave: string, valor: string): void {
                           @if (s.status !== 'SEM_TURNO' && s.status !== 'ENCERRADO') {
                             <p class="bol-agora" [attr.aria-label]="'Agora: ' + textoAgora(s)">
                               <geo-status [tone]="tomAgora[s.status]" icon="pi-circle-fill">Agora: {{ textoAgora(s) }}</geo-status>
-                              @if (s.ocorrenciasImpeditivas) { <geo-status tone="danger">{{ s.ocorrenciasImpeditivas }} sem condição</geo-status> }
+                              @if (s.ocorrenciasImpeditivas && s.status !== 'IMPEDIDA') { <geo-status tone="danger">{{ s.ocorrenciasImpeditivas }} sem condição</geo-status> }
                             </p>
                           }
                         }

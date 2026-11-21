@@ -15,7 +15,9 @@
     "e2e:a11y": "playwright test e2e/a11y",
     "e2e:visual:atualizar": "playwright test e2e/visual --update-snapshots",
     "e2e:desempenho": "playwright test e2e/baseline/perf.spec.ts --project=android",
-    "e2e:videos": "playwright test -c playwright.video.config.ts"
+    "e2e:videos": "playwright test -c playwright.video.config.ts",
+    "lint:estilos": "node tools/verificar-estilos.mjs",
+    "prebuild": "node tools/verificar-estilos.mjs"
   },
   "prettier": {
     "printWidth": 100,

@@ -245,7 +245,7 @@ const TITULOS: Record<Passo, string> = { valores: 'Litros e valores', fotos: 'Fo
     .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .foto__tirar { font: 600 .875rem/1 var(--geo-fonte); }
     .foto__ok { position: absolute; top: 6px; left: 6px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--geo-ok); color: var(--geo-fundo); }
-    .foto__refazer { position: absolute; right: 6px; bottom: 6px; padding: 4px 8px; border-radius: var(--geo-r-pilula); background: rgba(0, 0, 0, .6); color: #fff; font: 600 .6875rem/1 var(--geo-fonte); }
+    .foto__refazer { position: absolute; right: 6px; bottom: 6px; padding: 4px 8px; border-radius: var(--geo-r-pilula); background: var(--geo-veu-foto); color: var(--geo-veu-foto-texto); font: 600 .6875rem/1 var(--geo-fonte); }
     .foto__rotulo { font: var(--geo-t-corpo-forte); font-size: .9375rem; color: var(--geo-texto); padding: 0 2px; }
     .foto__dica { font: var(--geo-t-apoio); color: var(--geo-texto-2); padding: 0 2px; }
     .resumo { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e1) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }

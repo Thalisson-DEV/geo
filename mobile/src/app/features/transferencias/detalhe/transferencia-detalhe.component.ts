@@ -122,7 +122,7 @@ interface ItemEnriquecido {
     .assinaturas { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--geo-e3); padding: 0 var(--geo-e3); }
     .assinatura { margin: 0; padding: var(--geo-e3); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); display: grid; gap: var(--geo-e2); }
     figcaption { font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
-    .assinatura img { width: 100%; height: 96px; object-fit: contain; background: #fff; border-radius: 8px; border: 1px solid var(--geo-linha); }
+    .assinatura img { width: 100%; height: 96px; object-fit: contain; background: var(--geo-papel); border-radius: 8px; border: 1px solid var(--geo-linha); }
     .sem { min-height: 96px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px;
       background: var(--geo-superficie-2); font: var(--geo-t-apoio); color: var(--geo-texto-2); text-align: center; }
     .carregando { height: 96px; }

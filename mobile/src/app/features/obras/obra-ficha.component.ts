@@ -96,7 +96,7 @@ const RAIO_CHEGADA_M = 400;
           <geo-icone nome="avancar" [tamanho]="18" /></a></li>
       </ul>
 
-      <h2 class="geo-secao"><span>Material previsto</span>@if (faltando()) { <span class="falta">faltam {{ faltando() }} {{ faltando() === 1 ? 'item' : 'itens' }}</span> }</h2>
+      <h2 class="geo-secao"><span>Material previsto</span>@if (faltando()) { <span class="falta">{{ faltando() === 1 ? 'falta 1 item' : 'faltam ' + faltando() + ' itens' }}</span> }</h2>
       @if (material().length) {
         <ul class="geo-grupo" aria-label="Material previsto e saldo do caminhão">
           @for (m of material(); track m.descricao) {
@@ -106,7 +106,7 @@ const RAIO_CHEGADA_M = 400;
                 <span class="geo-linha__titulo">{{ m.descricao }}</span>
                 <span class="geo-linha__apoio geo-num">Previsto {{ num(m.previsto) }} {{ m.unidade ?? '' }}{{ m.saldo !== null ? ' · no caminhão ' + num(m.saldo) : '' }}</span>
               </span>
-              @if (m.falta > 0) { <span class="geo-qtd falta geo-num">faltam {{ num(m.falta) }}</span> }
+              @if (m.falta > 0) { <span class="geo-etiqueta geo-etiqueta--erro geo-num">{{ m.falta === 1 ? 'Falta 1' : 'Faltam ' + num(m.falta) }}</span> }
             </li>
           }
         </ul>

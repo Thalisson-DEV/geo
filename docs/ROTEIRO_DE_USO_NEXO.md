@@ -92,16 +92,15 @@ A obra percorre onze etapas, em quatro fases. A ordem abaixo é a da Parte 2.
 
 - **Supervisores e gestores programam e analisam pela web.** Não abrem turno, não preenchem APR e não apontam serviço.
 - **A equipe de campo executa e registra pelo app:** abre e fecha o turno, informa a composição, preenche a APR antes de executar, aponta os serviços, tira as fotos do book e registra ocorrências e relatório diário.
-- **A documentação técnica é compartilhada.** Visita prévia, ficha As Built e equipamentos são lançados pela web e também serão lançados pelo app. O administrativo pode completar fichas e anexos pela web.
+- **A documentação técnica é compartilhada.** Visita prévia, ficha As Built e equipamentos são lançados pela web. No app, a equipe tira as fotos de cada ponto e lê a série dos equipamentos; o supervisor lança a visita prévia e pede o As Built e o book. O administrativo completa fichas e anexos pela web.
 
 ### 1.5 O que ainda está em desenvolvimento
 
-> **Em desenvolvimento:** a execução de Obras no app da equipe está sendo construída. Turno, APR, apontamento, fotos do book, ocorrências e relatório diário de Obras serão feitos por ele. Este roteiro já descreve esse fluxo. As telas de **Turnos**, **Boletim das Equipes** e **Medições** dependem desses registros.
+A execução de Obras pelo app da equipe já está disponível: turno, chegada e saída da obra, APR, "Tudo feito" por ponto, fotos do book, ocorrências e relatório diário, tudo também sem sinal (veja a seção 12.4). A revisão das fotos pela web também (seção 13.4).
 
-Também estão por vir:
+Ainda estão por vir:
 
 - A tela do book com a entrega documental da obra: situação de cada obra, comparativo previsto × realizado e book fotográfico em PDF.
-- A revisão das fotos pela web, com aprovação, inconformidades e ranking de qualidade por equipe.
 - Canteiros de postes e solicitação de material a partir da programação.
 - Central de operações e mapa de obras.
 - Relatórios gerenciais de Obras: carteira, prazos e produtividade.
@@ -443,7 +442,7 @@ Há dois caminhos. Os dois abrem o mesmo painel **Programar**.
 7. **Equipe**: escolha a equipe. Para cada uma, o sistema mostra a projeção: capacidade por dia, dias úteis, meta por dia útil, meta do período, já programado, esta programação e **% da meta**.
 8. Clique em **Programar**.
 
-**O que acontece depois:** a programação aparece na agenda da equipe. Os itens passam a **Programado** no planejamento. O valor dos serviços fica **congelado**: é esse valor que conta no realizado e na medição. A equipe vai receber a programação no app (em desenvolvimento).
+**O que acontece depois:** a programação aparece na agenda da equipe. Os itens passam a **Programado** no planejamento. O valor dos serviços fica **congelado**: é esse valor que conta no realizado e na medição. A equipe recebe a programação no app (aba **Obras**), também sem sinal, e é avisada quando ela muda. Informe o **horário do desligamento** e o **número da manobra** quando houver desligamento: a equipe vê na ficha da obra. Obra sem coordenada nem endereço gera o aviso "a equipe não terá Como chegar no app".
 
 **Avisos comuns:** "Escolha a obra, os pontos do planejamento, o período e a equipe." e "Marque ao menos um ponto ou vão." aparecem quando falta algo. Na lista **Obras a programar** da agenda, o botão **Programar** de cada obra abre o mesmo painel já com a obra escolhida.
 
@@ -501,7 +500,7 @@ Cada evento mostra data e hora, equipe de origem e de destino, período original
 
 Em campo, quem registra é a equipe. A web acompanha e analisa: as telas abaixo são de leitura.
 
-> **Em desenvolvimento:** os registros de Obras serão feitos pela equipe no app, que está em construção (ver 1.5).
+Os registros chegam do app da equipe (seção 12.4). Sem sinal, eles ficam no aparelho e chegam quando a equipe volta a ter conexão, com a hora em que foram feitos.
 
 **A regra da APR.** A APR é a análise de riscos feita por quem vai executar, antes de executar. Ela pode ser preenchida a qualquer hora do dia, pode haver mais de uma no mesmo dia e cada uma libera o seu serviço. Sem a APR concluída no dia, o serviço não pode ser apontado. Se a equipe registrar que não há condição de executar, a APR não é necessária; uma APR concluída depois libera o serviço.
 
@@ -516,6 +515,21 @@ Em campo, quem registra é a equipe. A web acompanha e analisa: as telas abaixo 
    - **Equipe** (líder, substituto e componentes), **Ocorrências**, **Relatório diário** e **Fotos do dia**.
 
 **Avisos:** "Encerrado pelo sistema" (o turno ainda estava aberto no horário de corte), "Aberto desde outro dia" (quase sempre turno esquecido) e "Execução apontada neste turno sem APR concluída da obra".
+
+### 12.4 O dia da equipe no app
+
+O encarregado usa o app no tablet ou no celular. Tudo funciona sem sinal; o que foi lançado vai sozinho quando a conexão volta, uma vez só e na ordem.
+
+1. **Hoje** mostra o **Próximo passo** num botão só e as obras do dia na ordem da programação, com as condições (desligamento com horário e manobra, linha viva, finaliza obra).
+2. **Abrir turno**: veículo e pessoas vêm do último turno; confira e abra (também sem sinal).
+3. Na ficha da obra: endereço, **Como chegar** (abre o app de mapas), **Cheguei**/**Saí** e o material previsto contra o saldo do caminhão ("faltam 2"). A equipe não pede material pelo app: se faltar, registra uma ocorrência de material.
+4. **APR** em passos: os riscos e as medidas das condições já vêm marcados para conferir; todos assinam na tela do encarregado. Se não houver condição, **Sem condição de executar** registra o motivo e o Hoje passa para o próximo serviço.
+5. **Pontos e projeto**: o projeto em PDF com os pontos coloridos (a fazer, parcial, feito). **Tudo feito** aponta o ponto inteiro; **Parcial** pede as quantidades. As fotos do modelo saem com carimbo (obra, ponto, data, GPS); foto faltando vira pendência e não bloqueia nada. A série do equipamento pode ser lida pelo QR.
+6. **Fechar o dia**: o relatório vem montado com obras, pontos feitos, ocorrências e pendências; revise e feche o turno.
+
+Se o servidor recusar um registro (por exemplo, a programação foi cancelada enquanto a equipe estava sem sinal), o Hoje mostra o motivo e o caso fica com o backoffice em **Sincronização**.
+
+**O supervisor no app** tem a aba **Obras**: a situação de cada equipe agora (a caminho, na obra, executando, parada, sem condição), a visita prévia e o pedido de As Built e de book.
 
 ### 12.2 Como ver o boletim do dia
 
@@ -538,7 +552,7 @@ Em campo, quem registra é a equipe. A web acompanha e analisa: as telas abaixo 
 
 A documentação técnica fica na ficha da obra. A visita prévia está na seção 7. Aqui estão o book, o As Built e os equipamentos.
 
-> **Em desenvolvimento:** as fotos do book vão chegar pelo app da equipe. Hoje elas já podem ser lançadas pela web. A área de **Book e As Built** está em reformulação; abaixo, como a tela se apresenta hoje.
+As fotos do book chegam pelo app da equipe e também podem ser lançadas pela web. Antes da medição, revise-as (seção 13.4). A área de **Book e As Built** está em reformulação; abaixo, como a tela se apresenta hoje.
 
 ### 13.1 Book: as fotos de cada ponto
 
@@ -548,6 +562,15 @@ A documentação técnica fica na ficha da obra. A visita prévia está na seç�
 4. Clique na miniatura para ver a foto em tamanho real, com os dados dela: quando foi tirada e lançada, por quem, coordenadas, item, legenda e etapa (**Antes**, **Durante** ou **Depois**).
 
 Falta de foto só avisa: ela não impede gerar o documento.
+
+### 13.4 Revisão das fotos
+
+1. `Execução → Medição e Fechamento → Revisão de Fotos`.
+2. A aba **Para revisar** mostra as fotos que as equipes mandaram, das mais antigas para as mais novas. Toque na foto para ver maior.
+3. **Aprovar** libera a foto para a medição e o book. **Reprovar** pede a inconformidade (fora de foco, item errado, ângulo, ponto errado, sem carimbo ou outra) e o motivo: a foto sai da medição e volta como pendência para a equipe, que vê o motivo no app.
+4. A aba **Ranking por equipe** mostra a qualidade das fotos de cada equipe nos últimos 30 dias.
+
+O **Relatório Detalhado** da medição usa só as fotos aprovadas.
 
 ### 13.2 As Built: ficha por ponto e documento
 
@@ -1032,7 +1055,7 @@ Confira se o serviço foi apontado como concluído pela equipe, se já não foi 
 Estorne em **Medições geradas** com justificativa. Os serviços voltam a concluídos e podem entrar numa nova medição.
 
 **O supervisor consegue abrir turno ou preencher APR pela web?**
-Não. Turno e APR serão feitos pela equipe no app, que está em desenvolvimento. A web acompanha.
+Não. Turno e APR são feitos pela equipe no app (seção 12.4). A web acompanha.
 
 **A solicitação de material deu "Conflito de versão". E agora?**
 Outra pessoa alterou a solicitação ao mesmo tempo. Clique em **Recarregar e atualizar** e repita a ação.

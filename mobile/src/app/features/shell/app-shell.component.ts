@@ -1,3 +1,6 @@
+import { SyncService } from '../../core/sync/sync.service';
+import { ToastService } from '../../core/ui/toast.service';
+import { PuxarAtualizarDirective } from '../../ui/puxar-atualizar.directive';
 import { ConnectivityService } from '../../core/sync/connectivity.service';
 import { PacoteObrasService } from '../../core/obras/pacote-obras.service';
 import { RegistrosObrasService } from '../../core/obras/registros-obras.service';
@@ -28,14 +31,15 @@ import { AvaliacaoFolhaComponent } from '../avaliacao/avaliacao-folha.component'
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, BarraAbasComponent, AvisoSessaoComponent, AvaliacaoFolhaComponent],
+  imports: [RouterOutlet, BarraAbasComponent, AvisoSessaoComponent, AvaliacaoFolhaComponent, PuxarAtualizarDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="casca" [class.lateral]="modoNavegacao() === 'lateral'">
       @if (mostrarAbas() && modoNavegacao() === 'lateral') {
         <geo-barra-abas [abas]="abas()" modo="lateral" />
       }
-      <main #rolagem class="conteudo geo-coluna-app" (scroll)="aoRolar()">
+      <main #rolagem class="conteudo geo-coluna-app" (scroll)="aoRolar()"
+        [geoPuxarAtualizar]="mostrarAbas()" [atualizando]="atualizando()" (atualizar)="atualizarPeloGesto()">
         <geo-aviso-sessao />
         <router-outlet />
         <app-avaliacao-folha />
@@ -65,6 +69,26 @@ export class AppShellComponent implements AfterViewInit {
   private readonly pacoteObras = inject(PacoteObrasService);
   private readonly registrosObras = inject(RegistrosObrasService);
   private readonly rede = inject(ConnectivityService);
+  private readonly sync = inject(SyncService);
+  private readonly toast = inject(ToastService);
+  readonly atualizando = signal(false);
+
+  /** Puxar para atualizar: envia a fila e baixa o que mudou (agenda de Obras incluída). */
+  async atualizarPeloGesto(): Promise<void> {
+    if (!this.rede.isOnline()) {
+      this.toast.info('Sem conexão: o app segue com o que está no aparelho.');
+      return;
+    }
+    this.atualizando.set(true);
+    try {
+      await this.sync.syncParcial();
+      if (this.auth.ehEquipeObras() || this.auth.ehSupervisorObras()) await this.pacoteObras.sincronizar();
+    } catch {
+      this.toast.warning('Não foi possível atualizar agora. Tente de novo em instantes.');
+    } finally {
+      this.atualizando.set(false);
+    }
+  }
   private readonly destroyRef = inject(DestroyRef);
   private readonly rolagem = viewChild.required<ElementRef<HTMLElement>>('rolagem');
 

@@ -95,7 +95,7 @@ import { ETAPAS, ROTULO_STATUS, TOM_STATUS, opcoesStatus } from './revisao-fotos
         </ng-template>
 
         <ng-template geoTabPanel="ranking">
-          <geo-data-table title="Qualidade das fotos por equipe (últimos 30 dias)" [columns]="colunasRanking" [rows]="ranking()"
+          <geo-data-table title="Qualidade das fotos por equipe (últimos 30 dias)" [searchable]="false" [columns]="colunasRanking" [rows]="ranking()"
             [rowLabel]="rotuloRanking" [state]="estadoRanking()" stateTitle="Sem fotos revisadas no período"
             stateDescription="O ranking aparece quando houver fotos das equipes revisadas."></geo-data-table>
         </ng-template>
@@ -106,7 +106,7 @@ import { ETAPAS, ROTULO_STATUS, TOM_STATUS, opcoesStatus } from './revisao-fotos
       [description]="foto() ? 'Obra ' + (foto()!.numeroObra ?? '') + (foto()!.equipe ? ' · ' + foto()!.equipe : '') : undefined" size="md">
       @if (foto(); as f) {
         <geo-form-section title="Foto" icon="pi pi-image">
-          @if (miniaturas()[f.id]; as url) { <img class="revisao-foto__grande" [src]="url" [alt]="'Foto do ponto ' + (f.numeroPonto ?? '')" /> }
+          @if (miniaturas()[f.id]; as url) { <img class="revisao-foto__grande" [class.revisao-foto__grande--menor]="reprovando()" [src]="url" [alt]="'Foto do ponto ' + (f.numeroPonto ?? '')" /> }
           <dl class="revisao-foto__dados">
             <div><dt>Item</dt><dd>{{ f.tituloItem ?? 'Foto avulsa' }}</dd></div>
             <div><dt>Etapa</dt><dd>{{ etapa(f.etapa) }}</dd></div>
@@ -141,6 +141,7 @@ import { ETAPAS, ROTULO_STATUS, TOM_STATUS, opcoesStatus } from './revisao-fotos
     .revisao-foto__mini { display: inline-grid; place-items: center; width: 3rem; height: 3rem; object-fit: cover; border-radius: var(--geo-radius-sm, 0.375rem);
       background: var(--p-content-hover-background); color: var(--p-text-muted-color); }
     .revisao-foto__grande { width: 100%; max-height: 22rem; object-fit: contain; border-radius: var(--geo-radius-sm, 0.375rem); background: var(--p-content-hover-background); }
+    .revisao-foto__grande--menor { max-height: 12rem; }
     .revisao-foto__motivo { display: block; margin-top: 0.25rem; color: var(--p-text-muted-color); font-size: 0.75rem; }
     .revisao-foto__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.5rem 1rem; margin: 0.75rem 0 0; }
     .revisao-foto__dados dt { color: var(--p-text-muted-color); font-size: 0.75rem; }
@@ -178,8 +179,8 @@ export class RevisaoFotosComponent {
   protected readonly colunas: GeoDataTableColumn<FotoParaRevisao>[] = [
     { key: 'foto', header: 'Foto', type: 'custom', width: '4.5rem' },
     { key: 'numeroObra', header: 'Obra', priority: 1 },
-    { key: 'numeroPonto', header: 'Ponto', display: (f) => (f.numeroPonto ? `P${f.numeroPonto}` : '—') },
-    { key: 'tituloItem', header: 'Item do modelo', display: (f) => f.tituloItem ?? 'Foto avulsa' },
+    { key: 'numeroPonto', header: 'Ponto', priority: 1, display: (f) => (f.numeroPonto ? `P${f.numeroPonto}` : '—') },
+    { key: 'tituloItem', header: 'Item do modelo', priority: 1, display: (f) => f.tituloItem ?? 'Foto avulsa' },
     { key: 'etapa', header: 'Etapa', display: (f) => this.etapa(f.etapa) },
     { key: 'dataFoto', header: 'Tirada em', sortField: 'dataFoto', display: (f) => (f.dataFoto ? new Date(f.dataFoto).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—') },
     { key: 'equipe', header: 'Equipe', display: (f) => f.equipe ?? (f.doApp ? '—' : 'Escritório') },
@@ -195,7 +196,7 @@ export class RevisaoFotosComponent {
     { key: 'aprovadas', header: 'Aprovadas', type: 'integer' },
     { key: 'reprovadas', header: 'Reprovadas', type: 'integer' },
     { key: 'pendentes', header: 'Para revisar', type: 'integer' },
-    { key: 'percentualAprovacao', header: 'Aprovação', priority: 1, display: (l) => (l.percentualAprovacao == null ? '—' : `${String(l.percentualAprovacao).replace('.', ',')}%`) },
+    { key: 'percentualAprovacao', header: 'Aprovação', type: 'percent', priority: 1 },
     { key: 'principalInconformidade', header: 'Inconformidade mais comum', display: (l) => l.principalInconformidade ?? '—' }
   ];
   protected readonly rotuloRanking = (l: LinhaRankingFotos) => l.equipe;

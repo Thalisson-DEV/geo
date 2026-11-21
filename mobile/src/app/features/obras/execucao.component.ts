@@ -35,13 +35,13 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
   host: { '[class.dividido]': 'layout.expandido()' },
   template: `
     @if (programacao(); as p) {
-      <geo-barra-topo [titulo]="'Execução · obra ' + (p.numeroObra ?? '')" [subtitulo]="feitos() + ' de ' + pontos().length + ' pontos feitos'" (voltar)="voltar()" />
+      <geo-barra-topo titulo="Pontos e projeto" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + ' · #' + p.numero + ' · ' + feitos() + ' de ' + pontos().length + ' feitos'" (voltar)="voltar()" />
 
       @if (liberacao() !== 'LIBERADA') {
         <div class="faixa" role="status">
           <geo-icone [nome]="liberacao() === 'IMPEDIDA' ? 'impedido' : 'escudo'" />
           <span>{{ liberacao() === 'IMPEDIDA' ? 'Registrado "sem condição de executar". Para voltar a executar, conclua uma nova APR.' : 'Conclua a APR deste serviço antes de marcar o que foi feito.' }}</span>
-          <a class="geo-btn geo-btn--principal geo-btn--compacto" [routerLink]="['/obras', p.id, 'apr']">APR</a>
+          <a class="geo-btn geo-btn--principal geo-btn--compacto" [routerLink]="['/obras', p.id, 'apr']">{{ liberacao() === 'IMPEDIDA' ? 'Nova APR' : 'Fazer APR' }}</a>
         </div>
       }
 
@@ -68,7 +68,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
                         <geo-icone [nome]="ponto.situacao === 'FEITO' ? 'check' : 'local'" /></span>
                       <span class="geo-linha__texto">
                         <span class="geo-linha__titulo">{{ ponto.rotulo }}</span>
-                        <span class="geo-linha__apoio">{{ resumoItens(ponto) }}{{ pendenciasDoPonto(ponto.id) ? ' · ' + pendenciasDoPonto(ponto.id) + ' foto(s) pendente(s)' : '' }}</span>
+                        <span class="geo-linha__apoio">{{ resumoItens(ponto) }}{{ pendenciasDoPonto(ponto.id) ? ' · ' + fotosPendentes(pendenciasDoPonto(ponto.id)) : '' }}</span>
                       </span>
                     </button>
                     @if (ponto.situacao !== 'FEITO') {
@@ -77,12 +77,13 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
                     } @else {
                       <span class="geo-etiqueta geo-etiqueta--ok">Feito</span>
                     }
+                    @if (ponto.situacao === 'PARCIAL') { <span class="geo-etiqueta geo-etiqueta--atencao parcial">Parcial</span> }
                   </li>
                 }
               </ul>
               @if (!pontos().length) { <geo-vazio icone="local" titulo="Nenhum ponto nesta programação" /> }
               @if (pendencias().length) {
-                <p class="nota"><geo-icone nome="camera" [tamanho]="16" /> {{ pendencias().length }} foto(s) do modelo pendente(s). Tire quando puder; não bloqueia o envio.</p>
+                <p class="nota"><geo-icone nome="camera" [tamanho]="16" /> {{ fotosPendentes(pendencias().length) }} do modelo. Tire quando puder; não bloqueia o envio.</p>
               }
               <div class="geo-respiro"></div>
             }
@@ -133,16 +134,17 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
 
           <h3 class="geo-secao">Fotos do ponto</h3>
           <div class="etapa"><geo-segmentado rotulo="Etapa da foto" [opcoes]="etapas" [(valor)]="etapa" /></div>
+          @if (liberacao() !== 'LIBERADA' && ponto.situacao !== 'FEITO') { <p class="motivo">Conclua a APR para marcar o que foi feito.</p> }
           @for (item of itensFoto(); track item.id) {
             <div class="foto-item">
+              <div class="foto-item__titulo"><span>{{ item.titulo }}{{ item.obrigatoria ? '' : ' (opcional)' }}</span>
+                @if (item.obrigatoria && !temFoto(ponto.id, item.id) && ponto.situacao !== 'A_FAZER') { <span class="geo-etiqueta geo-etiqueta--erro">Pendente</span> }</div>
               <geo-fotos [rotulo]="item.titulo + (item.obrigatoria ? '' : ' (opcional)')" [fotos]="fotosDoItem(ponto.id, item.id)"
                 [carimbo]="carimbo(ponto, item.titulo)" [removivel]="false" [galeria]="false" (adicionada)="foto(ponto, item.id, $event)" />
-              @if (item.obrigatoria && !temFoto(ponto.id, item.id) && ponto.situacao !== 'A_FAZER') {
-                <span class="pendente">Pendente</span>
-              }
             </div>
           }
           <div class="foto-item">
+            <div class="foto-item__titulo"><span>Equipamento instalado (placa ou QR)</span></div>
             <geo-fotos rotulo="Equipamento instalado (placa ou QR)" [fotos]="fotosDoItem(ponto.id, 'EQUIPAMENTO')" [carimbo]="carimbo(ponto, 'Equipamento ' + (serie() || ''))"
               [removivel]="false" (adicionada)="foto(ponto, 'EQUIPAMENTO', $event)" />
             <div class="serie">
@@ -169,7 +171,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
     .faixa span { flex: 1; }
     .vista { padding: var(--geo-e3) var(--geo-margem) 0; }
     .colunas { flex: 1; display: block; padding-top: var(--geo-e3); }
-    :host(.dividido) .colunas { display: grid; grid-template-columns: 3fr 2fr; gap: 0; min-height: 0; }
+    :host(.dividido) .colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 0; }
     :host(.dividido) .projeto, :host(.dividido) .lado { overflow-y: auto; }
     :host(.dividido) .lado { border-left: 1px solid var(--geo-linha); }
     .pontos .geo-linha { gap: var(--geo-e2); }
@@ -186,9 +188,11 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
     .acoes { display: flex; gap: var(--geo-e3); padding: var(--geo-e4) var(--geo-margem) 0; }
     .acoes .geo-btn { flex: 1; min-height: var(--geo-alvo-principal); }
     .etapa { padding: 0 var(--geo-margem); }
-    .foto-item { position: relative; margin-top: var(--geo-e3); }
-    .pendente { position: absolute; top: 4px; right: var(--geo-margem); font: 600 .75rem/1 var(--geo-fonte); color: var(--geo-erro); }
-    .serie { display: flex; gap: var(--geo-e2); align-items: end; padding: 0 var(--geo-margem); }
+    .foto-item { margin-top: var(--geo-e4); padding: 0 var(--geo-margem); }
+    .foto-item__titulo { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); margin-bottom: var(--geo-e2); font: var(--geo-t-corpo-forte); }
+    .serie { display: flex; gap: var(--geo-e2); align-items: end; margin-top: var(--geo-e4); }
+    .motivo { margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .parcial { margin-left: var(--geo-e2); }
     .serie .geo-campo { flex: 1; margin: 0; }
   `],
 })
@@ -262,6 +266,10 @@ export class ExecucaoComponent implements OnDestroy {
 
   escolher(id: string): void {
     this.selecionado.set(id);
+  }
+
+  fotosPendentes(n: number): string {
+    return n === 1 ? '1 foto pendente' : `${n} fotos pendentes`;
   }
 
   pendenciasDoPonto(id: string): number {

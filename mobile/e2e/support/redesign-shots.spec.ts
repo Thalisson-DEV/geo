@@ -73,6 +73,51 @@ for (const [aparelho, viewport] of Object.entries(APARELHOS)) {
         await foto(page, '21-catalogo-folha');
       });
 
+      test('obras', async ({ page }) => {
+        test.setTimeout(150_000);
+        const api = new MockApi({ perfil: 'CAMPO', turnoAberto: true, obras: true });
+        api.hojeObras = new Date('2026-10-08T10:30:00-03:00');
+        await api.install(page);
+        await loginPelaUi(page);
+        await expect(page.getByText('Pronto para trabalhar sem sinal')).toBeVisible({ timeout: 20_000 });
+        await foto(page, '30-obras-hoje');
+        await page.goto('/obras');
+        await expect(page.getByText('Obras', { exact: true }).first()).toBeVisible();
+        await foto(page, '31-obras-agenda');
+        await page.goto('/obras/p-12');
+        await expect(page.getByText('Rua das Flores, 100 - Vila Nova')).toBeVisible();
+        await foto(page, '32-obras-ficha');
+        await page.getByTestId('presenca').click();
+        await page.goto('/obras/p-12/apr');
+        await expect(page.getByText('APR · Equipe')).toBeVisible();
+        await foto(page, '33-obras-apr-equipe');
+        await page.getByTestId('apr-avancar').click();
+        await foto(page, '34-obras-apr-riscos');
+        await page.getByTestId('apr-avancar').click();
+        await page.getByTestId('apr-avancar').click();
+        await foto(page, '35-obras-apr-verificacoes');
+        await page.goto('/obras/p-12/execucao');
+        await expect(page.getByTestId('ponto-4')).toBeVisible();
+        await page.waitForTimeout(800);
+        await foto(page, '36-obras-execucao');
+        await page.getByRole('button', { name: 'Abrir Ponto 4' }).click();
+        await expect(page.getByTestId('detalhe-ponto')).toBeVisible();
+        await foto(page, '37-obras-ponto');
+        await page.goto('/obras/p-12/ocorrencia?impede=1');
+        await foto(page, '38-obras-sem-condicao');
+        await page.goto('/obras/relatorio');
+        await foto(page, '39-obras-relatorio');
+      });
+
+      test('supervisor de obras', async ({ page }) => {
+        test.setTimeout(90_000);
+        await new MockApi({ perfil: 'ADMINISTRATIVO', obras: true }).install(page);
+        await loginPelaUi(page, 'supervisor');
+        await page.goto('/supervisao');
+        await expect(page.getByTestId('equipe-EQ-202')).toBeVisible();
+        await foto(page, '40-supervisor-equipes');
+      });
+
       test('administrativo', async ({ page }) => {
         test.setTimeout(90_000);
         await entrar(page, 'ADMINISTRATIVO');

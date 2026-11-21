@@ -212,13 +212,13 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
       border-radius: var(--geo-r-grupo); background: var(--geo-superficie); text-align: left; color: var(--geo-texto); cursor: pointer; }
     .assinatura.feita { border-style: solid; border-color: var(--geo-ok); }
     .assinatura .rotulo { font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
-    .assinatura img { max-width: 100%; height: 90px; object-fit: contain; background: #fff; border-radius: 8px; }
+    .assinatura img { max-width: 100%; height: 90px; object-fit: contain; background: var(--geo-papel); border-radius: 8px; }
     .vazia { display: flex; align-items: center; justify-content: center; gap: var(--geo-e2); color: var(--geo-destaque); font-weight: 600; min-height: 90px; }
     .lista { background: var(--geo-fundo); }
     .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
     [aria-checked='true'] > .caixa { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
     .quadro { padding: 0 var(--geo-e4); }
-    .quadro canvas { width: 100%; height: 240px; border-radius: var(--geo-r-grupo); background: #fff; border: 1px solid var(--geo-linha-forte);
+    .quadro canvas { width: 100%; height: 240px; border-radius: var(--geo-r-grupo); background: var(--geo-papel); border: 1px solid var(--geo-linha-forte);
       touch-action: none; display: block; }
     .folha-rodape { padding: var(--geo-e3) var(--geo-e4) 0; }
     .folha-rodape.duas { display: flex; gap: var(--geo-e3); }

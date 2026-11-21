@@ -38,6 +38,35 @@
   // Véu sobre foto (legenda, botões em cima da imagem): escuro nos dois temas, porque a foto não muda com o tema
   --geo-veu-foto: rgba(0, 0, 0, .55);
   --geo-veu-foto-texto: #FFFFFF;
+  // Papel: assinatura, documento e página de PDF ficam brancos também no tema escuro (o que se imprime).
+  --geo-papel: #FFFFFF;
+  --geo-papel-linha: #C9D1DC;
+  --geo-papel-dica: #71717A;
+  --geo-tinta: #0E1726;
+  // Elevação mínima do item selecionado num segmentado/atalho.
+  --geo-sombra-sutil: 0 1px 2px rgba(0, 0, 0, .1);
+  // Leitor de código: sobre a imagem da câmera, a mesma paleta em qualquer tema (cores de sistema, alto contraste).
+  --geo-camera-fundo: #000;
+  --geo-camera-claro: #FFF;
+  --geo-camera-escuro: #06121F;
+  --geo-camera-atencao: #FFB020;
+  --geo-camera-ok: #34C759;
+  --geo-camera-laser: #FF3B30;
+  --geo-camera-ok-brilho: rgba(52, 199, 89, .8);
+  --geo-camera-ok-veu: rgba(52, 199, 89, .18);
+  --geo-camera-aviso-erro: rgba(46, 20, 20, .94);
+  --geo-camera-erro-veu: rgba(255, 90, 79, .16);
+  --geo-camera-laser-brilho: rgba(255, 59, 48, .75);
+  --geo-camera-moldura: rgba(255, 255, 255, .9);
+  --geo-camera-atencao-veu: rgba(255, 176, 32, .16);
+  --geo-camera-aviso: rgba(11, 16, 23, .88);
+  --geo-camera-contador: rgba(0, 0, 0, .65);
+  --geo-camera-mascara: rgba(0, 0, 0, .5);
+  --geo-camera-sombra: rgba(0, 0, 0, .45);
+  --geo-camera-erro-retorno: #FF7A6E;
+  --geo-camera-erro: #FF5A4F;
+  --geo-camera-retorno: #E7EDF5;
+  --geo-camera-laser-pressionado: #C4271F;
   // Âmbar da marca: escasso (ponto do logo, marcador de novidade), nunca para status
   --geo-marca-ambar: #FBBF24;
 

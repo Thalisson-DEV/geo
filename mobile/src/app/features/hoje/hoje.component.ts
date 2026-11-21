@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { LayoutService } from '../../core/plataforma/layout.service';
 import { TokenService } from '../../core/auth/token.service';
 import { TurnoService } from '../../core/turno/turno.service';
 import { DbService } from '../../core/db/db.service';
@@ -39,7 +40,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="tela">
+    <div class="tela" [class.duas]="auth.ehEquipeObras() && layout.expandido()">
       <geo-titulo-grande titulo="Hoje" [subtitulo]="subtitulo()">
         <geo-indicador-rede (tocar)="abrirEnvios()" />
       </geo-titulo-grande>
@@ -237,6 +238,11 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; }
+    /* Tablet deitado (Obras): o dia guiado à esquerda; turno, envios e veículo à direita. */
+    .tela.duas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--geo-e5); align-content: start; }
+    .tela.duas > :not(geo-titulo-grande):not(.retomar):not(app-hoje-obras) { grid-column: 2; }
+    .tela.duas > .retomar { grid-column: 1 / -1; }
+    .tela.duas > app-hoje-obras { grid-column: 1; grid-row: span 30; }
     .retomar { margin: var(--geo-e4) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
       background: var(--geo-destaque-suave); display: flex; align-items: center; gap: var(--geo-e3); }
     .retomar .txt { flex: 1; min-width: 0; display: grid; }
@@ -258,6 +264,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
 })
 export class HojeComponent implements OnInit {
   readonly auth = inject(AuthService);
+  readonly layout = inject(LayoutService);
   readonly turno = inject(TurnoService);
   readonly fila = inject(FilaEnvioService);
   readonly rede = inject(ConnectivityService);
