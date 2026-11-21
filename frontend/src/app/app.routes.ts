@@ -817,6 +817,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/obras/turnos/turno-obra-detalhe.component').then(m => m.TurnoObraDetalheComponent)
       },
       {
+        path: 'revisao-fotos',
+        data: { permission: 'obras:documentacao:read' },
+        loadComponent: () => import('./features/obras/revisao-fotos/revisao-fotos.component').then(m => m.RevisaoFotosComponent)
+      },
+      {
         path: 'boletim',
         data: { permission: 'obras:turno:read', fullBleed: true },
         loadComponent: () => import('./features/obras/turnos/boletim-obra.component').then(m => m.BoletimObraComponent)

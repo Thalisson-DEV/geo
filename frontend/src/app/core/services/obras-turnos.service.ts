@@ -42,4 +42,22 @@ export class ObrasTurnosService extends BaseService {
   baixarAnexo(id: string, idAnexo: string): Observable<Blob> {
     return this.http.get(`${this.base}/turnos/${id}/anexos/${idAnexo}/download`, { responseType: 'blob' });
   }
+
+  /** Situação de cada equipe agora (turno, chegada/saída na obra, apontamentos, "sem condição"), calculada no servidor. */
+  statusEquipes(): Observable<StatusEquipeAgora[]> {
+    return this.http.get<StatusEquipeAgora[]>(`${this.base}/campo/status-equipes`);
+  }
+}
+
+export type StatusOperacionalEquipe = 'SEM_TURNO' | 'ENCERRADO' | 'A_CAMINHO' | 'NA_OBRA' | 'EM_EXECUCAO' | 'PARADA' | 'IMPEDIDA' | 'SEM_OBRA';
+
+export interface StatusEquipeAgora {
+  idEquipe: string;
+  codigo: string;
+  status: StatusOperacionalEquipe;
+  rotulo: string;
+  numeroObraAtual?: string | null;
+  aprsPendentes: number;
+  ocorrenciasImpeditivas: number;
+  ultimaAtividade?: string | null;
 }

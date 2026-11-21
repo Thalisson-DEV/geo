@@ -87,3 +87,12 @@ describe('boletim-obra.logic', () => {
     expect(vistaDoBoletim({ dimension: 'kpi', value: 'nada' }, lista, '30/10')).toBeNull();
   });
 });
+
+describe('status em tempo real no boletim', () => {
+  it('mostra a obra quando a equipe está nela', async () => {
+    const { textoStatusAgora, TOM_STATUS_AGORA } = await import('./boletim-obra.logic');
+    expect(textoStatusAgora({ status: 'EM_EXECUCAO', rotulo: 'Executando', numeroObraAtual: '7000001' })).toBe('Executando · obra 7000001');
+    expect(textoStatusAgora({ status: 'A_CAMINHO', rotulo: 'A caminho', numeroObraAtual: '7000001' })).toBe('A caminho');
+    expect(TOM_STATUS_AGORA['IMPEDIDA']).toBe('danger');
+  });
+});

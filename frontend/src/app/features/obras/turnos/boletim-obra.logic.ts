@@ -323,3 +323,15 @@ export function vistaDoBoletim(alvo: AlvoAnalise, equipes: readonly EquipeBoleti
       return null;
   }
 }
+
+/** Tom do status em tempo real (o que a equipe está fazendo agora). */
+export const TOM_STATUS_AGORA: Record<string, 'neutral' | 'info' | 'success' | 'warning' | 'danger'> = {
+  SEM_TURNO: 'neutral', ENCERRADO: 'neutral', SEM_OBRA: 'neutral', A_CAMINHO: 'info', NA_OBRA: 'info', EM_EXECUCAO: 'success',
+  PARADA: 'warning', IMPEDIDA: 'danger'
+};
+
+/** "Na obra 7000001", "Executando", "Parada na obra 7000001"… */
+export function textoStatusAgora(s: { status: string; rotulo: string; numeroObraAtual?: string | null }): string {
+  const comObra = ['NA_OBRA', 'EM_EXECUCAO', 'PARADA'].includes(s.status) && s.numeroObraAtual;
+  return comObra ? `${s.rotulo} · obra ${s.numeroObraAtual}` : s.rotulo;
+}

@@ -20,7 +20,7 @@ import { take } from 'rxjs';
 import { createUrlFilters, qp } from '../../../core/navigation';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { BoletimEquipes, EquipeBoletim } from '../../../core/models/obras-turnos.models';
-import { ObrasTurnosService } from '../../../core/services/obras-turnos.service';
+import { ObrasTurnosService, StatusEquipeAgora } from '../../../core/services/obras-turnos.service';
 import { atualizarPeriodicamente } from '../../../shared/components/dashboard/atualizacao-automatica';
 import { DashboardAnaliseComponent } from '../../../shared/components/dashboard/dashboard-analise.component';
 import { AlvoAnalise, VistaAnalise } from '../../../shared/components/dashboard/dashboard-analise.models';
@@ -40,7 +40,7 @@ import {
 } from '../../copiloto/painel';
 import { SITUACAO_TURNO, dataLocal, duracao, horaCurta, isoLocal, moedaCompacta, nomeCurto, percentual, tomDaMeta } from '../../execucao/dashboards/execucao-dashboards.utils';
 import { ProgramacaoDetalheComponent } from '../programacao/programacao-detalhe.component';
-import { AgrupamentoBoletim, FiltroBoletim, agendaDoBoletim, agruparEquipes, agendaEmAberto, atendeFiltro, ordenarEquipes, resumirBoletim, serieDoBoletim, temAprPendente, vistaDoBoletim, visaoDoBoletim } from './boletim-obra.logic';
+import { AgrupamentoBoletim, FiltroBoletim, agendaDoBoletim, agruparEquipes, agendaEmAberto, atendeFiltro, ordenarEquipes, resumirBoletim, serieDoBoletim, temAprPendente, vistaDoBoletim, visaoDoBoletim, TOM_STATUS_AGORA, textoStatusAgora } from './boletim-obra.logic';
 import { LIBERACAO } from './turnos-obra.logic';
 
 type VisaoEquipes = 'cartoes' | 'miniaturas';
@@ -326,6 +326,14 @@ function gravarPreferencia(chave: string, valor: string): void {
                           </div>
                           <geo-status [tone]="situacaoTurno[e.situacao].tom" [icon]="situacaoTurno[e.situacao].icone">{{ rotuloSituacao(e, d.hoje) }}</geo-status>
                         </header>
+                        @if (d.hoje && agora()[e.idEquipe]; as s) {
+                          @if (s.status !== 'SEM_TURNO' && s.status !== 'ENCERRADO') {
+                            <p class="bol-agora" [attr.aria-label]="'Agora: ' + textoAgora(s)">
+                              <geo-status [tone]="tomAgora[s.status]" icon="pi-circle-fill">Agora: {{ textoAgora(s) }}</geo-status>
+                              @if (s.ocorrenciasImpeditivas) { <geo-status tone="danger">{{ s.ocorrenciasImpeditivas }} sem condição</geo-status> }
+                            </p>
+                          }
+                        }
 
                         <ul class="ed-team__tags" aria-label="Dados da equipe">
                           @if (e.baseOperacional) { <li title="Base operacional"><i class="pi pi-building" aria-hidden="true"></i>{{ e.baseOperacional }}</li> }
@@ -450,6 +458,10 @@ export class BoletimObraComponent implements OnInit {
 
   protected readonly copilotoDisponivel = this.copiloto.disponivelParaUsuario();
   protected readonly situacaoTurno = SITUACAO_TURNO;
+  /** Status em tempo real por equipe (só para o dia de hoje). */
+  protected readonly agora = signal<Record<string, StatusEquipeAgora>>({});
+  protected readonly tomAgora = TOM_STATUS_AGORA;
+  protected readonly textoAgora = textoStatusAgora;
   protected readonly liberacao = LIBERACAO;
   protected readonly agrupamentos = AGRUPAMENTOS;
   protected readonly moeda = moedaCompacta;
@@ -603,6 +615,10 @@ export class BoletimObraComponent implements OnInit {
   recarregar(silencioso: boolean): void {
     this.carregando.set(true);
     if (!silencioso) this.erro.set(null);
+    this.api.statusEquipes().pipe(take(1)).subscribe({
+      next: (lista) => this.agora.set(Object.fromEntries(lista.map((s) => [s.idEquipe, s]))),
+      error: () => undefined
+    });
     this.api.boletim(this.aplicado().dia).pipe(take(1)).subscribe({
       next: (boletim) => {
         this.b.set(boletim);

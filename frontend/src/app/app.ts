@@ -130,6 +130,7 @@ export class App {
     '/obras/programacao/mes': 'obras:programacao:read',
     '/obras/programacao/historico': 'obras:programacao:read',
     '/obras/programacao/painel': 'obras:programacao:read',
+    '/obras/revisao-fotos': 'obras:documentacao:read',
     '/obras/pre-fechamento': 'obras:medicao:read',
     '/obras/medicoes': 'obras:medicao:read',
     '/obras/fechamento': 'obras:medicao:read',
@@ -379,6 +380,7 @@ export class App {
           label: 'Medição e Fechamento',
           icon: 'pi pi-calculator',
           items: [
+            { label: 'Revisão de Fotos', icon: 'pi pi-images', routerLink: '/obras/revisao-fotos' },
             { label: 'Pré-fechamento', icon: 'pi pi-clipboard', routerLink: '/obras/pre-fechamento' },
             { label: 'Medições', icon: 'pi pi-calculator', routerLink: '/obras/medicoes' },
             { label: 'Fechamento de Obra', icon: 'pi pi-file-check', routerLink: '/obras/fechamento' },

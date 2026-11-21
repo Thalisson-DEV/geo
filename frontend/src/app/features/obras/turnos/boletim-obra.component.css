@@ -92,3 +92,6 @@
   height: 100%;
   overflow-y: auto;
 }
+
+/* Status em tempo real da equipe (cálculo no servidor). */
+.bol-agora { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0.25rem 0 0; }
