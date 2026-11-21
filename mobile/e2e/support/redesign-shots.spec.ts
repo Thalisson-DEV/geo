@@ -107,6 +107,24 @@ for (const [aparelho, viewport] of Object.entries(APARELHOS)) {
         await foto(page, '38-obras-sem-condicao');
         await page.goto('/obras/relatorio');
         await foto(page, '39-obras-relatorio');
+        // Projeto aproximado em tela cheia.
+        await page.goto('/obras/p-12/execucao');
+        await expect(page.getByTestId('ponto-4')).toBeVisible();
+        if (await page.getByRole('radio', { name: 'Projeto' }).isVisible()) await page.getByRole('radio', { name: 'Projeto' }).click();
+        await page.getByTestId('projeto-tela-cheia').click();
+        await page.getByRole('button', { name: 'Aproximar' }).click();
+        await page.waitForTimeout(900);
+        await foto(page, '41-obras-projeto-cheio');
+        // Execução avulsa: busca, obra encontrada, ficha.
+        await page.goto('/obras/nao-programada');
+        await page.getByTestId('busca-obra').fill('7000009');
+        await page.getByTestId('buscar-obra').click();
+        await expect(page.getByTestId('obra-avulsa')).toBeVisible();
+        await page.getByRole('radio', { name: 'Emergência' }).click();
+        await foto(page, '42-obras-avulsa-busca');
+        await page.getByTestId('comecar-avulsa').click();
+        await expect(page.getByText('Execução avulsa (fora da agenda)')).toBeVisible();
+        await foto(page, '43-obras-avulsa-ficha');
       });
 
       test('supervisor de obras', async ({ page }) => {

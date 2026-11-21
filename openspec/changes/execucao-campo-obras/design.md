@@ -92,6 +92,16 @@ Equipes de Obras são separadas das comerciais.
   da mudança de programação.
 - **Perfil `EQUIPE_OBRAS`** com `obras:turno:read/write`, `obras:execucao:write` e `obras:campo:read` (nova, também para
   administrador e supervisor, só leitura do pacote). Os perfis do web continuam sem escrita de turno/execução (V205).
+- **Execução avulsa** (pedido do usuário em 21/11/2026, substitui o "registrar obra não programada" só com motivo): a equipe
+  busca a obra no servidor (`GET /v1/obras/campo/obras/avulsa?numero=`), que devolve a obra como no pacote e os itens que ela
+  pode executar. O app monta uma programação local `avulsa-<idObra>` e a equipe trabalha com as mesmas telas. O
+  apontamento vai sem `idProgramacao` e com `idObra`; o servidor cria ou reaproveita a programação avulsa da equipe no dia
+  (`programacoes.avulsa`, V266) e inclui nela só os itens apontados, com o valor vigente — nada fica preso como programado e
+  o valor entra na medição. A programação avulsa do servidor não volta ao app (ele usa a local). Sem sinal na hora da busca,
+  não há execução avulsa (o app explica); com a obra já buscada, tudo funciona sem sinal.
+- **Clareza para a equipe** (revisão de 21/11/2026): cada ponto diz os serviços ("Instalar poste · Lançar cabo (faltam 20 M)")
+  em vez de contagens; o próximo ponto é destacado; barra de progresso; ficha com "O que fazer" (serviços somados); projeto
+  com zoom (botões e pinça), tela cheia e marcadores de 40 px com contorno; na ficha, o passo antes de chegar é "Cheguei na obra".
 - **APR vale pelo dia** (revisão do usuário em 21/11/2026, substitui a de 01/11 "cada APR libera o seu serviço"): a APR é a
   análise preliminar de riscos feita antes do serviço; uma concluída no dia libera todos os serviços da equipe no dia, e outras
   podem ser feitas ao longo do dia. "Sem condição de executar" continua por obra: bloqueia aquela obra até uma APR dessa obra

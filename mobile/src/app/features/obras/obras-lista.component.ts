@@ -38,7 +38,7 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
               <span class="geo-selo" [class.geo-selo--ok]="resumo(p).feitos === resumo(p).total && resumo(p).total > 0"
                 [class.geo-selo--destaque]="resumo(p).feitos < resumo(p).total"><geo-icone nome="obra" /></span>
               <span class="geo-linha__texto">
-                <span class="geo-linha__titulo">Obra {{ p.numeroObra }} · #{{ p.numero }}</span>
+                <span class="geo-linha__titulo">Obra {{ p.numeroObra }} · {{ ctx.ref(p) }}</span>
                 <span class="geo-linha__apoio">{{ p.descricao }}</span>
                 <span class="geo-linha__apoio geo-num">{{ resumo(p).feitos }} de {{ resumo(p).total }} pontos{{ ctx.condicoes(p).length ? ' · ' + ctx.condicoes(p).join(' · ') : '' }}</span>
               </span>
@@ -55,7 +55,7 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
             <li><a class="geo-linha geo-linha--acao" [routerLink]="['/obras', p.id]" routerLinkActive="ativa">
               <span class="geo-selo"><geo-icone nome="calendario" /></span>
               <span class="geo-linha__texto">
-                <span class="geo-linha__titulo">Obra {{ p.numeroObra }} · #{{ p.numero }}</span>
+                <span class="geo-linha__titulo">Obra {{ p.numeroObra }} · {{ ctx.ref(p) }}</span>
                 <span class="geo-linha__apoio geo-num">{{ dia(p.inicio) }}{{ p.fim !== p.inicio ? ' a ' + dia(p.fim) : '' }} · {{ p.descricao }}</span>
               </span>
               <geo-icone nome="avancar" [tamanho]="18" />
@@ -71,8 +71,8 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
       <ul class="geo-grupo extra">
         <li><a class="geo-linha geo-linha--acao" routerLink="/obras/nao-programada">
           <span class="geo-selo"><geo-icone nome="mais" /></span>
-          <span class="geo-linha__texto"><span class="geo-linha__titulo">Obra não programada</span>
-            <span class="geo-linha__apoio">A equipe atuou numa obra fora da agenda</span></span>
+          <span class="geo-linha__texto"><span class="geo-linha__titulo">Execução avulsa</span>
+            <span class="geo-linha__apoio">Obra fora da agenda: busque pelo número e execute</span></span>
           <geo-icone nome="avancar" [tamanho]="18" /></a></li>
       </ul>
       <div class="geo-respiro"></div>

@@ -527,6 +527,8 @@ O encarregado usa o app no tablet ou no celular. Tudo funciona sem sinal; o que 
 5. **Pontos e projeto**: o projeto em PDF com os pontos coloridos (a fazer, parcial, feito). **Tudo feito** aponta o ponto inteiro; **Parcial** pede as quantidades. As fotos do modelo saem com carimbo (obra, ponto, data, GPS); foto faltando vira pendência e não bloqueia nada. A série do equipamento pode ser lida pelo QR.
 6. **Fechar o dia**: o relatório vem montado com obras, pontos feitos, ocorrências e pendências; revise e feche o turno.
 
+**Execução avulsa (obra fora da agenda).** Em `Obras → Execução avulsa`, busque a obra pelo número (precisa de sinal só nessa hora), escolha o motivo (emergência, pedido da supervisão…) e toque em **Começar execução**. A obra entra no Hoje e funciona como as programadas: APR do dia, pontos, fotos e relatório. O que a equipe apontar entra numa programação avulsa criada pelo sistema, com o valor vigente, e vai para a medição. Itens já programados para outra equipe não aparecem.
+
 Se o servidor recusar um registro (por exemplo, a programação foi cancelada enquanto a equipe estava sem sinal), o Hoje mostra o motivo e o caso fica com o backoffice em **Sincronização**.
 
 **O supervisor no app** tem a aba **Obras**: a situação de cada equipe agora (a caminho, na obra, executando, parada, sem condição), a visita prévia e o pedido de As Built e de book.

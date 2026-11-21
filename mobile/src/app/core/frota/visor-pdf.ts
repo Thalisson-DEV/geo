@@ -40,8 +40,9 @@ export async function abrirPdf(blob: Blob): Promise<DocumentoPdf> {
       const pagina = await doc.getPage(numero);
       const base = pagina.getViewport({ scale: 1 });
       const escala = largura / base.width;
-      // Nitidez em tela de alta densidade, com teto para não estourar a memória do aparelho.
-      const densidade = Math.min(window.devicePixelRatio || 1, 2.5);
+      // Nitidez em tela de alta densidade, com teto para não estourar a memória do aparelho (canvas de até ~6000 px de
+      // largura: o projeto aproximado a 4× num tablet passaria disso).
+      const densidade = Math.max(0.5, Math.min(window.devicePixelRatio || 1, 2.5, 6000 / Math.max(1, largura)));
       const viewport = pagina.getViewport({ scale: escala * densidade });
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);

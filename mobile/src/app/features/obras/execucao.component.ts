@@ -35,7 +35,13 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
   host: { '[class.dividido]': 'layout.expandido()' },
   template: `
     @if (programacao(); as p) {
-      <geo-barra-topo titulo="Pontos e projeto" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + ' · #' + p.numero + ' · ' + feitos() + ' de ' + pontos().length + ' feitos'" (voltar)="voltar()" />
+      <geo-barra-topo titulo="Pontos e projeto" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + (p.avulsa ? ' · execução avulsa' : ' · #' + p.numero)" (voltar)="voltar()" />
+      <div class="progresso" role="progressbar" [attr.aria-valuenow]="feitos()" aria-valuemin="0" [attr.aria-valuemax]="pontos().length"
+        [attr.aria-label]="feitos() + ' de ' + pontos().length + ' pontos feitos'">
+        <span class="progresso__texto"><strong class="geo-num">{{ feitos() }} de {{ pontos().length }}</strong> {{ pontos().length === 1 ? 'ponto feito' : 'pontos feitos' }}
+          @if (proximo(); as prox) { · próximo: <strong>{{ prox.rotulo }}</strong> }</span>
+        <span class="progresso__barra"><span [style.width.%]="pontos().length ? (feitos() / pontos().length) * 100 : 0"></span></span>
+      </div>
 
       @if (liberacao() !== 'LIBERADA') {
         <div class="faixa" role="status">
@@ -52,7 +58,9 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
       <div class="colunas">
         @if (layout.expandido() || vista() === 'projeto') {
           <section class="projeto" aria-label="Projeto">
-            <app-projeto-pdf [arquivo]="pdf()" [marcadores]="marcadores()" [selecionado]="selecionado()" (escolhido)="escolher($event)" />
+            <app-projeto-pdf [arquivo]="pdf()" [marcadores]="marcadores()" [selecionado]="selecionado()" [proximo]="proximo()?.id ?? null"
+              [titulo]="'Obra ' + (p.numeroObra ?? '') + ' · ' + feitos() + ' de ' + pontos().length + ' feitos' + (proximo() ? ' · próximo: ' + proximo()!.rotulo : '')"
+              (escolhido)="escolher($event)" />
           </section>
         }
         @if (layout.expandido() || vista() === 'pontos') {
@@ -67,8 +75,11 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
                       <span class="geo-selo" [class.geo-selo--ok]="ponto.situacao === 'FEITO'" [class.geo-selo--atencao]="ponto.situacao === 'PARCIAL'">
                         <geo-icone [nome]="ponto.situacao === 'FEITO' ? 'check' : 'local'" /></span>
                       <span class="geo-linha__texto">
-                        <span class="geo-linha__titulo">{{ ponto.rotulo }}</span>
-                        <span class="geo-linha__apoio">{{ resumoItens(ponto) }}{{ pendenciasDoPonto(ponto.id) ? ' · ' + fotosPendentes(pendenciasDoPonto(ponto.id)) : '' }}</span>
+                        <span class="geo-linha__titulo">{{ ponto.rotulo }}
+                          @if (ponto.id === proximo()?.id) { <span class="geo-etiqueta geo-etiqueta--destaque proximo">Próximo</span> }
+                          @if (ponto.situacao === 'PARCIAL') { <span class="geo-etiqueta geo-etiqueta--atencao proximo">Parcial</span> }</span>
+                        <span class="fazer">{{ oQueFazer(ponto) }}</span>
+                        <span class="geo-linha__apoio">{{ resumoMateriais(ponto) }}{{ pendenciasDoPonto(ponto.id) ? (resumoMateriais(ponto) ? ' · ' : '') + fotosPendentes(pendenciasDoPonto(ponto.id)) : '' }}</span>
                       </span>
                     </button>
                     @if (ponto.situacao !== 'FEITO') {
@@ -77,7 +88,6 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
                     } @else {
                       <span class="geo-etiqueta geo-etiqueta--ok">Feito</span>
                     }
-                    @if (ponto.situacao === 'PARCIAL') { <span class="geo-etiqueta geo-etiqueta--atencao parcial">Parcial</span> }
                   </li>
                 }
               </ul>
@@ -105,26 +115,33 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
               <h2>{{ ponto.rotulo }}</h2>
             </div>
           }
+          <h3 class="geo-secao">O que fazer neste ponto</h3>
           <ul class="itens">
-            @for (item of ponto.itens; track item.idItem) {
+            @for (item of itensOrdenados(ponto); track item.idItem) {
               <li>
+                <span class="geo-selo estado-item" [class.geo-selo--ok]="item.feito >= item.quantidade" aria-hidden="true">
+                  <geo-icone [nome]="item.feito >= item.quantidade ? 'check' : item.tipo === 'MATERIAL' ? 'material' : 'ferramenta'" [tamanho]="18" /></span>
                 <span class="item__texto"><strong>{{ item.descricao }}</strong>
-                  <span class="geo-num">{{ num(item.feito) }} de {{ num(item.quantidade) }} {{ item.unidade ?? '' }}{{ item.tipo === 'MATERIAL' ? ' · material' : '' }}</span></span>
+                  <span class="geo-num">{{ item.tipo === 'MATERIAL' ? 'Material · ' : '' }}{{ num(item.feito) }} de {{ num(item.quantidade) }} {{ item.unidade ?? '' }}{{ item.kit ? ' · kit ' + item.kit : '' }}</span></span>
                 @if (parcial()) {
-                  <geo-quantidade [minimo]="0" [rotulo]="'Feito agora de ' + item.descricao" [unidade]="item.unidade" [valor]="quantidades()[item.idItem] ?? 0"
+                  <geo-quantidade [minimo]="0" [rotulo]="'Feito agora de ' + item.descricao" [unidade]="item.unidade ?? null" [valor]="quantidades()[item.idItem] ?? 0"
                     (valorChange)="definirQuantidade(item.idItem, $event)" />
-                } @else if (item.feito >= item.quantidade) {
-                  <geo-icone nome="check" />
                 }
               </li>
             }
           </ul>
-          @if (ponto.situacao !== 'FEITO') {
+          @if (ponto.situacao !== 'FEITO' && liberacao() !== 'LIBERADA') {
+            <div class="faixa faixa--detalhe" role="status">
+              <geo-icone [nome]="liberacao() === 'IMPEDIDA' ? 'impedido' : 'escudo'" />
+              <span>{{ liberacao() === 'IMPEDIDA' ? 'Registrado "sem condição de executar" nesta obra.' : 'Faça a APR do dia para marcar o que foi feito.' }}</span>
+              <a class="geo-btn geo-btn--principal geo-btn--compacto" [routerLink]="['/obras', programacao()!.id, 'apr']">{{ liberacao() === 'IMPEDIDA' ? 'Nova APR' : 'Fazer APR' }}</a>
+            </div>
+          } @else if (ponto.situacao !== 'FEITO') {
             <div class="acoes">
               @if (!parcial()) {
-                <button type="button" class="geo-btn geo-btn--principal" [disabled]="liberacao() !== 'LIBERADA'" (click)="tudoFeito(ponto)" data-testid="tudo-feito">
+                <button type="button" class="geo-btn geo-btn--principal" (click)="tudoFeito(ponto)" data-testid="tudo-feito">
                   <geo-icone nome="tudo_feito" />Tudo feito</button>
-                <button type="button" class="geo-btn geo-btn--neutro" [disabled]="liberacao() !== 'LIBERADA'" (click)="parcial.set(true)">Parcial</button>
+                <button type="button" class="geo-btn geo-btn--neutro" (click)="parcial.set(true)">Parcial</button>
               } @else {
                 <button type="button" class="geo-btn geo-btn--principal" (click)="salvarParcial(ponto)" [disabled]="!temQuantidade()">Salvar parcial</button>
                 <button type="button" class="geo-btn geo-btn--neutro" (click)="parcial.set(false)">Cancelar</button>
@@ -134,7 +151,6 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
 
           <h3 class="geo-secao">Fotos do ponto</h3>
           <div class="etapa"><geo-segmentado rotulo="Etapa da foto" [opcoes]="etapas" [(valor)]="etapa" /></div>
-          @if (liberacao() !== 'LIBERADA' && ponto.situacao !== 'FEITO') { <p class="motivo">Conclua a APR para marcar o que foi feito.</p> }
           @for (item of itensFoto(); track item.id) {
             <div class="foto-item">
               <div class="foto-item__titulo"><span>{{ item.titulo }}{{ item.obrigatoria ? '' : ' (opcional)' }}</span>
@@ -169,21 +185,31 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
     .faixa { display: flex; gap: var(--geo-e3); align-items: center; margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); }
     .faixa span { flex: 1; }
+    .faixa--detalhe { margin: var(--geo-e4) var(--geo-margem) 0; }
+    .estado-item { flex: none; }
     .vista { padding: var(--geo-e3) var(--geo-margem) 0; }
     .colunas { flex: 1; display: block; padding-top: var(--geo-e3); }
     :host(.dividido) .colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 0; }
     :host(.dividido) .projeto, :host(.dividido) .lado { overflow-y: auto; }
+    :host(.dividido) .projeto { display: flex; flex-direction: column; }
+    :host(.dividido) .projeto app-projeto-pdf { flex: 1; --altura-projeto: none; }
     :host(.dividido) .lado { border-left: 1px solid var(--geo-linha); }
     .pontos .geo-linha { gap: var(--geo-e2); }
     .abrir { flex: 1; display: flex; align-items: center; gap: var(--geo-e3); min-width: 0; min-height: var(--geo-alvo); border: 0; background: none;
       color: inherit; text-align: left; font: inherit; cursor: pointer; padding: 0; }
+    .progresso { display: grid; gap: 6px; margin: var(--geo-e2) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .progresso strong { color: var(--geo-texto); font-weight: 600; }
+    .progresso__barra { height: 8px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); overflow: hidden; }
+    .progresso__barra span { display: block; height: 100%; background: var(--geo-ok); border-radius: inherit; transition: width 200ms var(--geo-curva); }
+    .fazer { font: var(--geo-t-apoio); color: var(--geo-texto); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .proximo { margin-left: var(--geo-e2); vertical-align: middle; }
     .nota { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .detalhe { padding: 0 0 var(--geo-e6); }
     .detalhe__topo { display: flex; align-items: center; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-margem); }
     .detalhe__topo h2 { font: var(--geo-t-secao); }
     .itens { list-style: none; margin: 0; padding: 0 var(--geo-margem); display: grid; gap: var(--geo-e3); }
-    .itens li { display: flex; align-items: center; gap: var(--geo-e3); justify-content: space-between; min-height: var(--geo-alvo); }
-    .item__texto { display: grid; gap: 2px; font: var(--geo-t-corpo); }
+    .itens li { display: flex; align-items: center; gap: var(--geo-e3); min-height: var(--geo-alvo); }
+    .item__texto { flex: 1; display: grid; gap: 2px; font: var(--geo-t-corpo); }
     .item__texto span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .acoes { display: flex; gap: var(--geo-e3); padding: var(--geo-e4) var(--geo-margem) 0; }
     .acoes .geo-btn { flex: 1; min-height: var(--geo-alvo-principal); }
@@ -224,6 +250,8 @@ export class ExecucaoComponent implements OnDestroy {
   readonly obra = computed(() => this.ctx.pacote.obra(this.programacao()?.idObra));
   readonly pontos = computed(() => (this.programacao() ? this.ctx.pontos(this.programacao()!) : []));
   readonly feitos = computed(() => this.pontos().filter(p => p.situacao === 'FEITO').length);
+  /** O primeiro ponto ainda não feito, na ordem do projeto: o "próximo" que a equipe vê destacado. */
+  readonly proximo = computed(() => this.pontos().find(p => p.situacao !== 'FEITO') ?? null);
   readonly liberacao = computed(() => (this.programacao() ? this.ctx.liberacao(this.programacao()!) : 'PENDENTE'));
   readonly pontoSelecionado = computed(() => this.pontos().find(p => p.id === this.selecionado()) ?? null);
   readonly itensFoto = computed(() => this.ctx.itensModelo(this.obra()));
@@ -252,6 +280,9 @@ export class ExecucaoComponent implements OnDestroy {
     effect(() => {
       this.selecionado();
       untracked(() => {
+        // A foto esperada segue a situação: antes de começar, "Antes"; no meio, "Durante"; feito, "Depois".
+        const s = this.pontoSelecionado()?.situacao;
+        this.etapa.set(s === 'A_FAZER' ? 'ANTES' : s === 'PARCIAL' ? 'DURANTE' : 'DEPOIS');
         this.parcial.set(false);
         this.quantidades.set({});
         this.serie.set('');
@@ -274,6 +305,28 @@ export class ExecucaoComponent implements OnDestroy {
 
   pendenciasDoPonto(id: string): number {
     return this.pendencias().filter(p => p.idPonto === id).length;
+  }
+
+  /** Os serviços do ponto em texto ("Instalar poste · Instalar cruzeta (3 UN)"): o que a equipe vai fazer ali. */
+  oQueFazer(ponto: PontoDaExecucao): string {
+    const servicos = ponto.itens.filter(i => i.tipo === 'SERVICO');
+    if (!servicos.length) return 'Só material';
+    return servicos.map(i => {
+      const falta = Math.max(0, i.quantidade - i.feito);
+      const qtd = i.feito > 0 && falta > 0 ? ` (faltam ${this.num(falta)}${i.unidade ? ' ' + i.unidade : ''})`
+        : i.quantidade !== 1 ? ` (${this.num(i.quantidade)}${i.unidade ? ' ' + i.unidade : ''})` : '';
+      return `${i.descricao}${qtd}`;
+    }).join(' · ');
+  }
+
+  resumoMateriais(ponto: PontoDaExecucao): string {
+    const n = ponto.itens.filter(i => i.tipo === 'MATERIAL').length;
+    return n ? `${n} ${n === 1 ? 'material' : 'materiais'}` : '';
+  }
+
+  /** Serviços primeiro, depois materiais. */
+  itensOrdenados(ponto: PontoDaExecucao) {
+    return [...ponto.itens].sort((a, b) => (a.tipo === b.tipo ? 0 : a.tipo === 'SERVICO' ? -1 : 1));
   }
 
   resumoItens(ponto: PontoDaExecucao): string {

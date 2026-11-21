@@ -47,7 +47,7 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
               [class.geo-selo--destaque]="!concluida(p) && ctx.liberacao(p) !== 'IMPEDIDA'">
               @if (concluida(p)) { <geo-icone nome="check" /> } @else { <span class="geo-num">{{ i + 1 }}</span> }</span>
             <span class="geo-linha__texto">
-              <span class="geo-linha__titulo">Obra {{ p.numeroObra }} · #{{ p.numero }}</span>
+              <span class="geo-linha__titulo">Obra {{ p.numeroObra }} · {{ ctx.ref(p) }}</span>
               <span class="geo-linha__apoio">{{ situacao(p) }}</span>
               @if (ctx.condicoes(p).length) { <span class="geo-linha__apoio">{{ ctx.condicoes(p).join(' · ') }}</span> }
             </span>
@@ -57,6 +57,13 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
     } @else {
       <p class="nada">Nenhuma obra na agenda de hoje.</p>
     }
+    <ul class="geo-grupo avulsa">
+      <li><a class="geo-linha geo-linha--acao" routerLink="/obras/nao-programada" data-testid="hoje-avulsa">
+        <span class="geo-selo"><geo-icone nome="mais" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Execução avulsa</span>
+          <span class="geo-linha__apoio">Obra fora da agenda: busque pelo número</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+    </ul>
     @if (fotosPendentes() || ctx.registros.conflitos().length) {
       <h2 class="geo-secao">Pendências</h2>
       <ul class="geo-grupo">
@@ -78,6 +85,7 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
     }
   `,
   styles: [`
+    .avulsa { margin-top: var(--geo-e2); }
     .avisos { display: flex; gap: var(--geo-e3); align-items: flex-start; margin: var(--geo-e4) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); }
     .avisos__texto { flex: 1; display: grid; gap: 2px; font: var(--geo-t-apoio); }
@@ -121,7 +129,7 @@ export class HojeObrasComponent {
   }
 
   rotuloTipo(tipo: string): string {
-    return ({ APR: 'APR', APR_CONCLUSAO: 'Conclusão da APR', OCORRENCIA: 'Ocorrência', ATIVIDADE: 'Obra não programada', APONTAMENTO: 'Apontamento',
+    return ({ APR: 'APR', APR_CONCLUSAO: 'Conclusão da APR', OCORRENCIA: 'Ocorrência', ATIVIDADE: 'Execução avulsa', APONTAMENTO: 'Apontamento',
       PRESENCA: 'Chegada/saída', EVIDENCIA: 'Foto', RELATORIO: 'Relatório' } as Record<string, string>)[tipo] ?? tipo;
   }
 }

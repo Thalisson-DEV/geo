@@ -302,6 +302,15 @@ html[data-nav='lateral']:has(.geo-fab) geo-barra-abas .marca { margin-bottom: ca
   &--destaque { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
 }
 
+// ---------- escolha num toque (chip) ----------
+// Motivos, tipos e respostas curtas: pílula com alvo de toque cheio; marcado = destaque suave.
+.geo-chip {
+  display: inline-flex; align-items: center; gap: var(--geo-e2); min-height: var(--geo-alvo); padding: 0 var(--geo-e4);
+  border-radius: var(--geo-r-pilula); border: 1px solid var(--geo-borda-campo); background: var(--geo-superficie);
+  color: var(--geo-texto); font: 500 .875rem/1.2 var(--geo-fonte); cursor: pointer; touch-action: manipulation;
+  &[aria-pressed='true'], &[aria-checked='true'] { background: var(--geo-destaque-suave); color: var(--geo-destaque); border-color: var(--geo-destaque); font-weight: 600; }
+}
+
 // ---------- números e tipos de item (para quem não é do escritório) ----------
 // Quantidade em destaque, à direita da linha: o número é a informação principal.
 .geo-qtd {

@@ -232,6 +232,9 @@ export class ConnectivityService {
 - **Regras puras** em `core/obras/obras-regras.ts` (próximo passo, sugestões da APR, liberação, pontos coloridos, material × saldo,
   pendência de foto, relatório montado, "Como chegar"). Teste unitário ao mexer.
 - **Turno de Obras** abre e fecha sem sinal (`TurnoService.abrirTurnoObras/fecharTurnoObras`; id `local-…` trocado ao enviar).
+- **Execução avulsa** (obra fora da agenda, `/obras/nao-programada`): busca online da obra, programação local `avulsa-<idObra>`
+  (`PacoteObrasService.iniciarAvulsa`; o pacote não a apaga); `RegistrosObrasService` troca o id local por `idObra` nos comandos.
+- **Projeto** (`projeto-pdf.component.ts`): zoom 100–400% (botões e pinça), tela cheia, ponto escolhido vem para o centro.
 - **Não existe** pedido de material nem fluxo comercial no app: material vem da programação; falta = ocorrência de material.
 - e2e: `e2e/fase4/obras.spec.ts` (dia inteiro sem sinal, conflito, app morto na APR, aviso, supervisor); mock em
   `e2e/support/mock-api.ts` (`new MockApi({ obras: true })`).

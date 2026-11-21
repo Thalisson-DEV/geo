@@ -183,6 +183,44 @@ test.describe('Obras offline', () => {
     await expect(page.getByText('Mudança na agenda')).toHaveCount(0);
   });
 
+  test('execução avulsa: busca a obra fora da agenda, executa como programada e o servidor recebe a obra', async ({ page, context }) => {
+    test.setTimeout(90_000);
+    const api = new MockApi({ perfil: 'CAMPO', turnoAberto: true, obras: true });
+    await api.install(context);
+    await loginPelaUi(page);
+    await expect(page.getByText('Pronto para trabalhar sem sinal')).toBeVisible({ timeout: 15_000 });
+    // A APR do dia (feita na obra da agenda) libera também a avulsa.
+    await page.getByTestId('hoje-obra-12').click();
+    await page.getByTestId('presenca').click();
+    await fazerApr(page);
+
+    await page.goto('/obras/nao-programada');
+    await page.getByTestId('busca-obra').fill('7000001x');
+    await page.getByTestId('buscar-obra').click();
+    await expect(page.getByText(/não encontrada ou já encerrada/)).toBeVisible();
+    await page.getByTestId('busca-obra').fill('7000009');
+    await page.getByTestId('buscar-obra').click();
+    const obra = page.getByTestId('obra-avulsa');
+    await expect(obra).toContainText('Obra 7000009');
+    await expect(obra).toContainText('1 item já está programado para outra equipe e não aparece aqui');
+    await expect(page.getByTestId('comecar-avulsa')).toBeDisabled();
+    await page.getByRole('radio', { name: 'Emergência' }).click();
+    await page.getByTestId('comecar-avulsa').click();
+    await expect(page).toHaveURL(/\/obras\/avulsa-o-9$/);
+    await expect(page.getByText('Execução avulsa (fora da agenda)')).toBeVisible();
+    await expect(page.getByText('Instalar transformador')).toBeVisible();
+
+    await page.goto('/obras/avulsa-o-9/execucao');
+    await expect(page.getByText('próximo:')).toBeVisible();
+    await page.getByTestId('tudo-feito-1').click();
+    await expect(page.getByTestId('ponto-1')).toContainText('Feito');
+    await expect.poll(() => api.operacoesObras.map(o => o.tipo), { timeout: 20_000 }).toEqual(expect.arrayContaining(['OBRA_ATIVIDADE', 'OBRA_APONTAMENTO']));
+    const ativ = api.operacoesObras.find(o => o.tipo === 'OBRA_ATIVIDADE')!.payload as { idObra: string; motivo: string };
+    expect(ativ).toEqual(expect.objectContaining({ idObra: 'o-9', motivo: 'Emergência' }));
+    const apont = api.operacoesObras.filter(o => o.tipo === 'OBRA_APONTAMENTO').at(-1)!.payload as { idObra: string; idProgramacao: string | null; idPonto: string };
+    expect(apont).toEqual(expect.objectContaining({ idObra: 'o-9', idProgramacao: null, idPonto: 'pt-91' }));
+  });
+
   test('supervisor acompanha as equipes: quem está sem condição de executar aparece', async ({ page, context }) => {
     const api = new MockApi({ perfil: 'ADMINISTRATIVO', obras: true });
     await api.install(context);

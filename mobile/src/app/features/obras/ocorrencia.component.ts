@@ -76,7 +76,7 @@ export class OcorrenciaObraComponent {
   readonly fotos = signal<{ id: string; foto: EvidenciaPreparada; url: string }[]>([]);
   readonly fotosExibidas = computed<FotoExibida[]>(() => this.fotos().map(f => ({ id: f.id, url: f.url })));
   readonly salvando = signal(false);
-  readonly subtitulo = computed(() => { const p = this.programacao(); return p ? `Obra ${p.numeroObra ?? ''} · #${p.numero}` : null; });
+  readonly subtitulo = computed(() => { const p = this.programacao(); return p ? `Obra ${p.numeroObra ?? ''} · ${this.ctx.ref(p)}` : null; });
   readonly carimbo = computed(() => linhasDoCarimbo({ contexto: [this.subtitulo() ?? 'Ocorrência', 'Ocorrência'], data: new Date() }));
 
   adicionar(foto: EvidenciaPreparada): void {

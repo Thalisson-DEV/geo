@@ -33,7 +33,9 @@ export function programacoesDoDia(programacoes: ProgramacaoCampo[], dia: string)
  */
 export function executadoPorItem(programacao: ProgramacaoCampo, registros: RegistroObraLocal[], pacoteRecebidoEm?: string | null): Map<string, number> {
   const mapa = new Map<string, number>(programacao.itens.map(i => [i.idItem, i.executada]));
-  const noPacote = (r: RegistroObraLocal) => r.envio === 'ENVIADO' && (!r.enviadoEm || !pacoteRecebidoEm || r.enviadoEm <= pacoteRecebidoEm);
+  // A avulsa é montada no aparelho e o pacote nunca a atualiza: tudo o que foi lançado nela conta.
+  const noPacote = (r: RegistroObraLocal) => !programacao.avulsa && r.envio === 'ENVIADO'
+    && (!r.enviadoEm || !pacoteRecebidoEm || r.enviadoEm <= pacoteRecebidoEm);
   for (const r of registros) {
     if (r.tipo !== 'APONTAMENTO' || r.idProgramacao !== programacao.id || r.envio === 'CONFLITO' || noPacote(r)) continue;
     const c = r.comando as { pontoInteiro?: boolean; idPonto?: string; itens?: { idItem: string; quantidade: number }[] };
@@ -181,6 +183,11 @@ export function formularioDaApr(r: AprRascunho, verificacoes: string[], local?: 
   };
 }
 
+/** Como a equipe vê a referência da programação: "#12" ou "avulsa". */
+export function referenciaProgramacao(p: Pick<ProgramacaoCampo, 'numero' | 'avulsa'>): string {
+  return p.avulsa ? 'avulsa' : `#${p.numero}`;
+}
+
 // ---------- Liberação no aparelho ----------
 
 export type LiberacaoLocal = 'PENDENTE' | 'EM_PREENCHIMENTO' | 'LIBERADA' | 'IMPEDIDA';
@@ -256,9 +263,9 @@ export function proximoPasso(e: EstadoDoDia): PassoDoDia {
   if (!p) {
     return e.programacoes.length
       ? { rotulo: 'Fechar o dia', rota: '/obras/relatorio', icone: 'check', apoio: 'Tudo da agenda de hoje foi feito ou registrado' }
-      : { rotulo: 'Registrar obra não programada', rota: '/obras/nao-programada', icone: 'mais', apoio: 'Nenhuma obra na agenda de hoje' };
+      : { rotulo: 'Execução avulsa', rota: '/obras/nao-programada', icone: 'mais', apoio: 'Nenhuma obra na agenda de hoje' };
   }
-  const apoio = `Programação #${p.numero}${p.numeroObra ? ` · obra ${p.numeroObra}` : ''}`;
+  const apoio = `${p.avulsa ? 'Execução avulsa' : `Programação #${p.numero}`}${p.numeroObra ? ` · obra ${p.numeroObra}` : ''}`;
   const chegou = e.registros.some(r => r.tipo === 'PRESENCA' && r.dia === e.dia && r.idObra === p.idObra
     && (r.comando as { tipo?: string }).tipo === 'CHEGADA');
   if (!chegou) return { rotulo: 'Ir para a obra', rota: `/obras/${p.id}`, icone: 'mapa', apoio };
@@ -304,7 +311,7 @@ export function relatorioDoDia(programacoes: ProgramacaoCampo[], registros: Regi
   const atendidas = programacoes.filter(p => doDia.some(r => r.idProgramacao === p.id || r.idObra === p.idObra));
   for (const p of atendidas) {
     const feitos = pontosFeitos(p);
-    linhas.push(`Obra ${p.numeroObra ?? ''} (programação #${p.numero}): ${feitos.length ? `pontos feitos ${feitos.join(', ')}` : 'sem pontos concluídos'}.`);
+    linhas.push(`Obra ${p.numeroObra ?? ''} (${p.avulsa ? 'execução avulsa' : `programação #${p.numero}`}): ${feitos.length ? `pontos feitos ${feitos.join(', ')}` : 'sem pontos concluídos'}.`);
   }
   for (const r of doDia.filter(x => x.tipo === 'ATIVIDADE')) {
     linhas.push(`Obra não programada: ${(r.comando as { motivo?: string }).motivo ?? ''}`.trim());

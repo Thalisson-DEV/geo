@@ -6,12 +6,16 @@ import com.nexo.app.modules.obras.application.dto.ProgramacaoResponses;
 import com.nexo.app.modules.obras.application.dto.TurnoObraRequests;
 import com.nexo.app.modules.obras.domain.ApontamentoExecucao;
 import com.nexo.app.modules.obras.domain.AtividadeTurno;
+import com.nexo.app.modules.obras.domain.ItemPlanejado;
+import com.nexo.app.modules.obras.domain.KitAplicado;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.Programacao;
 import com.nexo.app.modules.obras.domain.RegistroCampo;
 import com.nexo.app.modules.obras.domain.SituacaoLiberacao;
 import com.nexo.app.modules.obras.infrastructure.persistence.ApontamentoExecucaoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.AprTurnoRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.ItemPlanejadoRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.KitAplicadoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.AtividadeTurnoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.OcorrenciaTurnoRepository;
@@ -56,6 +60,8 @@ public class ApontamentoExecucaoUseCases {
     private final ObraRepository obraRepository;
     private final StatusObraRepository statusObraRepository;
     private final ProgramacaoObraUseCases programacaoUseCases;
+    private final KitAplicadoRepository kitRepository;
+    private final ItemPlanejadoRepository itemRepository;
     private final TurnoApi turnoApi;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -92,6 +98,37 @@ public class ApontamentoExecucaoUseCases {
      *
      * @param idLocal ponto ou vão do "Tudo feito"; com ele e {@code pontoInteiro}, as linhas são ignoradas.
      */
+    /**
+     * Execução avulsa (obra fora da agenda): inclui na programação avulsa da equipe, no dia do registro, os itens que vão
+     * ser apontados — o ponto inteiro ou as linhas informadas — e aponta nela como numa programação comum.
+     */
+    @Transactional
+    @CacheEvict(cacheNames = CacheNames.OBRAS, allEntries = true)
+    public List<ApontamentoExecucao> apontarAvulsoDoCampo(UUID idObra, UUID idEquipe, UUID idTurno, RegistroCampo campo, UUID idLocal,
+                                                          boolean pontoInteiro, List<TurnoObraRequests.LinhaApontamento> linhas, String motivo) {
+        LocalDate dia = campo.momentoConfiavel().atZoneSameInstant(FUSO).toLocalDate();
+        List<ItemPlanejado> itens;
+        if (pontoInteiro) {
+            if (idLocal == null) {
+                throw new InvarianteVioladaException("Informe o ponto do \"Tudo feito\".");
+            }
+            List<KitAplicado> kits = new java.util.ArrayList<>(kitRepository.findByIdPontoAndAtivoTrue(idLocal));
+            kits.addAll(kitRepository.findByIdVaoAndAtivoTrue(idLocal));
+            itens = kits.stream().filter(k -> idObra.equals(k.getIdObra())).flatMap(k -> k.getItensAtivos().stream()).toList();
+        } else {
+            if (linhas == null || linhas.isEmpty()) {
+                throw new InvarianteVioladaException("Informe ao menos um item.");
+            }
+            itens = itemRepository.listarDaObra(idObra, linhas.stream().map(TurnoObraRequests.LinhaApontamento::idItem).toList());
+        }
+        if (itens.stream().noneMatch(ItemPlanejado::programavel)
+                && itens.stream().noneMatch(i -> programacaoRepository.buscarAvulsa(idObra, idEquipe, dia).map(p -> p.contem(i.getId())).orElse(false))) {
+            throw new InvarianteVioladaException("Nada a executar aqui: os itens já foram feitos ou estão programados para outra equipe.");
+        }
+        Programacao avulsa = programacaoUseCases.garantirAvulsa(idObra, idEquipe, dia, motivo, itens);
+        return apontarDoCampo(avulsa.getId(), idTurno, campo, idLocal, pontoInteiro, linhas);
+    }
+
     @Transactional
     @CacheEvict(cacheNames = CacheNames.OBRAS, allEntries = true)
     public List<ApontamentoExecucao> apontarDoCampo(UUID idProgramacao, UUID idTurno, RegistroCampo campo, UUID idLocal,

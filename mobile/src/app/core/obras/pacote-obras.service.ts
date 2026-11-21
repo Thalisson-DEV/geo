@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
 import { db } from '../db/app-db';
 import { ArquivosCampoService } from './arquivos-campo.service';
-import { AvisoProgramacao, ModeloApr, ModeloFoto, ObraCampo, PacoteObras, ProgramacaoCampo } from './obras.models';
+import { AvisoProgramacao, ItemCampo, ModeloApr, ModeloFoto, ObraCampo, PacoteObras, ProgramacaoCampo } from './obras.models';
 
 const CHAVE_DESDE = 'obras_pacote_desde';
 const CHAVE_MODELOS = 'obras_modelos';
@@ -18,6 +18,21 @@ const CHAVE_RECEBIDO_EM = 'obras_pacote_recebido_em';
 /** Chave do arquivo do projeto da obra no armazenamento de arquivos. */
 /** Tempo máximo para baixar um PDF de projeto (arquivos grandes em 4G fraco). */
 const TEMPO_LIMITE_PROJETO_MS = 180_000;
+
+/** Prefixo da programação montada no aparelho para a execução avulsa (obra fora da agenda). */
+export const PREFIXO_AVULSA = 'avulsa-';
+
+export function idAvulsa(idObra: string): string {
+  return `${PREFIXO_AVULSA}${idObra}`;
+}
+
+/** Obra buscada para a execução avulsa: a obra e os itens que ainda podem ser executados por esta equipe. */
+export interface ObraAvulsa {
+  obra: ObraCampo;
+  itens: ItemCampo[];
+  /** Itens da obra já programados para outra programação: ficam de fora. */
+  programadosEmOutra: number;
+}
 
 export function chaveProjeto(idObra: string, hash: string): string {
   return `pdf/${idObra}/${hash}`;
@@ -123,13 +138,48 @@ export class PacoteObrasService {
     }
   }
 
+  /** Busca a obra fora da agenda no servidor (precisa de sinal). Nulo quando não existe ou está encerrada. */
+  async buscarAvulsa(numero: string): Promise<ObraAvulsa | null> {
+    try {
+      return await firstValueFrom(this.http.get<ObraAvulsa>(`${this.baseUrl}/v1/obras/campo/obras/avulsa`,
+        { params: { numero: numero.trim() }, headers: { 'X-Silent-Error': 'true' } }).pipe(timeout(20_000)));
+    } catch (e) {
+      if ((e as { status?: number }).status === 404) return null;
+      throw e;
+    }
+  }
+
+  /**
+   * Guarda no aparelho a obra e uma programação "avulsa" montada com os itens que a equipe pode executar hoje. A partir
+   * daí a obra funciona como as da agenda (ficha, APR, pontos, fotos, relatório), também sem sinal.
+   */
+  async iniciarAvulsa(dados: ObraAvulsa, motivo: string, hoje: string): Promise<ProgramacaoCampo> {
+    const dia = hoje.split('-').reverse().join('/');
+    const programacao: ProgramacaoCampo = {
+      id: idAvulsa(dados.obra.id), numero: 0, idObra: dados.obra.id, numeroObra: dados.obra.numero, inicio: dia, fim: dia,
+      descricao: dados.obra.titulo ?? 'Execução avulsa', turno: 'DIA_TODO', linhaViva: false, desligamento: false, finalizaObra: false,
+      observacao: motivo, situacao: 'PROGRAMADA', avulsa: true, itens: dados.itens,
+    };
+    await db.transaction('rw', [db.obrasProgramacoes, db.obrasObras], async () => {
+      await db.obrasObras.put(dados.obra);
+      await db.obrasProgramacoes.put(programacao);
+    });
+    await this.carregarLocal();
+    void this.baixarProjetos();
+    return programacao;
+  }
+
   /** Grava o pacote: completo substitui a agenda; incremental mescla e tira as removidas. */
   async aplicar(pacote: PacoteObras, completo: boolean, recebidoEm = new Date().toISOString()): Promise<void> {
     await db.transaction('rw', [db.obrasProgramacoes, db.obrasObras, db.config], async () => {
+      // A execução avulsa é montada no aparelho: o pacote não a substitui. A programação avulsa que o servidor cria
+      // para guardar o valor executado fica fora da agenda do app (a equipe já trabalha na do aparelho).
+      const avulsas = (await db.obrasProgramacoes.toArray()).filter(p => p.id.startsWith(PREFIXO_AVULSA));
       if (completo) {
         await db.obrasProgramacoes.clear();
+        if (avulsas.length) await db.obrasProgramacoes.bulkPut(avulsas);
       }
-      await db.obrasProgramacoes.bulkPut(pacote.programacoes);
+      await db.obrasProgramacoes.bulkPut(pacote.programacoes.filter(p => !p.avulsa));
       if (pacote.programacoesRemovidas.length) await db.obrasProgramacoes.bulkDelete(pacote.programacoesRemovidas);
       await db.obrasObras.bulkPut(pacote.obras);
       // Fora da janela: a agenda passou.

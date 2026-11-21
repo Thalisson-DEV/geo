@@ -27,6 +27,10 @@ public interface CampoObrasControllerDoc {
             description = "Turno, chegada/saída, apontamentos e \"sem condição\" do dia; inatividade configurável em geo.obras.status.minutos-inatividade.")
     ResponseEntity<List<com.nexo.app.modules.obras.application.usecases.StatusEquipesObras.StatusEquipe>> statusEquipes(UUID idBase);
 
+    @Operation(summary = "Buscar obra para a execução avulsa",
+            description = "Obra fora da agenda, pelo número: a obra como no pacote e os itens que a equipe ainda pode executar. 404 se não existe ou está encerrada.")
+    ResponseEntity<CampoObrasResponses.ObraAvulsa> buscarAvulsa(String numero);
+
     @Operation(summary = "Baixar o projeto em PDF da obra", description = "O ETag é o hash informado no pacote.")
     ResponseEntity<StreamingResponseBody> projeto(UUID idObra);
 

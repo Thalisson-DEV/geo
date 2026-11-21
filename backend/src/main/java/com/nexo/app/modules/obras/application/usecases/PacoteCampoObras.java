@@ -15,12 +15,14 @@ import com.nexo.app.modules.obras.domain.PlanejamentoObra;
 import com.nexo.app.modules.obras.domain.PontoPlanejamento;
 import com.nexo.app.modules.obras.domain.Programacao;
 import com.nexo.app.modules.obras.domain.ProgramacaoItem;
+import com.nexo.app.modules.obras.domain.StatusItemPlanejado;
 import com.nexo.app.modules.obras.domain.StatusProgramacao;
 import com.nexo.app.modules.obras.domain.VaoPlanejamento;
 import com.nexo.app.modules.obras.infrastructure.persistence.AnexoObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.EventoProgramacaoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.EvidenciaPontoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.FichaAsBuiltRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.KitAplicadoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ModeloChecklistObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.PlanejamentoObraRepository;
@@ -96,6 +98,7 @@ public class PacoteCampoObras {
     private final ModeloChecklistObraRepository modeloRepository;
     private final EventoProgramacaoRepository eventoRepository;
     private final ObjectStorageService objectStorage;
+    private final KitAplicadoRepository kitRepository;
 
     /**
      * @param idEquipe opcional para o encarregado (vale a equipe dele; outra equipe é 403); obrigatório para quem não
@@ -150,6 +153,44 @@ public class PacoteCampoObras {
                 List.copyOf(removidas), obrasCampo, modeloApr(), modelosFoto(), avisos);
     }
 
+    /**
+     * Obra para a execução avulsa (fora da agenda): a obra como no pacote e os itens que a equipe ainda pode executar —
+     * pendentes, ou já incluídos na programação avulsa dela hoje. Obra encerrada não aparece.
+     */
+    @Transactional(readOnly = true)
+    public CampoObrasResponses.ObraAvulsa buscarAvulsa(UUID usuario, String numero) {
+        UUID equipe = campo.equipeDoUsuario(usuario)
+                .orElseThrow(() -> new InvarianteVioladaException("A execução avulsa é da equipe de campo: o usuário não é encarregado de uma equipe."));
+        Obra obra = obraRepository.findByNumeroIgnoreCaseAndAtivoTrue(numero == null ? "" : numero.trim())
+                .filter(o -> !o.getStatusObra().isConcluida())
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Obra não encontrada ou encerrada."));
+        Map<UUID, Map<UUID, String>> locaisPorObra = new HashMap<>();
+        CampoObrasResponses.ObraCampo obraCampo = obraCampo(obra, locaisPorObra);
+        Map<UUID, String> locais = locaisPorObra.getOrDefault(obra.getId(), Map.of());
+        Optional<Programacao> avulsa = programacaoRepository.buscarAvulsa(obra.getId(), equipe, LocalDate.now(FUSO));
+        List<CampoObrasResponses.ItemCampo> itens = new ArrayList<>();
+        int emOutra = 0;
+        for (KitAplicado kit : kitRepository.listarComItens(obra.getId())) {
+            if (!kit.isAtivo()) {
+                continue;
+            }
+            for (ItemPlanejado item : kit.getItensAtivos()) {
+                boolean naAvulsa = avulsa.map(p -> p.contem(item.getId())).orElse(false);
+                if (!item.programavel() && !naAvulsa) {
+                    if (item.getStatus() == StatusItemPlanejado.PROGRAMADO) {
+                        emOutra++;
+                    }
+                    continue;
+                }
+                UUID local = kit.getIdPonto() != null ? kit.getIdPonto() : kit.getIdVao();
+                itens.add(new CampoObrasResponses.ItemCampo(item.getId(), kit.getIdPonto(), kit.getIdVao(), locais.get(local),
+                        item.getTipo(), item.getIdMaterial(), item.getCodigo(), item.getDescricao(), item.getUnidade(),
+                        kit.getCodigoKit(), item.getQuantidadePrevista(), item.getQuantidadeExecutada(), item.getStatus()));
+            }
+        }
+        return new CampoObrasResponses.ObraAvulsa(obraCampo, itens, emOutra);
+    }
+
     /** Projeto em PDF da obra, para o aparelho guardar offline. */
     @Transactional(readOnly = true)
     public DownloadAnexoObraDTO baixarProjeto(UUID usuario, UUID idObra) {
@@ -158,7 +199,9 @@ public class PacoteCampoObras {
             LocalDate hoje = LocalDate.now(FUSO);
             boolean naAgenda = programacaoRepository.listarDaEquipeNoPeriodoComItens(equipe.get(), hoje.minusDays(1), hoje.plusDays(DIAS_A_FRENTE))
                     .stream().anyMatch(p -> p.getIdObra().equals(idObra));
-            if (!naAgenda) {
+            // Fora da agenda, só obra em aberto: é a execução avulsa, que a equipe começa buscando a obra.
+            boolean emAberto = obraRepository.findById(idObra).map(o -> o.isAtivo() && !o.getStatusObra().isConcluida()).orElse(false);
+            if (!naAgenda && !emAberto) {
                 throw new AcessoNegadoException("A obra não está na agenda da sua equipe.");
             }
         }
@@ -321,7 +364,7 @@ public class PacoteCampoObras {
         return new CampoObrasResponses.ProgramacaoCampo(p.getId(), p.getNumero(), p.getIdObra(), obra != null ? obra.getNumero() : null,
                 p.getDataInicio(), p.getDataFim(), p.getDescricao(), p.getTurno(), p.isLinhaViva(), p.isDesligamento(),
                 p.getHoraDesligamentoInicio(), p.getHoraDesligamentoFim(), p.getNumeroManobra(), p.isFinalizaObra(),
-                p.getSituacaoIntervencao(), p.getObservacao(), p.situacaoEm(hoje), p.getVersao(), itens);
+                p.getSituacaoIntervencao(), p.getObservacao(), p.situacaoEm(hoje), p.getVersao(), itens, p.isAvulsa());
     }
 
     static CampoObrasResponses.ModeloApr modeloApr() {

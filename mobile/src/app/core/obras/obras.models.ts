@@ -43,6 +43,8 @@ export interface ProgramacaoCampo {
   observacao?: string | null;
   situacao: SituacaoProgramacao;
   versao?: number | null;
+  /** Execução avulsa: obra fora da agenda que a equipe começou pelo app (programação montada no aparelho). */
+  avulsa?: boolean;
   itens: ItemCampo[];
 }
 

@@ -67,6 +67,10 @@ public class Programacao extends BaseEntity {
     @Column(name = "finaliza_obra", nullable = false)
     private boolean finalizaObra;
 
+    /** Montada pelo servidor com o que a equipe executou numa obra fora da agenda (execução avulsa do app). */
+    @Column(name = "avulsa", nullable = false, updatable = false)
+    private boolean avulsa;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "turno", nullable = false, length = 20)
     private TurnoProgramacao turno;
@@ -101,6 +105,23 @@ public class Programacao extends BaseEntity {
         this.idObra = Objects.requireNonNull(idObra);
         definirEquipeEPeriodo(idEquipe, inicio, fim);
         aplicar(condicoes);
+    }
+
+    /**
+     * Programação avulsa da equipe no dia: nasce sem itens e recebe só os que forem apontados. A descrição leva o motivo
+     * informado no app.
+     */
+    public static Programacao avulsa(long numero, UUID idObra, UUID idEquipe, LocalDate dia, String motivo) {
+        String texto = motivo == null || motivo.isBlank() ? "Execução avulsa" : "Execução avulsa: " + motivo.trim();
+        Programacao p = new Programacao(numero, idObra, idEquipe, dia, dia, new Condicoes(texto.length() > 500 ? texto.substring(0, 500) : texto,
+                false, false, false, TurnoProgramacao.DIA_TODO, SituacaoIntervencao.CRIADO, null));
+        p.avulsa = true;
+        return p;
+    }
+
+    /** O item já está nesta programação (e ativo nela). */
+    public boolean contem(UUID idItemPlanejado) {
+        return getItensAtivos().stream().anyMatch(v -> v.getItemPlanejado().getId().equals(idItemPlanejado));
     }
 
     /** Horário e manobra do desligamento. Sem desligamento, nada disso se aplica e fica vazio. */

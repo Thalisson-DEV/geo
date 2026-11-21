@@ -1,13 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { BarraTopoComponent, IconeComponent } from '../../ui';
-import { ToastService } from '../../core/ui/toast.service';
 import { TurnoService } from '../../core/turno/turno.service';
+import { ConnectivityService } from '../../core/sync/connectivity.service';
+import { ObraAvulsa, idAvulsa } from '../../core/obras/pacote-obras.service';
 import { ObrasContexto } from './obras-contexto';
 
+/** Motivos mais comuns, num toque; o texto pode ser completado. */
+const MOTIVOS = ['Emergência', 'Pedido da supervisão', 'Adiantar serviço da obra', 'Retrabalho'];
+
 /**
- * Atividade em obra não programada: a equipe busca a obra pelo número entre as obras do aparelho (ou digita o id que a
- * supervisão passou) e informa o motivo.
+ * Execução avulsa: a equipe atua numa obra que não estava na agenda. Busca a obra pelo número (precisa de sinal só
+ * nessa hora), vê o que há para fazer e começa a execução; a partir daí a obra funciona como as programadas — ficha,
+ * APR do dia, pontos e projeto, fotos e relatório —, também sem sinal. O servidor monta a programação avulsa com o que
+ * for apontado, para o valor entrar na medição.
  */
 @Component({
   selector: 'app-obra-nao-programada',
@@ -15,61 +21,159 @@ import { ObrasContexto } from './obras-contexto';
   imports: [BarraTopoComponent, IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <geo-barra-topo titulo="Obra não programada" (voltar)="voltar()" />
-    <p class="explica">Use quando a equipe atuar numa obra que não estava na agenda de hoje.</p>
-    <label class="geo-campo"><span>Número da obra</span>
-      <input class="geo-input geo-num" inputmode="numeric" [value]="busca()" (input)="busca.set($any($event.target).value)" placeholder="Ex.: 7000001" data-testid="busca-obra"></label>
-    <ul class="geo-grupo">
-      @for (o of encontradas(); track o.id) {
-        <li><button type="button" class="geo-linha geo-linha--acao" role="radio" [attr.aria-checked]="o.id === escolhida()" (click)="escolhida.set(o.id)">
-          <span class="geo-selo" [class.geo-selo--destaque]="o.id === escolhida()"><geo-icone [nome]="o.id === escolhida() ? 'check' : 'obra'" /></span>
-          <span class="geo-linha__texto"><span class="geo-linha__titulo">Obra {{ o.numero }}</span><span class="geo-linha__apoio">{{ o.titulo }}</span></span>
-        </button></li>
-      } @empty {
-        @if (busca().trim()) { <li class="geo-linha"><span class="geo-linha__apoio">Nenhuma obra com esse número no aparelho. Confirme o número com a supervisão.</span></li> }
+    <geo-barra-topo titulo="Execução avulsa" subtitulo="Obra fora da agenda de hoje" (voltar)="voltar()" />
+    @if (!achada()) {
+    <ol class="passos-ajuda">
+      <li><span class="n">1</span>Busque a obra pelo número.</li>
+      <li><span class="n">2</span>Diga por que a equipe vai atuar nela.</li>
+      <li><span class="n">3</span>Execute como numa obra da agenda: APR do dia, pontos, fotos.</li>
+    </ol>
+    }
+
+    <form class="busca" (submit)="$event.preventDefault(); buscar()">
+      <label class="geo-campo"><span>Número da obra</span>
+        <input class="geo-input geo-num" inputmode="numeric" [value]="numero()" (input)="numero.set($any($event.target).value)"
+          placeholder="Ex.: 7000001" data-testid="busca-obra" autocomplete="off"></label>
+      <button type="submit" class="geo-btn geo-btn--principal" [disabled]="!numero().trim() || buscando()" data-testid="buscar-obra">
+        <geo-icone nome="busca" />{{ buscando() ? 'Buscando…' : 'Buscar' }}</button>
+    </form>
+
+    @if (!rede.isOnline()) {
+      <p class="aviso" role="status"><geo-icone nome="sem_rede" [tamanho]="18" />Sem sinal: a busca da obra precisa de internet. Com a obra já buscada, o resto funciona sem sinal.</p>
+    }
+    @if (erro(); as e) { <p class="aviso aviso--erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" />{{ e }}</p> }
+
+    @if (achada(); as a) {
+      <section class="obra" aria-label="Obra encontrada" data-testid="obra-avulsa">
+        <div class="obra__topo">
+          <span class="geo-selo geo-selo--destaque"><geo-icone nome="obra" /></span>
+          <span class="obra__texto"><strong>Obra {{ a.obra.numero }}</strong><span>{{ a.obra.titulo }}</span>
+            @if (endereco(); as end) { <span class="apoio">{{ end }}</span> }</span>
+        </div>
+        <ul class="resumo">
+          <li><strong class="geo-num">{{ pontosComServico() }}</strong> {{ pontosComServico() === 1 ? 'ponto ou vão' : 'pontos e vãos' }} com serviço a fazer</li>
+          <li><strong class="geo-num">{{ servicos() }}</strong> {{ servicos() === 1 ? 'serviço' : 'serviços' }} · <strong class="geo-num">{{ materiais() }}</strong> {{ materiais() === 1 ? 'material' : 'materiais' }}</li>
+          @if (a.programadosEmOutra) {
+            <li class="apoio">{{ a.programadosEmOutra === 1 ? '1 item já está programado para outra equipe e não aparece aqui.' : a.programadosEmOutra + ' itens já estão programados para outra equipe e não aparecem aqui.' }}</li>
+          }
+          @if (!a.obra.projeto) { <li class="apoio">Esta obra não tem projeto em PDF: os pontos aparecem só em lista.</li> }
+        </ul>
+        @if (!a.itens.length) {
+          <p class="aviso aviso--erro"><geo-icone nome="alerta" [tamanho]="18" />Não há serviço pendente nesta obra para a equipe executar. Fale com a supervisão.</p>
+        }
+      </section>
+
+      @if (a.itens.length) {
+        <fieldset class="motivos">
+          <legend>Por que a equipe vai atuar nesta obra?</legend>
+          <div class="chips" role="radiogroup" aria-label="Motivo">
+            @for (m of motivos; track m) {
+              <button type="button" class="geo-chip" role="radio" [attr.aria-checked]="motivo() === m" (click)="motivo.set(m)">
+                @if (motivo() === m) { <geo-icone nome="check" [tamanho]="16" /> }{{ m }}</button>
+            }
+          </div>
+          <label class="geo-campo"><span>Detalhe (opcional)</span>
+            <textarea class="geo-input" rows="2" maxlength="800" [value]="detalhe()" (input)="detalhe.set($any($event.target).value)"
+              placeholder="Ex.: poste caído após a chuva, pedido do supervisor" data-testid="motivo-obra"></textarea></label>
+        </fieldset>
       }
-    </ul>
-    <label class="geo-campo"><span>Motivo</span>
-      <textarea class="geo-input" rows="3" maxlength="1000" [value]="motivo()" (input)="motivo.set($any($event.target).value)"
-        placeholder="Ex.: atendimento de emergência pedido pela supervisão" data-testid="motivo-obra"></textarea></label>
+    }
+
+    @if (achada()?.itens?.length && !turno.turnoAtivo()) {
+      <p class="aviso" role="status"><geo-icone nome="relogio" [tamanho]="18" />Abra o turno antes de começar a execução.</p>
+    }
     <div class="geo-respiro"></div>
     <div class="geo-rodape-acoes" data-acao-fixa>
-      <button type="button" class="geo-btn geo-btn--principal" [disabled]="!escolhida() || !motivo().trim() || salvando()" (click)="salvar()">Registrar</button>
+      <button type="button" class="geo-btn geo-btn--principal" [disabled]="!podeComecar() || salvando()" (click)="comecar()" data-testid="comecar-avulsa">
+        <geo-icone nome="ferramenta" />Começar execução</button>
     </div>
   `,
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; }
-    .explica { margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .geo-campo { margin: var(--geo-e4) var(--geo-margem); }
+    .passos-ajuda { list-style: none; margin: var(--geo-e3) var(--geo-margem) 0; padding: 0; display: grid; gap: var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .passos-ajuda li { display: flex; align-items: center; gap: var(--geo-e2); }
+    .n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; flex: none;
+      background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 600 .75rem/1 var(--geo-fonte); }
+    .busca { display: flex; gap: var(--geo-e2); align-items: end; margin: var(--geo-e4) var(--geo-margem) 0; }
+    .busca .geo-campo { flex: 1; margin: 0; }
+    .busca .geo-btn { flex: none; min-height: var(--geo-alvo-principal); }
+    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3);
+      border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); }
+    .aviso--erro { background: var(--geo-erro-suave); }
+    .obra { margin: var(--geo-e4) var(--geo-margem) 0; padding: var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
+      box-shadow: var(--geo-sombra-cartao); }
+    .obra__topo { display: flex; gap: var(--geo-e3); align-items: flex-start; }
+    .obra__texto { display: grid; gap: 2px; font: var(--geo-t-corpo); }
+    .obra__texto strong { font: var(--geo-t-secao); }
+    .apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .resumo { list-style: none; margin: var(--geo-e3) 0 0; padding: var(--geo-e3) 0 0; border-top: 1px solid var(--geo-linha); display: grid; gap: var(--geo-e2);
+      font: var(--geo-t-corpo); }
+    .motivos { border: 0; margin: var(--geo-e4) var(--geo-margem) 0; padding: 0; }
+    .motivos legend { font: var(--geo-t-corpo-forte); margin-bottom: var(--geo-e2); }
+    .chips { display: flex; flex-wrap: wrap; gap: var(--geo-e2); margin-bottom: var(--geo-e3); }
+    .motivos .geo-campo { margin: 0; }
   `],
 })
 export class ObraNaoProgramadaComponent {
   private readonly ctx = inject(ObrasContexto);
   private readonly router = inject(Router);
-  private readonly toast = inject(ToastService);
-  private readonly turno = inject(TurnoService);
+  readonly turno = inject(TurnoService);
+  readonly rede = inject(ConnectivityService);
 
-  readonly busca = signal('');
+  readonly motivos = MOTIVOS;
+  readonly numero = signal('');
   readonly motivo = signal('');
-  readonly escolhida = signal<string | null>(null);
+  readonly detalhe = signal('');
+  readonly achada = signal<ObraAvulsa | null>(null);
+  readonly buscando = signal(false);
   readonly salvando = signal(false);
-  readonly encontradas = computed(() => {
-    const termo = this.busca().trim();
-    return termo ? this.ctx.pacote.obras().filter(o => o.numero.includes(termo)).slice(0, 20) : [];
-  });
+  readonly erro = signal<string | null>(null);
 
-  async salvar(): Promise<void> {
-    const idObra = this.escolhida();
-    if (!idObra || !this.motivo().trim()) return;
-    if (!this.turno.turnoAtivo()) {
-      this.toast.warning('Abra o turno antes de registrar.');
+  readonly servicos = computed(() => this.achada()?.itens.filter(i => i.tipo === 'SERVICO').length ?? 0);
+  readonly materiais = computed(() => this.achada()?.itens.filter(i => i.tipo === 'MATERIAL').length ?? 0);
+  readonly pontosComServico = computed(() => new Set(this.achada()?.itens.filter(i => i.tipo === 'SERVICO').map(i => i.idPonto ?? i.idVao)).size);
+  readonly endereco = computed(() => {
+    const o = this.achada()?.obra;
+    return o ? [o.endereco, o.municipio].filter(Boolean).join(' · ') : '';
+  });
+  readonly podeComecar = computed(() => !!this.achada()?.itens.length && !!this.motivo() && !!this.turno.turnoAtivo());
+
+  async buscar(): Promise<void> {
+    const numero = this.numero().trim();
+    if (!numero) return;
+    // Já começada hoje (ou na agenda): abre direto.
+    const local = this.ctx.doDia().find(p => p.numeroObra === numero);
+    if (local) {
+      void this.router.navigate(['/obras', local.id]);
       return;
     }
-    this.salvando.set(true);
+    this.buscando.set(true);
+    this.erro.set(null);
+    this.achada.set(null);
     try {
-      await this.ctx.registros.registrar({ tipo: 'ATIVIDADE', idObra, comando: { idObra, motivo: this.motivo().trim() } });
-      this.toast.success('Obra não programada registrada no turno');
-      void this.router.navigate(['/hoje'], { replaceUrl: true });
+      const r = await this.ctx.pacote.buscarAvulsa(numero);
+      if (!r) this.erro.set(`Obra ${numero} não encontrada ou já encerrada. Confira o número com a supervisão.`);
+      this.achada.set(r);
+    } catch {
+      this.erro.set('Não foi possível buscar agora. Confira o sinal e tente de novo.');
+    } finally {
+      this.buscando.set(false);
+    }
+  }
+
+  async comecar(): Promise<void> {
+    const a = this.achada();
+    const detalhe = this.detalhe().trim();
+    const motivo = this.motivo() ? `${this.motivo()}${detalhe ? ' — ' + detalhe : ''}` : '';
+    if (!a || !motivo || !this.turno.turnoAtivo()) return;
+    this.salvando.set(true);
+    this.erro.set(null);
+    try {
+      const p = await this.ctx.pacote.iniciarAvulsa(a, motivo, this.ctx.hoje());
+      await this.ctx.registros.registrar({ tipo: 'ATIVIDADE', idObra: a.obra.id, idProgramacao: p.id, comando: { idObra: a.obra.id, motivo } });
+      void this.router.navigate(['/obras', idAvulsa(a.obra.id)], { replaceUrl: true });
+    } catch {
+      this.erro.set('Não foi possível começar a execução. Tente de novo; se continuar, fale com a supervisão.');
     } finally {
       this.salvando.set(false);
     }

@@ -383,6 +383,10 @@ export class MockApi {
     if (path === '/v1/obras/campo/pacote') {
       return this.json(route, 200, pacoteObras(url.searchParams.get('desde'), this.programacaoCancelada, this.hojeObras));
     }
+    if (path === '/v1/obras/campo/obras/avulsa') {
+      const numero = url.searchParams.get('numero');
+      return numero === '7000009' ? this.json(route, 200, obraAvulsa()) : this.json(route, 404, { title: 'Obra não encontrada', status: 404 });
+    }
     if (/^\/v1\/obras\/campo\/obras\/[^/]+\/projeto$/.test(path)) {
       return route.fulfill({ status: 200, contentType: 'application/pdf', body: pdfMinimo() });
     }
@@ -469,6 +473,28 @@ export function pacoteObras(desde: string | null, cancelada = false, base = new 
       ? [{ id: 'ev-1', tipo: 'CANCELADA', idProgramacao: 'p-12', numeroProgramacao: 12, idObra: 'o-1', numeroObra: '7000001',
           texto: 'Programação #12 da obra 7000001 foi cancelada: desligamento negado.', em: new Date().toISOString() }]
       : [],
+  };
+}
+
+/** Obra 7000009, fora da agenda: 2 pontos com serviço pendente e 1 item já programado para outra equipe. */
+export function obraAvulsa() {
+  return {
+    obra: {
+      id: 'o-9', numero: '7000009', titulo: 'Extensão de rede Rua B', endereco: 'Rua B, 45 - Centro', referencia: null,
+      latitude: -3.73, longitude: -38.52, municipio: 'Fortaleza', projeto: { idAnexo: 'an-9', nome: 'projeto.pdf', tamanhoBytes: 900, hash: 'h9' },
+      rotacoes: {}, idModeloFoto: 'mf-1', fotos: [], pendenciasFoto: [],
+      pontos: [
+        { id: 'pt-91', numero: '1', pagina: 1, x: 0.25, y: 0.45, tipo: 'POSTE', tipoExecucao: null, temPoda: false, temAterramento: false },
+        { id: 'pt-92', numero: '2', pagina: 1, x: 0.7, y: 0.55, tipo: 'POSTE', tipoExecucao: null, temPoda: false, temAterramento: false },
+      ],
+      vaos: [],
+    },
+    itens: [
+      { idItem: 'i-91', idPonto: 'pt-91', local: 'P1', tipo: 'SERVICO', codigo: 'S1', descricao: 'Instalar poste', unidade: 'UN', kit: 'LMI-0168', quantidade: 1, executada: 0, status: 'PENDENTE' },
+      { idItem: 'i-92', idPonto: 'pt-91', local: 'P1', tipo: 'MATERIAL', idMaterial: 'm-poste', codigo: 'PT-11', descricao: 'Poste 11 m', unidade: 'UN', kit: 'LMI-0168', quantidade: 1, executada: 0, status: 'PENDENTE' },
+      { idItem: 'i-93', idPonto: 'pt-92', local: 'P2', tipo: 'SERVICO', codigo: 'S3', descricao: 'Instalar transformador', unidade: 'UN', kit: 'TR-45', quantidade: 1, executada: 0, status: 'PENDENTE' },
+    ],
+    programadosEmOutra: 1,
   };
 }
 

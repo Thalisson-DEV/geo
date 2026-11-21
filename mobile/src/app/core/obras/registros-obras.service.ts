@@ -9,6 +9,7 @@ import { TurnoService } from '../turno/turno.service';
 import { ArquivosCampoService } from './arquivos-campo.service';
 import { LocalizacaoService, Posicao } from './localizacao.service';
 import { hojeLocal } from './obras-regras';
+import { PREFIXO_AVULSA } from './pacote-obras.service';
 import { CampoDoAparelho, EnvioObra, RegistroObraLocal, TipoRegistroObra } from './obras.models';
 
 /** Endpoint sentinela da fila: o item da fila só aponta o registro; quem envia é este serviço. */
@@ -80,6 +81,9 @@ export class RegistrosObrasService {
       longitude: posicao?.longitude ?? null,
       precisao: posicao?.precisao ?? null,
     };
+    // Execução avulsa: a programação é do aparelho; o servidor recebe a obra e monta a programação avulsa dele.
+    const avulsa = !!novo.idProgramacao?.startsWith(PREFIXO_AVULSA);
+    const comando = avulsa ? { ...novo.comando, idProgramacao: null, idObra: novo.idObra ?? null } : novo.comando;
     let arquivo: RegistroObraLocal['arquivo'] = null;
     if (novo.arquivo) {
       const chave = `foto/${idLocal}`;
@@ -89,7 +93,7 @@ export class RegistrosObrasService {
     const registro: RegistroObraLocal = {
       id: idLocal, tipo: novo.tipo, idObra: novo.idObra ?? null, idProgramacao: novo.idProgramacao ?? null,
       idPonto: novo.idPonto ?? null, dependeDe: novo.dependeDe ?? null,
-      comando: { ...novo.comando, campo }, arquivo, envio: 'NO_APARELHO', criadoEm: agora.toISOString(), dia: hojeLocal(agora),
+      comando: { ...comando, campo }, arquivo, envio: 'NO_APARELHO', criadoEm: agora.toISOString(), dia: hojeLocal(agora),
     };
     await db.transaction('rw', [db.obrasRegistros, db.outbox], async () => {
       await db.obrasRegistros.add(registro);

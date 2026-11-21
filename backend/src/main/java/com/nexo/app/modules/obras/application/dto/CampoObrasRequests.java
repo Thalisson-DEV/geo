@@ -82,11 +82,13 @@ public final class CampoObrasRequests {
 
     /**
      * Apontamento do app. Com {@code pontoInteiro}, aponta o restante de todos os itens do ponto (ou vão) na programação
-     * e {@code itens} é ignorado; sem ele, aponta os itens informados.
+     * e {@code itens} é ignorado; sem ele, aponta os itens informados. Sem programação e com a obra, é a execução avulsa
+     * (obra fora da agenda): o servidor monta a programação avulsa da equipe no dia.
      */
     public record Apontamento(
             @NotNull @Valid Campo campo,
-            @NotNull(message = "Informe a programação") UUID idProgramacao,
+            UUID idProgramacao,
+            UUID idObra,
             UUID idPonto,
             boolean pontoInteiro,
             @Valid List<TurnoObraRequests.LinhaApontamento> itens,

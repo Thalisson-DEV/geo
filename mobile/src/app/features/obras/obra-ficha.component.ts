@@ -26,7 +26,7 @@ const RAIO_CHEGADA_M = 400;
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (programacao(); as p) {
-      <geo-barra-topo [titulo]="'Obra ' + (p.numeroObra ?? '')" [subtitulo]="'Programação #' + p.numero"
+      <geo-barra-topo [titulo]="'Obra ' + (p.numeroObra ?? '')" [subtitulo]="p.avulsa ? 'Execução avulsa (fora da agenda)' : 'Programação #' + p.numero"
         [navegacao]="layout.expandido() ? 'nenhuma' : 'voltar'" (voltar)="voltar()" />
 
       @if (aviso(); as a) {
@@ -41,8 +41,24 @@ const RAIO_CHEGADA_M = 400;
             @for (c of ctx.condicoes(p); track c) { <li class="geo-etiqueta">{{ c }}</li> }
           </ul>
         }
-        @if (p.observacao) { <p class="obs">{{ p.observacao }}</p> }
+        @if (p.observacao) { <p class="obs">@if (p.avulsa) { <strong>Motivo:</strong> }{{ p.observacao }}</p> }
       </section>
+
+      @if (servicosDoDia().length) {
+        <h2 class="geo-secao"><span>O que fazer</span><span class="geo-num">{{ restantes() ? restantes() + (restantes() === 1 ? ' serviço a fazer' : ' serviços a fazer') : 'tudo feito' }}</span></h2>
+        <ul class="geo-grupo fazer" aria-label="Serviços desta obra">
+          @for (s of servicosDoDia().slice(0, 6); track s.chave) {
+            <li class="geo-linha">
+              <span class="geo-selo" [class.geo-selo--ok]="s.feito" aria-hidden="true"><geo-icone [nome]="s.feito ? 'check' : 'ferramenta'" [tamanho]="18" /></span>
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ s.descricao }}</span>
+                <span class="geo-linha__apoio geo-num">{{ s.feito ? 'Feito' : num(s.restante) + ' ' + (s.unidade ?? '') + ' a fazer' }} · {{ s.locais === 1 ? '1 ponto' : s.locais + ' pontos' }}</span></span>
+            </li>
+          }
+          @if (servicosDoDia().length > 6) {
+            <li class="geo-linha"><span class="geo-linha__apoio">e mais {{ servicosDoDia().length - 6 }} em "Pontos e projeto"</span></li>
+          }
+        </ul>
+      }
 
       <h2 class="geo-secao">Local</h2>
       <div class="geo-grupo">
@@ -68,11 +84,13 @@ const RAIO_CHEGADA_M = 400;
           <span class="geo-selo" [class.geo-selo--ok]="chegou()"><geo-icone [nome]="chegou() ? 'check' : 'obra'" /></span>
           <span class="geo-linha__texto">
             <span class="geo-linha__titulo">{{ chegou() ? 'Equipe na obra' : 'Equipe a caminho' }}</span>
-            <span class="geo-linha__apoio">{{ perto() && !chegou() ? 'Você está perto da obra' : chegou() ? 'Toque em "Saí" ao deixar a obra' : 'Toque em "Cheguei" ao chegar' }}</span>
+            <span class="geo-linha__apoio">{{ perto() && !chegou() ? 'Você está perto da obra' : chegou() ? 'Toque em "Saí" ao deixar a obra' : 'Toque em "Cheguei na obra" ao chegar' }}</span>
           </span>
-          <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto" (click)="presenca()" [disabled]="registrando()" data-testid="presenca">
-            {{ chegou() ? 'Saí' : 'Cheguei' }}
-          </button>
+          @if (chegou() || !turno.turnoAtivo()) {
+            <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto" (click)="presenca()" [disabled]="registrando()" data-testid="presenca">
+              {{ chegou() ? 'Saí' : 'Cheguei' }}
+            </button>
+          }
         </div>
       </div>
 
@@ -119,7 +137,13 @@ const RAIO_CHEGADA_M = 400;
       <div class="geo-respiro"></div>
 
       <div class="doca" data-acao-fixa>
-        <a class="geo-btn geo-btn--principal geo-btn--bloco" [routerLink]="passo().rota" data-testid="passo-obra"><geo-icone [nome]="$any(passo().icone)" />{{ passo().rotulo }}</a>
+        @if (turno.turnoAtivo() && !chegou()) {
+          <!-- Na própria ficha, o passo é registrar a chegada (antes era "Ir para a ficha", que não levava a lugar nenhum). -->
+          <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="presenca()" [disabled]="registrando()" data-testid="presenca">
+            <geo-icone nome="local" />Cheguei na obra</button>
+        } @else {
+          <a class="geo-btn geo-btn--principal geo-btn--bloco" [routerLink]="passo().rota" data-testid="passo-obra"><geo-icone [nome]="$any(passo().icone)" />{{ passo().rotulo }}</a>
+        }
       </div>
     } @else {
       <geo-barra-topo titulo="Obra" (voltar)="voltar()" />
@@ -147,7 +171,7 @@ export class ObraFichaComponent implements OnInit {
   readonly layout = inject(LayoutService);
   private readonly router = inject(Router);
   private readonly tokens = inject(TokenService);
-  private readonly turno = inject(TurnoService);
+  readonly turno = inject(TurnoService);
   private readonly toast = inject(ToastService);
   private readonly gps = inject(LocalizacaoService);
 
@@ -172,6 +196,26 @@ export class ObraFichaComponent implements OnInit {
     return novos.at(-1)?.texto ?? null;
   });
 
+  /** Serviços da programação somados por descrição: o que a equipe tem para fazer hoje, do que falta ao que já foi feito. */
+  readonly servicosDoDia = computed(() => {
+    const soma = new Map<string, { chave: string; descricao: string; unidade?: string | null; total: number; feitoQtd: number; locais: Set<string> }>();
+    for (const ponto of this.pontos()) {
+      for (const i of ponto.itens.filter(x => x.tipo === 'SERVICO')) {
+        const chave = `${i.descricao}|${i.unidade ?? ''}`;
+        const atual = soma.get(chave) ?? { chave, descricao: i.descricao ?? 'Serviço', unidade: i.unidade, total: 0, feitoQtd: 0, locais: new Set<string>() };
+        atual.total += i.quantidade;
+        atual.feitoQtd += Math.min(i.feito, i.quantidade);
+        atual.locais.add(ponto.id);
+        soma.set(chave, atual);
+      }
+    }
+    return [...soma.values()]
+      .map(s => ({ chave: s.chave, descricao: s.descricao, unidade: s.unidade, restante: Math.round((s.total - s.feitoQtd) * 100) / 100,
+        feito: s.feitoQtd >= s.total, locais: s.locais.size }))
+      .sort((a, b) => Number(a.feito) - Number(b.feito) || b.locais - a.locais);
+  });
+  readonly restantes = computed(() => this.servicosDoDia().filter(s => !s.feito).length);
+
   readonly textoLiberacao = computed(() => ({
     LIBERADA: 'APR do dia concluída: serviços liberados',
     EM_PREENCHIMENTO: 'Em preenchimento',
@@ -182,7 +226,6 @@ export class ObraFichaComponent implements OnInit {
   readonly passo = computed(() => {
     const p = this.programacao()!;
     if (!this.turno.turnoAtivo()) return { rotulo: 'Abrir turno', rota: '/turno/abrir', icone: 'relogio' };
-    if (!this.chegou()) return { rotulo: 'Ir para a ficha da obra', rota: `/obras/${p.id}`, icone: 'navegar' };
     if (this.liberacao() !== 'LIBERADA') return { rotulo: this.liberacao() === 'EM_PREENCHIMENTO' ? 'Continuar a APR' : 'Fazer a APR', rota: `/obras/${p.id}/apr`, icone: 'escudo' };
     return { rotulo: 'Executar', rota: `/obras/${p.id}/execucao`, icone: 'ferramenta' };
   });

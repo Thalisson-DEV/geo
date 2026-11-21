@@ -2,7 +2,7 @@ import { Injectable, computed, inject } from '@angular/core';
 import { PacoteObrasService } from '../../core/obras/pacote-obras.service';
 import { RegistrosObrasService } from '../../core/obras/registros-obras.service';
 import {
-  PendenciaLocal, PontoDaExecucao, hojeLocal, liberacaoLocal, pendenciasDeFoto, pontosDaExecucao, programacoesDoDia,
+  PendenciaLocal, PontoDaExecucao, hojeLocal, liberacaoLocal, referenciaProgramacao, pendenciasDeFoto, pontosDaExecucao, programacoesDoDia,
 } from '../../core/obras/obras-regras';
 import { ObraCampo, ProgramacaoCampo } from '../../core/obras/obras.models';
 
@@ -18,6 +18,10 @@ export class ObrasContexto {
   readonly proximas = computed(() => this.pacote.programacoes()
     .filter(p => !this.doDia().includes(p) && p.situacao !== 'CANCELADA')
     .sort((a, b) => a.inicio.split('/').reverse().join('').localeCompare(b.inicio.split('/').reverse().join('')) || a.numero - b.numero));
+
+  ref(p: ProgramacaoCampo): string {
+    return referenciaProgramacao(p);
+  }
 
   pontos(p: ProgramacaoCampo): PontoDaExecucao[] {
     return pontosDaExecucao(p, this.pacote.obra(p.idObra), this.registros.registros(), [], this.pacote.recebidoEm());

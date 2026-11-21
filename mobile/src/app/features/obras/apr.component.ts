@@ -28,7 +28,7 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (programacao(); as p) {
-      <geo-barra-topo [titulo]="'APR · ' + passos[passo()]" [subtitulo]="'Passo ' + (passo() + 1) + ' de ' + passos.length + ' · Obra ' + (p.numeroObra ?? '') + ' · #' + p.numero" (voltar)="voltar()" />
+      <geo-barra-topo [titulo]="'APR · ' + passos[passo()]" [subtitulo]="'Passo ' + (passo() + 1) + ' de ' + passos.length + ' · Obra ' + (p.numeroObra ?? '') + ' · ' + ctx.ref(p)" (voltar)="voltar()" />
       <div class="geo-passos" aria-hidden="true">@for (x of passos; track x; let i = $index) { <i [class.feito]="i <= passo()"></i> }</div>
       <p class="geo-sr-only" aria-live="polite">Passo {{ passo() + 1 }} de {{ passos.length }}: {{ passos[passo()] }}</p>
 

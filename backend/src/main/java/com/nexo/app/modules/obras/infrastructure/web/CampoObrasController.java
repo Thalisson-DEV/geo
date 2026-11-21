@@ -60,6 +60,13 @@ public class CampoObrasController implements CampoObrasControllerDoc {
     }
 
     @Override
+    @GetMapping("/obras/avulsa")
+    @PreAuthorize(LER)
+    public ResponseEntity<CampoObrasResponses.ObraAvulsa> buscarAvulsa(@RequestParam String numero) {
+        return ResponseEntity.ok(pacote.buscarAvulsa(SecurityUtils.getUsuarioLogadoId(), numero));
+    }
+
+    @Override
     @GetMapping("/obras/{idObra}/projeto")
     @PreAuthorize(LER)
     public ResponseEntity<StreamingResponseBody> projeto(@PathVariable UUID idObra) {

@@ -50,7 +50,13 @@ public final class CampoObrasResponses {
                                    @JsonFormat(pattern = "HH:mm") LocalTime horaDesligamentoInicio,
                                    @JsonFormat(pattern = "HH:mm") LocalTime horaDesligamentoFim,
                                    String numeroManobra, boolean finalizaObra, SituacaoIntervencao situacaoIntervencao,
-                                   String observacao, SituacaoProgramacao situacao, Long versao, List<ItemCampo> itens) {
+                                   String observacao, SituacaoProgramacao situacao, Long versao, List<ItemCampo> itens,
+                                   /** Montada pelo servidor na execução avulsa: o app usa a dele e não mostra esta. */
+                                   boolean avulsa) {
+    }
+
+    /** Obra buscada pela equipe para a execução avulsa: o que ela ainda pode executar (pendente ou já na avulsa do dia). */
+    public record ObraAvulsa(ObraCampo obra, List<ItemCampo> itens, int programadosEmOutra) {
     }
 
     /** Item programado no ponto ou vão, com o que já foi executado. */

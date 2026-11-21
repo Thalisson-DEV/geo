@@ -26,6 +26,13 @@ public interface ProgramacaoRepository extends JpaRepository<Programacao, UUID> 
 
     Optional<Programacao> findByIdAndAtivoTrue(UUID id);
 
+    /** A programação avulsa da equipe na obra, no dia (execução fora da agenda pelo app). */
+    @Query("""
+            select distinct p from Programacao p left join fetch p.itens i left join fetch i.itemPlanejado
+            where p.idObra = :idObra and p.idEquipe = :idEquipe and p.dataInicio = :dia and p.avulsa = true and p.ativo = true
+            """)
+    Optional<Programacao> buscarAvulsa(@Param("idObra") UUID idObra, @Param("idEquipe") UUID idEquipe, @Param("dia") LocalDate dia);
+
     @Query("""
             select distinct p from Programacao p left join fetch p.itens i left join fetch i.itemPlanejado
             where p.idObra = :idObra and p.ativo = true

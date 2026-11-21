@@ -274,6 +274,29 @@ public class ProgramacaoObraUseCases {
         return new Selecao(itens, itens.size() - antes, programados, concluidos);
     }
 
+    /**
+     * Programação avulsa da equipe na obra, no dia (execução fora da agenda pelo app): reaproveita a do dia ou cria uma, e
+     * inclui os itens informados que ainda estão pendentes, com o valor vigente no dia. Item já programado em outra
+     * programação fica de fora (é de outra equipe ou de outro dia).
+     */
+    @Transactional
+    public Programacao garantirAvulsa(UUID idObra, UUID idEquipe, LocalDate dia, String motivo, Collection<ItemPlanejado> itens) {
+        Obra obra = buscarObra(idObra);
+        if (obra.getStatusObra().isConcluida()) {
+            throw new InvarianteVioladaException("A obra " + obra.getNumero() + " está encerrada e não recebe execução.");
+        }
+        Programacao programacao = repository.buscarAvulsa(idObra, idEquipe, dia)
+                .orElseGet(() -> Programacao.avulsa(repository.proximoNumero(), idObra, idEquipe, dia, motivo));
+        Map<UUID, Map<UUID, BigDecimal>> valores = new HashMap<>();
+        for (ItemPlanejado item : itens) {
+            if (!programacao.contem(item.getId()) && item.programavel()) {
+                programacao.incluirItem(item, item.getTipo() == TipoItemKit.SERVICO ? valorNaData(item, dia, valores) : null);
+            }
+        }
+        obra.vincularEquipeSeAusente(idEquipe);
+        return repository.saveAndFlush(programacao);
+    }
+
     private BigDecimal valorNaData(ItemPlanejado item, LocalDate data, Map<UUID, Map<UUID, BigDecimal>> valores) {
         UUID contrato = item.getKitAplicado().getIdContrato();
         return valores.computeIfAbsent(contrato, id -> kitUseCases.valoresVigentes(id, data)).get(item.getIdAcao());

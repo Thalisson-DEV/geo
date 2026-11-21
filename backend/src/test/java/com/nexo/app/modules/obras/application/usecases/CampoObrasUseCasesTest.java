@@ -167,7 +167,7 @@ class CampoObrasUseCasesTest {
     @Test
     void tudoFeitoExigeOPonto() {
         assertThatThrownBy(() -> useCases.apontar(new CampoObrasRequests.Apontamento(campo(UUID.randomUUID(), null), UUID.randomUUID(),
-                null, true, null, null), usuario))
+                null, null, true, null, null), usuario))
                 .isInstanceOf(InvarianteVioladaException.class).hasMessageContaining("ponto");
     }
 

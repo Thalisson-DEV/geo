@@ -51,12 +51,20 @@ pendentes e envios pendentes, para o encarregado revisar e completar.
 - **WHEN** o encarregado fecha o turno com duas fotos exigidas faltando
 - **THEN** o relatório lista as pendências e permite fechar, mantendo-as visíveis para a equipe e para o web
 
-### Requirement: Obra não programada
-O app SHALL registrar atividade em obra não programada buscando a obra pelo número entre as obras disponíveis e informando o motivo.
+### Requirement: Execução avulsa (obra fora da agenda)
+O app SHALL permitir executar numa obra que não está na agenda da equipe: buscando a obra pelo número no servidor (só a
+busca precisa de sinal), mostrando o que há para fazer (pontos com serviço pendente) e o motivo da atuação; a partir daí a
+obra MUST funcionar como as programadas (ficha, APR do dia, pontos e projeto, fotos, relatório), também sem sinal. Cada
+apontamento avulso SHALL incluir os itens executados numa programação avulsa da equipe no dia, com o valor vigente, para
+entrar na medição; item programado para outra programação MUST NOT ser executado por ela.
 
-#### Scenario: Atividade fora da agenda
-- **WHEN** a equipe atua na obra 1277970 sem programação
-- **THEN** a atividade é registrada como obra não programada no turno
+#### Scenario: Emergência fora da agenda
+- **WHEN** o encarregado busca a obra 7000009, escolhe o motivo "Emergência" e começa a execução
+- **THEN** a obra aparece no Hoje como execução avulsa, com os pontos pendentes, e o "Tudo feito" vai ao servidor com a obra
+
+#### Scenario: Sem sinal
+- **WHEN** a equipe tenta buscar a obra sem sinal
+- **THEN** o app explica que a busca precisa de internet e que, com a obra já buscada, o resto funciona sem sinal
 
 ### Requirement: Material previsto, sem pedido no app
 O app SHALL mostrar, para cada serviço do dia, o material previsto pela programação dos pontos (ou pela solicitação manual

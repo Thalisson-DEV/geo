@@ -154,7 +154,7 @@ public class CampoObrasUseCases {
     /** Apontamento por item ou "Tudo feito" no ponto. */
     @Transactional
     public CampoObrasResponses.Resultado apontar(CampoObrasRequests.Apontamento comando, UUID usuario) {
-        String hash = hash(new CampoObrasRequests.Apontamento(comando.campo().semTurno(), comando.idProgramacao(),
+        String hash = hash(new CampoObrasRequests.Apontamento(comando.campo().semTurno(), comando.idProgramacao(), comando.idObra(),
                 comando.idPonto(), comando.pontoInteiro(), comando.pontoInteiro() ? null : comando.itens(), comando.idApr()));
         List<ApontamentoExecucao> existentes = apontamentoRepository.findByCampoIdLocal(comando.campo().idLocal());
         if (!existentes.isEmpty()) {
@@ -166,6 +166,9 @@ public class CampoObrasUseCases {
             throw new InvarianteVioladaException("Informe o ponto do \"Tudo feito\".");
         }
         TurnoResponse turno = resolverTurno(comando.campo(), usuario);
+        if (comando.idProgramacao() == null) {
+            return apontarAvulso(comando, hash, turno);
+        }
         Programacao programacao = programacaoRepository.findById(comando.idProgramacao())
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Programação não encontrada."));
         if (!programacao.getIdEquipe().equals(turno.idEquipe())) {
@@ -174,6 +177,21 @@ public class CampoObrasUseCases {
         RegistroCampo campo = new RegistroCampo(comando.campo().idLocal(), hash, comando.campo().origem(), OffsetDateTime.now());
         List<ApontamentoExecucao> criados = apontamentos.apontarDoCampo(comando.idProgramacao(), turno.id(), campo,
                 comando.idPonto(), comando.pontoInteiro(), comando.itens());
+        return resultado(comando.campo(), "APONTAMENTO", criados.stream().map(ApontamentoExecucao::getId).toList(), false, turno.id());
+    }
+
+    /** Execução avulsa: a obra fora da agenda; o motivo vem da atividade que a equipe registrou ao começar. */
+    private CampoObrasResponses.Resultado apontarAvulso(CampoObrasRequests.Apontamento comando, String hash, TurnoResponse turno) {
+        if (comando.idObra() == null) {
+            throw new InvarianteVioladaException("Informe a programação ou a obra do apontamento.");
+        }
+        exigirObra(comando.idObra());
+        String motivo = atividadeRepository.findByIdTurnoInAndAtivoTrue(List.of(turno.id())).stream()
+                .filter(a -> comando.idObra().equals(a.getIdObra()) && a.getIdProgramacao() == null)
+                .map(AtividadeTurno::getObservacao).filter(java.util.Objects::nonNull).findFirst().orElse(null);
+        RegistroCampo campo = new RegistroCampo(comando.campo().idLocal(), hash, comando.campo().origem(), OffsetDateTime.now());
+        List<ApontamentoExecucao> criados = apontamentos.apontarAvulsoDoCampo(comando.idObra(), turno.idEquipe(), turno.id(), campo,
+                comando.idPonto(), comando.pontoInteiro(), comando.itens(), motivo);
         return resultado(comando.campo(), "APONTAMENTO", criados.stream().map(ApontamentoExecucao::getId).toList(), false, turno.id());
     }
 
