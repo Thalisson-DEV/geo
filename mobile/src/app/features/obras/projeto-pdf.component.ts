@@ -28,7 +28,7 @@ const NIVEIS = [1, 1.5, 2, 3, 4];
   standalone: true,
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class.cheia]': 'telaCheia()', '(document:keydown.escape)': 'telaCheia() && fecharTelaCheia()' },
+  host: { '[class.cheia]': 'telaCheia()', '[style.--marcador.px]': 'tamanhoMarcador()', '(document:keydown.escape)': 'telaCheia() && fecharTelaCheia()' },
   template: `
     <div class="barra" role="toolbar" aria-label="Projeto">
       @if (paginas() > 1) {
@@ -76,8 +76,9 @@ const NIVEIS = [1, 1.5, 2, 3, 4];
     :host(.cheia) .janela { flex: 1; max-height: none; margin: 0; border-radius: 0; }
     .folha { position: relative; min-height: 240px; }
     canvas { display: block; width: 100%; height: auto; }
-    .ponto { position: absolute; transform: translate(-50%, -50%); min-width: 40px; height: 40px; padding: 0 8px; border-radius: var(--geo-r-pilula);
-      border: 2px solid var(--geo-papel); font: 600 .9375rem/1 var(--geo-fonte); font-variant-numeric: tabular-nums; cursor: pointer;
+    /* O marcador cresce com o zoom: a 100% a prancha inteira cabe e os pontos não se amontoam; aproximado, o alvo fica grande. */
+    .ponto { position: absolute; transform: translate(-50%, -50%); min-width: var(--marcador, 40px); height: var(--marcador, 40px); padding: 0 4px;
+      border-radius: var(--geo-r-pilula); border: 2px solid var(--geo-papel); font: 600 calc(var(--marcador, 40px) * .4)/1 var(--geo-fonte); font-variant-numeric: tabular-nums; cursor: pointer;
       background: var(--geo-superficie); color: var(--geo-texto); box-shadow: var(--geo-sombra-cartao); touch-action: manipulation; }
     .ponto::after { content: ''; position: absolute; inset: -6px; }
     /* A fazer: branco sobre o papel branco precisa de contorno para aparecer. */
@@ -115,6 +116,7 @@ export class ProjetoPdfComponent implements OnDestroy {
   readonly nivel = signal(0);
   readonly zoom = computed(() => NIVEIS[this.nivel()]);
   readonly zoomTexto = computed(() => `${Math.round(this.zoom() * 100)}%`);
+  readonly tamanhoMarcador = computed(() => (this.zoom() >= 2 ? 40 : this.zoom() >= 1.5 ? 32 : 26));
   readonly telaCheia = signal(false);
   readonly estado = signal<'carregando' | 'pronto' | 'sem' | 'erro'>('carregando');
   readonly marcadoresDaPagina = signal<MarcadorPonto[]>([]);

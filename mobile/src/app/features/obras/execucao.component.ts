@@ -32,7 +32,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
   imports: [BarraTopoComponent, IconeComponent, FolhaComponent, FotosComponent, QuantidadeComponent, SegmentadoComponent,
     VazioComponent, LeitorCodigoComponent, ProjetoPdfComponent, RouterLink, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[class.dividido]': 'layout.expandido()' },
+  host: { '[class.dividido]': 'layout.expandido()', '[class.geo-tela-larga]': 'layout.expandido()' },
   template: `
     @if (programacao(); as p) {
       <geo-barra-topo titulo="Pontos e projeto" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + (p.avulsa ? ' · execução avulsa' : ' · #' + p.numero)" (voltar)="voltar()" />
@@ -189,7 +189,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
     .estado-item { flex: none; }
     .vista { padding: var(--geo-e3) var(--geo-margem) 0; }
     .colunas { flex: 1; display: block; padding-top: var(--geo-e3); }
-    :host(.dividido) .colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 0; }
+    :host(.dividido) .colunas { display: grid; grid-template-columns: 3fr 2fr; gap: 0; min-height: 0; }
     :host(.dividido) .projeto, :host(.dividido) .lado { overflow-y: auto; }
     :host(.dividido) .projeto { display: flex; flex-direction: column; }
     :host(.dividido) .projeto app-projeto-pdf { flex: 1; --altura-projeto: none; }

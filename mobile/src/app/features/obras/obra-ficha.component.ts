@@ -41,7 +41,7 @@ const RAIO_CHEGADA_M = 400;
             @for (c of ctx.condicoes(p); track c) { <li class="geo-etiqueta">{{ c }}</li> }
           </ul>
         }
-        @if (p.observacao) { <p class="obs">@if (p.avulsa) { <strong>Motivo:</strong> }{{ p.observacao }}</p> }
+        @if (p.observacao) { <p class="obs">@if (p.avulsa) { <strong>Motivo:</strong>{{ " " }}}{{ p.observacao }}</p> }
       </section>
 
       @if (servicosDoDia().length) {
