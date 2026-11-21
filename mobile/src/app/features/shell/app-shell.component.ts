@@ -98,13 +98,18 @@ export class AppShellComponent implements AfterViewInit {
   /** Destinos por perfil. Regras de acesso: SST não opera logística; campo não acessa inspeções. */
   readonly abas = computed<Aba[]>(() => {
     const pendentes = this.outbox.pendingCount();
+    // Supervisor de Obras vê a aba Obras também quando tem almoxarifado ou encerramento (o administrador tem tudo).
+    const obras: Aba[] = this.auth.isAdministrativo() && this.auth.ehSupervisorObras()
+      ? [{ rota: '/supervisao', rotulo: 'Obras', icone: 'obra', ativaEm: ['/supervisao'] }] : [];
     if (this.auth.isAdministrativo() && this.auth.podeAcessarAlmoxarifado()) {
-      // Com almoxarifado são 5 áreas: Inspeções e Desvios viram uma aba (Segurança) com abas no topo.
+      // Com almoxarifado são 5 áreas: Inspeções e Desvios viram uma aba (Segurança) com abas no topo. Com Obras, a Frota
+      // sai da barra (checklist e abastecimento seguem no Hoje) para caber em 5 no celular.
       return [
         { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
+        ...obras,
         { rota: '/almox', rotulo: 'Almoxarifado', icone: 'almox', ativaEm: ['/almox'] },
         { rota: '/inspecoes', rotulo: 'Segurança', icone: 'escudo', ativaEm: ['/desvios'] },
-        ABA_FROTA,
+        ...(obras.length ? [] : [ABA_FROTA]),
         { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
       ];
     }
@@ -112,6 +117,7 @@ export class AppShellComponent implements AfterViewInit {
     if (this.auth.isAdministrativo() && fechamento.length) {
       return [
         { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
+        ...obras,
         ...fechamento,
         { rota: '/inspecoes', rotulo: 'Segurança', icone: 'escudo', ativaEm: ['/desvios'] },
         { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },

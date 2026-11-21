@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../auth/auth.service';
 import { db } from '../db/app-db';
@@ -12,8 +12,13 @@ const CHAVE_MODELOS = 'obras_modelos';
 const CHAVE_AVISOS = 'obras_avisos';
 const CHAVE_AVISOS_VISTOS = 'obras_avisos_vistos';
 const CHAVE_EQUIPE = 'obras_equipe';
+/** Hora do aparelho em que o último pacote chegou: o que foi enviado antes disso já vem na execução do pacote. */
+const CHAVE_RECEBIDO_EM = 'obras_pacote_recebido_em';
 
 /** Chave do arquivo do projeto da obra no armazenamento de arquivos. */
+/** Tempo máximo para baixar um PDF de projeto (arquivos grandes em 4G fraco). */
+const TEMPO_LIMITE_PROJETO_MS = 180_000;
+
 export function chaveProjeto(idObra: string, hash: string): string {
   return `pdf/${idObra}/${hash}`;
 }
@@ -37,6 +42,7 @@ export class PacoteObrasService {
   readonly avisos = signal<AvisoProgramacao[]>([]);
   readonly avisosVistos = signal<string[]>([]);
   readonly ultimaSync = signal<string | null>(null);
+  readonly recebidoEm = signal<string | null>(null);
   readonly codigoEquipe = signal<string | null>(null);
   readonly sincronizando = signal(false);
   readonly erro = signal<string | null>(null);
@@ -53,13 +59,15 @@ export class PacoteObrasService {
 
   /** Lê o que já está no aparelho (abre sem rede). */
   async carregarLocal(): Promise<void> {
-    const [programacoes, obras, desde, modelos, avisos, vistos, equipe] = await Promise.all([
+    const [programacoes, obras, desde, modelos, avisos, vistos, equipe, recebido] = await Promise.all([
       db.obrasProgramacoes.toArray(), db.obrasObras.toArray(), db.config.get(CHAVE_DESDE), db.config.get(CHAVE_MODELOS),
       db.config.get(CHAVE_AVISOS), db.config.get(CHAVE_AVISOS_VISTOS), db.config.get(CHAVE_EQUIPE),
+      db.config.get(CHAVE_RECEBIDO_EM),
     ]);
     this.programacoes.set(programacoes);
     this.obras.set(obras);
     this.ultimaSync.set(desde?.value ?? null);
+    this.recebidoEm.set(recebido?.value ?? null);
     this.modeloApr.set(modelos?.value?.apr ?? null);
     this.modelosFoto.set(modelos?.value?.fotos ?? []);
     this.avisos.set(avisos?.value ?? []);
@@ -94,7 +102,8 @@ export class PacoteObrasService {
   }
 
   private async baixar(): Promise<void> {
-    if (!this.auth.ehEquipeObras() && !this.auth.ehSupervisorObras()) return;
+    // O pacote é da equipe: o supervisor usa as próprias consultas (status, documentação).
+    if (!this.auth.ehEquipeObras()) return;
     this.sincronizando.set(true);
     this.erro.set(null);
     try {
@@ -115,7 +124,7 @@ export class PacoteObrasService {
   }
 
   /** Grava o pacote: completo substitui a agenda; incremental mescla e tira as removidas. */
-  async aplicar(pacote: PacoteObras, completo: boolean): Promise<void> {
+  async aplicar(pacote: PacoteObras, completo: boolean, recebidoEm = new Date().toISOString()): Promise<void> {
     await db.transaction('rw', [db.obrasProgramacoes, db.obrasObras, db.config], async () => {
       if (completo) {
         await db.obrasProgramacoes.clear();
@@ -139,6 +148,7 @@ export class PacoteObrasService {
         { key: CHAVE_MODELOS, value: { apr: pacote.modeloApr, fotos: pacote.modelosFoto } },
         { key: CHAVE_AVISOS, value: avisos },
         { key: CHAVE_EQUIPE, value: pacote.codigoEquipe ?? null },
+        { key: CHAVE_RECEBIDO_EM, value: recebidoEm },
       ]);
     });
     await this.carregarLocal();
@@ -153,8 +163,9 @@ export class PacoteObrasService {
       desejadas.add(chave);
       if (await this.arquivos.existe(chave)) continue;
       try {
+        // Com tempo limite: um download pendurado seguraria todas as sincronizações seguintes do pacote.
         const blob = await firstValueFrom(this.http.get(`${this.baseUrl}/v1/obras/campo/obras/${obra.id}/projeto`,
-          { responseType: 'blob', headers: { 'X-Silent-Error': 'true' } }));
+          { responseType: 'blob', headers: { 'X-Silent-Error': 'true' } }).pipe(timeout(TEMPO_LIMITE_PROJETO_MS)));
         await this.arquivos.gravar(chave, blob);
       } catch {
         /* fica para a próxima: conta como faltando */

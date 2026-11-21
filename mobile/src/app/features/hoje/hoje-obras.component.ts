@@ -97,7 +97,9 @@ export class HojeObrasComponent {
   readonly checklistFeito = input(false);
 
   readonly passo = computed(() => proximoPasso({
-    turnoAberto: !!this.turno.turnoAtivo(), checklistFeito: this.checklistFeito(), programacoes: this.ctx.doDia(),
+    turnoAberto: !!this.turno.turnoAtivo(),
+    diaFechado: this.ctx.registros.registros().some(r => r.tipo === 'RELATORIO' && r.dia === this.ctx.hoje()),
+    checklistFeito: this.checklistFeito(), programacoes: this.ctx.doDia(),
     registros: this.ctx.registros.registros(), dia: this.ctx.hoje(),
     concluida: p => this.concluida(p), temRascunhoApr: () => false,
   }));

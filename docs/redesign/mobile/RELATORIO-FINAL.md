@@ -101,3 +101,31 @@ folha aberta; caixa de seleção na APR; tokens de papel/câmera.
   vários importantes; todos corrigidos. Na segunda passada os 3 bloqueantes antigos foram confirmados
   como resolvidos e apareceu 1 novo (tela do supervisor descida no tablet deitado), corrigido e recapturado; e2e visual, a11y e
   Obras verdes depois disso.
+
+## Teste no navegador com o backend real (21/11/2026)
+
+App (4300) e web (4200) no Chrome contra o backend local (8092, `nexo-db`), com o armazenamento apontado para um MinIO
+descartável (nada foi gravado no bucket real). Usuários de teste criados pela API: `CAMPOOBRA` (perfil EQUIPE_OBRAS,
+responsável pela equipe CON-BNF-01) e `ADMTESTE` (ADMINISTRADOR).
+
+Roteiro feito pela equipe: abrir turno → Cheguei → APR (4 assinaturas) → "Tudo feito" → foto do modelo com carimbo e GPS →
+modo sem internet: mais 2 pontos, ocorrência de falta de material, Saí, relatório e fechamento do turno → volta da rede:
+cada registro chegou uma vez só (APR, 2 presenças, 3 apontamentos com 14 itens, foto, ocorrência, relatório) e o turno fechou.
+Administrador: aba Obras do app (status das equipes, visita prévia, pedido de book) e, no web, Revisão de Fotos (reprovação
+volta como pendência no pacote da equipe), ranking e Boletim.
+
+Falhas encontradas e corrigidas nessa rodada:
+- Perfil EQUIPE_OBRAS sem permissão para equipe, frota, materiais e saldos (V265) e cache de permissões por perfil com versão
+  nova (`permissoes-perfil-v7`), para o deploy não reaproveitar a lista antiga do Redis.
+- Download do projeto com `Content-Length` do cadastro: o app ficava esperando bytes; agora vale o tamanho do arquivo, e o
+  app tem tempo limite no download (um download pendurado travava todas as sincronizações do pacote).
+- Ponto "desmarcava" depois do "Tudo feito" enviado com sinal (o pacote só traz a execução na próxima sincronização).
+- App reaberto direto na execução recusava foto com "Abra o turno"; o guard de Obras carrega o turno do aparelho.
+- "Fechar o dia" aberto direto mostrava "Sem lançamentos no dia"; o texto espera os dados do aparelho.
+- Depois de fechar o dia, o próximo passo voltava a sugerir "Abrir turno".
+- Administrador completo (com almoxarifado/encerramento) não via a aba Obras; o supervisor pedia o pacote da equipe (422).
+- Visita prévia: faltava o responsável (o servidor exige), a escolha única ia em `valor` em vez de `selecionadas`, a fila
+  não saía na hora, campos sem nome acessível e "registrada(s)".
+- Web: Revisão de Fotos dava erro 500 com fotos antigas sem equipe; o ranking não se atualizava depois de uma revisão.
+
+Fora do código: `e2e/fase4/desvios.spec.ts` ("sem internet explica…") é instável também no código anterior (2 de 24).

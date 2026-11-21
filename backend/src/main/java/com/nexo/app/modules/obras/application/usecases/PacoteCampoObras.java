@@ -165,7 +165,10 @@ public class PacoteCampoObras {
         AnexoObra anexo = projetoMestre(idObra)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("A obra não tem projeto em PDF."));
         StorageObject objeto = objectStorage.baixar(anexo.getChaveStorage());
-        return new DownloadAnexoObraDTO(objeto.conteudo(), anexo.getNomeArquivo(), anexo.getContentType(), anexo.getTamanhoBytes());
+        // O tamanho vem do arquivo que sai do armazenamento: com o do cadastro, um anexo regravado deixaria o app
+        // esperando bytes que não chegam.
+        long tamanho = objeto.tamanhoBytes() > 0 ? objeto.tamanhoBytes() : anexo.getTamanhoBytes();
+        return new DownloadAnexoObraDTO(objeto.conteudo(), anexo.getNomeArquivo(), anexo.getContentType(), tamanho);
     }
 
     /** Versão do arquivo: a chave do armazenamento muda a cada envio, e o tamanho separa o improvável. */

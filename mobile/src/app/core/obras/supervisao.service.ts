@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, Injector, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { db } from '../db/app-db';
@@ -37,6 +37,7 @@ const CHAVE_STATUS = 'supervisao_status';
 export class SupervisaoService {
   private readonly http = inject(HttpClient);
   private readonly outbox = inject(OutboxService);
+  private readonly injector = inject(Injector);
   private readonly baseUrl = environment.apiBaseUrl;
 
   readonly equipes = signal<StatusEquipeObra[]>([]);
@@ -76,11 +77,21 @@ export class SupervisaoService {
   }
 
   /** Visita prévia: entra na fila e sai com sinal. */
-  async registrarVisita(idObra: string, visita: { idModelo: string; dataVisita: string; observacoes: string | null; respostas: unknown[] }): Promise<void> {
+  async registrarVisita(idObra: string, visita: { idModelo: string; dataVisita: string; idColaborador: string | null; observacoes: string | null; respostas: unknown[] }): Promise<void> {
     await this.outbox.enqueue({ endpoint: `/v1/obras/${idObra}/documentacao/visitas`, method: 'POST', payload: visita });
+    this.enviarLogo();
   }
 
   async gerar(idObra: string, tipo: 'as-built' | 'book'): Promise<void> {
     await this.outbox.enqueue({ endpoint: `/v1/obras/${idObra}/documentacao/${tipo}`, method: 'POST', payload: {} });
+    this.enviarLogo();
+  }
+
+  /** Com sinal, a fila sai na hora (sem esperar a próxima sincronização). */
+  private enviarLogo(): void {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+    setTimeout(() => {
+      void import('../sync/sync.service').then(({ SyncService }) => this.injector.get(SyncService).syncOutbox().catch(() => undefined));
+    }, 300);
   }
 }

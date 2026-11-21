@@ -57,6 +57,15 @@ describe('regras de Obras no app', () => {
     expect(depois[0].rotulo).toBe('Ponto 4');
   });
 
+  it('"Tudo feito" enviado com sinal continua verde até o próximo pacote trazer a execução', () => {
+    const p = programacao();
+    const enviado = registro('APONTAMENTO', { pontoInteiro: true, idPonto: 'pt-4' }, '2026-11-21T10:30:00-03:00',
+      { envio: 'ENVIADO', enviadoEm: '2026-11-21T13:30:05.000Z' });
+    expect(pontosDaExecucao(p, OBRA, [enviado], [], '2026-11-21T13:00:00.000Z')[0].situacao).toBe('FEITO');
+    // Pacote chegou depois do envio: a execução já vem nele e o registro não conta duas vezes.
+    expect(pontosDaExecucao(p, OBRA, [enviado], [], '2026-11-21T13:31:00.000Z')[0].situacao).toBe('A_FAZER');
+  });
+
   it('APR sugere choque e arco com desligamento e exige "Desligamento confirmado"', () => {
     const condicoes = condicoesDaProgramacao(programacao(), OBRA);
     expect(condicoes).toEqual(['SEMPRE', 'DESLIGAMENTO', 'PODA']);
@@ -98,6 +107,12 @@ describe('regras de Obras no app', () => {
     expect(liberacaoLocal({ idObra: 'o-1' }, '2026-11-20', [daManha, chuva, aprOutraObra])).toBe('LIBERADA');
     const novaApr = registro('APR', { concluir: true }, '2026-11-20T11:00:00-03:00', { idObra: 'o-2' });
     expect(liberacaoLocal(outraObra, '2026-11-20', [daManha, chuva, novaApr])).toBe('LIBERADA');
+  });
+
+  it('depois de fechar o dia, o próximo passo não convida a abrir outro turno', () => {
+    const e: EstadoDoDia = { turnoAberto: false, diaFechado: true, checklistFeito: true, programacoes: [programacao()], registros: [], dia: '2026-11-20',
+      concluida: () => false, temRascunhoApr: () => false };
+    expect(proximoPasso(e).rotulo).toBe('Ver a agenda');
   });
 
   it('próximo passo segue o dia da equipe', () => {

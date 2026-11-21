@@ -20,7 +20,7 @@ export class ObrasContexto {
     .sort((a, b) => a.inicio.split('/').reverse().join('').localeCompare(b.inicio.split('/').reverse().join('')) || a.numero - b.numero));
 
   pontos(p: ProgramacaoCampo): PontoDaExecucao[] {
-    return pontosDaExecucao(p, this.pacote.obra(p.idObra), this.registros.registros(), []);
+    return pontosDaExecucao(p, this.pacote.obra(p.idObra), this.registros.registros(), [], this.pacote.recebidoEm());
   }
 
   itensModelo(obra: ObraCampo | undefined) {

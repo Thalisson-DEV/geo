@@ -59,7 +59,10 @@ export class RelatorioDiaComponent implements OnInit {
   readonly salvando = signal(false);
   readonly pendenciasFoto = computed(() => this.ctx.doDia().reduce((n, p) => n + this.ctx.pendencias(p).length, 0));
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    // O app pode reabrir direto aqui (retomada): monta o texto só depois de ler a agenda e os registros do aparelho.
+    await Promise.all([this.ctx.pacote.carregado() ? null : this.ctx.pacote.carregarLocal(), this.ctx.registros.carregar()]);
+    if (this.texto().trim()) return;
     this.texto.set(relatorioDoDia(this.ctx.doDia(), this.ctx.registros.registros(), this.ctx.hoje(),
       p => this.ctx.pontos(p).filter(x => x.situacao === 'FEITO').map(x => x.numero), this.pendenciasFoto()));
   }

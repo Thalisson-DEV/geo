@@ -4,6 +4,9 @@ import { BarraTopoComponent, IconeComponent, VazioComponent } from '../../ui';
 import { ToastService } from '../../core/ui/toast.service';
 import { ConnectivityService } from '../../core/sync/connectivity.service';
 import { DocumentacaoObra, ModeloChecklist, PerguntaChecklist, SupervisaoService } from '../../core/obras/supervisao.service';
+import { db } from '../../core/db/app-db';
+import { ColaboradorLocal } from '../../core/db/models';
+import { TokenService } from '../../core/auth/token.service';
 
 /**
  * Documentação técnica da obra pelo supervisor no app: resumo (visitas, fichas As Built, documentos), visita prévia
@@ -22,7 +25,7 @@ import { DocumentacaoObra, ModeloChecklist, PerguntaChecklist, SupervisaoService
         <ul class="geo-grupo">
           <li class="geo-linha"><span class="geo-selo" [class.geo-selo--ok]="d.visitaRealizada"><geo-icone nome="inspecao" /></span>
             <span class="geo-linha__texto"><span class="geo-linha__titulo">Visita prévia</span>
-              <span class="geo-linha__apoio">{{ d.visitas.length ? d.visitas.length + ' registrada(s)' : 'Ainda não feita' }}</span></span></li>
+              <span class="geo-linha__apoio">{{ d.visitas.length ? d.visitas.length + (d.visitas.length === 1 ? ' registrada' : ' registradas') : 'Ainda não feita' }}</span></span></li>
           <li class="geo-linha"><span class="geo-selo" [class.geo-selo--ok]="d.asBuilt.pontosExecutados > 0 && !d.asBuilt.pontosPendentes.length"><geo-icone nome="documento" /></span>
             <span class="geo-linha__texto"><span class="geo-linha__titulo">As Built</span>
               <span class="geo-linha__apoio geo-num">{{ d.asBuilt.fichasCompletas }} de {{ d.asBuilt.pontosExecutados }} fichas completas{{ d.asBuilt.pontosSemEvidencia.length ? ' · ' + d.asBuilt.pontosSemEvidencia.length + ' sem foto' : '' }}</span></span></li>
@@ -53,25 +56,30 @@ import { DocumentacaoObra, ModeloChecklist, PerguntaChecklist, SupervisaoService
             <div class="pergunta">
               <span class="enunciado">{{ p.enunciado }}{{ p.obrigatoria ? '' : ' (opcional)' }}</span>
               @if (p.tipo === 'ESCOLHA_UNICA' || p.tipo === 'MULTIPLA_ESCOLHA') {
-                <div class="opcoes">
+                <div class="opcoes" role="group" [attr.aria-label]="p.enunciado">
                   @for (o of opcoesDe(p); track o) {
                     <button type="button" class="opcao" [attr.aria-pressed]="marcada(p, o)" (click)="marcar(p, o)">{{ o }}</button>
                   }
                 </div>
               } @else {
                 <input class="geo-input" [type]="p.tipo === 'NUMERO' ? 'number' : p.tipo === 'DATA' ? 'date' : 'text'" [value]="respostas()[p.id]?.valor ?? ''"
-                  (input)="texto(p, $any($event.target).value)">
+                  [attr.aria-label]="p.enunciado" (input)="texto(p, $any($event.target).value)">
               }
             </div>
           }
         }
+        <label class="geo-campo"><span>Responsável pela visita</span>
+          <select class="geo-input" [value]="responsavel() ?? ''" (change)="responsavel.set($any($event.target).value || null)" data-testid="responsavel-visita">
+            <option value="">Escolha quem fez a visita</option>
+            @for (c of colaboradores(); track c.id) { <option [value]="c.id" [selected]="c.id === responsavel()">{{ c.nomeCompleto }}</option> }
+          </select></label>
         <label class="geo-campo"><span>Observações</span>
           <textarea class="geo-input" rows="3" maxlength="2000" [value]="observacoes()" (input)="observacoes.set($any($event.target).value)"></textarea></label>
-        @if (faltando().length) { <p class="falta" role="status">Faltam {{ faltando().length }} resposta(s) obrigatória(s).</p> }
+        @if (faltando().length) { <p class="falta" role="status">{{ faltando().length === 1 ? 'Falta 1 resposta obrigatória.' : 'Faltam ' + faltando().length + ' respostas obrigatórias.' }}</p> }
         <div class="geo-respiro"></div>
         <div class="geo-rodape-acoes" data-acao-fixa>
           <button type="button" class="geo-btn geo-btn--neutro" (click)="modelo.set(null)">Cancelar</button>
-          <button type="button" class="geo-btn geo-btn--principal" [disabled]="faltando().length > 0" (click)="salvarVisita()">Registrar visita</button>
+          <button type="button" class="geo-btn geo-btn--principal" [disabled]="faltando().length > 0 || !responsavel()" (click)="salvarVisita()">Registrar visita</button>
         </div>
       }
     } @else if (erro()) {
@@ -105,6 +113,10 @@ export class DocumentacaoObraComponent implements OnInit {
   readonly modelo = signal<ModeloChecklist | null>(null);
   readonly respostas = signal<Record<string, { valor?: string; selecionadas?: string[] }>>({});
   readonly observacoes = signal('');
+  /** Colaborador responsável pela visita (o servidor exige): o do próprio usuário, se houver, ou um escolhido. */
+  readonly responsavel = signal<string | null>(null);
+  readonly colaboradores = signal<ColaboradorLocal[]>([]);
+  private readonly token = inject(TokenService);
   readonly faltando = computed(() => (this.modelo()?.estrutura.grupos ?? []).flatMap(g => g.perguntas)
     .filter(p => p.obrigatoria && !this.respondida(p)));
 
@@ -125,9 +137,13 @@ export class DocumentacaoObraComponent implements OnInit {
     return p.aceitaNaoSeAplica ? [...p.opcoes, 'Não se aplica'] : p.opcoes;
   }
 
-  iniciar(m: ModeloChecklist): void {
+  async iniciar(m: ModeloChecklist): Promise<void> {
     this.respostas.set({});
     this.observacoes.set('');
+    const lista = (await db.colaboradores.toArray()).filter(c => c.ativo)
+      .sort((a, b) => a.nomeCompleto.localeCompare(b.nomeCompleto, 'pt-BR'));
+    this.colaboradores.set(lista);
+    this.responsavel.set(lista.find(c => c.idUsuario === this.token.usuarioId())?.id ?? null);
     this.modelo.set(m);
   }
 
@@ -153,15 +169,18 @@ export class DocumentacaoObraComponent implements OnInit {
 
   async salvarVisita(): Promise<void> {
     const m = this.modelo();
-    if (!m || this.faltando().length) return;
+    if (!m || this.faltando().length || !this.responsavel()) return;
+    // Pergunta com opções (escolha única ou múltipla) vai em `selecionadas`; texto, número e data, em `valor`.
     const respostas = m.estrutura.grupos.flatMap(g => g.perguntas).map(p => {
       const r = this.respostas()[p.id] ?? {};
       const naoSeAplica = r.valor === 'Não se aplica';
-      return { idPergunta: p.id, valor: naoSeAplica ? null : r.valor ?? null, selecionadas: r.selecionadas ?? [], naoSeAplica };
+      const comOpcoes = p.tipo === 'ESCOLHA_UNICA' || p.tipo === 'MULTIPLA_ESCOLHA';
+      const selecionadas = naoSeAplica ? [] : p.tipo === 'MULTIPLA_ESCOLHA' ? r.selecionadas ?? [] : r.valor ? [r.valor] : [];
+      return { idPergunta: p.id, valor: naoSeAplica || comOpcoes ? null : r.valor ?? null, selecionadas: comOpcoes ? selecionadas : [], naoSeAplica };
     });
     const hoje = new Date();
     const data = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
-    await this.servico.registrarVisita(this.id, { idModelo: m.id, dataVisita: data, observacoes: this.observacoes().trim() || null, respostas });
+    await this.servico.registrarVisita(this.id, { idModelo: m.id, dataVisita: data, idColaborador: this.responsavel(), observacoes: this.observacoes().trim() || null, respostas });
     this.modelo.set(null);
     this.toast.success(this.rede.isOnline() ? 'Visita prévia registrada' : 'Visita guardada: sai quando houver sinal');
   }

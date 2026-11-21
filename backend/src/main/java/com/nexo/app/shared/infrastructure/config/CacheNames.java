@@ -18,7 +18,7 @@ public final class CacheNames {
     public static final String CBF = "contratos-base-faturamento";
     public static final String PERMISSOES = "permissoes";
     // A versao impede que uma lista de authorities anterior a uma migration seja reutilizada no login.
-    public static final String PERMISSOES_PERFIL = "permissoes-perfil-v6";
+    public static final String PERMISSOES_PERFIL = "permissoes-perfil-v7";
 
     // Estoque e Materiais
     public static final String TIPOS_ESTOQUE = "tipos-estoque";

@@ -115,11 +115,12 @@ public class RevisaoFotosUseCases {
         return Arrays.stream(EvidenciaPonto.Inconformidade.values()).map(i -> new RevisaoFotosDtos.OpcaoInconformidade(i, i.rotulo())).toList();
     }
 
+    /** HashMap também quando vazio: foto antiga não tem equipe, e {@code Map.of().get(null)} lança NPE. */
     private Map<UUID, String> codigos(Collection<UUID> ids) {
-        if (ids.isEmpty()) {
-            return Map.of();
-        }
         Map<UUID, String> codigos = new HashMap<>();
+        if (ids.isEmpty()) {
+            return codigos;
+        }
         equipeApi.buscarPorIdsResponse(ids).forEach((EquipeResponse e) -> codigos.put(e.id(), e.codigo()));
         return codigos;
     }

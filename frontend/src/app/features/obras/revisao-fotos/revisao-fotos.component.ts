@@ -215,13 +215,7 @@ export class RevisaoFotosComponent {
     this.servico.inconformidades().pipe(take(1)).subscribe({
       next: (lista: OpcaoInconformidade[]) => this.opcoesInconformidade.set(lista.map((o) => ({ label: o.rotulo, value: o.valor })))
     });
-    this.servico.ranking().pipe(take(1)).subscribe({
-      next: (linhas) => {
-        this.ranking.set(linhas);
-        this.estadoRanking.set(linhas.length ? 'ready' : 'empty');
-      },
-      error: () => this.estadoRanking.set('error')
-    });
+    this.carregarRanking();
     // Miniaturas das fotos da página (blob: a requisição leva o token).
     effect(() => {
       const linhas = this.resultado.rows();
@@ -267,6 +261,17 @@ export class RevisaoFotosComponent {
     this.decidir(foto, { aprovar: false, inconformidade, motivo: this.motivo().trim() || null }, 'Foto reprovada: a equipe vê o motivo no app.');
   }
 
+  /** Recarregado a cada decisão: senão a aba de ranking mostra os números de quando a tela abriu. */
+  private carregarRanking(): void {
+    this.servico.ranking().pipe(take(1)).subscribe({
+      next: (linhas) => {
+        this.ranking.set(linhas);
+        this.estadoRanking.set(linhas.length ? 'ready' : 'empty');
+      },
+      error: () => this.estadoRanking.set('error')
+    });
+  }
+
   private decidir(foto: FotoParaRevisao, decisao: { aprovar: boolean; inconformidade?: InconformidadeFoto | null; motivo?: string | null }, mensagem: string): void {
     this.salvando.set(true);
     this.servico.revisar(foto.id, decisao).pipe(take(1)).subscribe({
@@ -275,6 +280,7 @@ export class RevisaoFotosComponent {
         this.detalheAberto.set(false);
         this.notificacoes.success(mensagem);
         this.lista.reload();
+        this.carregarRanking();
       },
       error: (e) => {
         this.salvando.set(false);

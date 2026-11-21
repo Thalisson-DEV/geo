@@ -26,10 +26,16 @@ export function programacoesDoDia(programacoes: ProgramacaoCampo[], dia: string)
 // ---------- Situação de execução, aplicando o que a equipe já lançou no aparelho ----------
 
 /** Quantidade executada de cada item, somando o servidor e os apontamentos ainda no aparelho. */
-export function executadoPorItem(programacao: ProgramacaoCampo, registros: RegistroObraLocal[]): Map<string, number> {
+/**
+ * Executado por item: o que o pacote trouxe mais o que o aparelho lançou e o pacote ainda não reflete. Enviado antes de o
+ * último pacote chegar já vem em `executada`; enviado depois (com sinal, sai na hora) ainda conta aqui, senão o ponto
+ * "desmarcava" logo depois do "Tudo feito".
+ */
+export function executadoPorItem(programacao: ProgramacaoCampo, registros: RegistroObraLocal[], pacoteRecebidoEm?: string | null): Map<string, number> {
   const mapa = new Map<string, number>(programacao.itens.map(i => [i.idItem, i.executada]));
+  const noPacote = (r: RegistroObraLocal) => r.envio === 'ENVIADO' && (!r.enviadoEm || !pacoteRecebidoEm || r.enviadoEm <= pacoteRecebidoEm);
   for (const r of registros) {
-    if (r.tipo !== 'APONTAMENTO' || r.idProgramacao !== programacao.id || r.envio === 'ENVIADO' || r.envio === 'CONFLITO') continue;
+    if (r.tipo !== 'APONTAMENTO' || r.idProgramacao !== programacao.id || r.envio === 'CONFLITO' || noPacote(r)) continue;
     const c = r.comando as { pontoInteiro?: boolean; idPonto?: string; itens?: { idItem: string; quantidade: number }[] };
     if (c.pontoInteiro) {
       for (const i of programacao.itens) {
@@ -57,8 +63,8 @@ export interface PontoDaExecucao {
 
 /** Pontos (e vãos) com itens nesta programação, coloridos pela execução. */
 export function pontosDaExecucao(programacao: ProgramacaoCampo, obra: ObraCampo | undefined, registros: RegistroObraLocal[],
-                                 pendencias: PendenciaLocal[] = []): PontoDaExecucao[] {
-  const feito = executadoPorItem(programacao, registros);
+                                 pendencias: PendenciaLocal[] = [], pacoteRecebidoEm?: string | null): PontoDaExecucao[] {
+  const feito = executadoPorItem(programacao, registros, pacoteRecebidoEm);
   const grupos = new Map<string, (ItemCampo & { feito: number })[]>();
   for (const item of programacao.itens) {
     const id = item.idPonto ?? item.idVao;
@@ -219,6 +225,8 @@ export interface PassoDoDia {
 
 export interface EstadoDoDia {
   turnoAberto: boolean;
+  /** O dia já foi fechado (relatório registrado hoje). */
+  diaFechado?: boolean;
   checklistFeito: boolean;
   programacoes: ProgramacaoCampo[];
   registros: RegistroObraLocal[];
@@ -238,6 +246,9 @@ export function programacaoDaVez(e: EstadoDoDia): ProgramacaoCampo | undefined {
  * cobrado pela abertura do turno quando a frota exige.
  */
 export function proximoPasso(e: EstadoDoDia): PassoDoDia {
+  if (!e.turnoAberto && e.diaFechado) {
+    return { rotulo: 'Ver a agenda', rota: '/obras', icone: 'check', apoio: 'Dia fechado. Bom descanso!' };
+  }
   if (!e.turnoAberto) {
     return { rotulo: 'Abrir turno', rota: '/turno/abrir', icone: 'relogio', apoio: e.checklistFeito ? undefined : 'Faça o checklist do veículo antes de sair' };
   }
