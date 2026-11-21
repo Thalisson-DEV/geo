@@ -58,4 +58,4 @@
 ## G. Fechamento
 
 - [ ] G.1 Testes offline em tablet e celular reais, Android (Chrome) e iPhone (Safari instalado na tela inicial): sem sinal o dia todo, reconexão, conflito, app fechado com pendências
-- [ ] G.2 Build/testes do app, backend e web; roteiro do sistema e documentação
+- [x] G.2 Build/testes do app, backend e web; roteiro do sistema e documentação (ver `docs/redesign/mobile/RELATORIO-FINAL.md`)
