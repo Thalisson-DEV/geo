@@ -58,7 +58,7 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
       <div class="colunas">
         @if (layout.expandido() || vista() === 'projeto') {
           <section class="projeto" aria-label="Projeto">
-            <app-projeto-pdf [arquivo]="pdf()" [marcadores]="marcadores()" [selecionado]="selecionado()" [proximo]="proximo()?.id ?? null"
+            <app-projeto-pdf [arquivo]="pdf()" [rotacoes]="obra()?.rotacoes" [marcadores]="marcadores()" [selecionado]="selecionado()" [proximo]="proximo()?.id ?? null"
               [titulo]="'Obra ' + (p.numeroObra ?? '') + ' · ' + feitos() + ' de ' + pontos().length + ' feitos' + (proximo() ? ' · próximo: ' + proximo()!.rotulo : '')"
               (escolhido)="escolher($event)" />
           </section>

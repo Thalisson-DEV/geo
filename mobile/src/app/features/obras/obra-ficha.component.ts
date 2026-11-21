@@ -9,7 +9,7 @@ import { TurnoService } from '../../core/turno/turno.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { db } from '../../core/db/app-db';
 import { LocalizacaoService } from '../../core/obras/localizacao.service';
-import { MaterialPrevisto, distanciaMetros, linkComoChegar, executadoPorItem, materialPrevisto, nomeLocais } from '../../core/obras/obras-regras';
+import { MaterialPrevisto, distanciaMetros, linkComoChegar, executadoPorItem, materialPrevisto, nomeLocais, contarLocais } from '../../core/obras/obras-regras';
 import { ObrasContexto, diaCurto } from './obras-contexto';
 
 /** Raio para sugerir "Cheguei" pela posição do aparelho. */
@@ -68,7 +68,7 @@ const RAIO_CHEGADA_M = 400;
             <li class="geo-linha">
               <span class="geo-selo" [class.geo-selo--ok]="s.feito" aria-hidden="true"><geo-icone [nome]="s.feito ? 'check' : 'ferramenta'" [tamanho]="18" /></span>
               <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ s.descricao }}</span>
-                <span class="geo-linha__apoio geo-num">{{ s.feito ? 'Feito' : num(s.restante) + ' ' + (s.unidade ?? '') + ' a fazer' }} · {{ s.locais === 1 ? '1 ponto' : s.locais + ' pontos' }}</span></span>
+                <span class="geo-linha__apoio geo-num">{{ s.feito ? 'Feito' : num(s.restante) + ' ' + (s.unidade ?? '') + ' a fazer' }} · {{ s.locais }}</span></span>
             </li>
           }
           @if (servicosDoDia().length > 6) {
@@ -219,21 +219,23 @@ export class ObraFichaComponent implements OnInit {
 
   /** Serviços da programação somados por descrição: o que a equipe tem para fazer hoje, do que falta ao que já foi feito. */
   readonly servicosDoDia = computed(() => {
-    const soma = new Map<string, { chave: string; descricao: string; unidade?: string | null; total: number; feitoQtd: number; locais: Set<string> }>();
+    const soma = new Map<string, { chave: string; descricao: string; unidade?: string | null; total: number; feitoQtd: number;
+      pontos: Set<string>; vaos: Set<string> }>();
     for (const ponto of this.pontos()) {
       for (const i of ponto.itens.filter(x => x.tipo === 'SERVICO')) {
         const chave = `${i.descricao}|${i.unidade ?? ''}`;
-        const atual = soma.get(chave) ?? { chave, descricao: i.descricao ?? 'Serviço', unidade: i.unidade, total: 0, feitoQtd: 0, locais: new Set<string>() };
+        const atual = soma.get(chave) ?? { chave, descricao: i.descricao ?? 'Serviço', unidade: i.unidade, total: 0, feitoQtd: 0,
+          pontos: new Set<string>(), vaos: new Set<string>() };
         atual.total += i.quantidade;
         atual.feitoQtd += Math.min(i.feito, i.quantidade);
-        atual.locais.add(ponto.id);
+        (ponto.vao ? atual.vaos : atual.pontos).add(ponto.id);
         soma.set(chave, atual);
       }
     }
     return [...soma.values()]
       .map(s => ({ chave: s.chave, descricao: s.descricao, unidade: s.unidade, restante: Math.round((s.total - s.feitoQtd) * 100) / 100,
-        feito: s.feitoQtd >= s.total, locais: s.locais.size }))
-      .sort((a, b) => Number(a.feito) - Number(b.feito) || b.locais - a.locais);
+        feito: s.feitoQtd >= s.total, quantos: s.pontos.size + s.vaos.size, locais: contarLocais(s.pontos.size, s.vaos.size) }))
+      .sort((a, b) => Number(a.feito) - Number(b.feito) || b.quantos - a.quantos);
   });
   readonly restantes = computed(() => this.servicosDoDia().filter(s => !s.feito).length);
 

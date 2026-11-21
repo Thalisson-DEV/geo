@@ -1,4 +1,5 @@
 import {
+  pontoNaFolhaGirada, contarLocais,
   aprVazia, condicoesDaProgramacao, medidasDoRisco, nomeLocais, faltasDaApr, aprQueLibera, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
   pontosDaExecucao, programacoesDoDia, proximoPasso, relatorioDoDia, sugestoesApr, verificacoesDaApr, EstadoDoDia,
 } from './obras-regras';
@@ -186,5 +187,20 @@ describe('regras de Obras no app', () => {
     expect(nomeLocais([{}, { vao: { id: 'v' } }])).toBe('pontos e vãos');
     expect(nomeLocais([{}, {}])).toBe('pontos');
     expect(nomeLocais([{}])).toBe('ponto');
+  });
+
+  it('põe o ponto no lugar certo da folha girada pelo planejamento', () => {
+    expect(pontoNaFolhaGirada(0.2, 0.7, 0)).toEqual({ x: 0.2, y: 0.7 });
+    const noventa = pontoNaFolhaGirada(0.2, 0.7, 90);
+    expect(noventa.x).toBeCloseTo(0.3);
+    expect(noventa.y).toBeCloseTo(0.2);
+    expect(pontoNaFolhaGirada(0.2, 0.7, 270)).toEqual({ x: 0.7, y: 0.8 });
+    expect(pontoNaFolhaGirada(0.25, 0.75, -90)).toEqual({ x: 0.75, y: 0.75 });
+  });
+
+  it('conta pontos e vãos separados', () => {
+    expect(contarLocais(3, 0)).toBe('3 pontos');
+    expect(contarLocais(0, 1)).toBe('1 vão');
+    expect(contarLocais(1, 29)).toBe('1 ponto e 29 vãos');
   });
 });

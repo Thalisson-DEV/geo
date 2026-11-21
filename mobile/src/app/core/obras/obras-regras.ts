@@ -124,6 +124,14 @@ export function pendenciasDeFoto(obra: ObraCampo, itensModelo: { id: string; tit
 }
 
 /** Nome do que se conta na execução: "pontos e vãos" quando há vão, senão "ponto(s)". */
+/** "3 pontos", "1 vão", "2 pontos e 5 vãos": cabo é lançado em vão, estrutura fica no ponto. */
+export function contarLocais(pontos: number, vaos: number): string {
+  const p = pontos === 1 ? '1 ponto' : `${pontos} pontos`;
+  const v = vaos === 1 ? '1 vão' : `${vaos} vãos`;
+  if (pontos && vaos) return `${p} e ${v}`;
+  return vaos ? v : p;
+}
+
 export function nomeLocais(locais: { vao?: unknown }[]): string {
   if (locais.some(l => !!l.vao)) return 'pontos e vãos';
   return locais.length === 1 ? 'ponto' : 'pontos';
@@ -407,4 +415,17 @@ export function distanciaMetros(a: { lat: number; lon: number }, b: { lat: numbe
 export function aprVazia(sugestao: { riscos: string[]; medidas: string[] }, participantes: string[]): AprRascunho {
   return { passo: 0, riscos: [...sugestao.riscos], outroRisco: '', medidas: [...sugestao.medidas], medidasAdicionais: '',
     verificacoes: {}, participantes: [...participantes], assinaturas: {} };
+}
+
+/**
+ * Posição do ponto (em [0,1] da página do PDF) na folha girada no sentido horário, a mesma conta do planejamento no
+ * web: o projeto que o técnico deixou de pé lá aparece de pé no tablet, com os pontos no lugar.
+ */
+export function pontoNaFolhaGirada(x: number, y: number, rotacao: number): { x: number; y: number } {
+  switch ((((rotacao % 360) + 360) % 360)) {
+    case 90: return { x: 1 - y, y: x };
+    case 180: return { x: 1 - x, y: 1 - y };
+    case 270: return { x: y, y: 1 - x };
+    default: return { x, y };
+  }
 }

@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { DocumentoPdf, abrirPdf, desenhoCancelado } from '../../core/frota/visor-pdf';
 import { IconeComponent } from '../../ui';
-import { SituacaoPonto } from '../../core/obras/obras-regras';
+import { SituacaoPonto, pontoNaFolhaGirada } from '../../core/obras/obras-regras';
 
 export interface MarcadorPonto {
   id: string;
@@ -112,6 +112,8 @@ export class ProjetoPdfComponent implements OnDestroy {
   readonly proximo = input<string | null>(null);
   /** Obra e progresso, mostrados na barra da tela cheia. */
   readonly titulo = input<string | null>(null);
+  /** Rotação de cada folha salva no planejamento (graus no sentido horário, chave = número da folha). */
+  readonly rotacoes = input<Record<string, number> | undefined>(undefined);
   readonly escolhido = output<string>();
 
   readonly niveis = NIVEIS;
@@ -124,6 +126,7 @@ export class ProjetoPdfComponent implements OnDestroy {
   readonly telaCheia = signal(false);
   readonly estado = signal<'carregando' | 'pronto' | 'sem' | 'erro'>('carregando');
   readonly marcadoresDaPagina = signal<MarcadorPonto[]>([]);
+  readonly rotacao = computed(() => this.rotacoes()?.[String(this.pagina())] ?? 0);
 
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly folha = viewChild.required<ElementRef<HTMLDivElement>>('folha');
@@ -133,6 +136,8 @@ export class ProjetoPdfComponent implements OnDestroy {
   /** Dedos na tela, para a pinça. */
   private readonly toques = new Map<number, { x: number; y: number }>();
   private distanciaInicial = 0;
+  private folhaInicialDefinida = false;
+  private folhaPreferida: number | null = null;
   private nivelInicial = 0;
 
   constructor() {
@@ -142,7 +147,10 @@ export class ProjetoPdfComponent implements OnDestroy {
     });
     effect(() => {
       const pagina = this.pagina();
-      this.marcadoresDaPagina.set(this.marcadores().filter(m => (m.pagina || 1) === pagina));
+      const rotacao = this.rotacao();
+      this.marcadoresDaPagina.set(this.marcadores()
+        .filter(m => (m.pagina || 1) === pagina)
+        .map(m => ({ ...m, ...pontoNaFolhaGirada(m.x, m.y, rotacao) })));
     });
     effect(() => {
       // O ponto escolhido fora do projeto (na lista) leva à página dele e vem para o centro.
@@ -153,8 +161,20 @@ export class ProjetoPdfComponent implements OnDestroy {
       untracked(() => setTimeout(() => this.centralizar(m.id), 60));
     });
     effect(() => {
+      // Ao abrir, a folha mostrada é a do próximo ponto da equipe (projeto de várias folhas). Só na primeira vez:
+      // depois quem escolhe a folha é a pessoa.
+      const id = this.proximo();
+      const m = untracked(() => this.marcadores().find(x => x.id === id));
+      if (!m || this.folhaInicialDefinida || untracked(() => this.selecionado())) return;
+      this.folhaInicialDefinida = true;
+      // O PDF pode ainda estar abrindo: guarda a folha e aplica quando souber quantas folhas há.
+      this.folhaPreferida = m.pagina || null;
+      if (this.doc && this.folhaPreferida && this.folhaPreferida !== untracked(() => this.pagina())) untracked(() => this.irPara(this.folhaPreferida!));
+    });
+    effect(() => {
       this.zoom();
       this.telaCheia();
+      this.rotacao();
       untracked(() => this.agendarDesenho());
     });
   }
@@ -282,6 +302,7 @@ export class ProjetoPdfComponent implements OnDestroy {
     try {
       this.doc = await abrirPdf(blob);
       this.paginas.set(this.doc.paginas);
+      if (this.folhaPreferida && this.folhaPreferida <= this.doc.paginas) this.pagina.set(this.folhaPreferida);
       await this.desenhar();
     } catch {
       this.estado.set('erro');
@@ -292,7 +313,7 @@ export class ProjetoPdfComponent implements OnDestroy {
     if (!this.doc) return;
     try {
       const largura = (this.janela().nativeElement.clientWidth || 600) * this.zoom();
-      await this.doc.desenhar(this.pagina(), this.canvas().nativeElement, largura);
+      await this.doc.desenhar(this.pagina(), this.canvas().nativeElement, largura, this.rotacao());
       this.estado.set('pronto');
     } catch (e) {
       if (!desenhoCancelado(e)) this.estado.set('erro');

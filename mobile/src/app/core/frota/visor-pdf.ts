@@ -17,8 +17,11 @@ function pdfjs(): Promise<PdfJs> {
 
 export interface DocumentoPdf {
   paginas: number;
-  /** Desenha a página (1..n) no canvas com a largura em pixels CSS indicada. */
-  desenhar(pagina: number, canvas: HTMLCanvasElement, largura: number): Promise<void>;
+  /**
+   * Desenha a página (1..n) no canvas com a largura em pixels CSS indicada.
+   * @param rotacao graus no sentido horário somados à rotação do próprio PDF (a que o planejamento salvou)
+   */
+  desenhar(pagina: number, canvas: HTMLCanvasElement, largura: number, rotacao?: number): Promise<void>;
   fechar(): void;
 }
 
@@ -35,15 +38,16 @@ export async function abrirPdf(blob: Blob): Promise<DocumentoPdf> {
   const doc = await lib.getDocument({ data: new Uint8Array(await blob.arrayBuffer()), isEvalSupported: false }).promise;
   return {
     paginas: doc.numPages,
-    async desenhar(numero, canvas, largura) {
+    async desenhar(numero, canvas, largura, rotacao = 0) {
       emAndamento.get(canvas)?.cancel();
       const pagina = await doc.getPage(numero);
-      const base = pagina.getViewport({ scale: 1 });
+      const giro = (((pagina.rotate + rotacao) % 360) + 360) % 360;
+      const base = pagina.getViewport({ scale: 1, rotation: giro });
       const escala = largura / base.width;
       // Nitidez em tela de alta densidade, com teto para não estourar a memória do aparelho (canvas de até ~6000 px de
       // largura: o projeto aproximado a 4× num tablet passaria disso).
       const densidade = Math.max(0.5, Math.min(window.devicePixelRatio || 1, 2.5, 6000 / Math.max(1, largura)));
-      const viewport = pagina.getViewport({ scale: escala * densidade });
+      const viewport = pagina.getViewport({ scale: escala * densidade, rotation: giro });
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
       canvas.style.width = `${Math.floor(viewport.width / densidade)}px`;

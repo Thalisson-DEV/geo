@@ -19,7 +19,12 @@ async function comRede(page: Page, context: BrowserContext, api: MockApi) {
 }
 
 async function assinar(page: Page, quem: string) {
-  await page.getByRole('button', { name: new RegExp(`Assinatura de ${quem}`) }).click();
+  // Depois de uma assinatura, o quadro da próxima pessoa abre sozinho: só toca no nome se ele ainda não estiver aberto.
+  const aberto = page.getByRole('dialog', { name: new RegExp(`Assinatura de ${quem}`) });
+  await page.waitForTimeout(500);
+  if (!(await aberto.isVisible())) {
+    await page.getByRole('button', { name: new RegExp(`Assinatura de ${quem}`) }).click();
+  }
   const quadro = page.getByLabel('Quadro de assinatura');
   await expect(quadro).toBeVisible();
   await page.waitForTimeout(350);
