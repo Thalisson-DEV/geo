@@ -1,7 +1,7 @@
 import { ICONE_STATUS_AUTOMACAO } from '../../../core/models/automacao.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   GeoButtonComponent, GeoCalloutComponent, GeoCellDirective, GeoContentState, GeoDataTableColumn, GeoDataTableComponent,
   GeoDialogShellComponent, GeoFilterChip, GeoFilterPanelComponent, GeoPageHeaderComponent, GeoSelectComponent, GeoSelectOption,
@@ -52,9 +52,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
     <div class="aut aut-page">
       <geo-page-header title="Automações" icon="pi pi-sitemap"
                        description="Quando algo acontece (ou numa agenda), o GEO executa os passos: condições, avisos, e-mails, aprovações, consultas e análises da Bússola.">
-        <div actions style="display:flex;gap:0.5rem">
-          <geo-button icon="pi pi-plus" label="Nova automação" variant="primary" size="sm" (pressed)="novoAberto.set(true)"></geo-button>
-        </div>
+        <geo-button actions icon="pi pi-plus" label="Nova automação" (pressed)="novoAberto.set(true)"></geo-button>
       </geo-page-header>
 
       @if (aprovacoes().length) {
@@ -98,7 +96,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
     </div>
 
     <geo-dialog-shell [(visible)]="novoAberto" title="Nova automação" size="lg" [loading]="criando()" loadingLabel="Criando">
-      <div class="aut" style="display:flex;flex-direction:column;gap:1rem">
+      <div class="aut aut-novo">
         <label class="aut-field">
           <span class="geo-field__label">Nome</span>
           <input class="p-inputtext geo-prime-control" [value]="nome()" (input)="nome.set($any($event.target).value)" placeholder="Ex.: Desconto validado → RH da base" />
@@ -112,7 +110,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
             </button>
             <button type="button" class="aut-template" [attr.aria-pressed]="escolha() === 'pedir'" (click)="escolha.set('pedir')" data-group="ai">
               <span class="aut-node-icon"><i class="pi pi-compass" aria-hidden="true"></i></span>
-              <span><span class="aut-template-title">Pedir à Bússola</span><span class="aut-template-desc" style="display:block">Descreva em português e ele monta o rascunho.</span></span>
+              <span><span class="aut-template-title">Pedir à Bússola</span><span class="aut-template-desc" style="display:block">Descreva em português e ela monta o rascunho.</span></span>
             </button>
             @for (m of modelos(); track m.id) {
               <button type="button" class="aut-template" [attr.aria-pressed]="escolha() === m.id" (click)="escolherModelo(m)" [attr.data-group]="grupo(m.tipo)">
@@ -124,7 +122,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
         </div>
         @if (escolha() === 'pedir') {
           <geo-textarea label="O que a automação deve fazer?" [rows]="4" [value]="pedido()" (valueChange)="pedido.set($event)"
-                        placeholder="Quando um desconto for validado, avise por e-mail o RH da base do colaborador: Juazeiro é a Maria, Petrolina é o João; nas outras bases, quem tem a permissão desconto:baixar."></geo-textarea>
+                        placeholder="Quando um desconto for validado, avise por e-mail o RH da base do colaborador: Centro é a Maria, Norte é o João; nas outras bases, quem tem a permissão desconto:baixar."></geo-textarea>
         }
         @if (erroCriar()) { <geo-callout tone="danger" [dense]="true">{{ erroCriar() }}</geo-callout> }
       </div>
@@ -201,6 +199,8 @@ export class AutomacoesListaComponent {
   });
 
   constructor() {
+    // Atalho "Nova automação" do início chega com ?novo=1.
+    if (inject(ActivatedRoute).snapshot.queryParamMap.get('novo') === '1') this.novoAberto.set(true);
     this.carregar();
     this.service.minhasAprovacoes().subscribe({ next: (a) => this.aprovacoes.set(a), error: () => undefined });
     this.service.modelos().subscribe({ next: (m) => this.modelos.set(m), error: () => undefined });

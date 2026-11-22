@@ -21,7 +21,9 @@
 .aut [data-group="integration"], .aut[data-group="integration"] { --node-hue: var(--geo-chart-2); }
 
 .aut { color: var(--geo-foreground); }
-:where(.aut) :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+/* Reset só dos botões nativos das automações: os do design system (PrimeNG, em @layer) perderiam
+   o padding e o fundo para esta regra sem camada, e o texto vazava do botão. */
+:where(.aut) :where(button:not(.p-button, .p-component, [class*='geo-'])) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 :where(.aut) :focus-visible { outline: 2px solid var(--geo-brand); outline-offset: 2px; }
 .aut-muted { color: var(--geo-foreground-muted); font-size: var(--geo-font-body); }
 .aut-link { color: var(--geo-brand); font-size: var(--geo-font-body); font-weight: 600; cursor: pointer; }
@@ -57,8 +59,16 @@ textarea.geo-prime-control { min-height: 4.5rem; resize: vertical; }
 .aut-template[aria-pressed="true"] { border-color: var(--geo-brand); box-shadow: none; }
 .aut-template .aut-node-icon { flex-shrink: 0; }
 .aut-template-title { font-weight: 600; font-size: var(--geo-font-body); }
-.aut-template-desc { color: var(--geo-foreground-muted); font-size: var(--geo-font-body); line-height: 1.4; margin-top: 0.25rem; }
+.aut-template-desc {
+  display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+  color: var(--geo-foreground-muted); font-size: var(--geo-font-body); line-height: 1.4; margin-top: 0.25rem;
+}
+/* Diálogo "Nova automação": respiro entre o título do diálogo e o primeiro campo. */
+.aut-novo { display: flex; flex-direction: column; gap: 1rem; padding-block-start: 0.25rem; }
 
 /* célula "Automação" da tabela */
 .aut-list-main { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }
 .aut-list-main .aut-list-desc { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; white-space: normal; }
+
+/* Detalhe: o fluxo corre na horizontal, então a moldura é baixa; ramos e blocos cabem pelo "ajustar". */
+.aut-canvas-detalhe { display: flex; height: 18rem; }

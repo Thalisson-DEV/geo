@@ -6,7 +6,7 @@ import { GeoIconButtonComponent } from '@geo/ui';
 import { Catalogo, Definicao, NoEspec, StatusEtapa } from '../../../../core/models/automacao.models';
 import { InsertTarget, buscarNo, chaveAlvo, contem } from '../lib/arvore';
 import { icone } from '../lib/dinamico';
-import { CARD_H, CARD_W, Item, montarLayout } from '../lib/layout';
+import { Item, montarLayout } from '../lib/layout';
 import { resumirNo } from '../lib/resumo';
 
 export interface EstadoExecucaoNo {
@@ -29,7 +29,7 @@ export function formatarDuracao(ms: number | null): string {
 }
 
 /**
- * O canvas do designer: fluxo vertical, como no Power Automate. Arraste o fundo para mover,
+ * O canvas do designer: fluxo da esquerda para a direita, como num diagrama. Arraste o fundo para mover,
  * Ctrl + rolagem para zoom. Cartões podem ser arrastados: soltos sobre um "+" mudam de
  * lugar no fluxo; soltos em espaço livre só mudam de posição na tela.
  */
@@ -103,7 +103,7 @@ export function formatarDuracao(ms: number | null): string {
                    (pointerdown)="iniciarArraste($event, i)" (keydown.enter)="selecionar.emit(i.id)" (keydown.space)="$event.preventDefault(); selecionar.emit(i.id)">
                 <span class="aut-node-icon"><i [class]="iconeDe(i)" aria-hidden="true"></i></span>
                 <span class="aut-node-text">
-                  @if (i.tipo === 'gatilho') { <span class="aut-node-eyebrow">QUANDO COMEÇA</span> }
+                  @if (i.tipo === 'gatilho') { <span class="aut-node-eyebrow">Quando começa</span> }
                   <span class="aut-node-title">{{ titulo(i) }}</span>
                   @if (subtitulo(i); as s) { <span class="aut-node-sub" [title]="s">{{ s }}</span> }
                   @if (i.tipo === 'passo' && i.recolhido) { <span class="aut-node-sub aut-node-count">{{ i.filhos }} {{ i.filhos === 1 ? 'ação' : 'ações' }} dentro</span> }
@@ -157,14 +157,14 @@ export function formatarDuracao(ms: number | null): string {
         <geo-icon-button icon="pi pi-search-minus" label="Afastar" variant="ghost" size="icon-sm" (pressed)="zoomEm(1 / 1.2)"></geo-icon-button>
         <span class="aut-zoom-label">{{ (zoom() * 100).toFixed(0) }}%</span>
         <geo-icon-button icon="pi pi-window-maximize" label="Ver o fluxo inteiro" variant="ghost" size="icon-sm" (pressed)="ajustar()"></geo-icon-button>
-        <geo-icon-button icon="pi pi-arrow-up" label="Voltar ao início" variant="ghost" size="icon-sm" (pressed)="topo()"></geo-icon-button>
+        <geo-icon-button icon="pi pi-arrow-left" label="Voltar ao início" variant="ghost" size="icon-sm" (pressed)="topo()"></geo-icon-button>
         @if (!somenteLeitura() && movido()) {
           <geo-icon-button icon="pi pi-sitemap" label="Reorganizar" variant="ghost" size="icon-sm" (pressed)="reorganizar.emit()"></geo-icon-button>
         }
       </div>
       @if (!somenteLeitura()) {
         <div class="aut-canvas-hint" aria-hidden="true">
-          {{ arrastado() ? 'Solte sobre um + para mudar a ordem, ou em espaço livre para só mover' : 'Arraste o fundo para mover · Ctrl + rolagem para zoom · arraste um bloco sobre um + para reordenar' }}
+          {{ arrastado() ? 'Solte sobre um + para mudar a ordem, ou em espaço livre para só mover' : 'Arraste o fundo ou role para mover · Ctrl + rolagem para zoom · arraste um bloco sobre um + para reordenar' }}
         </div>
       }
     </div>
@@ -190,7 +190,7 @@ export class CanvasComponent implements AfterViewInit {
 
   private readonly area = viewChild.required<ElementRef<HTMLDivElement>>('area');
   protected readonly zoom = signal(1);
-  protected readonly pan = signal({ x: 600, y: 48 });
+  protected readonly pan = signal({ x: 48, y: 240 });
   protected readonly panning = signal(false);
   protected readonly recolhidos = signal(new Set<string>());
   protected readonly hoverKey = signal<string | null>(null);
@@ -218,7 +218,9 @@ export class CanvasComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    requestAnimationFrame(() => this.topo());
+    // Só leitura (detalhe, execução): o fluxo inteiro cabe na moldura. No editor, começa pelo gatilho.
+    // Abaixo de 70% o texto dos cartões não se lê: fluxo longo começa pelo gatilho e se percorre rolando.
+    requestAnimationFrame(() => (this.somenteLeitura() ? this.ajustar(0.7) : this.topo()));
   }
 
   // ------------------------------------------------------------------------ dados do cartão
@@ -285,20 +287,21 @@ export class CanvasComponent implements AfterViewInit {
     return { x: (clientX - r.left - this.pan().x) / this.zoom(), y: (clientY - r.top - this.pan().y) / this.zoom() };
   }
 
+  /** Volta ao começo do fluxo: o gatilho na borda esquerda, no meio da altura. */
   protected topo(): void {
     const el = this.area().nativeElement;
     this.zoom.set(1);
-    this.pan.set({ x: el.clientWidth / 2, y: 48 });
+    this.pan.set({ x: 48, y: el.clientHeight / 2 });
   }
 
-  protected ajustar(): void {
+  protected ajustar(minimo = 0.25): void {
     const el = this.area().nativeElement;
-    const l = this.layout();
-    const largura = l.largura.max - l.largura.min + 80;
-    const altura = l.altura + 80;
-    const z = Math.max(0.25, Math.min(1, el.clientWidth / largura, el.clientHeight / altura));
+    const { x0, x1, y0, y1 } = this.layout().limites;
+    const z = Math.max(minimo, Math.min(1, el.clientWidth / (x1 - x0 + 96), el.clientHeight / (y1 - y0 + 96)));
     this.zoom.set(z);
-    this.pan.set({ x: el.clientWidth / 2 - ((l.largura.min + l.largura.max) / 2) * z, y: 32 });
+    // Cabe na largura: centraliza; não cabe nem no zoom mínimo: começa pelo gatilho.
+    const sobra = el.clientWidth - (x1 - x0) * z;
+    this.pan.set({ x: sobra > 0 ? sobra / 2 - x0 * z : 48 - x0 * z, y: el.clientHeight / 2 - ((y0 + y1) / 2) * z });
   }
 
   protected zoomEm(fator: number, cx?: number, cy?: number): void {
@@ -318,8 +321,14 @@ export class CanvasComponent implements AfterViewInit {
       const r = this.area().nativeElement.getBoundingClientRect();
       this.zoomEm(e.deltaY < 0 ? 1.1 : 1 / 1.1, e.clientX - r.left, e.clientY - r.top);
     } else {
+      // O fluxo cresce para a direita: a rolagem comum anda na horizontal; Shift + rolagem, na vertical.
+      // Trackpad (deltaX) continua livre nos dois eixos.
       const p = this.pan();
-      this.pan.set({ x: p.x - (e.shiftKey ? e.deltaY : e.deltaX), y: p.y - (e.shiftKey ? 0 : e.deltaY) });
+      const lateral = e.deltaX !== 0;
+      this.pan.set({
+        x: p.x - (lateral ? e.deltaX : e.shiftKey ? 0 : e.deltaY),
+        y: p.y - (lateral ? e.deltaY : e.shiftKey ? e.deltaY : 0)
+      });
     }
   }
 
@@ -372,7 +381,7 @@ export class CanvasComponent implements AfterViewInit {
       this.arrastado.set(i.id);
       this.delta.set({ x: dx, y: dy });
       if (i.tipo === 'passo') {
-        const alvo = this.maisProximo(i.x + dx + CARD_W / 2, i.y + dy + CARD_H / 2, i.id, DISTANCIA_REORDENAR);
+        const alvo = this.maisProximo(i.x + dx + i.w / 2, i.y + dy + i.h / 2, i.id, DISTANCIA_REORDENAR);
         this.hoverKey.set(alvo ? chaveAlvo(alvo) : null);
       }
     };
@@ -388,7 +397,7 @@ export class CanvasComponent implements AfterViewInit {
       this.delta.set({ x: 0, y: 0 });
       this.hoverKey.set(null);
       if (i.tipo === 'passo') {
-        const alvo = this.maisProximo(i.x + d.x + CARD_W / 2, i.y + d.y + CARD_H / 2, i.id, DISTANCIA_REORDENAR);
+        const alvo = this.maisProximo(i.x + d.x + i.w / 2, i.y + d.y + i.h / 2, i.id, DISTANCIA_REORDENAR);
         if (alvo) {
           this.mover.emit({ id: i.id, alvo });
           return;

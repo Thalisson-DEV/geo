@@ -27,7 +27,7 @@ interface Pergunta {
         @if (temColaborador()) {
           <div class="aut-field" style="position:relative">
             <span class="geo-field__label">Colaborador do exemplo</span>
-            <input class="p-inputtext geo-prime-control" placeholder="Busque um colaborador real (ex.: da base de Juazeiro)" (input)="buscarColaborador($any($event.target).value)" />
+            <input class="p-inputtext geo-prime-control" placeholder="Busque um colaborador real (ex.: de uma base)" (input)="buscarColaborador($any($event.target).value)" />
             @if (opcoes().length) {
               <div class="aut-rows" style="max-height:12rem;overflow:auto">
                 @for (o of opcoes(); track o.valor) {

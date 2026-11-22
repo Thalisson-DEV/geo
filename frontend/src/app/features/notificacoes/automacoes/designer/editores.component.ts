@@ -23,7 +23,7 @@ type Linha = Record<string, JsonValue>;
           <div class="aut-row-fields">
             <label class="aut-row-cell aut-row-wide aut-route-when">
               <span style="white-space:nowrap">Quando for</span>
-              <input class="p-inputtext geo-prime-control" [value]="texto(r['when'])" placeholder="Juazeiro; Juazeiro II"
+              <input class="p-inputtext geo-prime-control" [value]="texto(r['when'])" placeholder="Ex.: Centro; Centro II"
                      (input)="alterar(i, 'when', $any($event.target).value)" [attr.aria-label]="'Valor da regra ' + (i + 1)" />
             </label>
             <div class="aut-row-cell aut-row-wide">
@@ -259,7 +259,7 @@ function deGrupo(g: Grupo): JsonValue {
                 @for (o of opcoes(); track o[0]) { <option [value]="o[0]" [selected]="o[0] === r.operator">{{ o[1] }}</option> }
               </select>
               @if (!unario(r.operator)) {
-                <aut-campo-expressao [valor]="r.right" [contexto]="contexto()" rotulo="Comparar com" placeholder="Juazeiro"
+                <aut-campo-expressao [valor]="r.right" [contexto]="contexto()" rotulo="Comparar com" placeholder="Ex.: Centro"
                                      (mudou)="trocarRegra(i, { right: $event })" />
               }
             </div>
@@ -273,7 +273,7 @@ function deGrupo(g: Grupo): JsonValue {
           <geo-button icon="pi pi-plus" label="Grupo" variant="ghost" size="sm" (pressed)="adicionarGrupo()"></geo-button>
         }
         @if (nivel() > 0) {
-          <geo-button label="Remover grupo" variant="destructive" size="sm" (pressed)="removerGrupo.emit()"></geo-button>
+          <geo-button label="Remover grupo" variant="ghost" size="sm" (pressed)="removerGrupo.emit()"></geo-button>
         }
       </div>
     </div>

@@ -9,7 +9,7 @@ import { MenuItem } from 'primeng/api';
  */
 export const MODULOS_OCULTOS = {
   /** Grupos do menu lateral, pelo rótulo. */
-  menu: ['Automações', 'CIPA', 'Brigada de Incêndio', 'Treinamento', 'Solicitações Comerciais', 'Comercial'],
+  menu: ['CIPA', 'Brigada de Incêndio', 'Treinamento', 'Solicitações Comerciais', 'Comercial'],
   /** Prefixos de rota que não abrem. */
   rotas: [
     '/manuais',
@@ -18,7 +18,6 @@ export const MODULOS_OCULTOS = {
     '/manual-descontos',
     '/manual-sst',
     '/sst/governanca',
-    '/notificacoes/automacoes',
     '/almoxarifado/solicitacoes',
     '/almoxarifado/devolucao-comercial',
     '/almoxarifado/dashboard/solicitacoes/comercial'

@@ -39,7 +39,7 @@ type Aba = 'params' | 'config' | 'saidas';
             <geo-icon-button icon="pi pi-arrow-right-arrow-left" label="Trocar o gatilho" variant="ghost" size="icon-sm" (pressed)="trocarGatilho.emit()"></geo-icon-button>
           } @else if (!somenteLeitura()) {
             <geo-icon-button icon="pi pi-copy" label="Duplicar" variant="ghost" size="icon-sm" (pressed)="duplicar.emit(selecionado())"></geo-icon-button>
-            <geo-icon-button icon="pi pi-trash" label="Excluir passo" variant="destructive" size="icon-sm" (pressed)="excluir.emit(selecionado())"></geo-icon-button>
+            <geo-icon-button icon="pi pi-trash" label="Excluir passo" variant="ghost" size="icon-sm" (pressed)="excluir.emit(selecionado())"></geo-icon-button>
           }
           <geo-icon-button icon="pi pi-times" label="Fechar painel" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
         </header>
@@ -67,7 +67,7 @@ type Aba = 'params' | 'config' | 'saidas';
                     <p class="aut-muted">Cada caso é uma coluna no canvas. Num caso, separe vários valores com ;</p>
                     @for (c of n.cases ?? []; track c.id) {
                       <div style="display:flex;gap:0.5rem">
-                        <input class="p-inputtext geo-prime-control" [value]="c.value" placeholder="Juazeiro" aria-label="Valor do caso"
+                        <input class="p-inputtext geo-prime-control" [value]="c.value" placeholder="Ex.: Centro" aria-label="Valor do caso"
                                (input)="mudarNo({ cases: trocarCaso(n, c.id, $any($event.target).value) })" />
                         <geo-icon-button icon="pi pi-times" label="Remover caso" variant="ghost" size="icon-sm" (pressed)="mudarNo({ cases: (n.cases ?? []).filter(x => x.id !== c.id) })"></geo-icon-button>
                       </div>
@@ -354,7 +354,7 @@ interface Mensagem {
         </div>
       </div>
       <form class="aut-composer" (submit)="$event.preventDefault(); enviar()">
-        <geo-textarea label="O que mudar" [labelVisible]="false" [rows]="3" placeholder="Ex.: se a base for Petrolina, avise também a Ana"
+        <geo-textarea label="O que mudar" [labelVisible]="false" [rows]="3" placeholder="Ex.: se a base for Norte, avise também a Ana"
                       [value]="pedido()" (valueChange)="pedido.set($event)" (keydown.control.enter)="enviar()"></geo-textarea>
         <geo-button label="Pedir" variant="primary" size="sm" type="submit" [disabled]="ocupado() || !pedido().trim()"></geo-button>
       </form>
@@ -370,7 +370,7 @@ export class PainelPedirComponent {
   protected readonly ocupado = signal(false);
   protected readonly mensagens = signal<Mensagem[]>([]);
   protected readonly exemplos = [
-    'Se o colaborador for da base de Juazeiro, avise o RH de Juazeiro; se for de Petrolina, o RH de Petrolina; senão, todo o RH.',
+    'Se o colaborador for da base de Centro, avise o RH de Centro; se for de Norte, o RH de Norte; senão, todo o RH.',
     'Mande também um e-mail com uma tabela do que mudou para quem pediu.',
     'Antes de enviar, peça aprovação ao coordenador, com prazo de 24 horas.'
   ];

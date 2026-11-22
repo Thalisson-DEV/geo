@@ -2,20 +2,28 @@ import { Definicao, FlowNode } from '../../../../core/models/automacao.models';
 import { InsertTarget, ListRef, Slot, contarNos, filhos } from './arvore';
 
 /**
- * Layout do canvas: fluxo vertical como no Power Automate e no TON. Contêineres de ramos
- * (condição, escolher caso, paralelo) abrem colunas lado a lado; contêineres de bloco (para
- * cada, repetir até, escopo) envolvem os passos internos numa moldura. Cartões movidos à mão
- * guardam o deslocamento em `definicao.layout` (só visual).
+ * Layout do canvas: fluxo da esquerda para a direita, como num diagrama. O gatilho abre a linha
+ * e cada passo vem à direita do anterior. Contêineres de ramos (condição, escolher caso,
+ * paralelo) abrem linhas empilhadas, uma por ramo, que se juntam de novo à direita; contêineres
+ * de bloco (para cada, repetir até, escopo) envolvem os passos internos numa moldura. Cartões
+ * movidos à mão guardam o deslocamento em `definicao.layout` (só visual).
+ *
+ * Convenção: `x` é o eixo do fluxo; cada passo é posicionado pela borda esquerda e pelo centro
+ * vertical da sua linha.
  */
-export const CARD_W = 320;
-export const CARD_H = 72;
-const GAP = 64;
-const PAD = 28;
-const COL_GAP = 56;
-const LABEL_H = 26;
-const LABEL_GAP = 30;
+export const CARD_W = 248;
+export const CARD_H = 64;
+const GAP = 56;
+const PAD = 20;
+const LINHA_GAP = 28;
+const LABEL_W = 104;
+const LABEL_H = 24;
+const LABEL_GAP = 24;
+const SLOT_W = 168;
 const SLOT_H = 48;
-const RECOLHIDO_EXTRA = 24;
+const FIM_W = 176;
+const FIM_H = 40;
+const RECOLHIDO_EXTRA = 20;
 const RAMOS = new Set(['control.condition', 'control.switch', 'control.parallel']);
 const MOLDURAS = new Set(['control.foreach', 'control.until', 'control.scope']);
 
@@ -42,13 +50,20 @@ export interface Conexao {
   maisY?: number;
 }
 
+export interface Limites {
+  x0: number;
+  x1: number;
+  y0: number;
+  y1: number;
+}
+
 export interface Layout {
   itens: Item[];
   conexoes: Conexao[];
   /** Alvos de inserção com o ponto no canvas (para soltar cartões arrastados). */
   alvos: { alvo: InsertTarget; x: number; y: number }[];
-  largura: { min: number; max: number };
-  altura: number;
+  /** Caixa que contém o fluxo inteiro (o gatilho fica em x = 0, centrado em y = 0). */
+  limites: Limites;
 }
 
 export interface Rotulos {
@@ -57,6 +72,7 @@ export interface Rotulos {
   senao: string;
 }
 
+/** Medida de um trecho: `w` ao longo do fluxo, `h` na altura que ele ocupa. */
 interface Caixa {
   w: number;
   h: number;
@@ -91,13 +107,13 @@ class Construtor {
   }
 
   medirLista(lista: FlowNode[]): Caixa {
-    if (!lista.length) return { w: CARD_W, h: SLOT_H };
-    let w = CARD_W;
-    let h = 0;
+    if (!lista.length) return { w: SLOT_W, h: SLOT_H };
+    let w = 0;
+    let h = CARD_H;
     lista.forEach((no, i) => {
       const c = this.medir(no);
-      w = Math.max(w, c.w);
-      h += c.h + (i ? GAP : 0);
+      w += c.w + (i ? GAP : 0);
+      h = Math.max(h, c.h);
     });
     return { w, h };
   }
@@ -106,13 +122,13 @@ class Construtor {
     if (this.recolhidos.has(no.id) && filhos(no).length) return { w: CARD_W, h: CARD_H + RECOLHIDO_EXTRA };
     if (MOLDURAS.has(no.type)) {
       const dentro = this.medirLista(no.steps ?? []);
-      return { w: Math.max(CARD_W, dentro.w) + PAD * 2, h: CARD_H + GAP + dentro.h + GAP / 2 + PAD };
+      return { w: CARD_W + GAP + dentro.w + GAP / 2 + PAD, h: Math.max(CARD_H, dentro.h) + PAD * 2 };
     }
     if (RAMOS.has(no.type)) {
-      const cols = colunasDe(no, this.r).map((c) => this.medirLista(c.lista));
-      const largura = cols.reduce((s, c) => s + c.w, 0) + COL_GAP * Math.max(0, cols.length - 1);
-      const altura = Math.max(SLOT_H, ...cols.map((c) => c.h));
-      return { w: Math.max(CARD_W, largura) + PAD * 2, h: CARD_H + GAP + LABEL_H + LABEL_GAP + altura + GAP };
+      const linhas = colunasDe(no, this.r).map((c) => this.medirLista(c.lista));
+      const altura = linhas.reduce((s, c) => s + c.h, 0) + LINHA_GAP * Math.max(0, linhas.length - 1);
+      const largura = Math.max(SLOT_W, ...linhas.map((c) => c.w));
+      return { w: CARD_W + GAP + LABEL_W + LABEL_GAP + largura + GAP, h: Math.max(CARD_H, altura) + PAD * 2 };
     }
     return { w: CARD_W, h: CARD_H };
   }
@@ -129,95 +145,99 @@ class Construtor {
     this.alvos.push({ alvo, x: x + this.desloc.x, y: y + this.desloc.y });
   }
 
-  posicionarLista(lista: FlowNode[], ref: ListRef, cx: number, y: number, origem: string, interna: boolean): { saida: string; base: number } {
+  posicionarLista(lista: FlowNode[], ref: ListRef, x: number, cy: number, origem: string, interna: boolean): { saida: string; fim: number } {
     if (!lista.length) {
       const id = `vaga:${ref.parentId ?? 'raiz'}:${ref.slot}`;
       const alvo = { ...ref, index: 0 };
-      this.add({ tipo: 'vaga', id, x: cx - CARD_W / 2, y, w: CARD_W, h: SLOT_H, alvo, interna, pequena: false });
+      this.add({ tipo: 'vaga', id, x, y: cy - SLOT_H / 2, w: SLOT_W, h: SLOT_H, alvo, interna, pequena: false });
       this.ligar(origem, id);
-      this.alvo(alvo, cx, y + SLOT_H / 2);
-      return { saida: id, base: y + SLOT_H };
+      this.alvo(alvo, x + SLOT_W / 2, cy);
+      return { saida: id, fim: x + SLOT_W };
     }
     let anterior = origem;
-    let topo = y;
+    let esquerda = x;
     lista.forEach((no, index) => {
-      const p = this.posicionar(no, ref, index, cx, topo);
+      const p = this.posicionar(no, ref, index, esquerda, cy);
       const alvo = { ...ref, index };
       this.ligar(anterior, p.entrada, alvo);
-      this.alvo(alvo, cx, topo - GAP / 2);
+      this.alvo(alvo, esquerda - GAP / 2, cy);
       anterior = p.saida;
-      topo = p.base + GAP;
+      esquerda = p.fim + GAP;
     });
-    return { saida: anterior, base: topo - GAP };
+    return { saida: anterior, fim: esquerda - GAP };
   }
 
-  posicionar(no: FlowNode, ref: ListRef, index: number, cx: number, y: number): { entrada: string; saida: string; base: number } {
+  posicionar(no: FlowNode, ref: ListRef, index: number, x: number, cy: number): { entrada: string; saida: string; fim: number } {
     const pai = this.desloc;
     const proprio = this.offsets[no.id];
     if (proprio) this.desloc = { x: pai.x + proprio.x, y: pai.y + proprio.y };
     try {
-      return this.posicionarDeslocado(no, ref, index, cx, y);
+      return this.posicionarDeslocado(no, ref, index, x, cy);
     } finally {
       this.desloc = pai;
     }
   }
 
-  private posicionarDeslocado(no: FlowNode, ref: ListRef, index: number, cx: number, y: number): { entrada: string; saida: string; base: number } {
+  private posicionarDeslocado(no: FlowNode, ref: ListRef, index: number, x: number, cy: number): { entrada: string; saida: string; fim: number } {
     const caixa = this.medir(no);
     const listas = filhos(no);
     const recolhido = this.recolhidos.has(no.id) && listas.length > 0;
+    const altura = recolhido ? CARD_H + RECOLHIDO_EXTRA : CARD_H;
     const cartao: Item = {
-      tipo: 'passo', id: no.id, x: cx - CARD_W / 2, y, w: CARD_W, h: recolhido ? CARD_H + RECOLHIDO_EXTRA : CARD_H,
+      tipo: 'passo', id: no.id, x, y: cy - altura / 2, w: CARD_W, h: altura,
       no, ref, index, recolhido, filhos: listas.reduce((s, [, l]) => s + contarNos(l), 0)
     };
     if (recolhido || (!MOLDURAS.has(no.type) && !RAMOS.has(no.type))) {
       this.add(cartao);
-      return { entrada: no.id, saida: no.id, base: y + caixa.h };
+      return { entrada: no.id, saida: no.id, fim: x + caixa.w };
     }
-    const esquerda = cx - caixa.w / 2;
-    this.add({ tipo: 'moldura', id: `moldura:${no.id}`, x: esquerda, y: y + CARD_H / 2, w: caixa.w, h: caixa.h - CARD_H / 2, noId: no.id, tom: RAMOS.has(no.type) ? 'branch' : 'loop' });
+    // A moldura começa no meio do cartão do contêiner e envolve o que vem à direita dele.
+    this.add({
+      tipo: 'moldura', id: `moldura:${no.id}`, x: x + CARD_W / 2, y: cy - caixa.h / 2, w: caixa.w - CARD_W / 2, h: caixa.h,
+      noId: no.id, tom: RAMOS.has(no.type) ? 'branch' : 'loop'
+    });
     this.add(cartao);
     const saidaId = `saida:${no.id}`;
-    this.ponto(saidaId, cx, y + caixa.h);
+    this.ponto(saidaId, x + caixa.w, cy);
     if (MOLDURAS.has(no.type)) {
       const ref2: ListRef = { parentId: no.id, slot: 'steps' };
-      const p = this.posicionarLista(no.steps ?? [], ref2, cx, y + CARD_H + GAP, no.id, true);
+      const p = this.posicionarLista(no.steps ?? [], ref2, x + CARD_W + GAP, cy, no.id, true);
       if ((no.steps ?? []).length) {
         const fimId = `vaga:${no.id}:fim`;
         const alvo = { ...ref2, index: (no.steps ?? []).length };
-        const fimY = p.base + GAP / 2 - 14;
-        this.add({ tipo: 'vaga', id: fimId, x: cx - 14, y: fimY, w: 28, h: 28, alvo, interna: true, pequena: true });
+        const fimX = p.fim + GAP / 2 - 14;
+        this.add({ tipo: 'vaga', id: fimId, x: fimX, y: cy - 14, w: 28, h: 28, alvo, interna: true, pequena: true });
         this.ligar(p.saida, fimId);
-        this.alvo(alvo, cx, fimY + 14);
+        this.alvo(alvo, fimX + 14, cy);
       }
-      return { entrada: no.id, saida: saidaId, base: y + caixa.h };
+      return { entrada: no.id, saida: saidaId, fim: x + caixa.w };
     }
-    const cols = colunasDe(no, this.r);
-    const caixas = cols.map((c) => this.medirLista(c.lista));
-    const total = caixas.reduce((s, c) => s + c.w, 0) + COL_GAP * Math.max(0, cols.length - 1);
-    let x = cx - total / 2;
-    const rotuloY = y + CARD_H + GAP;
+    const linhas = colunasDe(no, this.r);
+    const caixas = linhas.map((c) => this.medirLista(c.lista));
+    const total = caixas.reduce((s, c) => s + c.h, 0) + LINHA_GAP * Math.max(0, linhas.length - 1);
+    let topo = cy - total / 2;
+    const rotuloX = x + CARD_W + GAP;
     const juntaId = `junta:${no.id}`;
-    this.ponto(juntaId, cx, y + caixa.h - GAP / 2);
-    cols.forEach((col, i) => {
+    this.ponto(juntaId, x + caixa.w - GAP / 2, cy);
+    linhas.forEach((linha, i) => {
       const c = caixas[i]!;
-      const ccx = x + c.w / 2;
-      const rotuloId = `rotulo:${no.id}:${col.slot}`;
-      this.add({ tipo: 'rotulo', id: rotuloId, x: ccx - 64, y: rotuloY, w: 128, h: LABEL_H, texto: col.texto, tom: col.tom, noId: no.id, slot: col.slot });
+      const lcy = topo + c.h / 2;
+      const rotuloId = `rotulo:${no.id}:${linha.slot}`;
+      this.add({ tipo: 'rotulo', id: rotuloId, x: rotuloX, y: lcy - LABEL_H / 2, w: LABEL_W, h: LABEL_H, texto: linha.texto, tom: linha.tom, noId: no.id, slot: linha.slot });
       this.ligar(no.id, rotuloId, undefined, true);
-      const ref2: ListRef = { parentId: no.id, slot: col.slot };
-      const p = this.posicionarLista(col.lista, ref2, ccx, rotuloY + LABEL_H + LABEL_GAP, rotuloId, true);
-      const fim = { ...ref2, index: col.lista.length };
-      if (col.lista.length) {
+      const ref2: ListRef = { parentId: no.id, slot: linha.slot };
+      const p = this.posicionarLista(linha.lista, ref2, rotuloX + LABEL_W + LABEL_GAP, lcy, rotuloId, true);
+      const fim = { ...ref2, index: linha.lista.length };
+      if (linha.lista.length) {
         this.ligar(p.saida, juntaId, fim, true);
-        this.alvo(fim, ccx, p.base + GAP / 2);
+        this.alvo(fim, p.fim + GAP / 2, lcy);
       } else {
         this.ligar(p.saida, juntaId, undefined, true);
       }
-      x += c.w + COL_GAP;
+      topo += c.h + LINHA_GAP;
     });
     this.ligar(juntaId, saidaId);
-    return { entrada: no.id, saida: saidaId, base: y + caixa.h };
+    return { entrada: no.id, saida: saidaId, fim: x + caixa.w };
   }
 }
 
@@ -225,56 +245,57 @@ export function montarLayout(d: Definicao, recolhidos: Set<string>, r: Rotulos):
   const offsets = d.layout ?? {};
   const b = new Construtor(recolhidos, r, offsets);
   const movido = offsets['trigger'] ?? { x: 0, y: 0 };
-  b.itens.push({ tipo: 'gatilho', id: 'trigger', x: -CARD_W / 2 + movido.x, y: movido.y, w: CARD_W, h: CARD_H });
-  const p = b.posicionarLista(d.steps, { parentId: null, slot: 'steps' }, 0, CARD_H + GAP, 'trigger', false);
+  b.itens.push({ tipo: 'gatilho', id: 'trigger', x: movido.x, y: -CARD_H / 2 + movido.y, w: CARD_W, h: CARD_H });
+  const p = b.posicionarLista(d.steps, { parentId: null, slot: 'steps' }, CARD_W + GAP, 0, 'trigger', false);
   if (d.steps.length) {
     const alvo: InsertTarget = { parentId: null, slot: 'steps', index: d.steps.length };
-    const fimY = p.base + GAP;
-    b.itens.push({ tipo: 'fim', id: 'fim', x: -100, y: fimY, w: 200, h: 44, alvo });
+    b.itens.push({ tipo: 'fim', id: 'fim', x: p.fim + GAP, y: -FIM_H / 2, w: FIM_W, h: FIM_H, alvo });
     b.ligar(p.saida, 'fim', alvo);
-    b.alvos.push({ alvo, x: 0, y: p.base + GAP / 2 });
+    b.alvos.push({ alvo, x: p.fim + GAP / 2, y: 0 });
   }
   tracar(b.itens, b.conexoes);
-  let min = 0;
-  let max = 0;
-  let altura = 0;
+  const limites: Limites = { x0: 0, x1: 0, y0: 0, y1: 0 };
   for (const i of b.itens) {
-    min = Math.min(min, i.x);
-    max = Math.max(max, i.x + i.w);
-    altura = Math.max(altura, i.y + i.h);
+    limites.x0 = Math.min(limites.x0, i.x);
+    limites.x1 = Math.max(limites.x1, i.x + i.w);
+    limites.y0 = Math.min(limites.y0, i.y);
+    limites.y1 = Math.max(limites.y1, i.y + i.h);
   }
-  return { itens: b.itens, conexoes: b.conexoes, alvos: b.alvos, largura: { min, max }, altura };
+  return { itens: b.itens, conexoes: b.conexoes, alvos: b.alvos, limites };
 }
 
-/** Caminhos SVG: reto quando alinhado, em degrau com cantos arredondados quando não. */
+/**
+ * Caminhos SVG da direita de um cartão à esquerda do próximo: reto quando estão na mesma linha,
+ * em degrau com cantos arredondados quando o destino está acima ou abaixo (ramos).
+ */
 function tracar(itens: Item[], conexoes: Conexao[]): void {
   const porId = new Map(itens.map((i) => [i.id, i]));
   for (const c of conexoes) {
     const a = porId.get(c.de);
     const b = porId.get(c.para);
     if (!a || !b) continue;
-    const sx = a.x + a.w / 2;
-    const sy = a.y + a.h;
-    const tx = b.x + b.w / 2;
-    const ty = b.y;
-    if (Math.abs(sx - tx) < 1) {
+    const sx = a.x + a.w;
+    const sy = a.y + a.h / 2;
+    const tx = b.x;
+    const ty = b.y + b.h / 2;
+    if (Math.abs(sy - ty) < 1) {
       c.caminho = `M ${sx} ${sy} L ${tx} ${ty}`;
-      c.maisX = sx;
-      c.maisY = (sy + ty) / 2;
+      c.maisX = (sx + tx) / 2;
+      c.maisY = sy;
       continue;
     }
-    const meio = c.dobra && b.tipo !== 'ponto' ? sy + 18 : (b.tipo === 'ponto' ? ty - 16 : sy + (ty - sy) / 2);
-    const raio = Math.min(12, Math.abs(tx - sx) / 2, Math.abs(meio - sy), Math.abs(ty - meio));
-    const dir = tx > sx ? 1 : -1;
+    const meio = c.dobra && b.tipo !== 'ponto' ? sx + 18 : (b.tipo === 'ponto' ? tx - 16 : sx + (tx - sx) / 2);
+    const raio = Math.min(12, Math.abs(ty - sy) / 2, Math.abs(meio - sx), Math.abs(tx - meio));
+    const dir = ty > sy ? 1 : -1;
     c.caminho = [
       `M ${sx} ${sy}`,
-      `L ${sx} ${meio - raio}`,
-      `Q ${sx} ${meio} ${sx + dir * raio} ${meio}`,
-      `L ${tx - dir * raio} ${meio}`,
-      `Q ${tx} ${meio} ${tx} ${meio + raio}`,
+      `L ${meio - raio} ${sy}`,
+      `Q ${meio} ${sy} ${meio} ${sy + dir * raio}`,
+      `L ${meio} ${ty - dir * raio}`,
+      `Q ${meio} ${ty} ${meio + raio} ${ty}`,
       `L ${tx} ${ty}`
     ].join(' ');
-    c.maisX = b.tipo === 'ponto' ? sx : tx;
-    c.maisY = b.tipo === 'ponto' ? sy + (meio - sy) / 2 : meio + (ty - meio) / 2;
+    c.maisX = b.tipo === 'ponto' ? sx + (meio - sx) / 2 : meio + (tx - meio) / 2;
+    c.maisY = b.tipo === 'ponto' ? sy : ty;
   }
 }

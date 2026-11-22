@@ -6,7 +6,7 @@ import { routes } from '../../app.routes';
 import { comModulosOcultos, removerModulosOcultos, rotaOculta } from './modulos-ocultos';
 
 describe('módulos ocultos da distribuição white label', () => {
-  it('tira do menu os grupos ocultos em qualquer nível', () => {
+  it('tira do menu os grupos ocultos em qualquer nível e mantém as automações', () => {
     const menu = removerModulosOcultos([
       {
         label: 'Comunicação',
@@ -27,7 +27,7 @@ describe('módulos ocultos da distribuição white label', () => {
     ]);
 
     expect(menu.map((item) => item.label)).toEqual(['Comunicação', 'Segurança']);
-    expect(menu[0].items?.map((item) => item.label)).toEqual(['Mural']);
+    expect(menu[0].items?.map((item) => item.label)).toEqual(['Mural', 'Automações']);
     expect(menu[1].items?.map((item) => item.label)).toEqual(['Gestão']);
   });
 
@@ -42,7 +42,7 @@ describe('módulos ocultos da distribuição white label', () => {
   it('bloqueia o endereço direto e as subrotas, sem pegar rotas vizinhas', () => {
     expect(rotaOculta('/sst/governanca/cipa/painel')).toBe(true);
     expect(rotaOculta('/manuais')).toBe(true);
-    expect(rotaOculta('/notificacoes/automacoes/abc/editar')).toBe(true);
+    expect(rotaOculta('/notificacoes/automacoes/abc/editar')).toBe(false);
 
     expect(rotaOculta('/sst/inspecoes')).toBe(false);
     expect(rotaOculta('/notificacoes')).toBe(false);

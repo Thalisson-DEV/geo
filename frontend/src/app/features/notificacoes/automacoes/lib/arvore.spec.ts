@@ -71,16 +71,27 @@ describe('layout do canvas', () => {
     expect(layout.conexoes.some((c) => c.para === 'fim')).toBe(true);
     const a = layout.itens.find((i) => i.id === 'a')!;
     const b = layout.itens.find((i) => i.id === 'b')!;
-    expect(b.y).toBeGreaterThan(a.y);
+    const gatilho = layout.itens.find((i) => i.id === 'trigger')!;
+    // Da esquerda para a direita, todos na mesma linha.
+    expect(a.x).toBeGreaterThan(gatilho.x + gatilho.w);
+    expect(b.x).toBeGreaterThan(a.x + a.w);
+    expect(b.y).toBe(a.y);
+    expect(layout.conexoes.find((c) => c.de === 'a' && c.para === 'b')?.caminho).toBe(
+      `M ${a.x + a.w} ${a.y + a.h / 2} L ${b.x} ${b.y + b.h / 2}`
+    );
   });
 
-  it('abre colunas lado a lado para Sim e Não', () => {
+  it('abre uma linha para Sim e outra para Não, empilhadas', () => {
     const d = fluxo([no('cond', { type: 'control.condition', then: [no('s')], else: [no('n')] })]);
     const layout = montarLayout(d, new Set(), rotulos);
     const s = layout.itens.find((i) => i.id === 's')!;
     const n = layout.itens.find((i) => i.id === 'n')!;
-    expect(s.y).toBe(n.y);
-    expect(s.x).toBeLessThan(n.x);
+    const cond = layout.itens.find((i) => i.id === 'cond')!;
+    expect(s.x).toBe(n.x);
+    expect(s.y).toBeLessThan(n.y);
+    expect(s.x).toBeGreaterThan(cond.x + cond.w);
+    expect(layout.limites.y0).toBeLessThan(0);
+    expect(layout.limites.y1).toBeGreaterThan(0);
   });
 });
 

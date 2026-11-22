@@ -40,20 +40,18 @@ import { mapaEspecs } from './lib/dinamico';
             @if (a.origem === 'REGRA_CONVERTIDA') { <geo-status tone="info" icon="pi-sync">Convertida de regra de notificação</geo-status> }
             @if (a.origem === 'COPILOTO') { <geo-status tone="brand" icon="pi-sparkles">Montada pela Bússola</geo-status> }
           </div>
-          <div actions style="display:flex;gap:0.5rem;flex-wrap:wrap">
-            <geo-button icon="pi pi-pencil" label="Abrir no editor" variant="primary" size="sm" (pressed)="ir(['/notificacoes/automacoes', a.id, 'editar'])"></geo-button>
-            <geo-button icon="pi pi-bolt" label="Testar" variant="outline" size="sm" (pressed)="abrir(true)"></geo-button>
-            @if (podeExecutar()) {
-              <geo-button icon="pi pi-play" label="Executar agora" variant="outline" size="sm" (pressed)="abrir(false)"></geo-button>
-            }
-            @if (a.status === 'ATIVA') {
-              <geo-button icon="pi pi-pause" label="Pausar" variant="outline" size="sm" [disabled]="ocupado()" (pressed)="status('PAUSADA')"></geo-button>
-            } @else {
-              <geo-button icon="pi pi-check" label="Ativar" variant="outline" size="sm" [disabled]="ocupado() || detalhe()!.problemasAtivacao.length > 0" (pressed)="status('ATIVA')"></geo-button>
-            }
-            <geo-icon-button icon="pi pi-copy" label="Duplicar" variant="ghost" size="icon-sm" (pressed)="duplicar()"></geo-icon-button>
-            <geo-icon-button icon="pi pi-trash" label="Arquivar" variant="destructive" size="icon-sm" (pressed)="arquivar()"></geo-icon-button>
-          </div>
+          <geo-button actions icon="pi pi-pencil" label="Abrir no editor" (pressed)="ir(['/notificacoes/automacoes', a.id, 'editar'])"></geo-button>
+          <geo-button actions icon="pi pi-bolt" label="Testar" variant="outline" (pressed)="abrir(true)"></geo-button>
+          @if (podeExecutar()) {
+            <geo-button actions icon="pi pi-play" label="Executar agora" variant="outline" (pressed)="abrir(false)"></geo-button>
+          }
+          @if (a.status === 'ATIVA') {
+            <geo-button actions icon="pi pi-pause" label="Pausar" variant="outline" [disabled]="ocupado()" (pressed)="status('PAUSADA')"></geo-button>
+          } @else {
+            <geo-button actions icon="pi pi-check" label="Ativar" variant="outline" [disabled]="ocupado() || detalhe()!.problemasAtivacao.length > 0" (pressed)="status('ATIVA')"></geo-button>
+          }
+          <geo-icon-button actions icon="pi pi-copy" label="Duplicar" variant="ghost" (pressed)="duplicar()"></geo-icon-button>
+          <geo-icon-button actions icon="pi pi-box" label="Arquivar" variant="ghost" (pressed)="arquivar()"></geo-icon-button>
         </geo-page-header>
 
         @if (detalhe()!.problemasAtivacao.length && a.status !== 'ATIVA') {
@@ -62,14 +60,14 @@ import { mapaEspecs } from './lib/dinamico';
         }
 
         <div class="aut-kpis">
-          <div class="aut-kpi"><span>Quando</span><strong>{{ a.gatilhoRotulo }}</strong><span>{{ a.gatilhoResumo }}</span></div>
+          <div class="aut-kpi"><span>Quando</span><strong>{{ a.gatilhoRotulo }}</strong>@if (a.gatilhoResumo && a.gatilhoResumo !== a.gatilhoRotulo) {<span>{{ a.gatilhoResumo }}</span>}</div>
           <div class="aut-kpi"><span>Próxima execução</span><strong>{{ a.proximaExecucao ? (a.proximaExecucao | date: 'dd/MM/yyyy HH:mm') : '—' }}</strong></div>
           <div class="aut-kpi"><span>Execuções em 30 dias</span><strong>{{ a.execucoes30Dias }}</strong><span>{{ a.falhas30Dias }} com falha</span></div>
           <div class="aut-kpi"><span>Responsável</span><strong>{{ a.donoNome || '—' }}</strong><span>Lê dados com as permissões desta pessoa</span></div>
           <div class="aut-kpi"><span>Versão</span><strong>{{ a.numeroVersao }}</strong><span>{{ a.dataUltimaAlteracao | date: 'dd/MM/yyyy HH:mm' }}</span></div>
         </div>
 
-        <div class="aut-card" style="height:26rem;display:flex">
+        <div class="aut-card aut-canvas-detalhe">
           <aut-canvas [definicao]="definicao()" [catalogo]="catalogo()!" [especs]="especs()" [somenteLeitura]="true"
                       (selecionar)="irEditor()" />
         </div>
@@ -106,7 +104,7 @@ import { mapaEspecs } from './lib/dinamico';
           <strong>Versões</strong>
           <ul class="aut-outputs" style="margin-top:0.75rem">
             @for (v of detalhe()!.versoes; track v.numero) {
-              <li><span><strong style="font-weight:600">Versão {{ v.numero }}</strong> · {{ v.data | date: 'dd/MM/yyyy HH:mm' }} · {{ v.autor }}</span><span class="aut-muted">{{ v.nota }}</span></li>
+              <li><span><strong style="font-weight:600">Versão {{ v.numero }}</strong> · {{ v.data | date: 'dd/MM/yyyy HH:mm' }} · {{ autorDaVersao(v.autor) }}</span><span class="aut-muted">{{ v.nota }}</span></li>
             }
           </ul>
         </section>
@@ -118,6 +116,11 @@ import { mapaEspecs } from './lib/dinamico';
   `
 })
 export class AutomacaoDetalheComponent {
+  /** Versões criadas pelo próprio sistema (conversão de regras, modelos) vêm com o usuário técnico. */
+  protected autorDaVersao(autor: string | null | undefined): string {
+    return !autor || ['SYSTEM', 'SISTEMA'].includes(autor.toUpperCase()) ? 'Sistema' : autor;
+  }
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
