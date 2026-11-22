@@ -64,7 +64,7 @@ class AmostraDocumentosTecnicosTest {
 
         DocumentoTecnicoPdf pdf = new DocumentoTecnicoPdf();
         salvar(pasta, "visita", pdf.visita(obra, visita(), new EvidenciaVisitaPreviaUseCases.ParaDocumento(List.of(
-                foto("Há acesso para veículos e equipamentos?", "Rua asfaltada, acesso livre", "21/11/2026 09:12 · ARNALDO QUEIROZ", null, 0),
+                foto("Há acesso para veículos e equipamentos?", "Rua asfaltada, acesso livre", "Tirada em 21/11/2026 09:12 · ARNALDO QUEIROZ", null, 0),
                 foto("Existe árvore ou obstáculo na faixa da rede?", "Mangueira junto ao poste 3", "21/11/2026 09:20 · ARNALDO QUEIROZ", null, 1),
                 foto("Evidência geral", null, "21/11/2026 09:25 · ARNALDO QUEIROZ", null, 2)), List.of("Croqui da visita: croqui.pdf")), "JUAZEIRO"));
 

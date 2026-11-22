@@ -98,4 +98,28 @@ class DocumentoTecnicoPdfTest {
             assertThat(gerado.getPage(2).getResources().getXObjectNames()).hasSize(2);
         }
     }
+
+    @Test
+    void visitaTemCodigoComRevisaoParecerEFotoComHoraDaCamera() throws IOException {
+        EstruturaChecklist estrutura = new EstruturaChecklist(List.of(new EstruturaChecklist.Grupo("Acesso", List.of(
+                new EstruturaChecklist.Pergunta("v1", "Há acesso para veículos?", EstruturaChecklist.TipoPergunta.ESCOLHA_UNICA, true, false, List.of("Sim", "Não"), "Sim")))));
+        ModeloChecklistObra modelo = new ModeloChecklistObra(ModeloChecklistObra.Finalidade.VISITA_PREVIA, "Pré-vistoria", null, estrutura);
+        com.nexo.app.modules.obras.domain.VisitaPreviaObra visita = new com.nexo.app.modules.obras.domain.VisitaPreviaObra(ID_OBRA, modelo,
+                java.time.LocalDate.of(2026, 11, 21), new com.nexo.app.modules.obras.domain.VisitaPreviaObra.Responsavel(null, "ARNALDO QUEIROZ"), null,
+                RespostasChecklist.de(estrutura, List.of(new RespostasChecklist.Informada("v1", null, List.of("Não"), false))));
+        byte[] foto = FotoEvidencia.jpeg(new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB), FotoEvidencia.LADO_DOCUMENTO, 0.78f);
+        Obra obra = Mockito.mock(Obra.class);
+        Mockito.when(obra.getNumero()).thenReturn("7000003");
+        Mockito.when(obra.getTitulo()).thenReturn("Reforço de rede");
+
+        byte[] pdf = new DocumentoTecnicoPdf().visita(obra, visita, new EvidenciaVisitaPreviaUseCases.ParaDocumento(
+                List.of(new DocumentoTecnicoPdf.Foto("Há acesso para veículos?", null, "Tirada em 21/11/2026 09:12 · ARNALDO QUEIROZ", foto, null, "9,42938° S · 40,48958° O")),
+                List.of()), "JUAZEIRO");
+
+        try (PDDocument gerado = Loader.loadPDF(pdf)) {
+            String texto = new PDFTextStripper().getText(gerado);
+            assertThat(texto).contains("VISITA PRÉVIA · REV. 01", "VTP-7000003-20261121-R01", "1 não conformidade apontada", "Não conforme",
+                    "Tirada em 21/11/2026 09:12 · ARNALDO QUEIROZ", "GPS 9,42938° S · 40,48958° O", "JUAZEIRO", "1 foto anexada.");
+        }
+    }
 }

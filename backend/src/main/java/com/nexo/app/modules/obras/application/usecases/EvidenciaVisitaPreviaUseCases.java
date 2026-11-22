@@ -41,6 +41,7 @@ public class EvidenciaVisitaPreviaUseCases {
     private final EvidenciaVisitaPreviaRepository repository;
     private final VisitaPreviaObraRepository visitaRepository;
     private final ObjectStorageService objectStorage;
+    private final NomesDeUsuarios nomes;
 
     @Transactional
     public DocumentacaoTecnicaResponses.EvidenciaVisita registrar(UUID idObra, UUID idVisita, String idPergunta, String legenda, MultipartFile arquivo) {
@@ -117,6 +118,7 @@ public class EvidenciaVisitaPreviaUseCases {
                 .toList();
         List<DocumentoTecnicoPdf.Foto> fotos = new ArrayList<>();
         List<String> pdfs = new ArrayList<>();
+        java.util.Map<String, String> autores = nomes.porLogin(ordenadas.stream().map(EvidenciaVisitaPrevia::getUsuarioCriacao).toList());
         for (EvidenciaVisitaPrevia e : ordenadas) {
             String item = e.getEnunciadoPergunta() != null ? e.getEnunciadoPergunta() : "Evidência geral";
             if (!e.isFoto()) {
@@ -129,11 +131,15 @@ public class EvidenciaVisitaPreviaUseCases {
             } catch (IOException ex) {
                 throw new ArmazenamentoException("Falha ao ler a foto da visita.", ex);
             }
-            // Foto da visita sobe pelo web, sem carimbo: a data é a do envio, e a legenda diz isso.
-            String autoria = "Enviada em " + e.getDataCriacao().atZoneSameInstant(ApontamentoExecucaoUseCases.FUSO).format(DATA_DA_FOTO)
-                    + (e.getUsuarioCriacao() != null ? " · " + e.getUsuarioCriacao() : "");
+            // A foto da visita sobe pelo web sem recompressão: a hora e o GPS vêm do EXIF da câmera. Sem EXIF (print,
+            // foto reenviada por mensagem), vale a hora do envio, e a legenda diz qual das duas é.
+            FotoEvidencia.Exif exif = FotoEvidencia.exif(original);
+            String quando = exif.captura() != null ? "Tirada em " + exif.captura().format(DATA_DA_FOTO)
+                    : "Enviada em " + e.getDataCriacao().atZoneSameInstant(ApontamentoExecucaoUseCases.FUSO).format(DATA_DA_FOTO);
+            String autoria = quando + (e.getUsuarioCriacao() != null ? " · " + autores.getOrDefault(e.getUsuarioCriacao(), e.getUsuarioCriacao()) : "");
+            String local = exif.latitude() != null ? GeracaoAsBuiltService.coordenadas(exif.latitude(), exif.longitude()) : null;
             fotos.add(new DocumentoTecnicoPdf.Foto(item, e.getLegenda(), autoria,
-                    FotoEvidencia.jpeg(FotoEvidencia.ler(original), FotoEvidencia.LADO_DOCUMENTO, 0.78f)));
+                    FotoEvidencia.jpeg(FotoEvidencia.ler(original), FotoEvidencia.LADO_DOCUMENTO, 0.78f), null, local));
         }
         return new ParaDocumento(fotos, pdfs);
     }

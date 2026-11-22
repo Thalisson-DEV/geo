@@ -192,8 +192,11 @@ public class DocumentoTecnicoPdf {
             escrita.secao("Responsabilidade");
             escrita.assinaturas(List.of(new String[]{"Responsável pela visita", visita.getResponsavel()}, new String[]{"Recebido por (planejamento)", ""}));
             escrita.fechar();
-            String codigo = "VTP-" + codigo(obra) + "-" + visita.getDataVisita().format(DATA_CODIGO);
-            folhear(documento, new Folha("VISITA PRÉVIA", "Obra " + obra.getNumero() + " · " + obra.getTitulo(), codigo, emissao), 0);
+            // A revisão acompanha as correções da visita (cada "Corrigir" salva uma versão nova do registro); a data separa
+            // as visitas da mesma obra.
+            int revisao = revisaoDaVisita(visita);
+            String codigo = "VTP-" + codigo(obra) + "-" + visita.getDataVisita().format(DATA_CODIGO) + "-R" + String.format("%02d", revisao);
+            folhear(documento, new Folha("VISITA PRÉVIA · " + revisao(revisao).toUpperCase(PT_BR), "Obra " + obra.getNumero() + " · " + obra.getTitulo(), codigo, emissao), 0);
             return salvar(documento);
         } catch (IOException e) {
             throw new UncheckedIOException("Falha ao gerar o PDF da visita prévia", e);
@@ -397,6 +400,11 @@ public class DocumentoTecnicoPdf {
 
     private static int paginasDoSumario(int entradas) {
         return Math.max(1, (entradas + LINHAS_DO_SUMARIO - 1) / LINHAS_DO_SUMARIO);
+    }
+
+    /** Rev. 01 na primeira gravação; cada correção da visita soma uma. */
+    static int revisaoDaVisita(VisitaPreviaObra visita) {
+        return visita.getVersao() == null ? 1 : (int) (visita.getVersao() + 1);
     }
 
     private static String agora() {
@@ -657,7 +665,7 @@ public class DocumentoTecnicoPdf {
         PDType1Font negrito = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
         int total = documento.getNumberOfPages();
         float largura = LARGURA_A4 - 2 * MARGEM;
-        float[] colunas = {largura - 120 - 92, 120, 92};
+        float[] colunas = {largura - 150 - 92, 150, 92};
         String[][] celulas = {{folha.tipo(), folha.obra()}, {"CÓDIGO", folha.codigo()}, {"EMISSÃO", folha.emissao()}};
         for (int i = primeira; i < total; i++) {
             PDPage pagina = documento.getPage(i);

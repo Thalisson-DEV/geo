@@ -77,6 +77,7 @@ public class GeracaoAsBuiltService {
     private final AnexoObraUseCases anexoUseCases;
     private final DocumentoTecnicoPdf documentoPdf;
     private final MunicipioApi municipioApi;
+    private final NomesDeUsuarios nomes;
 
     @Async
     public void processar(UUID idDocumento) {
@@ -175,7 +176,7 @@ public class GeracaoAsBuiltService {
                     ficha != null ? ficha.getRespostas() : null, faltando, fotos.getOrDefault(ponto.getId(), List.of())));
         }
         int pontosExecutados = (int) pontos.stream().filter(p -> executados.contains(p.getId())).count();
-        byte[] pdf = documentoPdf.book(new DocumentoTecnicoPdf.DadosBook(obra, documento.getNumeroVersao(), documento.getUsuarioCriacao(), doBook,
+        byte[] pdf = documentoPdf.book(new DocumentoTecnicoPdf.DadosBook(obra, documento.getNumeroVersao(), nomes.deLogin(documento.getUsuarioCriacao()), doBook,
                 pontosExecutados, fichasCompletas, municipio(obra)));
         String nome = "book-" + obra.getNumero().replaceAll("[^a-zA-Z0-9._-]", "_") + "-v" + documento.getNumeroVersao() + ".pdf";
         AnexoObraResponse anexo = anexoUseCases.anexarGerado(idObra, tipo, nome, "application/pdf", pdf, "Book de obra, versão " + documento.getNumeroVersao());
@@ -225,20 +226,21 @@ public class GeracaoAsBuiltService {
         List<EvidenciaPonto> ordenadas = evidencias.stream()
                 .sorted(Comparator.comparingInt((EvidenciaPonto e) -> e.getIdItem() == null ? Integer.MAX_VALUE : ordemDosItens.getOrDefault(e.getIdItem(), Integer.MAX_VALUE - 1)))
                 .toList();
+        Map<String, String> autores = nomes.porLogin(ordenadas.stream().map(EvidenciaPonto::getUsuarioCriacao).toList());
         Map<UUID, List<DocumentoTecnicoPdf.Foto>> porPonto = new HashMap<>();
         for (EvidenciaPonto evidencia : ordenadas) {
-            porPonto.computeIfAbsent(evidencia.getIdPonto(), id -> new ArrayList<>()).add(foto(evidencia));
+            porPonto.computeIfAbsent(evidencia.getIdPonto(), id -> new ArrayList<>()).add(foto(evidencia, autores));
         }
         return porPonto;
     }
 
-    private DocumentoTecnicoPdf.Foto foto(EvidenciaPonto evidencia) throws IOException {
+    private DocumentoTecnicoPdf.Foto foto(EvidenciaPonto evidencia, Map<String, String> autores) throws IOException {
         byte[] original;
         try (InputStream stream = objectStorage.baixar(evidencia.getChaveStorage()).conteudo()) {
             original = stream.readAllBytes();
         }
         String autoria = evidencia.momentoDaFoto().atZoneSameInstant(ApontamentoExecucaoUseCases.FUSO).format(DATA_DA_FOTO)
-                + (evidencia.getUsuarioCriacao() != null ? " · " + evidencia.getUsuarioCriacao() : "");
+                + (evidencia.getUsuarioCriacao() != null ? " · " + autores.getOrDefault(evidencia.getUsuarioCriacao(), evidencia.getUsuarioCriacao()) : "");
         return new DocumentoTecnicoPdf.Foto(evidencia.getTituloItem() != null ? evidencia.getTituloItem() : "Outras evidências", evidencia.getLegenda(), autoria,
                 FotoEvidencia.jpeg(FotoEvidencia.ler(original), FotoEvidencia.LADO_DOCUMENTO, 0.78f), etapa(evidencia.getEtapa()), local(evidencia),
                 evidencia.getIdLocal() != null ? codigoDaFoto(evidencia.getIdLocal()) : null);
