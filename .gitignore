@@ -38,3 +38,7 @@ __pycache__/
 
 # Claude Code: configurações locais por pessoa (o resto de .claude/ é versionado)
 .claude/settings.local.json
+
+# Arquivos de trabalho locais na raiz (PDFs de teste e avaliações)
+/*.pdf
+/tmp-avaliacao/
