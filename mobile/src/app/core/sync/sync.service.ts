@@ -1,5 +1,6 @@
 import { idAtual } from './ids-trocados';
 import { OBRAS_ENDPOINT, RegistrosObrasService } from '../obras/registros-obras.service';
+import { SupervisaoService, VISITA_ENDPOINT } from '../obras/supervisao.service';
 import { PacoteObrasService } from '../obras/pacote-obras.service';
 import { registrarIdTrocado } from './ids-trocados';
 import { Injectable, InjectionToken, signal, inject } from '@angular/core';
@@ -157,6 +158,7 @@ export class SyncService {
   private readonly documentosVeiculo = inject(DocumentosVeiculoService);
   private readonly abastecimento = inject(AbastecimentoService);
   private readonly registrosObras = inject(RegistrosObrasService);
+  private readonly supervisao = inject(SupervisaoService);
   private readonly pacoteObras = inject(PacoteObrasService);
 
   readonly isSyncing = signal(false);
@@ -803,6 +805,8 @@ export class SyncService {
               await this.abastecimento.processarEnvio(item);
             } else if (item.endpoint === OBRAS_ENDPOINT) {
               await this.registrosObras.processarEnvio(item);
+            } else if (item.endpoint === VISITA_ENDPOINT) {
+              await this.supervisao.processarVisita(item);
             } else if (item.endpoint?.includes('eventos')) {
               // Itens legados de eventos de turno nunca são descartados: o payload
               // original precisa permanecer disponível para o tratamento administrativo.

@@ -6,7 +6,7 @@ import type { EstadoEnvio } from '../../ui/status-envio.component';
  * Regra de ouro: nunca dizer "Enviado" para algo que só está na fila.
  */
 
-export type TipoItemFila = 'pedido' | 'transferencia' | 'inspecao' | 'anexo' | 'turno' | 'outro';
+export type TipoItemFila = 'pedido' | 'transferencia' | 'inspecao' | 'anexo' | 'turno' | 'visita' | 'outro';
 
 export interface ItemFilaDescrito {
   id: string;
@@ -25,10 +25,12 @@ const TITULOS: Record<TipoItemFila, string> = {
   inspecao: 'Inspeção',
   anexo: 'Foto da inspeção',
   turno: 'Turno',
+  visita: 'Visita prévia',
   outro: 'Envio',
 };
 
 export function tipoDoItem(endpoint: string): TipoItemFila {
+  if (endpoint === '/_obras/visita' || endpoint.includes('documentacao/visitas')) return 'visita';
   if (endpoint.includes('inspecao/anexo')) return 'anexo';
   if (endpoint.includes('inspec')) return 'inspecao';
   if (endpoint.includes('solicitac')) return 'pedido';
