@@ -37,9 +37,14 @@ public final class DocumentacaoTecnicaResponses {
                         UUID idModelo, String tituloModelo, List<EstruturaChecklist.ItemEvidencia> itensEvidencia, List<Evidencia> evidencias) {
     }
 
-    /** {@code dataCaptura} e as coordenadas vêm do app quando ele as informa; a etapa pode ser classificada depois. */
+    /**
+     * {@code dataCaptura} e as coordenadas vêm do app quando ele as informa; a etapa pode ser classificada depois. A revisão
+     * (aprovada, para revisar ou reprovada com o motivo) acompanha a foto onde ela aparecer: book, planejamento e medição.
+     */
     public record Evidencia(UUID id, String idItem, String tituloItem, String legenda, String nomeArquivo, String usuario, OffsetDateTime data,
-                            EvidenciaPonto.Etapa etapa, BigDecimal latitude, BigDecimal longitude, OffsetDateTime dataCaptura, long tamanhoBytes) {
+                            EvidenciaPonto.Etapa etapa, BigDecimal latitude, BigDecimal longitude, OffsetDateTime dataCaptura, long tamanhoBytes,
+                            EvidenciaPonto.Revisao revisao, String rotuloInconformidade, String motivoReprovacao, String revisadaPor,
+                            OffsetDateTime revisadaEm) {
     }
 
     public record Ficha(UUID id, UUID idModelo, String tituloModelo, boolean completa, List<String> pendencias,

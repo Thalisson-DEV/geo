@@ -1,12 +1,14 @@
 package com.nexo.app.modules.obras.application.dto;
 
 import com.nexo.app.modules.obras.domain.EvidenciaPonto;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /** Revisão das fotos de campo antes da medição: fila de revisão, decisão e ranking de qualidade por equipe. */
@@ -30,6 +32,14 @@ public final class RevisaoFotosDtos {
     public record Decisao(@NotNull(message = "Informe se aprova") Boolean aprovar,
                           EvidenciaPonto.Inconformidade inconformidade,
                           @Size(max = 500) String motivo) {
+    }
+
+    /** Várias fotos aprovadas de uma vez (as que a pessoa viu na fila ou todas as da obra). */
+    public record AprovacaoEmLote(@NotEmpty(message = "Escolha as fotos") @Size(max = 500, message = "Aprove até 500 fotos por vez") List<UUID> ids) {
+    }
+
+    /** Quantas foram aprovadas agora; as que já estavam aprovadas ou foram removidas ficam de fora. */
+    public record ResultadoAprovacaoEmLote(int aprovadas) {
     }
 
     /** Qualidade das fotos por equipe no período. */

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
-  DecisaoFoto, FotoParaRevisao, LinhaRankingFotos, OpcaoInconformidade, RevisaoFotoFilter,
+  DecisaoFoto, FotoParaRevisao, LinhaRankingFotos, OpcaoInconformidade, ResultadoAprovacaoEmLote, RevisaoFotoFilter,
 } from '../models/obras-revisao-fotos.models';
 import { PagedResponse } from '../models/shared.models';
 import { BaseService } from './base.service';
@@ -20,6 +20,11 @@ export class ObrasRevisaoFotosService extends BaseService {
     return this.http.put<FotoParaRevisao>(`${this.url}/${id}/revisao`, decisao);
   }
 
+  /** Aprova várias de uma vez (até 500); as que já estavam aprovadas não contam. */
+  aprovarEmLote(ids: string[]): Observable<ResultadoAprovacaoEmLote> {
+    return this.http.put<ResultadoAprovacaoEmLote>(`${this.url}/revisao/aprovacao-em-lote`, { ids });
+  }
+
   ranking(de?: string, ate?: string): Observable<LinhaRankingFotos[]> {
     const params: Record<string, string> = {};
     if (de) params['de'] = de;
@@ -29,6 +34,11 @@ export class ObrasRevisaoFotosService extends BaseService {
 
   inconformidades(): Observable<OpcaoInconformidade[]> {
     return this.http.get<OpcaoInconformidade[]>(`${this.url}/inconformidades`);
+  }
+
+  /** A foto em tamanho real, para ver em tela cheia. */
+  foto(idObra: string, idEvidencia: string): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/v1/obras/${idObra}/documentacao/evidencias/${idEvidencia}/arquivo`, { responseType: 'blob' });
   }
 
   miniatura(idObra: string, idEvidencia: string): Observable<Blob> {

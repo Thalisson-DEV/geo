@@ -41,6 +41,10 @@ export interface DecisaoFoto {
   motivo?: string | null;
 }
 
+export interface ResultadoAprovacaoEmLote {
+  aprovadas: number;
+}
+
 export interface LinhaRankingFotos {
   idEquipe: string;
   equipe: string;

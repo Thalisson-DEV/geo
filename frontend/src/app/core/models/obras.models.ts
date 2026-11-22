@@ -488,7 +488,11 @@ export interface ObraProximaResponse {
 
 export interface IndicadoresCarteiraResponse {
   quantidade: number;
+  /** Carteira mais, na obra sem esse valor, o do planejamento. */
   valorProjeto: number;
+  /** Parte do valor de projeto que veio do planejamento das obras sem valor na carteira. */
+  valorPeloPlanejamento?: number;
+  obrasPeloPlanejamento?: number;
   valorMaterialPrevisto: number;
   valorServicoPrevisto: number;
   municipios: number;

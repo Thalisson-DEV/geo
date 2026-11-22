@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AvisoTurnoFechadoComponent } from './aviso-turno-fechado.component';
 import { BarraTopoComponent, FolhaComponent, IconeComponent, VazioComponent } from '../../ui';
 import { LayoutService } from '../../core/plataforma/layout.service';
 import { TokenService } from '../../core/auth/token.service';
@@ -22,12 +23,13 @@ const RAIO_CHEGADA_M = 400;
 @Component({
   selector: 'app-obra-ficha',
   standalone: true,
-  imports: [BarraTopoComponent, IconeComponent, VazioComponent, FolhaComponent, RouterLink],
+  imports: [BarraTopoComponent, IconeComponent, VazioComponent, FolhaComponent, RouterLink, AvisoTurnoFechadoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (programacao(); as p) {
       <geo-barra-topo [titulo]="'Obra ' + (p.numeroObra ?? '')" [subtitulo]="p.avulsa ? (ctx.ref(p) === 'além do programado' ? 'Além do programado (pontos sem programação)' : 'Execução avulsa (fora da agenda)') : 'Programação #' + p.numero"
         [navegacao]="layout.expandido() ? 'nenhuma' : 'voltar'" (voltar)="voltar()" />
+      <geo-aviso-turno-fechado [botao]="false" texto="O turno está fechado. Para registrar a chegada e trabalhar nesta obra, abra o turno pelo botão abaixo; você volta para cá." />
 
       @if (aviso(); as a) {
         <div class="faixa faixa--atencao" role="status"><geo-icone nome="aviso" /><span>{{ a }}</span></div>
@@ -159,7 +161,7 @@ const RAIO_CHEGADA_M = 400;
           <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="presenca()" [disabled]="registrando()" data-testid="presenca">
             <geo-icone nome="local" />Cheguei na obra</button>
         } @else {
-          <a class="geo-btn geo-btn--principal geo-btn--bloco" [routerLink]="passo().rota" data-testid="passo-obra"><geo-icone [nome]="$any(passo().icone)" />{{ passo().rotulo }}</a>
+          <a class="geo-btn geo-btn--principal geo-btn--bloco" [routerLink]="passo().rota" [queryParams]="passo().volta ? { volta: passo().volta } : null" data-testid="passo-obra"><geo-icone [nome]="$any(passo().icone)" />{{ passo().rotulo }}</a>
         }
       </div>
     } @else {
@@ -256,9 +258,10 @@ export class ObraFichaComponent implements OnInit {
 
   readonly passo = computed(() => {
     const p = this.programacao()!;
-    if (!this.turno.turnoAtivo()) return { rotulo: 'Abrir turno', rota: '/turno/abrir', icone: 'relogio' };
-    if (this.liberacao() !== 'LIBERADA') return { rotulo: this.liberacao() === 'EM_PREENCHIMENTO' ? 'Continuar a APR' : 'Fazer a APR', rota: `/obras/${p.id}/apr`, icone: 'escudo' };
-    return { rotulo: 'Executar', rota: `/obras/${p.id}/execucao`, icone: 'ferramenta' };
+    // Depois de abrir o turno, volta para esta obra (antes ia para o início).
+    if (!this.turno.turnoAtivo()) return { rotulo: 'Abrir turno', rota: '/turno/abrir', icone: 'relogio', volta: this.router.url };
+    if (this.liberacao() !== 'LIBERADA') return { rotulo: this.liberacao() === 'EM_PREENCHIMENTO' ? 'Continuar a APR' : 'Fazer a APR', rota: `/obras/${p.id}/apr`, icone: 'escudo', volta: null };
+    return { rotulo: 'Executar', rota: `/obras/${p.id}/execucao`, icone: 'ferramenta', volta: null };
   });
 
   async ngOnInit(): Promise<void> {

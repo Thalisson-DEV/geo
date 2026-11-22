@@ -121,7 +121,8 @@ export class LoginComponent {
   readonly situacaoAtualizacao = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
-    login: ['', [Validators.required]],
+    // Sessão vencida (ou entrar de novo com a mesma conta): o login vem preenchido, falta só a senha.
+    login: [this.tokens.loginLembrado() ?? '', [Validators.required]],
     senha: ['', [Validators.required]],
   });
 
@@ -156,6 +157,7 @@ export class LoginComponent {
 
     this.authService.login(this.form.getRawValue()).subscribe({
       next: async () => {
+        this.tokens.lembrarLogin(this.form.getRawValue().login);
         const mesmaConta = !!donoAnterior && donoAnterior === this.tokens.ownerId();
         const temDados = mesmaConta && !!this.sync.lastSyncAt();
         if (temDados) {

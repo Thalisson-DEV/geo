@@ -20,6 +20,8 @@ export class TokenService {
   private readonly STORAGE_KEY = 'geo_auth_token';
   private readonly OWNER_KEY = 'geo_device_user_id';
   private readonly REAUTH_KEY = 'geo_reautenticacao_necessaria';
+  /** Login de quem entrou, para a tela de entrar de novo vir preenchida. Guardado ofuscado (não é segredo como a senha). */
+  private readonly LOGIN_KEY = 'geo_login_lembrado';
   private readonly _token = signal<string | null>(localStorage.getItem(this.STORAGE_KEY));
   private readonly _ownerId = signal<string | null>(localStorage.getItem(this.OWNER_KEY));
   private readonly _reautenticacao = signal(localStorage.getItem(this.REAUTH_KEY) === 'true');
@@ -69,6 +71,30 @@ export class TokenService {
   recarregar(): void {
     this._token.set(localStorage.getItem(this.STORAGE_KEY));
     this._reautenticacao.set(localStorage.getItem(this.REAUTH_KEY) === 'true');
+  }
+
+  /** Lembra o login da conta deste aparelho; quando a sessão vence, só falta digitar a senha. */
+  lembrarLogin(login: string): void {
+    const limpo = login.trim();
+    if (!limpo) return;
+    try {
+      localStorage.setItem(this.LOGIN_KEY, btoa(encodeURIComponent(limpo)).split('').reverse().join(''));
+    } catch { /* armazenamento cheio: só não vem preenchido */ }
+  }
+
+  loginLembrado(): string | null {
+    const guardado = localStorage.getItem(this.LOGIN_KEY);
+    if (!guardado) return null;
+    try {
+      return decodeURIComponent(atob(guardado.split('').reverse().join('')));
+    } catch {
+      return null;
+    }
+  }
+
+  /** "Sair" é intencional: quem entrar depois no aparelho digita o próprio login. */
+  esquecerLogin(): void {
+    localStorage.removeItem(this.LOGIN_KEY);
   }
 
   clearToken(): void {

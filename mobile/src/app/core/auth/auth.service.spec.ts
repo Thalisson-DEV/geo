@@ -24,6 +24,7 @@ describe('AuthService', () => {
             token: vi.fn().mockName("TokenService.token"),
             setToken: vi.fn().mockName("TokenService.setToken"),
             clearToken: vi.fn().mockName("TokenService.clearToken"),
+            esquecerLogin: vi.fn().mockName("TokenService.esquecerLogin"),
             getDecodedPayload: vi.fn().mockName("TokenService.getDecodedPayload"),
             isTokenExpired: vi.fn().mockName("TokenService.isTokenExpired"),
             decodeToken: vi.fn().mockName("TokenService.decodeToken"),

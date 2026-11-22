@@ -189,3 +189,11 @@ form.plan-cartao {
 .plan-marcas input {
   accent-color: var(--geo-brand);
 }
+
+/* Fotos do campo no cartão do ponto: as mesmas do book, com a revisão no canto. */
+.plan-cartao__fotos { display: flex; flex-direction: column; gap: 0.375rem; }
+.plan-cartao__fotos-resumo { color: var(--geo-warning-text); font-weight: 400; }
+.plan-cartao__fotos-grade { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.375rem; }
+.plan-cartao__fotos-mais { align-self: flex-start; padding: 0; border: 0; background: none; color: var(--geo-brand); font: inherit; font-size: var(--geo-font-caption); cursor: pointer; }
+.plan-cartao__fotos-mais:hover { text-decoration: underline; }
+.plan-cartao__fotos-mais:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }

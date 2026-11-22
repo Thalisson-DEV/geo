@@ -400,6 +400,7 @@ export class AuthService {
     localStorage.setItem(LOGOUT_PENDENTE_KEY, 'true');
     void this.concluirLogoutPendente();
     this.tokenService.clearToken();
+    this.tokenService.esquecerLogin();
     // Sair é intencional: a próxima abertura não volta para dentro da conta.
     // Rascunhos não enviados ficam (só saem com confirmação explícita na tela de Conta).
     void this.sessao.esquecer();

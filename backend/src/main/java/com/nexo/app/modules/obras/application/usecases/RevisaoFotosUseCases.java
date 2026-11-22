@@ -83,6 +83,19 @@ public class RevisaoFotosUseCases {
                 .getContent().stream().filter(f -> f.id().equals(id)).findFirst().orElseThrow();
     }
 
+    /** Aprova de uma vez as fotos escolhidas que ainda não estavam aprovadas (pendentes ou reprovadas). */
+    @Transactional
+    public RevisaoFotosDtos.ResultadoAprovacaoEmLote aprovarEmLote(RevisaoFotosDtos.AprovacaoEmLote pedido) {
+        String usuario = usuarioAtual();
+        List<EvidenciaPonto> fotos = repository.findAllById(Set.copyOf(pedido.ids())).stream()
+                .filter(EvidenciaPonto::isAtivo)
+                .filter(f -> f.getRevisao() != EvidenciaPonto.Revisao.APROVADA)
+                .toList();
+        fotos.forEach(f -> f.aprovar(usuario));
+        repository.saveAll(fotos);
+        return new RevisaoFotosDtos.ResultadoAprovacaoEmLote(fotos.size());
+    }
+
     /** Qualidade das fotos do app por equipe no período (pelo dia em que a foto chegou). */
     @Transactional(readOnly = true)
     public List<RevisaoFotosDtos.LinhaRanking> ranking(LocalDate de, LocalDate ate) {

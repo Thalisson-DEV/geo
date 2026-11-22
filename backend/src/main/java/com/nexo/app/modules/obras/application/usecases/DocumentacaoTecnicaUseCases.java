@@ -307,7 +307,9 @@ public class DocumentacaoTecnicaUseCases {
 
     static DocumentacaoTecnicaResponses.Evidencia paraEvidencia(EvidenciaPonto e) {
         return new DocumentacaoTecnicaResponses.Evidencia(e.getId(), e.getIdItem(), e.getTituloItem(), e.getLegenda(), e.getNomeArquivo(),
-                e.getUsuarioCriacao(), e.getDataCriacao(), e.getEtapa(), e.getLatitude(), e.getLongitude(), e.getDataCaptura(), e.getTamanhoBytes());
+                e.getUsuarioCriacao(), e.getDataCriacao(), e.getEtapa(), e.getLatitude(), e.getLongitude(), e.getDataCaptura(), e.getTamanhoBytes(),
+                e.getRevisao(), e.getInconformidade() != null ? e.getInconformidade().rotulo() : null, e.getMotivoReprovacao(),
+                e.getRevisadaPor(), e.getRevisadaEm());
     }
 
     /** Tentativa com erro só aparece se for a última do seu tipo: depois de gerar de novo, deixa de interessar. */

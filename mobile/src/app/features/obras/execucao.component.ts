@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AvisoTurnoFechadoComponent } from './aviso-turno-fechado.component';
 import { map } from 'rxjs';
 import {
   BarraTopoComponent, FolhaComponent, FotoExibida, FotosComponent, IconeComponent, LeitorCodigoComponent, QuantidadeComponent,
@@ -30,12 +31,13 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
   selector: 'app-execucao',
   standalone: true,
   imports: [BarraTopoComponent, IconeComponent, FolhaComponent, FotosComponent, QuantidadeComponent, SegmentadoComponent,
-    VazioComponent, LeitorCodigoComponent, ProjetoPdfComponent, RouterLink, NgTemplateOutlet],
+    VazioComponent, LeitorCodigoComponent, ProjetoPdfComponent, RouterLink, NgTemplateOutlet, AvisoTurnoFechadoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '[class.dividido]': 'layout.expandido()', '[class.geo-tela-larga]': 'layout.expandido()' },
   template: `
     @if (programacao(); as p) {
       <geo-barra-topo titulo="Pontos e projeto" [subtitulo]="'Obra ' + (p.numeroObra ?? '') + ' · ' + ctx.ref(p)" (voltar)="voltar()" />
+      <geo-aviso-turno-fechado texto="O turno está fechado. Dá para ver os pontos e o projeto; para tirar fotos e marcar o que foi feito, abra o turno." />
       <div class="progresso" role="progressbar" [attr.aria-valuenow]="feitos()" aria-valuemin="0" [attr.aria-valuemax]="pontos().length"
         [attr.aria-label]="feitos() + ' de ' + pontos().length + ' ' + nomeLocais(pontos()) + ' feitos'">
         <span class="progresso__texto"><strong class="geo-num">{{ feitos() }} de {{ pontos().length }}</strong> {{ nomeLocais(pontos()) }} {{ pontos().length === 1 ? 'feito' : 'feitos' }}

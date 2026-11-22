@@ -63,6 +63,14 @@ describe('TokenService', () => {
         expect(payload?.exp).toBe(9999999999);
     });
 
+    it('lembra o login (sem guardar em texto puro) até a pessoa sair', () => {
+        service.lembrarLogin(' CAMPOOBRA ');
+        expect(localStorage.getItem('geo_login_lembrado')).not.toContain('CAMPOOBRA');
+        expect(service.loginLembrado()).toBe('CAMPOOBRA');
+        service.esquecerLogin();
+        expect(service.loginLembrado()).toBeNull();
+    });
+
     it('rejeita token sem usuário identificado', () => {
         expect(() => service.setToken('invalid.jwt.token')).toThrowError(/sem usuário identificado/);
         expect(service.token()).toBeNull();

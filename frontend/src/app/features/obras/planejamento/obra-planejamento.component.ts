@@ -71,6 +71,10 @@ import { PlanejamentoRevisaoComponent, PontoEmRevisao, VaoEmRevisao } from './pl
 import { EstadoLocal, ROTULO_ESTADO, estadoDoLocal, kitsDoLocal, programacoesAtrasadas, proximoNumero, rotuloVao } from './planejamento.logic';
 
 import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
+import { EvidenciaPonto } from '../../../core/models/obras-documentacao.models';
+import { ObrasDocumentacaoService } from '../../../core/services/obras-documentacao.service';
+import { EvidenciaMiniaturaComponent } from '../documentacao/evidencia-miniatura.component';
+import { EvidenciaVisualizadorComponent } from '../documentacao/evidencia-visualizador.component';
 type Ferramenta = 'mao' | 'ponto' | 'vao' | 'selecionar' | 'area' | 'texto' | 'anotar';
 type ItemAtivo = { tipo: 'ponto' | 'vao' | 'anotacao'; id: string };
 
@@ -99,6 +103,8 @@ const INTERVALO_ANALISE_MS = 3000;
     GeoTabsComponent,
     GeoTextInputComponent,
     GeoTextareaComponent,
+    EvidenciaMiniaturaComponent,
+    EvidenciaVisualizadorComponent,
     PlanejamentoArvoreComponent,
     PlanejamentoKitsComponent,
     PlanejamentoRevisaoComponent,
@@ -128,6 +134,25 @@ export class ObraPlanejamentoComponent {
   private readonly programacoes = inject(ObrasProgramacaoService);
   private readonly medicoes = inject(ObrasMedicoesService);
   protected readonly podeVerMedicao = (inject(AuthService).currentUser()?.permissoes ?? []).includes('obras:medicao:read');
+  private readonly documentacao = inject(ObrasDocumentacaoService);
+  protected readonly podeVerFotos = (inject(AuthService).currentUser()?.permissoes ?? []).includes('obras:documentacao:read');
+  protected readonly podeRevisarFotos = (inject(AuthService).currentUser()?.permissoes ?? []).includes('obras:documentacao:write');
+  /** Fotos do campo por ponto, carregadas na primeira vez que um ponto é aberto. */
+  private readonly fotosPorPonto = signal<ReadonlyMap<string, EvidenciaPonto[]> | null>(null);
+  private carregandoFotos = false;
+  protected readonly fotosDoAtivo = computed(() => {
+    const ponto = this.pontoAtivo();
+    return ponto ? this.fotosPorPonto()?.get(ponto.id) ?? [] : [];
+  });
+  protected readonly resumoFotosDoAtivo = computed(() => {
+    const fotos = this.fotosDoAtivo();
+    const para = fotos.filter((f) => f.revisao === 'PENDENTE').length;
+    const reprovadas = fotos.filter((f) => f.revisao === 'REPROVADA').length;
+    const partes = [para ? `${para} para revisar` : '', reprovadas ? `${reprovadas} ${reprovadas === 1 ? 'reprovada' : 'reprovadas'}` : ''].filter(Boolean);
+    return partes.join(' · ');
+  });
+  /** Índice da foto aberta no visualizador (fotos do ponto ativo). */
+  protected readonly fotoAberta = signal<number | null>(null);
   /** O que já foi medido e o que está executado esperando medição: fecha o ciclo planejado → executado → medido. */
   protected readonly medicao = signal<MedicaoDaObra | null>(null);
   protected readonly programarAberto = signal(false);
@@ -458,7 +483,26 @@ export class ObraPlanejamentoComponent {
 
   protected readonly capturaAtiva = computed(() => ['ponto', 'area', 'texto', 'anotar'].includes(this.ferramenta()));
 
+  protected carregarFotos(forcar = false): void {
+    if (!this.podeVerFotos || this.carregandoFotos || (this.fotosPorPonto() && !forcar)) return;
+    this.carregandoFotos = true;
+    this.documentacao.consultar(this.idObra).pipe(take(1)).subscribe({
+      next: (doc) => {
+        this.carregandoFotos = false;
+        this.fotosPorPonto.set(new Map(doc.pontos.map((p) => [p.id, p.evidencias])));
+      },
+      error: () => {
+        this.carregandoFotos = false;
+        this.fotosPorPonto.set(new Map());
+      }
+    });
+  }
+
   constructor() {
+    // As fotos do campo só são buscadas quando alguém abre um ponto.
+    effect(() => {
+      if (this.pontoAtivo()) untracked(() => this.carregarFotos());
+    });
     this.carregar();
     if (this.podeVerMedicao && this.idObra) {
       this.medicoes.daObra(this.idObra).pipe(take(1)).subscribe({ next: (m) => this.medicao.set(m), error: () => this.medicao.set(null) });

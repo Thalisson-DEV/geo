@@ -29,6 +29,16 @@ public interface ItemPlanejadoRepository extends JpaRepository<ItemPlanejado, UU
             """)
     List<ServicosDaObra> somarServicos(@Param("ids") Collection<UUID> ids);
 
+    /** Serviços planejados da obra: o total e quantos ainda não foram concluídos (pendentes, programados ou em andamento). */
+    @Query("""
+            select count(i), coalesce(sum(case when i.status in (com.nexo.app.modules.obras.domain.StatusItemPlanejado.CONCLUIDO,
+                                                       com.nexo.app.modules.obras.domain.StatusItemPlanejado.MEDIDO) then 0 else 1 end), 0)
+            from ItemPlanejado i join i.kitAplicado k
+            where k.idObra = :idObra and i.ativo = true and k.ativo = true
+              and i.tipo = com.nexo.app.modules.obras.domain.TipoItemKit.SERVICO
+            """)
+    List<Object[]> contarServicosEAbertos(@Param("idObra") UUID idObra);
+
     @Query("""
             select distinct k.idObra from ItemPlanejado i join i.kitAplicado k
             where i.ativo = true and k.ativo = true and k.executadoAntes = false

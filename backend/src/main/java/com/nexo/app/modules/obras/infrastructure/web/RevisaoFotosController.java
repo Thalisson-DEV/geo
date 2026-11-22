@@ -44,6 +44,13 @@ public class RevisaoFotosController implements RevisaoFotosControllerDoc {
     }
 
     @Override
+    @PutMapping("/revisao/aprovacao-em-lote")
+    @PreAuthorize(REVISAR)
+    public ResponseEntity<RevisaoFotosDtos.ResultadoAprovacaoEmLote> aprovarEmLote(@Valid @RequestBody RevisaoFotosDtos.AprovacaoEmLote pedido) {
+        return ResponseEntity.ok(useCases.aprovarEmLote(pedido));
+    }
+
+    @Override
     @GetMapping("/ranking")
     @PreAuthorize(LER)
     public ResponseEntity<List<RevisaoFotosDtos.LinhaRanking>> ranking(

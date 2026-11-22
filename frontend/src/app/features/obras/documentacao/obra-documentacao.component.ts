@@ -350,7 +350,7 @@ const TIPOS_EQUIPAMENTO: GeoSelectOption<TipoEquipamento>[] = [
       [(aberto)]="visitaAberta" (alterada)="carregar()"></app-visita-previa-drawer>
 
     <app-evidencia-visualizador [idObra]="idObra()" [aberto]="!!fotoAberta()" [tituloPonto]="'Ponto ' + (pontoDaFoto()?.numero ?? '')" [evidencias]="pontoDaFoto()?.evidencias ?? []"
-      [indice]="fotoAberta()?.indice ?? 0" [podeEscrever]="podeEscrever" (navegar)="irParaFoto($event)" (fechar)="fotoAberta.set(null)" (alterado)="carregar()"></app-evidencia-visualizador>
+      [indice]="fotoAberta()?.indice ?? 0" [podeEscrever]="podeEscrever" [podeRevisar]="podeEscrever" (navegar)="irParaFoto($event)" (fechar)="fotoAberta.set(null)" (alterado)="carregar()"></app-evidencia-visualizador>
 
     <!-- Equipamento -->
     <geo-form-drawer [(visible)]="equipamentoAberto" title="Equipamento do ponto" size="sm">

@@ -22,6 +22,9 @@ public interface RevisaoFotosControllerDoc {
     @Operation(summary = "Aprovar ou reprovar a foto", description = "Reprovada volta a ser pendência para a equipe e não entra na medição.")
     ResponseEntity<RevisaoFotosDtos.FotoParaRevisao> revisar(UUID id, RevisaoFotosDtos.Decisao decisao);
 
+    @Operation(summary = "Aprovar várias fotos", description = "Até 500 por vez; as já aprovadas ou removidas ficam de fora da contagem.")
+    ResponseEntity<RevisaoFotosDtos.ResultadoAprovacaoEmLote> aprovarEmLote(RevisaoFotosDtos.AprovacaoEmLote pedido);
+
     @Operation(summary = "Ranking de qualidade das fotos por equipe", description = "Padrão: últimos 30 dias.")
     ResponseEntity<List<RevisaoFotosDtos.LinhaRanking>> ranking(LocalDate de, LocalDate ate);
 

@@ -51,6 +51,7 @@ public class ApontamentoExecucaoUseCases {
 
     static final ZoneId FUSO = ZoneId.of("America/Sao_Paulo");
     private static final String STATUS_EM_EXECUCAO = "EM EXECUÇÃO";
+    private static final String STATUS_CONCLUIDA = "CONCLUÍDA";
 
     private final ApontamentoExecucaoRepository repository;
     private final ProgramacaoRepository programacaoRepository;
@@ -89,6 +90,7 @@ public class ApontamentoExecucaoUseCases {
             colocarObraEmExecucao(programacao.getIdObra());
         }
         repository.flush();
+        concluirObraSeTudoExecutado(programacao.getIdObra(), request.data());
         return programacaoUseCases.buscarPorId(idProgramacao);
     }
 
@@ -167,6 +169,7 @@ public class ApontamentoExecucaoUseCases {
             colocarObraEmExecucao(programacao.getIdObra());
         }
         repository.flush();
+        concluirObraSeTudoExecutado(programacao.getIdObra(), data);
         return criados;
     }
 
@@ -223,6 +226,28 @@ public class ApontamentoExecucaoUseCases {
         statusObraRepository.findByNomeIgnoreCase(STATUS_EM_EXECUCAO)
                 .filter(status -> !status.equals(obra.getStatusObra()))
                 .ifPresent(status -> obra.informarStatusOperacional(status, "Primeiro apontamento de execução.", null));
+    }
+
+    /**
+     * O apontamento que fecha o último serviço planejado conclui a obra: ninguém precisa lembrar de trocar o status à mão.
+     * A data de fim é a do apontamento, e a troca fica no histórico com o motivo. Obra já concluída (ou cancelada) não muda.
+     */
+    void concluirObraSeTudoExecutado(UUID idObra, LocalDate dataDoApontamento) {
+        Obra obra = obraRepository.findById(idObra).orElse(null);
+        if (obra == null || obra.getStatusObra() == null || obra.getStatusObra().isConcluida()) {
+            return;
+        }
+        List<Object[]> contagem = itemRepository.contarServicosEAbertos(idObra);
+        Object[] linha = contagem.isEmpty() ? null : contagem.get(0);
+        long servicos = linha != null && linha[0] instanceof Number n ? n.longValue() : 0;
+        long abertos = linha != null && linha[1] instanceof Number n ? n.longValue() : 0;
+        if (servicos == 0 || abertos > 0) {
+            return;
+        }
+        statusObraRepository.findByNomeIgnoreCase(STATUS_CONCLUIDA)
+                .filter(status -> status.isAtivo() && status.isConcluida())
+                .ifPresent(status -> obra.informarStatusOperacional(status,
+                        "Concluída automaticamente: todos os serviços planejados foram executados.", dataDoApontamento));
     }
 
     private Programacao buscarProgramacao(UUID id) {

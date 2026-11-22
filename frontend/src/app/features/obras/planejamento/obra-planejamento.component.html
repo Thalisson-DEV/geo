@@ -268,6 +268,19 @@
                     (aplicar)="aplicarKit($event)" (remover)="removerKit($event)" (alterarQuantidade)="alterarQuantidadeKit($event)"
                     (executadoAntes)="marcarExecutadoAntes($event)" (alterarItem)="alterarItem($event)" (removerItem)="removerItem($event)"></app-planejamento-kits>
                 </section>
+                @if (podeVerFotos && fotosDoAtivo().length) {
+                  <section class="plan-cartao__fotos" aria-label="Fotos do campo deste ponto">
+                    <span class="plan-rotulo">Fotos do campo ({{ fotosDoAtivo().length }})@if (resumoFotosDoAtivo()) { <span class="plan-cartao__fotos-resumo"> · {{ resumoFotosDoAtivo() }}</span> }</span>
+                    <div class="plan-cartao__fotos-grade">
+                      @for (f of fotosDoAtivo().slice(0, 8); track f.id; let i = $index) {
+                        <app-evidencia-miniatura [idObra]="idObra" [evidencia]="f" (abrir)="fotoAberta.set(i)"></app-evidencia-miniatura>
+                      }
+                    </div>
+                    @if (fotosDoAtivo().length > 8) {
+                      <button type="button" class="plan-cartao__fotos-mais" (click)="fotoAberta.set(8)">Ver as outras {{ fotosDoAtivo().length - 8 }}</button>
+                    }
+                  </section>
+                }
               </div>
               <footer class="plan-cartao__rodape">
                 @if (podeEditar) {
@@ -485,4 +498,10 @@
       <geo-button icon="pi pi-upload" label="Enviar projeto" [disabled]="!projetoArquivo() || !projetoTipo()" [loading]="enviandoProjeto()" (pressed)="enviarProjeto()"></geo-button>
     </div>
   </geo-form-drawer>
+}
+
+@if (podeVerFotos) {
+  <app-evidencia-visualizador [idObra]="idObra" [aberto]="fotoAberta() !== null && !!pontoAtivo()" [tituloPonto]="'Ponto ' + (pontoAtivo()?.numero ?? '')"
+    [evidencias]="fotosDoAtivo()" [indice]="fotoAberta() ?? 0" [podeRevisar]="podeRevisarFotos"
+    (navegar)="fotoAberta.set($event)" (fechar)="fotoAberta.set(null)" (alterado)="carregarFotos(true)"></app-evidencia-visualizador>
 }

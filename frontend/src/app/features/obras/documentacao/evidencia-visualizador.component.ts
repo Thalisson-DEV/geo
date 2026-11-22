@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
 import {
   GeoAsyncStateComponent,
   GeoButtonComponent,
@@ -10,12 +10,15 @@ import {
   GeoSelectOption,
   GeoStatusComponent,
   GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
 } from '@geo/ui';
 import { take } from 'rxjs';
 import { EtapaEvidencia, EvidenciaPonto } from '../../../core/models/obras-documentacao.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
+import { InconformidadeFoto } from '../../../core/models/obras-revisao-fotos.models';
 import { ObrasDocumentacaoService } from '../../../core/services/obras-documentacao.service';
+import { ObrasRevisaoFotosService } from '../../../core/services/obras-revisao-fotos.service';
 import { ObrasService } from '../../../core/services/obras.service';
 import { ETAPAS, formatarBytes, formatarCoordenadas, linkDoMapa, rotuloEtapa } from '../book/book.logic';
 
@@ -31,7 +34,7 @@ const OPCOES_ETAPA: GeoSelectOption<EtapaEvidencia | 'SEM'>[] = [
 @Component({
   selector: 'app-evidencia-visualizador',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoDialogShellComponent, GeoIconButtonComponent, GeoSelectComponent, GeoStatusComponent, GeoTextInputComponent],
+  imports: [DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoDialogShellComponent, GeoIconButtonComponent, GeoSelectComponent, GeoStatusComponent, GeoTextInputComponent, GeoTextareaComponent],
   host: {
     '(document:keydown.arrowleft)': 'teclaNavegar($event, -1)',
     '(document:keydown.arrowright)': 'teclaNavegar($event, 1)'
@@ -40,10 +43,10 @@ const OPCOES_ETAPA: GeoSelectOption<EtapaEvidencia | 'SEM'>[] = [
     <geo-dialog-shell [visible]="!!atual()" (visibleChange)="$event || fechar.emit()" [title]="titulo()" size="xl">
       @if (atual(); as e) {
         <div class="ev">
-          <div class="ev-palco">
+          <div #palco class="ev-palco">
             <div class="ev-foto">
               @if (url(); as src) {
-                <img [src]="src" [alt]="descricao()" />
+                <img [src]="src" [alt]="descricao()" (click)="emTelaCheia() || telaCheia()" />
               } @else if (erro()) {
                 <geo-async-state state="error" [compact]="true" title="Não foi possível abrir a foto" [description]="erro()!" actionLabel="Tentar de novo" (action)="carregar()"></geo-async-state>
               } @else {
@@ -54,6 +57,11 @@ const OPCOES_ETAPA: GeoSelectOption<EtapaEvidencia | 'SEM'>[] = [
               <geo-icon-button icon="pi pi-chevron-left" label="Foto anterior" size="icon-sm" [disabled]="posicao() === 0" (pressed)="navegar.emit(posicao() - 1)"></geo-icon-button>
               <span aria-live="polite">Foto {{ posicao() + 1 }} de {{ evidencias().length }}</span>
               <geo-icon-button icon="pi pi-chevron-right" label="Próxima foto" size="icon-sm" [disabled]="posicao() === evidencias().length - 1" (pressed)="navegar.emit(posicao() + 1)"></geo-icon-button>
+              @if (emTelaCheia() && podeRevisar() && e.revisao && e.revisao !== 'APROVADA') {
+                <geo-button size="sm" icon="pi pi-check" label="Aprovar" [loading]="revisando()" (pressed)="aprovar(e)"></geo-button>
+              }
+              <geo-icon-button class="ev-nav__tela" [icon]="emTelaCheia() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+                [label]="emTelaCheia() ? 'Sair da tela cheia' : 'Ver em tela cheia'" size="icon-sm" (pressed)="telaCheia()"></geo-icon-button>
             </div>
           </div>
 
@@ -62,6 +70,35 @@ const OPCOES_ETAPA: GeoSelectOption<EtapaEvidencia | 'SEM'>[] = [
               <geo-status tone="brand" emphasis="outline" icon="pi-camera">{{ e.tituloItem ?? 'Outras evidências' }}</geo-status>
               <geo-status [tone]="e.etapa ? 'info' : 'neutral'" [emphasis]="e.etapa ? 'soft' : 'outline'" icon="pi-clock">{{ rotuloEtapa(e.etapa) }}</geo-status>
             </div>
+            @if (e.revisao; as r) {
+              <section class="ev-revisao" aria-label="Revisão da foto">
+                <div class="ev-revisao__topo">
+                  <span class="ev-revisao__rotulo">Revisão</span>
+                  <geo-status [tone]="r === 'APROVADA' ? 'success' : r === 'REPROVADA' ? 'danger' : 'warning'">{{ rotuloRevisao(r) }}</geo-status>
+                </div>
+                @if (e.rotuloInconformidade) { <p class="ev-revisao__motivo">{{ e.rotuloInconformidade }}{{ e.motivoReprovacao ? ': ' + e.motivoReprovacao : '' }}</p> }
+                @if (e.revisadaPor) { <p class="ev-revisao__quem">por {{ e.revisadaPor }}@if (e.revisadaEm) { em {{ e.revisadaEm | date: 'dd/MM/yyyy HH:mm' }} }</p> }
+                @if (podeRevisar()) {
+                  @if (reprovando()) {
+                    <geo-select label="Inconformidade" [required]="true" [options]="opcoesInconformidade()" [(value)]="inconformidade"
+                      [error]="tentou() && !inconformidade() ? 'Escolha a inconformidade.' : undefined"></geo-select>
+                    <geo-textarea label="Motivo" [rows]="2" [maxlength]="500" [(value)]="motivo" [showOptional]="inconformidade() !== 'OUTRA'"
+                      [required]="inconformidade() === 'OUTRA'" [error]="tentou() && inconformidade() === 'OUTRA' && !motivo().trim() ? 'Descreva o motivo.' : undefined"></geo-textarea>
+                    <div class="ev-revisao__acoes">
+                      <geo-button variant="ghost" size="sm" label="Voltar" (pressed)="reprovando.set(false)"></geo-button>
+                      <geo-button variant="destructive" size="sm" icon="pi pi-times" label="Reprovar foto" [loading]="revisando()" (pressed)="reprovar(e)"></geo-button>
+                    </div>
+                  } @else {
+                    <div class="ev-revisao__acoes">
+                      <geo-button variant="ghost" size="sm" icon="pi pi-times" [label]="r === 'APROVADA' ? 'Reprovar mesmo assim' : 'Reprovar'" (pressed)="abrirReprovacao()"></geo-button>
+                      @if (r !== 'APROVADA') {
+                        <geo-button size="sm" icon="pi pi-check" label="Aprovar" [loading]="revisando()" (pressed)="aprovar(e)"></geo-button>
+                      }
+                    </div>
+                  }
+                }
+              </section>
+            }
             <dl class="ev-lista">
               <div>
                 <dt>Tirada em</dt>
@@ -116,7 +153,18 @@ const OPCOES_ETAPA: GeoSelectOption<EtapaEvidencia | 'SEM'>[] = [
     @media (min-width: 900px) { .ev { grid-template-columns: minmax(0, 1fr) 18rem; } }
     .ev-palco { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
     .ev-foto { display: grid; place-items: center; min-height: 16rem; overflow: hidden; border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
-    .ev-foto img { display: block; max-width: 100%; max-height: 64vh; object-fit: contain; }
+    .ev-foto img { display: block; max-width: 100%; max-height: 64vh; object-fit: contain; cursor: zoom-in; }
+    .ev-nav__tela { margin-left: auto; }
+    /* Tela cheia: só a foto e a barra de navegação. */
+    .ev-palco:fullscreen { justify-content: center; padding: 1rem; background: var(--geo-surface-raised); }
+    .ev-palco:fullscreen .ev-foto { flex: 1; min-height: 0; border-radius: 0; }
+    .ev-palco:fullscreen .ev-foto img { max-height: calc(100vh - 5rem); cursor: default; }
+    .ev-revisao { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.625rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); }
+    .ev-revisao__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+    .ev-revisao__rotulo { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
+    .ev-revisao__motivo, .ev-revisao__quem { margin: 0; font-size: var(--geo-font-caption); overflow-wrap: anywhere; }
+    .ev-revisao__quem { color: var(--geo-foreground-muted); }
+    .ev-revisao__acoes { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.375rem; }
     .ev-nav { display: flex; align-items: center; justify-content: center; gap: 0.75rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; }
     .ev-dados { display: flex; flex-direction: column; gap: 0.875rem; min-width: 0; }
     .ev-selos { display: flex; flex-wrap: wrap; gap: 0.375rem; }
@@ -141,6 +189,8 @@ export class EvidenciaVisualizadorComponent {
   private readonly obras = inject(ObrasService);
   private readonly notificacoes = inject(NotificationService);
   private readonly confirmacao = inject(GeoConfirmationService);
+  private readonly revisao = inject(ObrasRevisaoFotosService);
+  private readonly palco = viewChild<ElementRef<HTMLElement>>('palco');
 
   readonly idObra = input.required<string>();
   /** Título fixo (ex.: "Ponto 12"); sem ele, use {@link titulos}. */
@@ -151,6 +201,8 @@ export class EvidenciaVisualizadorComponent {
   readonly indice = input<number>(0);
   readonly aberto = input(false);
   readonly podeEscrever = input(false);
+  /** Aprovar ou reprovar a foto ali mesmo (permissão de documentação). */
+  readonly podeRevisar = input(false);
   readonly navegar = output<number>();
   readonly fechar = output<void>();
   readonly alterado = output<void>();
@@ -188,11 +240,29 @@ export class EvidenciaVisualizadorComponent {
   protected readonly legenda = signal('');
   protected readonly salvando = signal(false);
   protected readonly salvandoEtapa = signal(false);
+  protected readonly emTelaCheia = signal(false);
+  protected readonly reprovando = signal(false);
+  protected readonly revisando = signal(false);
+  protected readonly tentou = signal(false);
+  protected readonly inconformidade = signal<InconformidadeFoto | null>(null);
+  protected readonly motivo = signal('');
+  protected readonly opcoesInconformidade = signal<GeoSelectOption<InconformidadeFoto>[]>([]);
 
   constructor() {
+    const aoTrocarTelaCheia = () => this.emTelaCheia.set(!!document.fullscreenElement && document.fullscreenElement === this.palco()?.nativeElement);
+    document.addEventListener('fullscreenchange', aoTrocarTelaCheia);
+    inject(DestroyRef).onDestroy(() => document.removeEventListener('fullscreenchange', aoTrocarTelaCheia));
+    effect(() => {
+      if (!this.podeRevisar() || this.opcoesInconformidade().length) return;
+      untracked(() => this.revisao.inconformidades().pipe(take(1)).subscribe({
+        next: (lista) => this.opcoesInconformidade.set(lista.map((o) => ({ label: o.rotulo, value: o.valor })))
+      }));
+    });
     effect((onCleanup) => {
       const id = this.idAtual();
       untracked(() => {
+        this.reprovando.set(false);
+        this.tentou.set(false);
         this.legenda.set(this.atual()?.legenda ?? '');
         if (id) this.carregar();
       });
@@ -214,6 +284,52 @@ export class EvidenciaVisualizadorComponent {
       },
       error: (e) => {
         if (this.idAtual() === id) this.erro.set(getErrorMessage(e));
+      }
+    });
+  }
+
+  protected rotuloRevisao(r: 'PENDENTE' | 'APROVADA' | 'REPROVADA'): string {
+    return r === 'APROVADA' ? 'Aprovada' : r === 'REPROVADA' ? 'Reprovada' : 'Para revisar';
+  }
+
+  protected async telaCheia(): Promise<void> {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => undefined);
+      return;
+    }
+    await this.palco()?.nativeElement.requestFullscreen?.().catch(() => undefined);
+  }
+
+  protected abrirReprovacao(): void {
+    this.inconformidade.set(null);
+    this.motivo.set('');
+    this.tentou.set(false);
+    this.reprovando.set(true);
+  }
+
+  protected aprovar(evidencia: EvidenciaPonto): void {
+    this.decidir(evidencia, { aprovar: true }, 'Foto aprovada.');
+  }
+
+  protected reprovar(evidencia: EvidenciaPonto): void {
+    this.tentou.set(true);
+    const inconformidade = this.inconformidade();
+    if (!inconformidade || (inconformidade === 'OUTRA' && !this.motivo().trim())) return;
+    this.decidir(evidencia, { aprovar: false, inconformidade, motivo: this.motivo().trim() || null }, 'Foto reprovada: a equipe vê o motivo no app.');
+  }
+
+  private decidir(evidencia: EvidenciaPonto, decisao: { aprovar: boolean; inconformidade?: InconformidadeFoto | null; motivo?: string | null }, mensagem: string): void {
+    this.revisando.set(true);
+    this.revisao.revisar(evidencia.id, decisao).pipe(take(1)).subscribe({
+      next: () => {
+        this.revisando.set(false);
+        this.reprovando.set(false);
+        this.notificacoes.success(mensagem);
+        this.alterado.emit();
+      },
+      error: (e) => {
+        this.revisando.set(false);
+        this.notificacoes.error(getErrorMessage(e));
       }
     });
   }

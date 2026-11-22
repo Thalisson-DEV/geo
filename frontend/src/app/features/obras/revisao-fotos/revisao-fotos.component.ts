@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import {
   GeoButtonComponent,
   GeoCellDirective,
+  GeoConfirmationService,
   GeoDataTableColumn,
   GeoDataTableComponent,
   GeoFilterPanelComponent,
@@ -62,6 +63,13 @@ import { ETAPAS, ROTULO_STATUS, TOM_STATUS, opcoesStatus } from './revisao-fotos
             </div>
           </geo-filter-panel>
 
+          @if (podeRevisar && obraDoFiltro(); as numero) {
+            <div class="revisao-lote">
+              <span>Revisando a obra <strong>{{ numero }}</strong>. Conferiu as miniaturas? Aprove as que estão para revisar de uma vez.</span>
+              <geo-button variant="outline" size="sm" icon="pi pi-check-square" [label]="'Aprovar todas da obra ' + numero"
+                [loading]="aprovandoLote()" (pressed)="aprovarTodasDaObra(numero)"></geo-button>
+            </div>
+          }
           <geo-data-table title="Fotos" mode="server" storageKey="obras-revisao-fotos" [searchable]="false"
             noResultsTitle="Nenhuma foto com esse recorte."
             [columns]="colunas" [rows]="resultado.rows()" [totalRecords]="resultado.total()" [rowLabel]="rotulo"
@@ -71,7 +79,9 @@ import { ETAPAS, ROTULO_STATUS, TOM_STATUS, opcoesStatus } from './revisao-fotos
             [filtered]="lista.filtered()"
             [(page)]="lista.page" [(pageSize)]="lista.pageSize" [(sort)]="lista.sort"
             (lazyLoad)="lista.load($event)" (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()"
+            [selectable]="podeRevisar" [(selection)]="selecionadas" [selectionLimit]="500"
             (rowActivate)="abrir($event)">
+            <geo-button selection-actions size="sm" icon="pi pi-check" label="Aprovar selecionadas" [loading]="aprovandoLote()" (pressed)="aprovarSelecionadas()"></geo-button>
             <ng-template geoCell="foto" let-row>
               @if (miniaturas()[row.id]; as url) {
                 <img class="revisao-foto__mini" [src]="url" [alt]="'Foto do ponto ' + (row.numeroPonto ?? '')" />
@@ -106,7 +116,31 @@ import { ETAPAS, ROTULO_STATUS, TOM_STATUS, opcoesStatus } from './revisao-fotos
       [description]="foto() ? 'Obra ' + (foto()!.numeroObra ?? '') + (foto()!.equipe ? ' · ' + foto()!.equipe : '') : undefined" size="md">
       @if (foto(); as f) {
         <geo-form-section title="Foto" icon="pi pi-image">
-          @if (miniaturas()[f.id]; as url) { <img class="revisao-foto__grande" [class.revisao-foto__grande--menor]="reprovando()" [src]="url" [alt]="'Foto do ponto ' + (f.numeroPonto ?? '')" /> }
+          <div #palco class="revisao-palco" [class.revisao-palco--menor]="reprovando()">
+            @if (fotoGrande() ?? miniaturas()[f.id]; as url) {
+              <button type="button" class="revisao-palco__foto" [title]="emTelaCheia() ? '' : 'Ver em tela cheia'" (click)="emTelaCheia() || telaCheia()">
+                <img [src]="url" [alt]="'Foto do ponto ' + (f.numeroPonto ?? '') + ' da obra ' + (f.numeroObra ?? '')" />
+              </button>
+            }
+            <div class="revisao-palco__barra">
+              <geo-icon-button icon="pi pi-chevron-left" label="Foto anterior" size="icon-sm" [disabled]="posicao() <= 0" (pressed)="irPara(posicao() - 1)"></geo-icon-button>
+              <span aria-live="polite">{{ posicao() + 1 }} de {{ fila().length }}</span>
+              <geo-icon-button icon="pi pi-chevron-right" label="Próxima foto" size="icon-sm" [disabled]="posicao() >= fila().length - 1" (pressed)="irPara(posicao() + 1)"></geo-icon-button>
+              @if (emTelaCheia()) { <span class="revisao-palco__legenda">Obra {{ f.numeroObra }} · P{{ f.numeroPonto }} · {{ f.tituloItem ?? 'Foto avulsa' }}</span> }
+              <span class="revisao-palco__empurra"></span>
+              @if (emTelaCheia() && podeRevisar && f.status !== 'APROVADA') {
+                <geo-button size="sm" variant="ghost" icon="pi pi-times" label="Reprovar" (pressed)="reprovarDaTelaCheia()"></geo-button>
+                <geo-button size="sm" icon="pi pi-check" label="Aprovar" [loading]="salvando()" (pressed)="aprovar(f)"></geo-button>
+              }
+              <geo-icon-button [icon]="emTelaCheia() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'" [label]="emTelaCheia() ? 'Sair da tela cheia' : 'Ver em tela cheia'"
+                size="icon-sm" (pressed)="telaCheia()"></geo-icon-button>
+            </div>
+          </div>
+          @if (f.status !== 'PENDENTE') {
+            <p class="revisao-foto__situacao"><geo-status [tone]="tom(f.status)">{{ rotuloStatus(f.status) }}</geo-status>
+              @if (f.rotuloInconformidade) { {{ f.rotuloInconformidade }}{{ f.motivo ? ': ' + f.motivo : '' }} }
+              @if (f.revisadaPor) { <span class="revisao-foto__quem">por {{ f.revisadaPor }}@if (f.revisadaEm) { em {{ f.revisadaEm | date: 'dd/MM/yyyy HH:mm' }} }</span> }</p>
+          }
           <dl class="revisao-foto__dados">
             <div><dt>Item</dt><dd>{{ f.tituloItem ?? 'Foto avulsa' }}</dd></div>
             <div><dt>Etapa</dt><dd>{{ etapa(f.etapa) }}</dd></div>
@@ -129,9 +163,11 @@ import { ETAPAS, ROTULO_STATUS, TOM_STATUS, opcoesStatus } from './revisao-fotos
           @if (reprovando()) {
             <geo-button variant="ghost" label="Voltar" (pressed)="reprovando.set(false)"></geo-button>
             <geo-button variant="destructive" icon="pi pi-times" label="Reprovar foto" [loading]="salvando()" (pressed)="reprovar(f)"></geo-button>
-          } @else {
+          } @else if (f.status !== 'APROVADA') {
             <geo-button variant="ghost" icon="pi pi-times" label="Reprovar" (pressed)="reprovando.set(true)"></geo-button>
             <geo-button icon="pi pi-check" label="Aprovar" [loading]="salvando()" (pressed)="aprovar(f)"></geo-button>
+          } @else {
+            <geo-button variant="ghost" icon="pi pi-times" label="Reprovar mesmo assim" (pressed)="reprovando.set(true)"></geo-button>
           }
         }
       </div>
@@ -140,8 +176,26 @@ import { ETAPAS, ROTULO_STATUS, TOM_STATUS, opcoesStatus } from './revisao-fotos
   styles: [`
     .revisao-foto__mini { display: inline-grid; place-items: center; width: 3rem; height: 3rem; object-fit: cover; border-radius: var(--geo-radius-sm, 0.375rem);
       background: var(--p-content-hover-background); color: var(--p-text-muted-color); }
-    .revisao-foto__grande { width: 100%; max-height: 22rem; object-fit: contain; border-radius: var(--geo-radius-sm, 0.375rem); background: var(--p-content-hover-background); }
-    .revisao-foto__grande--menor { max-height: 12rem; }
+    .revisao-lote { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; margin: 0.75rem 0;
+      padding: 0.5rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-raised);
+      font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .revisao-lote strong { color: var(--geo-foreground); }
+    .revisao-palco { display: flex; flex-direction: column; gap: 0.5rem; }
+    .revisao-palco__foto { display: grid; place-items: center; width: 100%; padding: 0; border: 0; border-radius: var(--geo-radius-sm, 0.375rem);
+      background: var(--geo-surface-muted); cursor: zoom-in; overflow: hidden; }
+    .revisao-palco__foto:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .revisao-palco__foto img { display: block; width: 100%; max-height: 22rem; object-fit: contain; }
+    .revisao-palco--menor .revisao-palco__foto img { max-height: 12rem; }
+    .revisao-palco__barra { display: flex; align-items: center; gap: 0.5rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption);
+      font-variant-numeric: tabular-nums; }
+    .revisao-palco__legenda { color: var(--geo-foreground); }
+    .revisao-palco__empurra { flex: 1; }
+    /* Tela cheia: a foto ocupa tudo e a barra (navegação e decisão) fica embaixo. */
+    .revisao-palco:fullscreen { justify-content: center; padding: 1rem; background: var(--geo-surface-raised); }
+    .revisao-palco:fullscreen .revisao-palco__foto { flex: 1; min-height: 0; cursor: default; border-radius: 0; }
+    .revisao-palco:fullscreen .revisao-palco__foto img { height: 100%; max-height: calc(100vh - 5rem); }
+    .revisao-foto__situacao { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; margin: 0.75rem 0 0; font-size: var(--geo-font-caption); }
+    .revisao-foto__quem { color: var(--p-text-muted-color); }
     .revisao-foto__motivo { display: block; margin-top: 0.25rem; color: var(--p-text-muted-color); font-size: 0.75rem; }
     .revisao-foto__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.5rem 1rem; margin: 0.75rem 0 0; }
     .revisao-foto__dados dt { color: var(--p-text-muted-color); font-size: 0.75rem; }
@@ -152,6 +206,8 @@ export class RevisaoFotosComponent {
   private readonly servico = inject(ObrasRevisaoFotosService);
   private readonly notificacoes = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly confirmacao = inject(GeoConfirmationService);
+  private readonly palco = viewChild<ElementRef<HTMLElement>>('palco');
   protected readonly podeRevisar = inject(AuthService).currentUser()?.permissoes?.includes('obras:documentacao:write') ?? false;
 
   protected readonly abas = [{ value: 'fila', label: 'Para revisar', icon: 'pi pi-images' }, { value: 'ranking', label: 'Ranking por equipe', icon: 'pi pi-chart-bar' }];
@@ -210,6 +266,19 @@ export class RevisaoFotosComponent {
   protected readonly motivo = signal('');
   protected readonly salvando = signal(false);
   protected readonly tentou = signal(false);
+  protected readonly selecionadas = signal<readonly FotoParaRevisao[]>([]);
+  protected readonly aprovandoLote = signal(false);
+  /** As fotos da página quando a revisão abriu: aprovar passa para a próxima sem fechar, mesmo com a lista recarregando. */
+  protected readonly fila = signal<FotoParaRevisao[]>([]);
+  protected readonly posicao = computed(() => this.fila().findIndex((f) => f.id === this.foto()?.id));
+  /** Foto em tamanho real (a da tabela é miniatura). */
+  protected readonly fotoGrande = signal<string | null>(null);
+  protected readonly emTelaCheia = signal(false);
+  /** Número da obra filtrada: com ele, dá para aprovar todas as fotos pendentes da obra de uma vez. */
+  protected readonly obraDoFiltro = computed(() => {
+    const { filters } = this.lista.request();
+    return filters.status === 'PENDENTE' && filters.obra?.trim() ? filters.obra.trim() : null;
+  });
 
   constructor() {
     this.servico.inconformidades().pipe(take(1)).subscribe({
@@ -221,7 +290,123 @@ export class RevisaoFotosComponent {
       const linhas = this.resultado.rows();
       untracked(() => this.carregarMiniaturas(linhas));
     });
-    this.destroyRef.onDestroy(() => Object.values(this.miniaturas()).forEach((u) => URL.revokeObjectURL(u)));
+    this.destroyRef.onDestroy(() => {
+      Object.values(this.miniaturas()).forEach((u) => URL.revokeObjectURL(u));
+      this.trocarFotoGrande(null);
+    });
+    // Foto em tamanho real da que está aberta.
+    effect((onCleanup) => {
+      const f = this.foto();
+      const aberto = this.detalheAberto();
+      untracked(() => this.trocarFotoGrande(null));
+      if (!f || !aberto) return;
+      const pedido = this.servico.foto(f.idObra, f.id).pipe(take(1)).subscribe({
+        next: (blob) => this.trocarFotoGrande(URL.createObjectURL(blob))
+      });
+      onCleanup(() => pedido.unsubscribe());
+    });
+    const aoTrocarTelaCheia = () => this.emTelaCheia.set(!!document.fullscreenElement && document.fullscreenElement === this.palco()?.nativeElement);
+    document.addEventListener('fullscreenchange', aoTrocarTelaCheia);
+    const teclas = (e: KeyboardEvent) => this.teclas(e);
+    document.addEventListener('keydown', teclas);
+    this.destroyRef.onDestroy(() => {
+      document.removeEventListener('fullscreenchange', aoTrocarTelaCheia);
+      document.removeEventListener('keydown', teclas);
+    });
+  }
+
+  /** Setas passam as fotos com a revisão aberta; fora dos campos de texto. */
+  private teclas(e: KeyboardEvent): void {
+    if (!this.detalheAberto() || this.reprovando()) return;
+    const alvo = e.target as HTMLElement | null;
+    if (alvo && ['INPUT', 'TEXTAREA', 'SELECT'].includes(alvo.tagName)) return;
+    if (e.key === 'ArrowLeft' && this.posicao() > 0) this.irPara(this.posicao() - 1);
+    if (e.key === 'ArrowRight' && this.posicao() < this.fila().length - 1) this.irPara(this.posicao() + 1);
+  }
+
+  protected irPara(indice: number): void {
+    const destino = this.fila()[indice];
+    if (!destino) return;
+    this.foto.set(destino);
+    this.reprovando.set(false);
+    this.inconformidade.set(null);
+    this.motivo.set('');
+    this.tentou.set(false);
+  }
+
+  protected async telaCheia(): Promise<void> {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => undefined);
+      return;
+    }
+    await this.palco()?.nativeElement.requestFullscreen?.().catch(() => undefined);
+  }
+
+  /** O motivo da reprovação se escolhe no painel: sai da tela cheia e abre o formulário. */
+  protected async reprovarDaTelaCheia(): Promise<void> {
+    if (document.fullscreenElement) await document.exitFullscreen().catch(() => undefined);
+    this.reprovando.set(true);
+  }
+
+  protected async aprovarSelecionadas(): Promise<void> {
+    const ids = this.selecionadas().filter((f) => f.status !== 'APROVADA').map((f) => f.id);
+    if (!ids.length) {
+      this.notificacoes.info('As fotos selecionadas já estão aprovadas.');
+      return;
+    }
+    const ok = await this.confirmacao.confirm({
+      title: ids.length === 1 ? 'Aprovar a foto selecionada?' : `Aprovar as ${ids.length} fotos selecionadas?`,
+      message: 'Elas passam a entrar no relatório de medição detalhado e no book. Dá para reprovar uma depois, se precisar.',
+      confirmLabel: 'Aprovar'
+    });
+    if (ok) this.aprovarLote(ids);
+  }
+
+  protected aprovarTodasDaObra(numero: string): void {
+    this.aprovandoLote.set(true);
+    this.servico.listar({ status: 'PENDENTE', numeroObra: numero, page: 0, size: 500 }).pipe(take(1)).subscribe({
+      next: async (pagina) => {
+        this.aprovandoLote.set(false);
+        const ids = pagina.content.map((f) => f.id);
+        if (!ids.length) {
+          this.notificacoes.info(`A obra ${numero} não tem foto para revisar.`);
+          return;
+        }
+        const ok = await this.confirmacao.confirm({
+          title: ids.length === 1 ? `Aprovar a foto da obra ${numero}?` : `Aprovar as ${ids.length} fotos da obra ${numero}?`,
+          message: (ids.length === 1 ? 'A foto para revisar desta obra passa' : 'Todas as fotos para revisar desta obra passam') + ' a entrar no relatório de medição detalhado e no book. Confira as miniaturas antes; dá para reprovar depois.',
+          confirmLabel: 'Aprovar todas'
+        });
+        if (ok) this.aprovarLote(ids);
+      },
+      error: (e) => {
+        this.aprovandoLote.set(false);
+        this.notificacoes.error(getErrorMessage(e));
+      }
+    });
+  }
+
+  private aprovarLote(ids: string[]): void {
+    this.aprovandoLote.set(true);
+    this.servico.aprovarEmLote(ids).pipe(take(1)).subscribe({
+      next: ({ aprovadas }) => {
+        this.aprovandoLote.set(false);
+        this.selecionadas.set([]);
+        this.notificacoes.success(aprovadas === 1 ? '1 foto aprovada.' : `${aprovadas} fotos aprovadas.`);
+        this.lista.reload();
+        this.carregarRanking();
+      },
+      error: (e) => {
+        this.aprovandoLote.set(false);
+        this.notificacoes.error(getErrorMessage(e));
+      }
+    });
+  }
+
+  private trocarFotoGrande(url: string | null): void {
+    const anterior = this.fotoGrande();
+    if (anterior) URL.revokeObjectURL(anterior);
+    this.fotoGrande.set(url);
   }
 
   protected tom(status: RevisaoFoto) {
@@ -237,6 +422,7 @@ export class RevisaoFotosComponent {
   }
 
   protected abrir(foto: FotoParaRevisao): void {
+    this.fila.set([...this.resultado.rows()]);
     this.foto.set(foto);
     this.reprovando.set(false);
     this.inconformidade.set(null);
@@ -275,10 +461,18 @@ export class RevisaoFotosComponent {
   private decidir(foto: FotoParaRevisao, decisao: { aprovar: boolean; inconformidade?: InconformidadeFoto | null; motivo?: string | null }, mensagem: string): void {
     this.salvando.set(true);
     this.servico.revisar(foto.id, decisao).pipe(take(1)).subscribe({
-      next: () => {
+      next: (revisada) => {
         this.salvando.set(false);
-        this.detalheAberto.set(false);
         this.notificacoes.success(mensagem);
+        // Segue para a próxima para revisar da fila; na última, fecha.
+        this.fila.update((fila) => fila.map((f) => (f.id === revisada.id ? revisada : f)));
+        const proxima = this.fila().slice(this.posicao() + 1).find((f) => f.status === 'PENDENTE');
+        if (proxima) {
+          this.irPara(this.fila().indexOf(proxima));
+        } else {
+          if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+          this.detalheAberto.set(false);
+        }
         this.lista.reload();
         this.carregarRanking();
       },

@@ -203,7 +203,8 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         </div>
         <div class="geo-kpi" data-tone="neutral">
           <span class="geo-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
-          <span class="geo-kpi__body"><span class="geo-kpi__label">Valor de projeto</span><span class="geo-kpi__value">{{ indicador('valorProjeto') }}</span></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Valor de projeto</span><span class="geo-kpi__value">{{ indicador('valorProjeto') }}</span>
+            @if (detalheValorPeloPlanejamento(); as d) { <span class="geo-kpi__detail" title="Obras sem valor de projeto na carteira entram pelo valor do planejamento, como na ficha.">{{ d }}</span> }</span>
         </div>
         <div class="geo-kpi" data-tone="neutral">
           <span class="geo-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
@@ -257,6 +258,16 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
             <button type="button" class="obra-encerramento" [title]="'Ver o encerramento da obra ' + row.numero" (click)="verEncerramento(row); $event.stopPropagation()">
               <geo-status [tone]="enc.tone" [icon]="enc.icon">{{ enc.label }}</geo-status>
             </button>
+          }
+        </ng-template>
+        <ng-template geoCell="valor" let-row>
+          @if (row.valorProjeto) {
+            <span class="geo-cell-num">{{ moedaResumo(row.valorProjeto) }}</span>
+          } @else if (resumoDe(row)?.temKits) {
+            <span class="geo-cell-num">{{ moedaResumo(resumoDe(row)!.valorTotal) }}</span>
+            <span class="geo-cell-muted" title="A carteira ainda não tem o valor de projeto desta obra.">pelo planejamento</span>
+          } @else {
+            <span class="geo-cell-muted">—</span>
           }
         </ng-template>
         <ng-template geoCell="planejado" let-row>
@@ -496,7 +507,7 @@ export class ObrasListComponent {
     { key: 'titulo', header: 'Título', type: 'custom', priority: 1, sortField: 'titulo', value: (o) => o.titulo, display: (o) => o.titulo },
     { key: 'nota', header: 'Nota', sortField: 'notaObra', value: (o) => o.notaObra, display: (o) => o.notaObra || '—' },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status.nome', value: (o) => o.statusNome, display: (o) => o.statusNome },
-    { key: 'valor', header: 'Valor do projeto', type: 'currency', sortField: 'valorProjeto', value: (o) => o.valorProjeto },
+    { key: 'valor', header: 'Valor do projeto', type: 'custom', sortField: 'valorProjeto', value: (o) => o.valorProjeto ?? this.resumoDe(o)?.valorTotal },
     { key: 'planejado', header: 'Planejamento', type: 'custom', width: '12rem', value: (o) => this.resumoDe(o)?.valorTotal },
     { key: 'processo', header: 'Processo', sortField: 'processo.nome', value: (o) => o.processoNome, display: (o) => o.processoNome || '—' },
     { key: 'base', header: 'Base', sortField: 'baseOperacional.nome', value: (o) => o.baseOperacionalNome, display: (o) => o.baseOperacionalNome || '—' },
@@ -654,11 +665,19 @@ export class ObrasListComponent {
   }
 
   /** Indicador formatado; "…" enquanto carrega e "—" se a consulta falhou. */
+  /** Quanto do valor de projeto veio do planejamento (obras sem valor na carteira). */
+  protected detalheValorPeloPlanejamento(): string | null {
+    const atual = this.indicadores();
+    if (!atual || atual === 'erro' || !atual.obrasPeloPlanejamento || !atual.valorPeloPlanejamento) return null;
+    const n = atual.obrasPeloPlanejamento;
+    return `${formatarMoeda(atual.valorPeloPlanejamento)} pelo planejamento (${n} ${n === 1 ? 'obra' : 'obras'} sem valor na carteira)`;
+  }
+
   protected indicador(campo: keyof IndicadoresCarteiraResponse): string {
     const atual = this.indicadores();
     if (atual === null) return '…';
     if (atual === 'erro') return '—';
-    const valor = atual[campo];
+    const valor = atual[campo] ?? 0;
     if (campo === 'quantidade') return valor.toLocaleString('pt-BR');
     if (campo === 'municipios') return `${valor} ${valor === 1 ? 'município' : 'municípios'}`;
     return formatarMoeda(valor);

@@ -151,6 +151,12 @@ export interface EvidenciaPonto {
   /** Quando foi tirada, se o app informou. */
   dataCaptura: string | null;
   tamanhoBytes: number;
+  /** Revisão antes da medição: só a aprovada entra no relatório detalhado. */
+  revisao?: 'PENDENTE' | 'APROVADA' | 'REPROVADA';
+  rotuloInconformidade?: string | null;
+  motivoReprovacao?: string | null;
+  revisadaPor?: string | null;
+  revisadaEm?: string | null;
 }
 
 export interface PontoDocumentacao {

@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { BarraTopoComponent, FotoExibida, FotosComponent, IconeComponent } from '../../ui';
 import { ToastService } from '../../core/ui/toast.service';
 import { TurnoService } from '../../core/turno/turno.service';
+import { AvisoTurnoFechadoComponent } from './aviso-turno-fechado.component';
 import { linhasDoCarimbo } from '../../core/fotos/carimbo';
 import { EvidenciaPreparada } from '../../core/sst/evidencia-foto.util';
 import { TIPOS_OCORRENCIA, TipoOcorrencia } from '../../core/obras/obras.models';
@@ -18,16 +19,11 @@ import { ObrasContexto } from './obras-contexto';
 @Component({
   selector: 'app-ocorrencia-obra',
   standalone: true,
-  imports: [BarraTopoComponent, IconeComponent, FotosComponent, RouterLink],
+  imports: [BarraTopoComponent, IconeComponent, FotosComponent, AvisoTurnoFechadoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <geo-barra-topo [titulo]="impede() ? 'Sem condição de executar' : 'Ocorrência'" [subtitulo]="subtitulo()" (voltar)="voltar()" />
-    @if (!turno.turnoAtivo()) {
-      <div class="turno-fechado" role="status">
-        <span>O turno está fechado. Pode ir escrevendo: para registrar, abra o turno e você volta para cá com o texto.</span>
-        <a class="geo-btn geo-btn--compacto" [routerLink]="['/turno/abrir']" [queryParams]="{ volta: aqui() }">Abrir turno</a>
-      </div>
-    }
+    <geo-aviso-turno-fechado texto="O turno está fechado. Pode ir escrevendo: para registrar, abra o turno e você volta para cá com o texto." />
     @if (impede()) {
       <p class="explica">O serviço fica registrado como não executado hoje. Para voltar a executar nesta obra, conclua uma nova APR.</p>
     }
@@ -56,8 +52,6 @@ import { ObrasContexto } from './obras-contexto';
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; }
     .explica { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-erro-suave); font: var(--geo-t-apoio); }
-    .turno-fechado { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
-      background: var(--geo-atencao-suave); font: var(--geo-t-apoio); display: flex; align-items: center; gap: var(--geo-e3); justify-content: space-between; }
     .tipos { display: flex; flex-wrap: wrap; gap: var(--geo-e2); padding: 0 var(--geo-margem); }
     .tipo { min-height: var(--geo-alvo); padding: 0 var(--geo-e4); border-radius: var(--geo-r-pilula); border: 1px solid var(--geo-borda-campo);
       background: var(--geo-superficie); color: var(--geo-texto); font: 500 .9375rem/1 var(--geo-fonte); display: inline-flex; align-items: center; gap: 6px; }
@@ -84,8 +78,6 @@ export class OcorrenciaObraComponent {
   private readonly rascunho = this.lerRascunho();
   readonly tipo = signal<TipoOcorrencia | null>(this.tipoInicial ?? this.rascunho?.tipo ?? null);
   readonly descricao = signal(this.rascunho?.descricao ?? '');
-  /** Endereço desta tela, para o "Abrir turno" voltar a ela. */
-  readonly aqui = () => this.router.url;
   readonly fotos = signal<{ id: string; foto: EvidenciaPreparada; url: string }[]>([]);
   readonly fotosExibidas = computed<FotoExibida[]>(() => this.fotos().map(f => ({ id: f.id, url: f.url })));
   readonly salvando = signal(false);

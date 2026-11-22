@@ -56,6 +56,8 @@ class CarteiraObraUseCasesTest {
     private AuditorAware<String> auditor;
     @Mock
     private EntityManager entityManager;
+    @Mock
+    private ResumoPlanejamentoObras resumosPlanejamento;
 
     private CarteiraObraUseCases useCases;
     private Obra obra;
@@ -64,7 +66,7 @@ class CarteiraObraUseCasesTest {
     void setUp() {
         useCases = new CarteiraObraUseCases(repository, obraUseCases, statusUseCases, deslocamentoService,
                 contratoApi, municipioApi, mapper, orcamentoRepository, new ImportacaoObraMapperImpl(), auditor,
-                entityManager);
+                entityManager, resumosPlanejamento);
         obra = obra("100", null, null);
         when(obraUseCases.buscarEntidade(obra.getId())).thenReturn(obra);
         lenient().when(municipioApi.buscarPorIdResponse(any())).thenReturn(Optional.empty());

@@ -5,6 +5,7 @@ import com.nexo.app.modules.obras.application.dto.CarteiraObraRequest;
 import com.nexo.app.modules.obras.application.dto.CarteiraObraResponse;
 import com.nexo.app.modules.obras.application.dto.HistoricoStatusObraResponse;
 import com.nexo.app.modules.obras.application.dto.IndicadoresCarteiraResponse;
+import com.nexo.app.modules.obras.application.dto.ProgramacaoResponses;
 import com.nexo.app.modules.obras.application.dto.ObraFilter;
 import com.nexo.app.modules.obras.application.dto.ObraProximaResponse;
 import com.nexo.app.modules.obras.application.dto.OrcamentoObraResponse;
@@ -54,6 +55,8 @@ import java.util.UUID;
 public class CarteiraObraUseCases {
 
     static final double RAIO_PADRAO_KM = 10;
+    /** Quantas obras sem valor de carteira entram, pelo planejamento, nos totais da listagem. */
+    private static final int LIMITE_PLANEJAMENTO_NOS_TOTAIS = 2000;
     static final double RAIO_MAXIMO_KM = 100;
 
     private final ObraRepository repository;
@@ -67,6 +70,7 @@ public class CarteiraObraUseCases {
     private final ImportacaoObraMapper importacaoMapper;
     private final AuditorAware<String> auditor;
     private final EntityManager entityManager;
+    private final ResumoPlanejamentoObras resumosPlanejamento;
 
     @Transactional(readOnly = true)
     public CarteiraObraResponse buscarCarteira(UUID idObra) {
@@ -198,12 +202,35 @@ public class CarteiraObraUseCases {
         query.orderBy(List.of());
         query.distinct(false);
         Tuple t = entityManager.createQuery(query).getSingleResult();
+        List<UUID> semValor = obrasSemValorDeProjeto(filter);
+        var resumos = semValor.isEmpty() ? Map.<UUID, ProgramacaoResponses.ResumoPlanejamento>of() : resumosPlanejamento.calcular(semValor);
+        BigDecimal peloPlanejamento = resumos.values().stream()
+                .map(ProgramacaoResponses.ResumoPlanejamento::valorTotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        long obrasPeloPlanejamento = resumos.values().stream().filter(r -> r.valorTotal().signum() > 0).count();
         return new IndicadoresCarteiraResponse(
                 valorLong(t.get(0)),
-                valorDecimal(t.get(1)),
+                valorDecimal(t.get(1)).add(peloPlanejamento).setScale(2, RoundingMode.HALF_UP),
+                peloPlanejamento.setScale(2, RoundingMode.HALF_UP),
+                obrasPeloPlanejamento,
                 valorDecimal(t.get(2)),
                 valorDecimal(t.get(3)),
                 valorLong(t.get(4)));
+    }
+
+    /**
+     * Obras do recorte ainda sem valor de projeto na carteira: o total usa o valor do planejamento delas, como a ficha.
+     * Limitado para o painel não pesar num recorte enorme.
+     */
+    private List<UUID> obrasSemValorDeProjeto(ObraFilter filter) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<UUID> query = cb.createQuery(UUID.class);
+        Root<Obra> root = query.from(Obra.class);
+        var predicado = ObraSpecification.filterBy(filter, Sort.unsorted()).toPredicate(root, query, cb);
+        var semValor = cb.or(cb.isNull(root.get("valorProjeto")), cb.equal(root.get("valorProjeto"), BigDecimal.ZERO));
+        query.select(root.get("id")).where(predicado != null ? cb.and(predicado, semValor) : semValor);
+        query.orderBy(List.of());
+        query.distinct(false);
+        return entityManager.createQuery(query).setMaxResults(LIMITE_PLANEJAMENTO_NOS_TOTAIS).getResultList();
     }
 
     private String usuarioAtual() {
