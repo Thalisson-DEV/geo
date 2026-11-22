@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>GEO — Visão do produto, identidade visual e design system</title>
+<style>
+@font-face { font-family: 'Inter'; src: url('fonts/inter-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'Inter'; src: url('fonts/inter-latin-ext-wght-normal.woff2') format('woff2'); font-weight: 100 900; unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
+@page { size: A4; margin: 16mm 16mm 18mm; }
+@page :first { margin: 0; }
+
+:root {
+  --zinc-50:#fafafa; --zinc-100:#f4f4f5; --zinc-200:#e4e4e7; --zinc-300:#d4d4d8; --zinc-400:#a1a1aa;
+  --zinc-500:#71717a; --zinc-600:#52525b; --zinc-700:#3f3f46; --zinc-800:#27272a; --zinc-900:#18181b; --zinc-950:#09090b;
+  --blue-50:#eff6ff; --blue-100:#dbeafe; --blue-300:#93c5fd; --blue-400:#60a5fa; --blue-600:#2563eb; --blue-700:#1d4ed8; --blue-800:#1e40af; --blue-900:#1e3a8a;
+  --amber-400:#fbbf24; --amber-50:#fffbeb; --amber-700:#b45309;
+  --green-50:#f0fdf4; --green-700:#15803d; --red-50:#fef2f2; --red-700:#b91c1c;
+}
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: 'Inter', system-ui, sans-serif; color: var(--zinc-900); font-size: 9.6pt; line-height: 1.5; margin: 0; font-feature-settings: 'cv11', 'ss01'; }
+h1, h2, h3, h4 { font-weight: 600; letter-spacing: -0.01em; line-height: 1.25; margin: 0; }
+h1 { font-size: 22pt; margin-bottom: 4mm; }
+h2 { font-size: 14pt; margin: 7mm 0 2.5mm; }
+h3 { font-size: 11pt; margin: 5mm 0 1.5mm; }
+h4 { font-size: 9.6pt; margin: 3mm 0 1mm; }
+p { margin: 0 0 2.4mm; }
+ul, ol { margin: 0 0 2.6mm; padding-left: 5mm; }
+li { margin-bottom: 1mm; }
+strong { font-weight: 600; }
+small, .muted { color: var(--zinc-600); }
+code { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 8.4pt; background: var(--zinc-100); padding: 0.2mm 1.2mm; border-radius: 3px; }
+.page:has(> .section-head), .page:has(> h1) { page-break-before: always; break-before: page; }
+.page > h2:first-child, .page > h3:first-child, .page > .module-title:first-child { margin-top: 6mm !important; }
+.avoid, .do-dont, .do, .dont, .callout, .grid2, .logo-stage, .swatches, .ramp { break-inside: avoid; page-break-inside: avoid; }
+h2, h3, h4, .module-title, .type-row small { break-after: avoid; page-break-after: avoid; }
+
+.kicker { font-size: 8pt; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue-700); margin-bottom: 2mm; }
+.lead { font-size: 11pt; color: var(--zinc-700); max-width: 160mm; }
+.section-head { border-bottom: 1px solid var(--zinc-200); padding-bottom: 3mm; margin-bottom: 4mm; }
+
+table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 8.6pt; }
+th { text-align: left; font-weight: 600; color: var(--zinc-600); background: var(--zinc-50); border-bottom: 1px solid var(--zinc-200); padding: 1.8mm 2mm; }
+td { border-bottom: 1px solid var(--zinc-200); padding: 1.8mm 2mm; vertical-align: top; }
+tr { break-inside: avoid; }
+
+.callout { border: 1px solid var(--blue-100); background: var(--blue-50); border-radius: 8px; padding: 3mm 4mm; margin: 3mm 0 4mm; }
+.callout.warn { border-color: #fde68a; background: var(--amber-50); }
+.callout.danger { border-color: #fecaca; background: var(--red-50); }
+.callout h4 { margin-top: 0; }
+.callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.card { border: 1px solid var(--zinc-200); border-radius: 8px; padding: 3mm 3.5mm; break-inside: avoid; }
+.card h4 { margin-top: 0; }
+.card p { margin-bottom: 1mm; font-size: 8.8pt; color: var(--zinc-700); }
+.num { display: inline-flex; align-items: center; justify-content: center; width: 5.5mm; height: 5.5mm; border-radius: 4px; background: var(--blue-50); color: var(--blue-700); font-weight: 600; font-size: 8pt; margin-right: 1.5mm; }
+
+.module { break-inside: avoid-page; margin-bottom: 5mm; }
+.module-title { display: flex; align-items: baseline; gap: 3mm; border-bottom: 2px solid var(--blue-600); padding-bottom: 1.5mm; margin: 6mm 0 3mm; }
+.module-title h2 { margin: 0; }
+.module-title span { color: var(--zinc-500); font-size: 9pt; }
+.feat { margin: 0 0 2.4mm; }
+.feat b { font-weight: 600; }
+
+/* Capa */
+.cover { height: 297mm; width: 210mm; background: var(--zinc-950); color: #fff; position: relative; overflow: hidden; padding: 24mm 20mm; display: flex; flex-direction: column; }
+.cover svg.contour { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cover .brand { display: flex; align-items: center; gap: 5mm; position: relative; }
+.cover .brand strong { font-size: 30pt; letter-spacing: -0.02em; display: block; line-height: 1; }
+.cover .brand span { color: var(--zinc-400); font-size: 11pt; }
+.cover .title { margin-top: auto; position: relative; }
+.cover .title .kicker { color: var(--blue-300); }
+.cover .title h1 { font-size: 30pt; line-height: 1.12; margin-bottom: 6mm; max-width: 150mm; }
+.cover .title p { color: var(--zinc-300); font-size: 11.5pt; max-width: 140mm; }
+.cover .meta { position: relative; margin-top: 14mm; display: flex; gap: 10mm; font-size: 8.5pt; color: var(--zinc-400); border-top: 1px solid var(--zinc-800); padding-top: 5mm; }
+.cover .meta b { display: block; color: #fff; font-weight: 500; }
+
+/* Fluxo da obra */
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; margin: 3mm 0 4mm; }
+.phase { border: 1px solid var(--zinc-200); border-radius: 8px; overflow: hidden; }
+.phase header { background: var(--blue-600); color: #fff; font-weight: 600; padding: 2mm 3mm; font-size: 9pt; }
+.phase:nth-child(2) header { background: var(--blue-700); }
+.phase:nth-child(3) header { background: var(--blue-800); }
+.phase:nth-child(4) header { background: var(--blue-900); }
+.phase ol { margin: 0; padding: 2.5mm 3mm 2.5mm 7mm; font-size: 8.4pt; }
+.phase li { margin-bottom: 1.4mm; }
+
+.states { display: flex; flex-wrap: wrap; gap: 1.5mm; align-items: center; margin: 2mm 0 3mm; font-size: 8.4pt; }
+.tag { display: inline-flex; align-items: center; gap: 1.2mm; border-radius: 999px; padding: 0.6mm 2.4mm; border: 1px solid var(--zinc-200); background: var(--zinc-50); color: var(--zinc-700); font-weight: 500; font-size: 8pt; white-space: nowrap; }
+.tag.info { background: var(--blue-50); border-color: var(--blue-100); color: var(--blue-700); }
+.tag.ok { background: var(--green-50); border-color: #bbf7d0; color: var(--green-700); }
+.tag.warn { background: var(--amber-50); border-color: #fcd34d; color: var(--amber-700); }
+.tag.danger { background: var(--red-50); border-color: #fca5a5; color: var(--red-700); }
+.arrow { color: var(--zinc-400); }
+
+/* Screens */
+figure { margin: 3mm 0 4mm; break-inside: avoid; }
+figure .shot { border: 1px solid var(--zinc-200); border-radius: 8px; overflow: hidden; }
+figure img { display: block; width: 100%; }
+figcaption { font-size: 8pt; color: var(--zinc-600); margin-top: 1.5mm; }
+.crop-bottom img { aspect-ratio: 1920 / 1040; object-fit: cover; object-position: top; }
+.crop-top img { aspect-ratio: 618 / 1190; object-fit: cover; object-position: bottom; }
+
+/* Marca */
+.logo-stage { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; margin: 3mm 0; }
+.logo-stage > div { border-radius: 8px; border: 1px solid var(--zinc-200); height: 40mm; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2mm; font-size: 8pt; color: var(--zinc-600); }
+.logo-stage .dark { background: var(--zinc-950); color: var(--zinc-400); border-color: var(--zinc-950); }
+.logo-stage .blue { background: var(--blue-900); color: var(--blue-300); border-color: var(--blue-900); }
+.lockup { display: flex; align-items: center; gap: 3mm; }
+.lockup strong { font-size: 16pt; letter-spacing: -0.02em; line-height: 1; display: block; color: inherit; }
+.lockup span { font-size: 7.6pt; color: var(--zinc-500); }
+
+.swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2mm; margin: 2mm 0 4mm; }
+.sw { border: 1px solid var(--zinc-200); border-radius: 6px; overflow: hidden; font-size: 7.4pt; break-inside: avoid; }
+.sw i { display: block; height: 13mm; }
+.sw div { padding: 1.3mm 1.8mm; line-height: 1.35; }
+.sw b { font-weight: 600; display: block; font-size: 7.8pt; }
+.sw code { background: none; padding: 0; font-size: 7.2pt; color: var(--zinc-600); }
+
+.ramp { display: grid; grid-template-columns: repeat(11, 1fr); border-radius: 6px; overflow: hidden; border: 1px solid var(--zinc-200); margin: 2mm 0 1mm; }
+.ramp div { height: 10mm; font-size: 6.4pt; display: flex; align-items: flex-end; padding: 0.8mm; }
+.ramp-label { display: grid; grid-template-columns: repeat(11, 1fr); font-size: 6.4pt; color: var(--zinc-600); margin-bottom: 3mm; }
+.ramp-label span { padding-left: 0.6mm; }
+
+.type-row { display: grid; grid-template-columns: 34mm 1fr; align-items: baseline; border-bottom: 1px solid var(--zinc-200); padding: 2mm 0; }
+.type-row small { font-size: 7.6pt; }
+
+.do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+.do, .dont { border-radius: 8px; padding: 3mm 4mm; font-size: 8.8pt; }
+.do { background: var(--green-50); border: 1px solid #bbf7d0; }
+.dont { background: var(--red-50); border: 1px solid #fecaca; }
+.do h4 { color: var(--green-700); margin-top: 0; }
+.dont h4 { color: var(--red-700); margin-top: 0; }
+
+.toc { columns: 2; column-gap: 10mm; font-size: 9.4pt; }
+.toc div { break-inside: avoid; margin-bottom: 3mm; }
+.toc b { display: block; font-weight: 600; }
+.toc span { color: var(--zinc-600); font-size: 8.6pt; }
+
+.wire { border: 1px dashed var(--zinc-300); border-radius: 8px; padding: 3mm 4mm; margin-bottom: 2.5mm; break-inside: avoid; }
+.wire h4 { margin-top: 0; display: flex; gap: 2mm; align-items: center; }
+.wire .copy { background: var(--zinc-50); border-left: 3px solid var(--blue-600); padding: 2mm 3mm; margin: 1.5mm 0; font-size: 9pt; }
+.wire .copy b { font-size: 10.5pt; display: block; }
+</style>
+</head>
+<body>
+
+<!-- ============================== CAPA ============================== -->
+<section class="cover">
+  <svg class="contour" viewBox="0 0 210 297" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="#27272a" stroke-width="0.35">
+      <ellipse cx="160" cy="70" rx="20" ry="14"/><ellipse cx="160" cy="70" rx="34" ry="25"/><ellipse cx="160" cy="70" rx="48" ry="36"/>
+      <ellipse cx="160" cy="70" rx="62" ry="47"/><ellipse cx="160" cy="70" rx="78" ry="59"/><ellipse cx="160" cy="70" rx="95" ry="72"/>
+      <ellipse cx="160" cy="70" rx="113" ry="86"/><ellipse cx="30" cy="200" rx="18" ry="12"/><ellipse cx="30" cy="200" rx="32" ry="22"/>
+      <ellipse cx="30" cy="200" rx="46" ry="33"/><ellipse cx="30" cy="200" rx="61" ry="44"/>
+    </g>
+    <polyline points="18,120 58,140 92,128 126,156 168,148" fill="none" stroke="#2563eb" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="168,148 204,168" fill="none" stroke="#60a5fa" stroke-width="1.1" stroke-dasharray="2.5 2.5" stroke-linecap="round"/>
+    <g fill="#09090b" stroke="#60a5fa" stroke-width="0.9"><circle cx="18" cy="120" r="2"/><circle cx="58" cy="140" r="2"/><circle cx="92" cy="128" r="2"/><circle cx="168" cy="148" r="2"/></g>
+    <circle cx="126" cy="156" r="6" fill="#fbbf24" opacity="0.18"/><circle cx="126" cy="156" r="2.6" fill="#fbbf24"/>
+  </svg>
+  <div class="brand">
+    <svg width="64" height="64" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#1E40AF"/></linearGradient></defs><rect width="100" height="100" rx="26" fill="url(#gc)"/><path d="M71.2 34.5A26 26 0 1 0 76 50H52" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="71.5" cy="31" r="7.5" fill="#FBBF24" stroke="#1E40AF" stroke-width="3"/></svg>
+    <div><strong>GEO</strong><span>Gestão de Equipes e Operações</span></div>
+  </div>
+  <div class="title">
+    <div class="kicker">Visão do produto</div>
+    <h1>A operação inteira, do campo ao escritório.</h1>
+    <p>Contexto do produto, tudo o que o sistema faz, identidade visual e design system do GEO, reunidos para quem ainda não conhece o sistema.</p>
+  </div>
+  <div class="meta">
+    <div><b>Versão</b>22 de novembro de 2026</div>
+    <div><b>Público</b>Quem precisa conhecer o GEO do zero</div>
+    <div><b>Idioma do produto</b>Português do Brasil</div>
+  </div>
+</section>
+
+<!-- ============================== SUMÁRIO ============================== -->
+<section class="page">
+  <div class="kicker">Antes de começar</div>
+  <h1>Como usar este documento</h1>
+  <p class="lead">Este documento apresenta o GEO do zero, sem pressupor que você já viu o sistema: o que ele é, tudo o que faz, como se parece e como foi construído visualmente. A Parte 1 dá a visão geral; as outras partes aprofundam e servem de consulta.</p>
+
+  <div class="toc" style="margin-top:6mm">
+    <div><b>Parte 1 · Contexto</b><span>O que é o GEO, para quem é, que problema resolve, o que o diferencia e quem usa cada parte.</span></div>
+    <div><b>Parte 2 · O caminho da obra</b><span>O fluxo central do produto, da obra cadastrada à obra medida e cobrada.</span></div>
+    <div><b>Parte 3 · Tudo o que o sistema faz</b><span>Módulo por módulo: Obras, app de campo, Almoxarifado, Frota, Segurança, Financeiro, Departamento Pessoal, Chamados, Comunicação, Automações, a assistente Bússola e Administração.</span></div>
+    <div><b>Parte 4 · Plataforma</b><span>Funcionamento sem sinal, implantação dedicada, segurança de acesso e o que ainda está em desenvolvimento.</span></div>
+    <div><b>Parte 5 · Identidade visual</b><span>Nome, logo, a Bússola, cores com hex, tipografia, ícones, forma, movimento, ilustração e tom de voz.</span></div>
+    <div><b>Parte 6 · Design system</b><span>Tokens, densidade, componentes e padrões de tela do produto.</span></div>
+    <div><b>Parte 7 · Glossário</b><span>Os termos do setor elétrico e do sistema que aparecem nos textos.</span></div>
+  </div>
+
+  <div class="callout warn avoid" style="margin-top:6mm">
+    <h4>Três pontos importantes sobre o produto</h4>
+    <ul>
+      <li><strong>O nome é GEO</strong> (sempre em maiúsculas) e a assistente de IA é <strong>a Bússola</strong> (substantivo feminino: “a Bússola”, “da Bússola”, “pergunte à Bússola”). Os nomes antigos “Nexo”, “Copiloto” e “CES” não valem mais.</li>
+      <li><strong>O GEO é um produto próprio, sem marca de cliente.</strong> Ele não leva nome, logo nem dados de nenhuma empresa, e ainda não há casos ou números de resultado autorizados para divulgação.</li>
+      <li><strong>Tudo o que está descrito aqui já existe</strong>, exceto o que está na lista “Em desenvolvimento” (Parte 4).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================== PARTE 1 ============================== -->
+<section class="page">
+  <div class="section-head"><div class="kicker">Parte 1 · Contexto</div><h1>O GEO em uma página</h1></div>
+
+  <p class="lead"><strong>GEO — Gestão de Equipes e Operações</strong> é a plataforma de gestão operacional de empresas que <strong>constroem e mantêm redes elétricas</strong>: as prestadoras de serviço que executam obras de distribuição de energia para as concessionárias.</p>
+
+  <p>Essas empresas têm dezenas ou centenas de eletricistas espalhados em equipes de campo, cada uma com um veículo, trabalhando em obras distantes, muitas vezes em áreas sem sinal de celular. No escritório, gestores, programadores, almoxarifes, técnicos de segurança e o financeiro precisam saber o que cada equipe vai fazer, o que fez, com que material, com que segurança, e quanto daquilo pode ser cobrado da concessionária.</p>
+
+  <p>O GEO reúne tudo isso num só lugar: <strong>a obra, as equipes, o material, a frota, a segurança, o dinheiro e as pessoas</strong>. A obra é o centro. Quase tudo no sistema existe para que ela seja planejada, executada, documentada e medida com o menor retrabalho possível.</p>
+
+  <h3>Duas faces do mesmo produto</h3>
+  <div class="grid2">
+    <div class="card"><h4>Sistema web (escritório)</h4><p>Usado no computador pelo backoffice: cadastra e acompanha obras, planeja sobre o projeto, programa as equipes, atende o material, mede, fecha, cuida da frota, da segurança, do financeiro e do pessoal. Interface densa e rápida, feita para quem passa o dia nela.</p></div>
+    <div class="card"><h4>App de campo (equipe)</h4><p>Usado no tablet ou celular pelo encarregado da equipe. Mostra o dia de trabalho, guia o turno, a análise de risco (APR), o que fazer em cada poste, as fotos e o relatório do dia. <strong>Funciona sem sinal</strong> e envia tudo sozinho quando a conexão volta. É instalado pelo navegador, sem loja de aplicativos, em Android e iPhone.</p></div>
+  </div>
+
+  <h3>A frase do produto</h3>
+  <p style="font-size:14pt;font-weight:600;letter-spacing:-0.01em;margin:2mm 0 3mm">“A operação inteira, do campo ao escritório.”</p>
+  <p class="muted">É a manchete usada hoje na tela de entrada do sistema.</p>
+
+  <h3>O tamanho do produto</h3>
+  <p>O GEO não é um aplicativo de uma função. São <strong>dez áreas integradas</strong>, mais o app de campo e uma assistente de IA:</p>
+  <table>
+    <tr><th style="width:30%">Área</th><th>O que faz, em uma linha</th></tr>
+    <tr><td><strong>Obras (Execução)</strong></td><td>Carteira, planejamento sobre o projeto, programação das equipes, acompanhamento de campo, documentação técnica, medição e fechamento.</td></tr>
+    <tr><td><strong>App de campo</strong></td><td>O dia da equipe: turno, APR, pontos do projeto, fotos com carimbo, ocorrências e relatório diário, sem depender de sinal.</td></tr>
+    <tr><td><strong>Almoxarifado</strong></td><td>Solicitações de material, separação, entrega, devolução, transferências e saldos por estoque e por obra.</td></tr>
+    <tr><td><strong>Frota</strong></td><td>Veículos, manutenção (ordens de serviço e preventiva), checklist diário, abastecimento, pneus, documentos, seguros, sinistros e telemetria.</td></tr>
+    <tr><td><strong>Segurança (SST)</strong></td><td>Inspeções, desvios e tratamento, eventos de segurança (acidentes e incidentes), metas e painéis.</td></tr>
+    <tr><td><strong>Financeiro</strong></td><td>Pedidos de compra e pagamento com aprovação, documentos fiscais, fornecedores e contratos com o valor de cada serviço.</td></tr>
+    <tr><td><strong>Departamento Pessoal</strong></td><td>Colaboradores, funções, descontos em folha com fluxo de validação e termo assinado, medidas disciplinares.</td></tr>
+    <tr><td><strong>Chamados</strong></td><td>Atendimento interno com tópicos, filas e prazos (SLA).</td></tr>
+    <tr><td><strong>Comunicação</strong></td><td>Mural de comunicados com confirmação de leitura, notificações em tempo real, preferências e regras de aviso.</td></tr>
+    <tr><td><strong>Automações</strong></td><td>Editor visual de fluxos: gatilhos, condições, consultas, IA, e-mails e aprovações, sem programar.</td></tr>
+    <tr><td><strong>Bússola (IA)</strong></td><td>Assistente que conversa com os dados, analisa painéis, gera relatórios e lê o projeto da obra em PDF.</td></tr>
+    <tr><td><strong>Administração</strong></td><td>Usuários, perfis de acesso com permissões finas, sincronização do app e saúde do sistema.</td></tr>
+  </table>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="kicker">Parte 1 · Contexto</div><h1>Os problemas que o GEO resolve</h1></div>
+  <p class="lead">Problemas comuns ao setor, descritos sem citar nenhuma empresa, e como o GEO responde a cada um.</p>
+
+  <table>
+    <tr><th style="width:36%">Problema comum no setor</th><th>Como o GEO resolve</th></tr>
+    <tr><td><strong>Informação espalhada</strong> em planilhas, grupos de mensagem, papel e sistemas que não conversam.</td><td>Um só sistema para obra, equipe, material, frota, segurança, financeiro e pessoal. A ficha da obra liga tudo o que diz respeito a ela.</td></tr>
+    <tr><td><strong>Retorno de campo atrasado:</strong> o escritório só sabe o que foi feito dias depois, quando o papel chega.</td><td>A equipe registra no app na hora, mesmo sem sinal. O boletim do dia mostra quem está em turno, executando, parado ou sem condição.</td></tr>
+    <tr><td><strong>Sem sinal na obra</strong>, o aplicativo trava e a equipe volta ao papel.</td><td>O app foi desenhado para funcionar sem sinal do começo ao fim: abre turno, faz APR, aponta e fotografa offline; os dados sobem sozinhos, na ordem, quando a conexão volta.</td></tr>
+    <tr><td><strong>Planejamento no papel</strong> ou refeito à mão a partir do PDF do projeto.</td><td>O planejamento é feito em cima do próprio PDF do projeto: pontos, vãos e kits construtivos marcados na folha. A Bússola pode ler os pontos numerados do projeto e sugerir o levantamento.</td></tr>
+    <tr><td><strong>Programação sem visão de capacidade</strong>: equipe ociosa num dia, sobrecarregada no outro.</td><td>Agenda por equipe com semana e mês, arrastar e soltar, conflitos sinalizados, equipes livres destacadas e projeção da meta de cada equipe antes de programar.</td></tr>
+    <tr><td><strong>Valor que muda no caminho</strong>: o preço do serviço muda entre o planejado e o cobrado.</td><td>Ao programar, o valor dos serviços fica <strong>congelado</strong>. É esse valor que conta no realizado e na medição, mesmo se a programação mudar de equipe ou de data.</td></tr>
+    <tr><td><strong>Medição lenta e com glosa</strong> por falta de evidência.</td><td>Fotos de cada ponto com carimbo (obra, ponto, data, GPS), revisão de fotos antes de medir, As Built por ponto e relatório detalhado orçado × executado × faturado com as fotos aprovadas.</td></tr>
+    <tr><td><strong>Material sem rastro</strong>: não se sabe quanto foi para a obra, quanto foi aplicado e quanto voltou.</td><td>Solicitação, separação, entrega com número de série, devolução como novo ou sucata, e saldo por obra (entregue − aplicado − devolvido).</td></tr>
+    <tr><td><strong>Segurança reativa</strong>: análise de risco feita depois, ou não feita.</td><td>A APR é feita no app antes do serviço; sem uma APR concluída no dia, nada pode ser apontado. Inspeções, desvios com prazo e responsável e painéis de acidentalidade.</td></tr>
+    <tr><td><strong>Veículo parado</strong> sem ninguém saber por quê.</td><td>Checklist diário do veículo no app, pendências viram ordem de serviço, preventiva por plano, disponibilidade, abastecimento aprovado e conferido.</td></tr>
+    <tr><td><strong>Relatórios feitos à mão</strong> no fim do mês.</td><td>Painéis prontos em cada área e a Bússola, que responde perguntas sobre os dados em linguagem simples e gera tabelas, gráficos e relatórios.</td></tr>
+  </table>
+
+  <h2>O que diferencia o GEO</h2>
+  <div class="grid2">
+    <div class="card"><h4><span class="num">1</span>Feito para o setor elétrico</h4><p>Pontos, vãos, kits construtivos, linha viva, desligamento, manobra, APR, As Built, book de fotos e medição por competência são conceitos nativos, não adaptações de um sistema genérico.</p></div>
+    <div class="card"><h4><span class="num">2</span>Campo sem sinal de verdade</h4><p>Não é “modo offline” de enfeite: o dia inteiro da equipe funciona sem conexão, e o que foi lançado sobe uma vez só, na ordem, com a hora em que foi feito.</p></div>
+    <div class="card"><h4><span class="num">3</span>O ciclo da obra ligado</h4><p>Cada etapa conversa com a próxima: a ficha mostra o próximo passo, os pontos de atenção e atalhos já filtrados para a obra. O sistema orienta, mas não trava a operação.</p></div>
+    <div class="card"><h4><span class="num">4</span>Planejar sobre o projeto</h4><p>O previsto da obra nasce em cima do PDF do projeto, com kits e valores. A mesma folha é usada pela equipe no app, com os pontos coloridos por situação.</p></div>
+    <div class="card"><h4><span class="num">5</span>IA que trabalha com os dados</h4><p>A Bússola consulta e analisa os dados da operação, lê projetos e fotos, e só grava algo depois que a pessoa confirma. Ela vê só o que a pessoa pode ver.</p></div>
+    <div class="card"><h4><span class="num">6</span>Evidência para cobrar</h4><p>Foto com carimbo, revisão antes de medir, As Built e relatório detalhado reduzem a discussão na hora de cobrar o serviço.</p></div>
+    <div class="card"><h4><span class="num">7</span>Uma plataforma, muitas áreas</h4><p>Almoxarifado, frota, segurança, financeiro, pessoal, chamados e comunicação no mesmo login, com os mesmos padrões de tela.</p></div>
+    <div class="card"><h4><span class="num">8</span>Implantação dedicada</h4><p>Cada empresa tem sua própria instalação, com seus dados separados. Cada pessoa vê só o que o perfil dela permite.</p></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head"><div class="kicker">Parte 1 · Contexto</div><h1>Quem usa o GEO</h1></div>
+  <p class="lead">Quem decide a compra costuma ser a diretoria e a gestão de operações, mas o GEO é usado por quase todas as áreas da empresa. Cada perfil tem a sua parte do sistema.</p>
+  <table>
+    <tr><th style="width:24%">Quem</th><th style="width:16%">Onde usa</th><th>O que faz no GEO e o que ganha</th></tr>
+    <tr><td><strong>Diretoria e gestão</strong></td><td>Web</td><td>Acompanha produção contra meta, carteira de obras, medição, frota, segurança e financeiro em painéis. Pergunta à Bússola em vez de pedir relatório.</td></tr>
+    <tr><td><strong>Administrativo de obras</strong></td><td>Web</td><td>Cadastra obras (uma a uma ou por planilha), anexa documentos, completa fichas As Built, gera documentos.</td></tr>
+    <tr><td><strong>Levantador / projetista</strong></td><td>Web</td><td>Marca pontos, vãos e kits sobre o PDF do projeto, com ajuda da Bússola na leitura.</td></tr>
+    <tr><td><strong>Programador e supervisor</strong></td><td>Web e app</td><td>Programa as equipes na agenda, reprograma com motivo, acompanha o dia pelo boletim; no app, vê a situação de cada equipe agora e lança a visita prévia.</td></tr>
+    <tr><td><strong>Encarregado da equipe</strong></td><td>App</td><td>Abre o turno, faz a APR, segue o “próximo passo”, aponta o que foi feito por ponto, tira as fotos pedidas, registra ocorrências e fecha o dia com o relatório já montado.</td></tr>
+    <tr><td><strong>Medição</strong></td><td>Web</td><td>Revisa fotos, gera medições parciais ou por ciclo, estorna com justificativa, monta o relatório detalhado e o fechamento.</td></tr>
+    <tr><td><strong>Almoxarife</strong></td><td>Web</td><td>Atende solicitações em quadro (kanban), entrega com números de série, registra devoluções e ajustes, confere saldos.</td></tr>
+    <tr><td><strong>Gestor de frota</strong></td><td>Web</td><td>Trata pendências do checklist, conduz ordens de serviço, aprova abastecimentos, controla preventiva, pneus, documentos e seguros.</td></tr>
+    <tr><td><strong>Técnico de segurança (SST)</strong></td><td>Web</td><td>Faz inspeções, trata desvios, registra eventos e acompanha metas e painéis de acidentalidade.</td></tr>
+    <tr><td><strong>Financeiro</strong></td><td>Web e e-mail</td><td>Recebe pedidos de compra e pagamento, aprova ou rejeita (inclusive pelo link no e-mail), confere documentos fiscais.</td></tr>
+    <tr><td><strong>Departamento Pessoal</strong></td><td>Web</td><td>Mantém o quadro de pessoal e conduz descontos em folha do lançamento ao termo assinado.</td></tr>
+    <tr><td><strong>Todos</strong></td><td>Web</td><td>Abrem chamados, leem e confirmam comunicados, recebem notificações, conversam com a Bússola.</td></tr>
+  </table>
+
+  <div class="callout avoid">
+    <h4>Uma regra de desenho do produto que vale contar</h4>
+    <p>No GEO, <strong>quem está no escritório programa e analisa; quem está em campo executa e registra.</strong> Supervisores não abrem turno nem preenchem APR pela web: isso é da equipe, no app. Essa divisão deixa cada tela simples para quem a usa e garante que o registro de campo foi feito em campo.</p>
+  </div>
+</section>
+
+<!-- ============================== PARTE 2 ============================== -->
+<section class="page">
+  <div class="section-head"><div class="kicker">Parte 2 · Fluxo central</div><h1>O caminho da obra</h1></div>
+  <p class="lead">Este é o coração do produto. A obra percorre onze etapas em quatro fases.</p>
+
+  <div class="flow">
+    <div class="phase"><header>1 · Preparar</header><ol><li>Cadastros de obras (kits, status, checklists)</li><li>Carteira e ficha da obra</li></ol></div>
+    <div class="phase"><header>2 · Planejar</header><ol start="3"><li>Visita prévia ao local</li><li>Planejamento sobre o projeto</li><li>Pré-fechamento do levantamento</li><li>Materiais da obra</li></ol></div>
+    <div class="phase"><header>3 · Executar</header><ol start="7"><li>Programação das equipes</li><li>Campo: turno, APR e apontamento (app)</li><li>Documentação técnica: fotos, As Built, equipamentos</li></ol></div>
+    <div class="phase"><header>4 · Fechar</header><ol start="10"><li>Medição</li><li>Fechamento e relatório detalhado</li></ol></div>
+  </div>
+
+  <table>
+    <tr><th style="width:22%">Etapa</th><th style="width:18%">Quem faz</th><th>O que sai dali</th></tr>
+    <tr><td>Cadastros de obras</td><td>Administrativo</td><td>Kits construtivos (conjuntos padrão de serviços e materiais), status, agentes, tipos de anexo e checklists.</td></tr>
+    <tr><td>Carteira e ficha</td><td>Administrativo, gestor</td><td>A obra com responsáveis, prazo, valor, contrato e localização.</td></tr>
+    <tr><td>Visita prévia</td><td>Supervisor</td><td>Checklist do local com evidências (fotos e PDFs) e documento em PDF.</td></tr>
+    <tr><td>Planejamento</td><td>Levantador</td><td>Pontos, vãos e kits sobre o PDF do projeto: o previsto da obra, com valor.</td></tr>
+    <tr><td>Pré-fechamento</td><td>Gestor</td><td>Levantamento conferido: nenhum ponto ou vão sem kit.</td></tr>
+    <tr><td>Materiais</td><td>Supervisor, almoxarife</td><td>Material entregue e saldo da obra.</td></tr>
+    <tr><td>Programação</td><td>Programador</td><td>Equipe, período, condições da intervenção e valor congelado.</td></tr>
+    <tr><td>Campo</td><td>Equipe, pelo app</td><td>Turno, APR, apontamentos, fotos, ocorrências e relatório diário.</td></tr>
+    <tr><td>Documentação técnica</td><td>Equipe, supervisor, administrativo</td><td>Book de fotos por ponto, fichas As Built e equipamentos instalados.</td></tr>
+    <tr><td>Medição</td><td>Medição</td><td>Serviços concluídos levados à cobrança, pelo valor congelado.</td></tr>
+    <tr><td>Fechamento</td><td>Gestor, medição</td><td>Consolidado da obra e pacote orçado × executado × faturado.</td></tr>
+  </table>
+
+  <h3>Como cada serviço avança</h3>
+  <p>No planejamento e no app, cada local do projeto mostra em que ponto está, com uma cor por situação:</p>
+  <div class="states">
+    <span class="tag">Sem kit</span><span class="arrow">→</span>
+    <span class="tag warn">Pendente</span><span class="arrow">→</span>
+    <span class="tag info">Programado</span><span class="arrow">→</span>
+    <span class="tag info">Em andamento</span><span class="arrow">→</span>
+    <span class="tag ok">Concluído</span>
+    <span style="margin-left:3mm" class="tag danger">Atrasado</span>
+  </div>
+  <p class="muted">“Atrasado” marca o que passou do período programado sem terminar. Depois de medido, o serviço sai da fila “A medir”.</p>
+
+  <div class="callout avoid">
+    <h4>Princípio: orientar, nunca travar</h4>
+    <p>A ficha da obra mostra <strong>pontos de atenção</strong> (“Visita prévia não realizada”, “Sem equipe alocada”, “Nenhum material solicitado”, “Sem coordenadas”, alertas de prazo) e o próximo passo, mas quase nada bloqueia a operação. As exceções são de segurança: sem APR concluída no dia, a equipe não aponta serviço.</p>
+  </div>
+</section>
+
+<!-- ============================== PARTE 3 ============================== -->
+<section class="page">
+  <div class="section-head"><div class="kicker">Parte 3 · Funcionalidades</div><h1>Tudo o que o sistema faz</h1></div>
+  <p class="lead">Descrição detalhada, módulo por módulo, do que está disponível hoje.</p>
+
+  <div class="module-title"><h2>Obras</h2><span>módulo Execução · o centro do produto</span></div>
+
+  <h3>Carteira e ficha da obra</h3>
+  <p class="feat"><b>Cadastro da obra</b> com número, título, escopo técnico, processo, base operacional, município, centro de custo, supervisor, coordenador, fiscal da concessionária, prazo, valor de projeto, equipes e localização (GPS do aparelho, escolha no mapa ou coordenadas). Obras podem ter <b>subprojetos</b> vinculados.</p>
+  <p class="feat"><b>Importação em lote</b> por planilha: cadastro de obras, carteira do contrato ou serviços e orçamento previstos. Obras existentes são atualizadas pelo número.</p>
+  <p class="feat"><b>Painel de obras</b> com filtros (status, base, município, responsáveis, datas, valor), totais do recorte (valor de projeto, material e serviço previstos) e exportação.</p>
+  <p class="feat"><b>Ficha da obra</b>: linha do tempo de prazo (início, previsão, prazo regulado, conclusão e hoje), indicadores, pontos de atenção, materiais da obra com saldo em campo, programação, orçamento previsto, documentação técnica, anexos, subprojetos, mapa com <b>obras próximas</b> num raio de 5 a 50 km, deslocamento da base, histórico de status e equipes. Botões para planejar, abrir a Bússola com o contexto da obra, pedir e devolver material e imprimir.</p>
+  <p class="feat"><b>Status automático</b>: o primeiro apontamento de campo coloca a obra em execução.</p>
+
+  <h3>Visita prévia</h3>
+  <p class="feat">Checklist feito no local antes da execução (acesso, interferências, necessidades), a partir de modelos configuráveis com grupos de perguntas (escolha, múltipla escolha, texto, número, data), resposta “conforme” e “não se aplica”. Evidências por pergunta ou gerais (fotos e PDFs, anexadas ou tiradas na hora). Gera <b>PDF</b>. Pode ser lançada pela web ou pelo supervisor no app.</p>
+
+  <h3>Planejamento sobre o projeto (levantamento)</h3>
+  <p class="feat">O PDF do projeto vira a área de trabalho. Ferramentas de folha: mão, <b>ponto</b> (cada poste, numerado em sequência), <b>vão</b> (trecho entre dois pontos, com metragem), anotar, selecionar, área, ler texto do PDF; troca de página, giro, zoom e esmaecer o desenho.</p>
+  <p class="feat">Cada ponto recebe tipo, barramento, execução com ou sem desligamento, poda e aterramento. <b>Kits construtivos</b> são aplicados a pontos e vãos (instalar ou retirar, com quantidade); os itens em metro acompanham a metragem do vão. Uma árvore lateral mostra pontos, kits e vãos, e o <b>orçamento</b> da obra se forma na hora.</p>
+  <p class="feat"><b>Planejar com a Bússola</b>: a assistente lê os pontos numerados da página do projeto; a pessoa revisa a leitura, aceita ou descarta cada ponto e vão e informa as metragens.</p>
+
+  <h3>Pré-fechamento do levantamento</h3>
+  <p class="feat">Tela de conferência de todas as obras: quais têm levantamento pendente, quais estão prontas para concluir, quantos pontos e vãos estão sem kit, quem levantou. Concluir e reabrir o levantamento, com filtros por situação, base, município, supervisor, prioridade e tipo de execução.</p>
+</section>
+
+<section class="page">
+  <h3 style="margin-top:0">Programação das equipes</h3>
+  <p class="feat"><b>Nova programação</b> pela agenda ou direto do planejamento: escolher a obra, marcar os pontos e vãos, definir período, <b>condições da intervenção</b> (linha viva, desligamento, finaliza obra, turno, situação, horário do desligamento e número da manobra) e a equipe.</p>
+  <p class="feat">Antes de confirmar, o sistema mostra a <b>projeção de cada equipe</b>: capacidade por dia, dias úteis, meta do período, já programado, esta programação e % da meta.</p>
+  <p class="feat">Ao programar, o <b>valor dos serviços fica congelado</b> e a equipe recebe a programação no app, também sem sinal, com aviso quando ela muda.</p>
+  <p class="feat"><b>Agenda de Programação</b> em tabela, semana ou mês; arrastar a barra muda dia ou equipe, esticar pelas pontas muda a duração, com desfazer. Marcas de <b>conflito</b> (duas programações nos mesmos dias e turnos) e de <b>equipe livre no período</b>. Indicadores de programações, atrasadas, equipes livres e obras a programar (as de prazo mais curto primeiro).</p>
+  <p class="feat"><b>Detalhe da programação</b>: programado × realizado, editar, reprogramar (novo período ou equipe, com motivo, sem mudar o valor congelado), cancelar com motivo (os itens voltam a pendentes), copiar para outra equipe e histórico completo.</p>
+  <p class="feat"><b>Histórico de programação</b> em linha do tempo ou tabela: cada criação, edição, reprogramação, cancelamento e exclusão, com equipe de origem e destino, período antigo e novo, quem alterou e o motivo.</p>
+  <p class="feat"><b>Painel de Programação</b>: cumprimento, realizado × programado, reprogramações, ocupação das equipes, próximos 14 dias (ocupadas e livres, com desligamento e linha viva), por que a agenda muda (motivos), obras que mais mudaram, atrasadas e planejadas sem programação, por base.</p>
+
+  <h3>Acompanhamento de campo (web)</h3>
+  <p class="feat"><b>Turnos</b>: cada turno de cada equipe com realizado contra a meta, serviços do dia, situação da APR (com a APR completa: atividade, riscos, medidas, participantes), composição da equipe, ocorrências, relatório diário e fotos. Alertas de turno esquecido, encerrado pelo sistema e execução sem APR.</p>
+  <p class="feat"><b>Boletim das Equipes</b>: a foto do dia. Turnos, executado no dia, APR pendente, equipe programada que não abriu turno, executado × programado por equipe, e um cartão por equipe com <b>situação agora</b> (executando, a caminho, na obra, parada, sem condição de executar), meta do dia (“Faltam R$ …” ou “Meta do dia batida”), programado, executado e componentes.</p>
+  <p class="feat"><b>Dashboard Operacional</b>: produção de cada equipe no período contra a meta e se o ritmo atual fecha o mês; produção × meta por dia, mês e equipe; obras atendidas; equipes abaixo do ritmo.</p>
+  <p class="feat"><b>Metas de faturamento</b> por equipe, por mês ou por ciclo (26 a 25), com histórico preservado.</p>
+
+  <figure>
+    <div class="shot"><img src="img/web-boletim-claro.png" alt=""></div>
+    <figcaption>Boletim das Equipes no sistema web, tema claro: cartões de cada equipe com a situação agora e a meta do dia. Dados fictícios de teste.</figcaption>
+  </figure>
+</section>
+
+<section class="page">
+  <h3 style="margin-top:0">Documentação técnica</h3>
+  <p class="feat"><b>Book de fotos</b>: as fotos de cada ponto, conforme o modelo pede (antes, durante, depois), chegando pelo app ou lançadas pela web. Cada foto guarda quando foi tirada e lançada, por quem, coordenadas, item, legenda e etapa.</p>
+  <p class="feat"><b>Revisão de fotos</b>: fila das fotos enviadas pelas equipes para aprovar ou reprovar. Reprovar pede a inconformidade (fora de foco, item errado, ângulo, ponto errado, sem carimbo) e o motivo; a foto sai da medição e volta como pendência no app da equipe, com o motivo. <b>Ranking por equipe</b> mostra a qualidade das fotos de cada uma nos últimos 30 dias.</p>
+  <p class="feat"><b>As Built</b>: ficha por ponto executado e geração de versões do documento a partir do projeto mestre, com histórico de versões geradas.</p>
+  <p class="feat"><b>Equipamentos</b>: registro, por ponto, do equipamento instalado (religador, regulador), trafo auxiliar e série (lida por QR no app).</p>
+  <p class="feat"><b>Relatórios técnicos</b> de visita prévia, As Built e book, no padrão de relatório do sistema, com carimbo técnico nas fotos.</p>
+
+  <h3>Medição</h3>
+  <p class="feat">Fila <b>A medir</b> com as obras que têm serviço concluído e não medido (a mais valiosa primeiro) e há quanto tempo esperam. Medição <b>parcial</b> (até hoje) ou <b>por ciclo</b> (até o fim da competência), com valor de projeto, já medido, saldo e pendente. O valor é a soma dos apontamentos pelo valor congelado na programação. <b>Estorno</b> com justificativa devolve os serviços para nova medição, mantendo o histórico.</p>
+
+  <h3>Fechamento e relatório detalhado</h3>
+  <p class="feat"><b>Fechamento de obras</b>: cole os códigos de várias obras e receba o consolidado de execução, kits, planejado, executado, já medido, serviços, materiais e medições, exportável em Excel.</p>
+  <p class="feat"><b>Relatório detalhado de medição</b>: a partir de uma planilha de orçado e faturado, monta o pacote orçado × executado × faturado por serviço, com assinaturas, data de corte e, se quiser, as fotos aprovadas do book. Sai em Excel, PDF e fotos.</p>
+
+  <figure style="width:78%;margin-left:auto;margin-right:auto">
+    <div class="shot"><img src="img/web-revisao-escuro.png" alt=""></div>
+    <figcaption>Revisão de fotos no tema escuro. Só as fotos aprovadas entram no relatório de medição; a reprovada volta como pendência para a equipe.</figcaption>
+  </figure>
+</section>
+
+<section class="page">
+  <div class="module-title" style="margin-top:0"><h2>App de campo</h2><span>tablet e celular · Android e iPhone · sem loja</span></div>
+  <p>O app é um <b>PWA</b>: instalado pelo navegador, sem passar por loja de aplicativos. Foi desenhado a partir do dia real da equipe: <b>pré-preencher, guiar e nunca travar por falta de sinal</b>. Quem usa é o encarregado da equipe; a maior parte do uso é em tablet. O que é lançado sem sinal fica no aparelho e sobe sozinho, uma vez só, na ordem, com a hora em que foi feito.</p>
+
+  <h3>O dia da equipe, passo a passo</h3>
+  <ol>
+    <li><b>Hoje</b>: um único botão com o <b>próximo passo</b> e as obras do dia na ordem da programação, com as condições (desligamento com horário e manobra, linha viva, finaliza obra) e as pendências (ex.: “refazer foto”).</li>
+    <li><b>Abrir turno</b>: veículo e pessoas já vêm do último turno; a equipe confere e abre, também sem sinal. Quando a frota exige, o <b>checklist do veículo</b> vem antes.</li>
+    <li><b>Ficha da obra</b>: endereço, <b>Como chegar</b> (abre o app de mapas), <b>Cheguei/Saí</b>, e o material previsto contra o saldo do caminhão (“faltam 2”).</li>
+    <li><b>APR em passos</b>: os riscos e as medidas das condições do dia já vêm marcados para conferir; todos assinam na tela. Uma APR concluída libera os serviços do dia. Se não houver condição, “Sem condição de executar” registra o motivo e o app passa ao próximo serviço.</li>
+    <li><b>Pontos e projeto</b>: o PDF do projeto com os pontos coloridos (a fazer, parcial, feito). <b>Tudo feito</b> aponta o ponto inteiro; <b>Parcial</b> pede as quantidades. As fotos pedidas saem com <b>carimbo</b> (obra, ponto, data, GPS). Foto faltando vira pendência e não bloqueia nada. A série do equipamento pode ser lida por <b>QR</b>.</li>
+    <li><b>Fechar o dia</b>: o relatório diário vem montado com obras, pontos feitos, ocorrências e pendências; a equipe revisa e fecha o turno.</li>
+  </ol>
+  <p class="feat"><b>Execução avulsa</b> para obra fora da agenda (emergência, pedido da supervisão): busca pelo número, escolhe o motivo e começa; o que for apontado vai para a medição. <b>Ir além do programado</b> mostra outros pontos da mesma obra ainda sem programação, mesmo sem sinal.</p>
+  <p class="feat"><b>Frota no app</b>: checklist diário do veículo com fotos e pedido de abastecimento com a foto do painel.</p>
+  <p class="feat"><b>Supervisor no app</b>: a situação de cada equipe agora (a caminho, na obra, executando, parada, sem condição), a visita prévia e o pedido de As Built e de book.</p>
+  <p class="feat">Se o servidor recusar algo lançado offline (por exemplo, a programação foi cancelada enquanto a equipe estava sem sinal), o app mostra o motivo e o caso vai para o backoffice resolver, sem perda de dado.</p>
+
+  <div class="grid2" style="grid-template-columns: 1.9fr 1fr; align-items:start">
+    <figure><div class="shot crop-bottom"><img src="img/app-hoje-claro.png" alt=""></div><figcaption>App no tablet: a tela Hoje com o próximo passo, as obras do dia, o turno, o veículo e as pendências.</figcaption></figure>
+    <figure><div class="shot crop-top"><img src="img/app-ponto-celular.png" alt=""></div><figcaption>App no celular: o que fazer no ponto, APR do dia e a foto reprovada para refazer.</figcaption></figure>
+  </div>
+</section>
+
+<section class="page">
+  <div class="module-title" style="margin-top:0"><h2>Almoxarifado</h2><span>material da obra, do pedido ao saldo</span></div>
+  <ul>
+    <li><b>Solicitação técnica de material</b> para obra, corretiva, preventiva ou LPT, com almoxarifado de atendimento, equipe, responsável pelo saque, data prevista (48 h recomendadas, com sinalização quando é menos), OC/OS e itens. Pode nascer da ficha da obra.</li>
+    <li><b>Acompanhamento</b> em tabela, <b>quadro kanban</b> (Planejamento, Separação, Entrega &amp; Campo, Recusado) ou <b>calendário</b>; marcadores de atrasada, com pendência, sem reserva e saque fora da equipe.</li>
+    <li><b>Atendimento</b> em etapas: planejamento, separação, entrega total ou parcial com <b>números de série</b>, retirada confirmada, pendência com motivo ou rejeição justificada. Proteção contra duas pessoas alterando a mesma solicitação.</li>
+    <li><b>Devolução</b> da obra como novo ou sucata, com séries e conferência contra o saldo da obra.</li>
+    <li><b>Transferências</b> entre bases e almoxarifados, <b>entrada avulsa</b> e <b>baixa avulsa</b> com motivo e justificativa; movimentações com detalhe imprimível e campos de assinatura.</li>
+    <li><b>Saldos</b> por estoque ou por equipe, com alertas de saldo negativo e sucata; relatórios de consumo, estoque, movimentações e fechamento; <b>painel de solicitações</b> com ciclo mediano, % atendido, atrasos, gargalos e demanda por material.</li>
+  </ul>
+
+  <div class="module-title"><h2>Frota</h2><span>veículos disponíveis para as equipes</span></div>
+  <ul>
+    <li><b>Veículos</b> com ficha completa: manutenções, preventiva, pneus, despesas, seguro, sinistros, condutores, implementos, documentos, odômetro e uso; atalhos para problemas (roda pouco, sem rastreador, sem leitura, sem condutor, sem checklist hoje).</li>
+    <li><b>Ordens de serviço</b> com criticidade, tipo, origem e motivo (mau uso pode virar desconto do condutor), veículo parado contando para disponibilidade, alerta de manutenção repetida, orçamentos enviados ao financeiro. Lista, <b>quadro</b> com arrastar entre etapas e <b>agenda da frota</b>.</li>
+    <li><b>Checklist diário</b> feito no app; na web, pendências viram OS, são resolvidas na hora ou descartadas com justificativa; a <b>Bússola aponta problemas nas fotos</b> (“ela só aponta; quem decide é você”). Liberação de condutor por um dia, com justificativa.</li>
+    <li><b>Abastecimento</b> em fluxo: pedido no app, aprovação do gestor da placa, liberação e aviso ao posto, alertas de consumo e preço fora do padrão, conferência das faturas do posto.</li>
+    <li><b>Preventiva</b> por plano (vencidas, próximas, em dia), <b>pneus</b> (montagem, rodízio, inspeções), <b>estoque da oficina</b>, <b>condutores e CNH</b>, <b>documentos e vencimentos</b>, <b>seguros</b>, <b>sinistros</b>, <b>despesas</b> (com envio ao financeiro e importação), <b>conferência de km</b>.</li>
+    <li><b>Telemetria</b>: mapa da frota com última posição e velocidade, eventos de condução por veículo, condutor e local.</li>
+    <li><b>Relatórios</b> de custos, manutenção, combustível, uso, conformidade e corretivas por serviço (o que mais quebra e é candidato a preventiva).</li>
+  </ul>
+
+  <div class="module-title"><h2>Segurança do trabalho (SST)</h2><span>inspeções, desvios e acidentalidade</span></div>
+  <ul>
+    <li><b>Inspeções</b> por equipe (os integrantes entram sozinhos) ou por pessoa, em formulários configuráveis onde cada resposta pode <b>gerar desvio</b> com gravidade.</li>
+    <li><b>Desvios</b> com descrição, evidência, responsável e prazo; “meus desvios” para quem trata (inclusive em lote) e visão de gestão (sem responsável, sem prazo, vencidos).</li>
+    <li><b>Eventos de segurança</b> (acidente, incidente, doença ocupacional) registrados em etapas: ocorrência, contexto, pessoas e impacto, revisão.</li>
+    <li><b>Metas de inspeção</b> por função ou por pessoa, com acompanhamento de quem cumpriu, está a caminho ou ficou para trás.</li>
+    <li><b>Painéis</b> de inspeções, desvios e acidentalidade (lesões, dias perdidos, CAT, pirâmide de Bird, dias sem lesão por base).</li>
+    <li>Na obra, a <b>APR</b> feita pela equipe no app é a primeira barreira: sem APR concluída no dia, nada é apontado.</li>
+  </ul>
+</section>
+
+<section class="page">
+  <div class="module-title" style="margin-top:0"><h2>Financeiro</h2><span>compras, pagamentos e contratos</span></div>
+  <ul>
+    <li><b>Pedidos de compra e de pagamento</b> em etapas (modelo, dados, revisão, documentos), com rascunho e envio para aprovação. Os formulários são montados pela própria empresa num construtor.</li>
+    <li><b>Aprovação</b> com valor autorizado (pode ser menor que o pedido, nunca maior), rejeição com o que precisa mudar, cancelamento e desfazer decisão. O aprovador pode decidir <b>pelo link do e-mail</b>, sem entrar no sistema.</li>
+    <li><b>Documentos fiscais</b> com conferência (vencidos, aguardando conferência, sem número, sem solicitação), <b>fornecedores</b> com homologação e bloqueio, <b>painel do financeiro</b> (pedido × autorizado, fila de decisão, tempo até decidir).</li>
+    <li><b>Contratos, ações e valores</b>: o preço de cada serviço por contrato e vigência, que alimenta os kits, o orçamento da obra e a medição.</li>
+  </ul>
+
+  <div class="module-title"><h2>Departamento Pessoal</h2><span>quadro de pessoal e descontos</span></div>
+  <ul>
+    <li><b>Colaboradores, funções e processos</b>: o quadro que forma as equipes.</li>
+    <li><b>Descontos em folha</b> em quatro etapas (solicitado, validado, baixado, finalizado), com itens, evidências, desfazer com motivo em cada etapa, termo impresso e <b>termo assinado anexado</b>; consulta e painel (valor em aberto, tempo até validar, concentração por motivo e base).</li>
+    <li><b>Medidas disciplinares</b> com tipos, motivos e parâmetros configuráveis.</li>
+  </ul>
+
+  <div class="module-title"><h2>Chamados</h2><span>atendimento interno com prazo</span></div>
+  <ul>
+    <li>Abertura por <b>tópico</b> (que define a equipe e os prazos de primeira resposta e resolução), com protocolo e anexos; “meus chamados” para quem abriu.</li>
+    <li><b>Fila da central</b> com prazos coloridos (no prazo, perto de vencer, vencido, pausado), filtros de vencidos, atualizar, reabrir e cancelar; painel de desempenho.</li>
+  </ul>
+
+  <div class="module-title"><h2>Comunicação</h2><span>avisos com prova de leitura</span></div>
+  <ul>
+    <li><b>Mural de comunicados</b> por tipo (dica de uso, novidades, aviso, manutenção programada, urgente), com vídeo e anexos, <b>“Li e entendi”</b> como prova de leitura e relatório de quem confirmou, abriu sem confirmar ou nunca abriu.</li>
+    <li><b>Publicação</b> em etapas com público-alvo por perfil, tipo de usuário ou pessoas, agendamento de vigência, fixar no topo e prioridade.</li>
+    <li><b>Notificações em tempo real</b> no sino, com link para o registro de origem; preferências por assunto (no sistema e/ou por e-mail); regras de notificação e políticas de roteamento configuráveis.</li>
+  </ul>
+
+  <div class="module-title"><h2>Automações</h2><span>fluxos visuais, sem programar</span></div>
+  <p>Um editor visual de fluxos (blocos ligados num canvas) para automatizar rotinas. Exemplos do que dá para montar: “toda segunda às 7h, liste os desvios em aberto, resuma com IA e mande por e-mail para os supervisores”.</p>
+  <table>
+    <tr><th style="width:26%">Grupo de blocos</th><th>Exemplos</th></tr>
+    <tr><td>Gatilhos</td><td>Agenda (recorrência), executar manualmente, quando outra automação falha.</td></tr>
+    <tr><td>Controle</td><td>Condição, escolher caso, para cada, repetir até, ramos paralelos, esperar, encerrar.</td></tr>
+    <tr><td>Dados do GEO</td><td>Consultar dados do GEO, buscar colaborador, listar pessoas, desvios em aberto, metas de inspeção da semana.</td></tr>
+    <tr><td>Tratar dados</td><td>Filtrar, ordenar, agrupar, calcular total, criar tabela, compor texto, ler JSON, formatar.</td></tr>
+    <tr><td>Inteligência artificial</td><td>Bússola analisa, resumir, classificar, extrair informações, executar prompt.</td></tr>
+    <tr><td>Pessoas, avisos e aprovações</td><td>Escolher destinatários por regra, avisar pessoas, enviar e-mail, <b>pedir aprovação</b>.</td></tr>
+    <tr><td>Integrações</td><td>Chamar um endereço HTTP de outro sistema.</td></tr>
+  </table>
+  <p class="muted">Cada execução fica registrada com o caminho percorrido, para conferir o que aconteceu.</p>
+</section>
+
+<section class="page">
+  <div class="module-title" style="margin-top:0"><h2>Bússola, a assistente de IA</h2><span>conversa com os dados da operação</span></div>
+  <div class="grid2" style="grid-template-columns: 1fr 26mm; align-items:start; gap:6mm">
+    <div>
+      <p>A Bússola é a assistente de inteligência artificial do GEO. Ela entende perguntas em português simples e responde com os dados reais da operação: “quantas obras estão paralisadas e por quê?”, “quais equipes estão abaixo do ritmo este mês?”, “compare o consumo de combustível da base Norte com o do mês passado”.</p>
+    </div>
+    <img src="img/bussola-proposta.svg" alt="" style="width:26mm">
+  </div>
+  <h3>O que ela faz</h3>
+  <ul>
+    <li><b>Consulta e analisa dados</b> de todas as áreas que a pessoa pode ver, e devolve resposta com tabela, gráfico ou painel, com <b>próximos passos sugeridos</b>.</li>
+    <li><b>Gera artefatos</b>: tabelas exportáveis em CSV, gráficos, painéis, relatórios em PDF e planilhas, abertos num painel ao lado da conversa.</li>
+    <li><b>Lê arquivos</b> anexados: PDF, planilhas, CSV, documentos de texto e imagens.</li>
+    <li><b>Lê o projeto da obra</b>: no planejamento, identifica os pontos numerados do PDF para a pessoa revisar.</li>
+    <li><b>Analisa fotos</b> do checklist do veículo e do abastecimento, apontando o que merece atenção.</li>
+    <li><b>Abre no contexto</b>: o botão “Analisar com a Bússola” nos painéis leva o período e os filtros da tela; na ficha da obra, leva a obra.</li>
+    <li><b>Funciona dentro das automações</b>, para resumir, classificar e analisar no meio de um fluxo.</li>
+    <li><b>Conecta outros assistentes</b>: a pessoa pode autorizar um assistente de IA externo compatível a consultar o GEO por ela, com as mesmas permissões, e desconectar quando quiser.</li>
+  </ul>
+  <div class="callout avoid">
+    <h4>Regras de confiança</h4>
+    <ul>
+      <li>A Bússola <b>só vê o que a pessoa pode ver</b>: respeita o perfil de acesso.</li>
+      <li>Ela <b>só grava algo no GEO depois que a pessoa confirma</b> num cartão de confirmação.</li>
+      <li>Os números vêm das consultas aos dados, não de suposição; cada resposta mostra as etapas que ela percorreu.</li>
+    </ul>
+  </div>
+  <figure>
+    <div class="shot"><img src="img/bussola-conversa.png" alt=""></div>
+    <figcaption>Conversa com a Bússola: pergunta em linguagem simples, resposta com tabela exportável e próximos passos sugeridos. Esta captura é de uma versão anterior: o menu lateral era azul-marinho (hoje é neutro) e o avatar é o mascote antigo, que está sendo remodelado (veja a Parte 5). Dados fictícios.</figcaption>
+  </figure>
+</section>
+
+<section class="page">
+  <div class="module-title" style="margin-top:0"><h2>Administração</h2><span>quem vê e faz o quê</span></div>
+  <ul>
+    <li><b>Usuários</b> ligados a colaboradores, dos tipos <b>Administrativo</b> (web) e <b>Campo</b> (app); importação por planilha.</li>
+    <li><b>Perfis de acesso</b> com permissões por módulo e ação (ler, escrever, executar, aprovar). O menu, a busca de telas e a Bússola mostram só o que o perfil permite.</li>
+    <li><b>Sincronismo</b>: os registros do app que o servidor recusou, com o que aconteceu, o que fazer e o reenvio.</li>
+    <li><b>Status do sistema</b>, alimentado por um monitor independente e visível até na tela de entrada.</li>
+  </ul>
+
+  <h2>Recursos que valem em todas as telas</h2>
+  <table>
+    <tr><th style="width:28%">Recurso</th><th>Como funciona</th></tr>
+    <tr><td>Busca de telas (Ctrl+K)</td><td>Digite parte do nome e vá direto à tela; favoritos com a estrela.</td></tr>
+    <tr><td>Filtros que viram link</td><td>Cada filtro ativo vira um chip; o recorte fica no endereço da página, e copiar o link compartilha a mesma visão.</td></tr>
+    <tr><td>Indicadores clicáveis</td><td>Cartões com números no topo das telas; clicar filtra a lista.</td></tr>
+    <tr><td>Exportar e importar</td><td>Exporta o recorte filtrado em CSV ou XLSX; importa planilhas conferidas linha a linha, mostrando os erros antes de gravar.</td></tr>
+    <tr><td>Atalhos de teclado</td><td><code>/</code> busca na lista, <code>F</code> filtros, <code>N</code> novo registro.</td></tr>
+    <tr><td>Guia da tela</td><td>Ajuda contextual que explica regras de cálculo, filtros e botões.</td></tr>
+    <tr><td>Voltar inteligente</td><td>“Voltar” devolve ao ponto exato de onde a pessoa veio, com os mesmos filtros.</td></tr>
+    <tr><td>Relatórios no mesmo padrão</td><td>Todos os relatórios de detalhe saem com o mesmo layout de folha e cabeçalho da empresa, prontos para PDF ou papel.</td></tr>
+    <tr><td>Tema claro e escuro</td><td>Alternância no topo; o escuro está em fase beta. A impressão sai sempre clara.</td></tr>
+    <tr><td>Histórico e auditoria</td><td>As mudanças importantes ficam registradas com quem fez, quando e por quê.</td></tr>
+  </table>
+
+  <!-- ============================== PARTE 4 ============================== -->
+  <div class="section-head" style="margin-top:8mm"><div class="kicker">Parte 4 · Plataforma</div><h1>Como o GEO funciona por baixo</h1></div>
+  <div class="grid2">
+    <div class="card"><h4>Sem sinal, sem perda</h4><p>O app guarda no aparelho o que precisa para o dia e o que a equipe lança. Ao voltar a conexão, envia uma vez só, na ordem. A sessão não cai por falta de rede: só termina quando a pessoa sai.</p></div>
+    <div class="card"><h4>Implantação dedicada</h4><p>Cada empresa cliente tem sua própria instalação do GEO, com seus dados separados. Não é um ambiente compartilhado entre empresas.</p></div>
+    <div class="card"><h4>Acesso por perfil</h4><p>Permissões finas por módulo e ação. Recortes como base operacional e centro de custo servem de filtro de consulta.</p></div>
+    <div class="card"><h4>Instalável e multiplataforma</h4><p>Sistema web no navegador do computador; app instalado pelo navegador em Android e iPhone, otimizado para tablet e celular.</p></div>
+    <div class="card"><h4>Integrável</h4><p>Automações chamam outros sistemas por HTTP; assistentes de IA externos podem ser autorizados a consultar o GEO; dados entram e saem por planilha.</p></div>
+    <div class="card"><h4>Termos e privacidade</h4><p>O GEO é oferecido como serviço (SaaS), com termos de uso e política de privacidade publicados no próprio sistema.</p></div>
+  </div>
+
+  <div class="callout warn avoid" style="margin-top:5mm">
+    <h4>Em desenvolvimento</h4>
+    <ul>
+      <li>Tela do book com a entrega documental completa da obra (situação de cada obra, previsto × realizado e book fotográfico em PDF).</li>
+      <li>Canteiros de postes e solicitação de material a partir da programação.</li>
+      <li>Central de operações e mapa de obras.</li>
+      <li>Relatórios gerenciais de Obras: carteira, prazos e produtividade.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================== PARTE 5 ============================== -->
+<section class="page">
+  <div class="section-head"><div class="kicker">Parte 5 · Identidade visual</div><h1>Marca</h1></div>
+
+  <h3>Nome</h3>
+  <p><strong>GEO</strong> é a sigla de <strong>Gestão de Equipes e Operações</strong>. Escreva sempre em maiúsculas, sem pontos (não “G.E.O.” nem “Geo”). A sigla também lembra geografia e território, o que combina com equipes espalhadas em campo e com a ilustração de curvas de nível da marca. Na primeira menção da página, use a forma completa: “GEO — Gestão de Equipes e Operações”.</p>
+
+  <h3>Logo</h3>
+  <p>O logo é um <strong>“G” aberto branco num quadrado azul de cantos arredondados, com um ponto âmbar</strong> no fim do traço. O ponto representa a equipe em campo (o mesmo ponto âmbar que pulsa no mapa da ilustração). É a única forma de representar o produto: não existe logotipo com a palavra desenhada; o nome “GEO” é escrito ao lado em Inter Semibold.</p>
+
+  <div class="logo-stage">
+    <div>
+      <div class="lockup">
+        <svg width="44" height="44" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#1E40AF"/></linearGradient></defs><rect width="100" height="100" rx="26" fill="url(#g1)"/><path d="M71.2 34.5A26 26 0 1 0 76 50H52" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="71.5" cy="31" r="7.5" fill="#FBBF24" stroke="#1E40AF" stroke-width="3"/></svg>
+        <div><strong>GEO</strong><span>Gestão de Equipes e Operações</span></div>
+      </div>
+      Assinatura em fundo claro
+    </div>
+    <div class="dark">
+      <div class="lockup" style="color:#fff">
+        <svg width="44" height="44" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#1E40AF"/></linearGradient></defs><rect width="100" height="100" rx="26" fill="url(#g2)"/><path d="M71.2 34.5A26 26 0 1 0 76 50H52" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="71.5" cy="31" r="7.5" fill="#FBBF24" stroke="#1E40AF" stroke-width="3"/></svg>
+        <div><strong>GEO</strong><span style="color:#a1a1aa">Gestão de Equipes e Operações</span></div>
+      </div>
+      Assinatura em fundo escuro
+    </div>
+    <div class="blue">
+      <svg width="52" height="52" viewBox="0 0 100 100" fill="none" style="color:#fff"><path d="M71.2 34.5A26 26 0 1 0 76 50H52" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="71.5" cy="31" r="7.5" fill="#FBBF24"/></svg>
+      Variante mono (só o G e o ponto)
+    </div>
+  </div>
+
+  <h4>Construção (grade de 100 × 100)</h4>
+  <table>
+    <tr><th style="width:30%">Elemento</th><th>Especificação</th></tr>
+    <tr><td>Quadrado</td><td>100 × 100, raio 26. Gradiente diagonal (canto superior esquerdo → inferior direito) de <code>#2563EB</code> para <code>#1E40AF</code>.</td></tr>
+    <tr><td>G</td><td>Traço branco <code>#FFFFFF</code>, espessura 12, pontas e junções arredondadas. Caminho SVG: <code>M71.2 34.5 A26 26 0 1 0 76 50 H52</code>.</td></tr>
+    <tr><td>Ponto</td><td>Círculo em (71,5; 31), raio 7,5, âmbar <code>#FBBF24</code>, contorno <code>#1E40AF</code> de 3 na versão com quadrado.</td></tr>
+    <tr><td>Variante mono</td><td>Só o traço do G na cor do texto (branco ou cinza-escuro) e o ponto âmbar sem contorno. Para usos pequenos sobre superfícies já coloridas.</td></tr>
+  </table>
+  <p class="muted">O arquivo-fonte está no código do produto (<code>frontend/src/app/design-system/primitives/brand/geo-logo.component.ts</code>); peça ao time o SVG exportado e os ícones PNG do app (72 a 512 px).</p>
+
+  <div class="do-dont">
+    <div class="do"><h4>Faça</h4><ul><li>Deixe uma área livre ao redor de pelo menos 25% do lado do quadrado.</li><li>Use o logo com no mínimo 20 px de lado na tela.</li><li>Use a versão com quadrado em fundos claros, escuros e azul-marinho (contraste mínimo de 3:1 garantido).</li></ul></div>
+    <div class="dont"><h4>Não faça</h4><ul><li>Não troque as cores, não tire o ponto âmbar, não gire nem distorça.</li><li>Não escreva “GEO” com outra fonte ou em caixa baixa ao lado do símbolo.</li><li>Não aplique sombra, contorno extra ou brilho.</li><li>Não use o logo de clientes ou parceiros junto do GEO.</li></ul></div>
+  </div>
+</section>
+
+<section class="page">
+  <h2 style="margin-top:0">A Bússola: símbolo da assistente <span class="tag warn" style="vertical-align:middle;margin-left:2mm">Em remodelação</span></h2>
+  <div class="callout warn avoid">
+    <h4>O mascote atual vai sair</h4>
+    <p>O avatar que está hoje no produto é uma bússola com rosto, olhos, bochechas e sorriso. Ele vai ser remodelado porque passa uma impressão infantil, que não combina com um produto profissional para o setor elétrico. As capturas deste documento ainda mostram a versão antiga; não a reproduza.</p>
+  </div>
+  <div class="grid2" style="grid-template-columns: 1fr 1fr; gap:4mm; align-items:stretch">
+    <div class="card" style="text-align:center"><img src="img/bussola.svg" alt="" style="width:22mm;opacity:.55;filter:grayscale(.4)"><p style="margin-top:2mm"><strong>Atual (sai):</strong> personagem com rosto, gradiente creme e laranja e “emoções” animadas.</p></div>
+    <div class="card" style="text-align:center"><img src="img/bussola-proposta.svg" alt="" style="width:22mm"><p style="margin-top:2mm"><strong>Direção proposta:</strong> símbolo geométrico, sem rosto, da mesma família do logo do GEO.</p></div>
+  </div>
+
+  <h4>Direção para o novo símbolo</h4>
+  <ul>
+    <li><strong>Símbolo, não personagem.</strong> Uma rosa dos ventos ou agulha de bússola geométrica, sem rosto, olhos, bochechas ou expressões.</li>
+    <li><strong>Mesma família do logo:</strong> fundo azul da marca (<code>#2563EB</code> → <code>#1E40AF</code>), traços brancos com pontas arredondadas e o âmbar <code>#FBBF24</code> como único destaque, na ponta norte da agulha, ecoando o ponto do “G”.</li>
+    <li><strong>Forma:</strong> círculo, para se diferenciar do quadrado arredondado do logo do produto. Deve funcionar legível de 16 px (ícone em botão) a 128 px (destaque).</li>
+    <li><strong>Movimento sóbrio:</strong> enquanto a Bússola trabalha, só a agulha gira ou oscila devagar; ao concluir, ela para no norte. Sem pulos nem “reações”. Com “reduzir movimento”, fica parada.</li>
+    <li><strong>Tom:</strong> confiável, preciso, técnico. A personalidade da Bússola vem do que ela escreve (clara, direta, útil), não de um rosto.</li>
+  </ul>
+  <p>A proposta acima é um ponto de partida, ainda não aprovado. Enquanto a versão final não sai, o ícone de traço <code>compass</code> da Lucide representa a Bússola.</p>
+  <p><strong>Gramática:</strong> o nome continua feminino: “a Bússola respondeu”, “pergunte à Bússola”, “a análise da Bússola”. <strong>Ações de IA</strong> nos botões usam o ícone <code>compass</code> de traço.</p>
+
+  <h2>Cores</h2>
+  <p>A identidade é <strong>empresarial, compacta e neutra</strong>: base em cinzas neutros (escala <em>zinc</em>), <strong>um único acento azul</strong> e cores de estado usadas só para comunicar estado. O âmbar aparece apenas na marca (o ponto do logo e a Bússola) e em avisos. Os valores seguem as escalas do Tailwind CSS.</p>
+
+  <h4>Marca e acento</h4>
+  <div class="swatches">
+    <div class="sw"><i style="background:#2563eb"></i><div><b>Azul da marca</b><code>#2563EB · blue-600</code></div></div>
+    <div class="sw"><i style="background:#1d4ed8"></i><div><b>Azul hover / texto</b><code>#1D4ED8 · blue-700</code></div></div>
+    <div class="sw"><i style="background:#1e40af"></i><div><b>Azul profundo</b><code>#1E40AF · blue-800</code></div></div>
+    <div class="sw"><i style="background:#eff6ff"></i><div><b>Azul suave</b><code>#EFF6FF · blue-50</code></div></div>
+    <div class="sw"><i style="background:#60a5fa"></i><div><b>Azul no escuro</b><code>#60A5FA · blue-400</code></div></div>
+    <div class="sw"><i style="background:#fbbf24"></i><div><b>Âmbar do ponto</b><code>#FBBF24 · amber-400</code></div></div>
+  </div>
+
+  <h4>Neutros (zinc)</h4>
+  <div class="ramp">
+    <div style="background:#fafafa"></div><div style="background:#f4f4f5"></div><div style="background:#e4e4e7"></div><div style="background:#d4d4d8"></div><div style="background:#a1a1aa"></div><div style="background:#71717a"></div><div style="background:#52525b"></div><div style="background:#3f3f46"></div><div style="background:#27272a"></div><div style="background:#18181b"></div><div style="background:#09090b"></div>
+  </div>
+  <div class="ramp-label"><span>50 #FAFAFA</span><span>100 #F4F4F5</span><span>200 #E4E4E7</span><span>300 #D4D4D8</span><span>400 #A1A1AA</span><span>500 #71717A</span><span>600 #52525B</span><span>700 #3F3F46</span><span>800 #27272A</span><span>900 #18181B</span><span>950 #09090B</span></div>
+
+  <h4>Estados (usar só para comunicar estado)</h4>
+  <div class="swatches">
+    <div class="sw"><i style="background:#15803d"></i><div><b>Sucesso</b><code>#15803D · green-700</code></div></div>
+    <div class="sw"><i style="background:#f0fdf4"></i><div><b>Sucesso suave</b><code>#F0FDF4 · green-50</code></div></div>
+    <div class="sw"><i style="background:#b45309"></i><div><b>Atenção</b><code>#B45309 · amber-700</code></div></div>
+    <div class="sw"><i style="background:#fffbeb"></i><div><b>Atenção suave</b><code>#FFFBEB · amber-50</code></div></div>
+    <div class="sw"><i style="background:#b91c1c"></i><div><b>Erro / perigo</b><code>#B91C1C · red-700</code></div></div>
+    <div class="sw"><i style="background:#fef2f2"></i><div><b>Erro suave</b><code>#FEF2F2 · red-50</code></div></div>
+  </div>
+
+  <h4>Séries de gráfico (não comunicam estado)</h4>
+  <div class="swatches" style="grid-template-columns: repeat(8, 1fr)">
+    <div class="sw"><i style="background:#2563eb"></i><div><b>1</b><code>#2563EB</code></div></div>
+    <div class="sw"><i style="background:#0891b2"></i><div><b>2</b><code>#0891B2</code></div></div>
+    <div class="sw"><i style="background:#7c3aed"></i><div><b>3</b><code>#7C3AED</code></div></div>
+    <div class="sw"><i style="background:#d97706"></i><div><b>4</b><code>#D97706</code></div></div>
+    <div class="sw"><i style="background:#db2777"></i><div><b>5</b><code>#DB2777</code></div></div>
+    <div class="sw"><i style="background:#0f766e"></i><div><b>6</b><code>#0F766E</code></div></div>
+    <div class="sw"><i style="background:#c026d3"></i><div><b>7</b><code>#C026D3</code></div></div>
+    <div class="sw"><i style="background:#71717a"></i><div><b>Outros</b><code>#71717A</code></div></div>
+  </div>
+</section>
+
+<section class="page">
+  <h3 style="margin-top:0">Papéis de cor, claro e escuro</h3>
+  <p>No produto, as cores são usadas por papel (nunca “o azul”, sempre “a cor da marca”).</p>
+  <table>
+    <tr><th style="width:30%">Papel</th><th>Tema claro</th><th>Tema escuro</th></tr>
+    <tr><td>Fundo da página (canvas)</td><td><code>#FAFAFA</code> zinc-50</td><td><code>#09090B</code> zinc-950</td></tr>
+    <tr><td>Superfície (cartões, painéis)</td><td><code>#FFFFFF</code></td><td><code>#18181B</code> zinc-900</td></tr>
+    <tr><td>Superfície discreta</td><td><code>#F4F4F5</code> zinc-100</td><td><code>#27272A</code> zinc-800</td></tr>
+    <tr><td>Texto principal</td><td><code>#18181B</code> zinc-900</td><td><code>#FAFAFA</code> zinc-50</td></tr>
+    <tr><td>Texto secundário</td><td><code>#52525B</code> zinc-600</td><td><code>#D4D4D8</code> zinc-300</td></tr>
+    <tr><td>Texto de apoio</td><td><code>#71717A</code> zinc-500</td><td><code>#A1A1AA</code> zinc-400</td></tr>
+    <tr><td>Borda</td><td><code>#E4E4E7</code> zinc-200</td><td><code>#27272A</code> zinc-800</td></tr>
+    <tr><td>Marca / ação primária</td><td><code>#2563EB</code> com texto branco</td><td><code>#60A5FA</code> com texto <code>#09090B</code></td></tr>
+    <tr><td>Marca hover</td><td><code>#1D4ED8</code></td><td><code>#93C5FD</code></td></tr>
+    <tr><td>Foco (anel de 2 px)</td><td><code>#2563EB</code></td><td><code>#60A5FA</code></td></tr>
+  </table>
+
+  <h2>Tipografia</h2>
+  <p>A fonte é <strong>Inter</strong> (variável, Google Fonts / Fontsource), em todas as interfaces. Números e códigos técnicos podem usar <strong>JetBrains Mono</strong>. Na interface nada passa de <strong>peso 600</strong> (semibold): o produto não usa negrito pesado. Títulos têm espaçamento entre letras levemente negativo (−0,01 em).</p>
+  <div class="type-row"><small>Display · 20 px / 600</small><span style="font-size:20px;font-weight:600;letter-spacing:-0.01em">A operação inteira, do campo ao escritório.</span></div>
+  <div class="type-row"><small>Título 1 · 18 px / 600</small><span style="font-size:18px;font-weight:600">Boletim das Equipes</span></div>
+  <div class="type-row"><small>Título 2 · 16 px / 600</small><span style="font-size:16px;font-weight:600">Programado × realizado</span></div>
+  <div class="type-row"><small>Título 3 · 14 px / 600</small><span style="font-size:14px;font-weight:600">Pontos de atenção</span></div>
+  <div class="type-row"><small>Texto · 13 px / 400</small><span style="font-size:13px">A equipe registra no app, mesmo sem sinal, e o escritório acompanha na hora.</span></div>
+  <div class="type-row"><small>Rótulo · 12 px / 500</small><span style="font-size:12px;font-weight:500;color:#52525b">Base operacional</span></div>
+  <div class="type-row"><small>Tabela · 11 px / 400</small><span style="font-size:11px">Obra 7000001 · Ponto 5 · Poste instalado · Depois</span></div>
+  <p class="muted" style="margin-top:2mm">Esta é a escala do <strong>produto</strong>, compacta de propósito (texto base de 13 px sobre uma raiz de 14 px).</p>
+
+  <h2>Ícones</h2>
+  <p>O produto usa a biblioteca <strong>Lucide</strong> (traço, sem preenchimento), com espessura de traço <strong>1,75</strong>, cantos arredondados e tamanhos de 14 px no texto, 16 px em controles e 20 px em destaque. Ícones que já representam conceitos do GEO: <code>compass</code> (Bússola e ações de IA), <code>wifi-off</code> (funciona sem sinal), <code>shield-check</code> (acesso por perfil e segurança), <code>hard-hat</code> (obras), <code>package</code> (material), <code>truck</code> (frota), <code>map</code> (ir para a obra), <code>camera</code> (fotos), <code>calendar-check</code> (Hoje). Não misture com ícones preenchidos ou de outra família.</p>
+</section>
+
+<section class="page">
+  <h2 style="margin-top:0">Forma, espaço e profundidade</h2>
+  <div class="grid3">
+    <div class="card"><h4>Raios</h4><p>4 px em selos e tags · 6 px em botões e campos · 8 px em cartões e painéis · 10 px em janelas · 26% do lado no ícone do logo · pílula (999 px) em chips de status.</p></div>
+    <div class="card"><h4>Espaçamento</h4><p>Grade de 4 px: 4, 8, 12, 16, 24, 32.</p></div>
+    <div class="card"><h4>Bordas e sombras</h4><p>Bordas finas de 1 px (zinc-200) separam as superfícies. Painéis em repouso não têm sombra; sombra só em elementos flutuantes (menus, janelas, toasts).</p></div>
+  </div>
+  <table style="margin-top:4mm">
+    <tr><th style="width:30%">Token de sombra</th><th>Valor (tema claro)</th><th style="width:28%">Uso</th></tr>
+    <tr><td>Elevação 1</td><td><code>0 1px 2px rgb(0 0 0 / .04)</code></td><td>Realce sutil</td></tr>
+    <tr><td>Elevação 2</td><td><code>0 4px 16px -2px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .06)</code></td><td>Menus e popovers</td></tr>
+    <tr><td>Elevação 3</td><td><code>0 16px 48px -8px rgb(0 0 0 / .2)</code></td><td>Janelas e capturas em destaque</td></tr>
+  </table>
+
+  <h2>Movimento</h2>
+  <p>Movimento curto e funcional: <strong>120–160 ms</strong>, curva de saída suave (<code>cubic-bezier(0.2, 0.8, 0.2, 1)</code>), deslocamentos de 4 a 12 px e escala de 0,98 ao pressionar. Nada de animações longas, quicando ou decorativas. Sempre respeite a preferência “reduzir movimento” do sistema: deslocamentos viram zero e as transições ficam instantâneas.</p>
+
+  <h2>Ilustração: o mapa de campo</h2>
+  <div class="grid2" style="grid-template-columns: 1fr 62mm; gap:6mm; align-items:start">
+    <div>
+      <p>A ilustração própria do GEO, usada na tela de entrada, é um <strong>mapa topográfico abstrato</strong>: curvas de nível finas desenhando morros, a <strong>rede construída</strong> como uma linha azul ligando pontos (postes), o <strong>trecho programado</strong> tracejado e <strong>a equipe em campo</strong> como o ponto âmbar, o único que pulsa. A legenda do produto diz: “Equipe em campo · Rede construída · Programada”.</p>
+      <p>É o elemento que dá personalidade à marca sem recorrer a fotos. A capa deste documento usa uma versão simplificada dela.</p>
+      <p class="muted">Fonte no código: <code>frontend/src/app/design-system/primitives/brand/geo-mapa-campo.component.ts</code> (desenho gerado e determinístico, sempre igual).</p>
+    </div>
+    <svg viewBox="0 0 120 90" style="width:62mm;border-radius:8px;background:#09090b">
+      <g fill="none" stroke="#3f3f46" stroke-width="0.4">
+        <ellipse cx="80" cy="30" rx="10" ry="7"/><ellipse cx="80" cy="30" rx="18" ry="13"/><ellipse cx="80" cy="30" rx="27" ry="19"/><ellipse cx="80" cy="30" rx="37" ry="26"/><ellipse cx="80" cy="30" rx="48" ry="34"/>
+        <ellipse cx="18" cy="78" rx="10" ry="7"/><ellipse cx="18" cy="78" rx="19" ry="13"/><ellipse cx="18" cy="78" rx="29" ry="20"/>
+      </g>
+      <polyline points="8,30 30,44 52,38 72,54 96,50" fill="none" stroke="#2563eb" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <polyline points="96,50 116,62" fill="none" stroke="#60a5fa" stroke-width="1.3" stroke-dasharray="2.5 2.5" stroke-linecap="round"/>
+      <g fill="#09090b" stroke="#60a5fa" stroke-width="1"><circle cx="8" cy="30" r="2"/><circle cx="30" cy="44" r="2"/><circle cx="52" cy="38" r="2"/><circle cx="96" cy="50" r="2"/></g>
+      <circle cx="72" cy="54" r="6" fill="#fbbf24" opacity="0.2"/><circle cx="72" cy="54" r="2.8" fill="#fbbf24"/>
+    </svg>
+  </div>
+
+  <h2>Fotografia e imagens</h2>
+  <ul>
+    <li>A marca se apoia em <strong>capturas reais do produto</strong> (web e app), não em fotos de banco de imagens.</li>
+    <li>Fotos de campo, quando usadas, mostram eletricistas com EPI completo em rede de distribuição, sem uniformes, veículos, placas ou logos de empresas identificáveis.</li>
+    <li>Capturas com dados usam sempre dados fictícios, como as deste documento.</li>
+  </ul>
+</section>
+
+<section class="page">
+  <h2 style="margin-top:0">Tom de voz</h2>
+  <p>O GEO fala como um colega experiente da operação: <strong>direto, concreto e respeitoso</strong>. Explica o que a pessoa ganha, com as palavras que ela usa no dia a dia (obra, ponto, equipe, turno, APR, medição), sem jargão de tecnologia nem exagero de marketing.</p>
+  <div class="do-dont">
+    <div class="do"><h4>Assim</h4><ul>
+      <li>“A equipe registra no app, mesmo sem sinal.”</li>
+      <li>“Programe a semana das equipes e veja quem está livre.”</li>
+      <li>“Foto com carimbo de obra, ponto, data e GPS.”</li>
+      <li>“Pergunte à Bússola quais obras estão paradas.”</li>
+      <li>Frases curtas, verbos de ação, a pessoa como sujeito.</li>
+    </ul></div>
+    <div class="dont"><h4>Não assim</h4><ul>
+      <li>“Solução disruptiva e inovadora de ponta a ponta.”</li>
+      <li>“Revolucione sua gestão com IA de última geração.”</li>
+      <li>“Aumente sua produtividade em 300%.” (sem dado comprovado)</li>
+      <li>“Plataforma omnichannel sinérgica.”</li>
+      <li>Anglicismos desnecessários (dashboard pode; “insights acionáveis”, não).</li>
+    </ul></div>
+  </div>
+  <h4>Regras de escrita do produto</h4>
+  <ul>
+    <li><strong>Português do Brasil</strong> em tudo.</li>
+    <li><strong>Caixa de frase</strong> em títulos, botões e selos: “Nova programação”, “Sem condição de executar”, não “Nova Programação” nem “NOVA PROGRAMAÇÃO”.</li>
+    <li>Botões dizem a ação: “Gerar medição”, “Concluir levantamento”, “Revisar fotos”, não “OK” ou “Continuar” genéricos.</li>
+    <li>Números com formato brasileiro: R$ 8.000, 43,7%, 20/11.</li>
+    <li>O “×” para comparações do produto: “programado × realizado”, “orçado × faturado”.</li>
+  </ul>
+
+  <h2>Telas do produto em claro e escuro</h2>
+  <figure>
+    <div class="shot crop-bottom"><img src="img/app-hoje-escuro.png" alt=""></div>
+    <figcaption>O mesmo app de campo no tema escuro. O produto tem os dois temas; o claro é o principal e o escuro está em fase beta.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================== PARTE 6 ============================== -->
+<section class="page">
+  <div class="section-head"><div class="kicker">Parte 6 · Design system</div><h1>Como o produto é construído visualmente</h1></div>
+  <p class="lead">As decisões do design system que dão ao GEO a sua cara.</p>
+
+  <h3>Base técnica do produto</h3>
+  <table>
+    <tr><th style="width:30%">Camada</th><th>Escolha</th></tr>
+    <tr><td>Framework</td><td>Angular 22 (componentes standalone, signals)</td></tr>
+    <tr><td>Componentes</td><td>PrimeNG 22 com preset próprio sobre o tema Aura, variante compacta</td></tr>
+    <tr><td>Utilitários CSS</td><td>Tailwind CSS v4</td></tr>
+    <tr><td>Tokens</td><td>Variáveis CSS <code>--geo-*</code>, nomeadas pelo papel (ex.: <code>--geo-brand</code>, <code>--geo-surface</code>, <code>--geo-foreground-muted</code>), com valor para claro e escuro</td></tr>
+    <tr><td>Ícones e fonte</td><td>Lucide · Inter (variável) · JetBrains Mono</td></tr>
+  </table>
+  <p class="muted">As escalas <code>zinc</code> e <code>blue</code> padrão do Tailwind são exatamente as do GEO.</p>
+
+  <h3>Princípios</h3>
+  <div class="grid2">
+    <div class="card"><h4>Compacto e denso</h4><p>Feito para quem passa o dia no sistema: controles de 32 px, linhas de tabela de 34 px, texto de 13 px. Muita informação por tela, sem parecer apertado. No app de campo, alvos de toque de 44 px.</p></div>
+    <div class="card"><h4>Neutro com um acento</h4><p>Quase tudo é cinza neutro; o azul marca a ação principal, o item ativo e o foco. Cor de estado só quando comunica estado.</p></div>
+    <div class="card"><h4>Hierarquia por peso e cor</h4><p>A hierarquia vem do peso (400/500/600) e do tom do texto, mais do que do tamanho. Nada acima de semibold.</p></div>
+    <div class="card"><h4>Superfícies planas</h4><p>Cartões com borda fina e sem sombra; sombra apenas no que flutua. Raios discretos (6–10 px).</p></div>
+  </div>
+
+  <h3>Componentes e padrões que caracterizam o GEO</h3>
+  <table>
+    <tr><th style="width:28%">Padrão</th><th>Como aparece</th></tr>
+    <tr><td>Shell</td><td>Barra do topo de 48 px com trilha de navegação, busca “Buscar telas Ctrl K”, tema, favoritos, sino e avatar; menu lateral neutro de 232 px (52 px recolhido) com o acento só no item ativo.</td></tr>
+    <tr><td>Cabeçalho de página</td><td>Ícone em quadradinho, título de 18 px, estrela de favorito e uma linha de descrição em cinza explicando para que serve a tela.</td></tr>
+    <tr><td>Indicadores</td><td>Cartões com rótulo pequeno e número grande no topo das telas; clicáveis, filtram a lista.</td></tr>
+    <tr><td>Filtros</td><td>Painel recolhido com chips do recorte ativo (“Situação: Para revisar”).</td></tr>
+    <tr><td>Tabelas</td><td>Cabeçalho cinza, linhas de 34 px, dado em 11 px, ações discretas no fim da linha, paginação embaixo.</td></tr>
+    <tr><td>Selos de status</td><td>Pílulas em caixa de frase com ícone, fundo suave e texto na cor do estado (“Em turno desde 19:46”, “Sem condição de executar”, “Para revisar”).</td></tr>
+    <tr><td>Painel lateral (drawer)</td><td>Clicar numa linha abre o detalhe ao lado, sem sair da lista.</td></tr>
+    <tr><td>Barras de progresso</td><td>Finas, azul sobre cinza; vermelho quando a meta está em risco.</td></tr>
+    <tr><td>App de campo</td><td>Fundo cinza-claro, cartões brancos grandes com raio maior, um botão primário azul de largura cheia para o “próximo passo”, navegação lateral (tablet) ou inferior (celular).</td></tr>
+  </table>
+
+  <h3>Tokens principais, para copiar</h3>
+  <table style="font-size:8pt">
+    <tr><th>Token</th><th>Claro</th><th>Escuro</th></tr>
+    <tr><td><code>--geo-canvas</code></td><td>#FAFAFA</td><td>#09090B</td></tr>
+    <tr><td><code>--geo-surface</code></td><td>#FFFFFF</td><td>#18181B</td></tr>
+    <tr><td><code>--geo-foreground</code> / <code>-muted</code> / <code>-subtle</code></td><td>#18181B / #52525B / #71717A</td><td>#FAFAFA / #D4D4D8 / #A1A1AA</td></tr>
+    <tr><td><code>--geo-border</code> / <code>-strong</code></td><td>#E4E4E7 / #D4D4D8</td><td>#27272A / #3F3F46</td></tr>
+    <tr><td><code>--geo-brand</code> / <code>-hover</code> / <code>-soft</code></td><td>#2563EB / #1D4ED8 / #EFF6FF</td><td>#60A5FA / #93C5FD / azul 16%</td></tr>
+    <tr><td><code>--geo-success</code> · <code>--geo-warning</code> · <code>--geo-danger</code></td><td>#15803D · #B45309 · #B91C1C</td><td>#15803D · #D97706 · #DC2626</td></tr>
+    <tr><td><code>--geo-radius-sm / lg / xl</code></td><td colspan="2">6 px / 8 px / 10 px</td></tr>
+    <tr><td><code>--geo-space-1 … 6</code></td><td colspan="2">4 / 8 / 12 / 16 / 24 / 32 px</td></tr>
+    <tr><td><code>--geo-motion-fast / base / slow</code></td><td colspan="2">120 ms / 160 ms / 240 ms · ease-out <code>cubic-bezier(0.2, 0.8, 0.2, 1)</code></td></tr>
+    <tr><td><code>--geo-font-family-sans</code></td><td colspan="2">'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif</td></tr>
+  </table>
+  <p class="muted">Fonte completa: <code>frontend/src/app/design-system/styles/tokens.css</code> e <code>core/theme/geo-preset.ts</code>.</p>
+</section>
+
+<!-- ============================== PARTE 8 ============================== -->
+<section class="page">
+  <div class="section-head"><div class="kicker">Parte 7 · Consulta</div><h1>Glossário</h1></div>
+  <table>
+    <tr><th style="width:26%">Termo</th><th>Significado</th></tr>
+    <tr><td><strong>Concessionária</strong></td><td>A distribuidora de energia dona da rede. Contrata as prestadoras de serviço que usam o GEO.</td></tr>
+    <tr><td><strong>Obra</strong></td><td>Unidade de trabalho da carteira, identificada pelo número; tem responsáveis, prazo, valor e localização.</td></tr>
+    <tr><td><strong>Carteira</strong></td><td>O conjunto de obras e os dados contratuais de cada uma (contrato, classe de tensão, prioridade, prazo regulado).</td></tr>
+    <tr><td><strong>Projeto</strong></td><td>O desenho técnico da obra em PDF, com os pontos numerados.</td></tr>
+    <tr><td><strong>Ponto</strong></td><td>Local numerado do projeto, normalmente um poste.</td></tr>
+    <tr><td><strong>Vão</strong></td><td>Trecho de rede entre dois pontos, com metragem.</td></tr>
+    <tr><td><strong>Kit construtivo</strong></td><td>Conjunto padrão de serviços e materiais (instalar ou retirar) aplicado a pontos e vãos; o valor soma os serviços.</td></tr>
+    <tr><td><strong>Levantamento / planejamento</strong></td><td>Marcação de pontos, vãos e kits sobre o projeto; forma o previsto da obra.</td></tr>
+    <tr><td><strong>Visita prévia</strong></td><td>Checklist feito no local antes da execução.</td></tr>
+    <tr><td><strong>Programação</strong></td><td>Alocação dos itens planejados a uma equipe num período, com as condições da intervenção.</td></tr>
+    <tr><td><strong>Valor congelado</strong></td><td>Valor dos serviços fixado ao programar; é o que conta no realizado e na medição.</td></tr>
+    <tr><td><strong>Linha viva</strong></td><td>Trabalho com a rede energizada, feito por equipes e técnicas específicas.</td></tr>
+    <tr><td><strong>Desligamento / manobra</strong></td><td>Corte programado de energia para executar o serviço; a manobra é a operação na rede, com número e horário.</td></tr>
+    <tr><td><strong>Equipe / encarregado</strong></td><td>Grupo de eletricistas com um veículo; o encarregado lidera e usa o app.</td></tr>
+    <tr><td><strong>Turno</strong></td><td>A jornada da equipe no dia: abertura, composição, apontamentos e fechamento.</td></tr>
+    <tr><td><strong>APR</strong></td><td>Análise Preliminar de Risco, feita pela equipe antes de executar: atividade, riscos, medidas de controle e assinaturas.</td></tr>
+    <tr><td><strong>Apontamento</strong></td><td>O registro do que foi executado em cada ponto.</td></tr>
+    <tr><td><strong>Book de fotos</strong></td><td>As fotos de cada ponto executado (antes, durante, depois), exigidas como evidência.</td></tr>
+    <tr><td><strong>As Built</strong></td><td>Registro de como a obra foi efetivamente construída, ponto a ponto.</td></tr>
+    <tr><td><strong>Medição</strong></td><td>Levantamento dos serviços concluídos para cobrança, parcial ou por ciclo (competência).</td></tr>
+    <tr><td><strong>Competência</strong></td><td>Mês de referência da medição.</td></tr>
+    <tr><td><strong>Fechamento</strong></td><td>Consolidado de planejado, executado e medido de uma ou várias obras.</td></tr>
+    <tr><td><strong>Base operacional</strong></td><td>Unidade física de onde as equipes saem (pátio, almoxarifado, escritório regional).</td></tr>
+    <tr><td><strong>SST</strong></td><td>Saúde e Segurança do Trabalho.</td></tr>
+    <tr><td><strong>Desvio</strong></td><td>Não conformidade encontrada numa inspeção de segurança, com responsável e prazo.</td></tr>
+    <tr><td><strong>CAT</strong></td><td>Comunicação de Acidente de Trabalho.</td></tr>
+    <tr><td><strong>OS</strong></td><td>Ordem de serviço (na frota, de manutenção do veículo).</td></tr>
+    <tr><td><strong>SLA</strong></td><td>Prazo de primeira resposta e de resolução de um chamado.</td></tr>
+    <tr><td><strong>PWA</strong></td><td>Aplicativo instalado pelo navegador, sem loja, que funciona sem conexão.</td></tr>
+  </table>
+
+  <p class="muted" style="margin-top:8mm;border-top:1px solid #e4e4e7;padding-top:3mm">GEO — Gestão de Equipes e Operações · Visão do produto · 22/11/2026. As capturas usam dados fictícios.</p>
+</section>
+
+</body>
+</html>
