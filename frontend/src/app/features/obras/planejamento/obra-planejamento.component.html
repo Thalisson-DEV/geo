@@ -410,7 +410,10 @@
                   @if (podeProgramar && contagemSelecao().itens > 0) {
                     <geo-button size="sm" icon="pi pi-calendar-plus" label="Programar" (pressed)="programarAberto.set(true)"></geo-button>
                   }
-                  <geo-icon-button icon="pi pi-times" size="icon-sm" label="Limpar seleção" tooltip="Limpar seleção (Esc)" (pressed)="limparSelecao()"></geo-icon-button>
+                  @if (podeEditar && contagemSelecao().pontos + contagemSelecao().vaos > 0) {
+                    <geo-icon-button icon="pi pi-trash" size="icon-sm" label="Excluir selecionados" tooltip="Excluir selecionados" (pressed)="excluirSelecao()"></geo-icon-button>
+                  }
+                  <geo-icon-button icon="pi pi-times" size="icon-sm" label="Limpar seleção" tooltip="Limpar seleção" (pressed)="limparSelecao()"></geo-icon-button>
                 </footer>
               }
             }

@@ -38,6 +38,10 @@ public interface PlanejamentoObraControllerDoc {
     @Operation(summary = "Excluir ponto com seus kits e vãos", description = "Recusada quando algum item está programado ou executado.")
     ResponseEntity<PlanejamentoObraResponse> excluirPonto(UUID idObra, UUID idPonto);
 
+    @Operation(summary = "Excluir vários pontos e vãos de uma vez",
+            description = "Os vãos ligados aos pontos saem junto. Tudo ou nada: recusada, sem excluir nada, quando algum local tem item programado ou executado.")
+    ResponseEntity<PlanejamentoObraResponse> excluirLocais(UUID idObra, PlanejamentoObraRequests.ExcluirLocais request);
+
     @Operation(summary = "Lançar vão entre dois pontos, inclusive em páginas diferentes")
     ResponseEntity<PlanejamentoObraResponse> adicionarVao(UUID idObra, PlanejamentoObraRequests.NovoVao request);
 

@@ -668,7 +668,22 @@ export class ObraPlanejamentoComponent {
       }
       return;
     }
-    if (digitando || evento.ctrlKey || evento.metaKey || evento.altKey) return;
+    if (digitando) return;
+    if ((evento.ctrlKey || evento.metaKey) && evento.key.toLowerCase() === 'a') {
+      evento.preventDefault();
+      this.selecionarTudoNaFolha();
+      return;
+    }
+    if ((evento.key === 'Delete' || evento.key === 'Backspace') && this.podeEditar) {
+      evento.preventDefault();
+      const ponto = this.pontoAtivo();
+      const vao = this.vaoAtivo();
+      if (this.contagemSelecao().pontos + this.contagemSelecao().vaos > 0) void this.excluirSelecao();
+      else if (ponto) void this.excluirPonto(ponto);
+      else if (vao) void this.excluirVao(vao);
+      return;
+    }
+    if (evento.ctrlKey || evento.metaKey || evento.altKey) return;
     const atalhos: Record<string, Ferramenta> = { m: 'mao', p: 'ponto', v: 'vao', s: 'selecionar', a: 'area', t: 'texto', n: 'anotar' };
     const ferramenta = atalhos[evento.key.toLowerCase()];
     if (ferramenta && (this.podeEditar || ['mao', 'selecionar', 'area', 'texto'].includes(ferramenta))) {
@@ -902,6 +917,60 @@ export class ObraPlanejamentoComponent {
         this.tratarErro(e);
       }
     });
+  }
+
+  /** Exclui de uma vez o que está selecionado; os vãos ligados aos pontos saem junto. */
+  protected async excluirSelecao(): Promise<void> {
+    const plano = this.plano();
+    if (!plano || !this.podeEditar) return;
+    const locais = this.locaisSelecionados();
+    const pontos = plano.pontos.filter((p) => locais.has(p.id));
+    const idsPontos = new Set(pontos.map((p) => p.id));
+    const vaos = plano.vaos.filter((v) => locais.has(v.id) || idsPontos.has(v.idPontoA) || idsPontos.has(v.idPontoB));
+    if (!pontos.length && !vaos.length) return;
+    const idsVaos = new Set(vaos.map((v) => v.id));
+    const kitsDaSelecao = plano.kits.filter((k) => (k.idPonto && idsPontos.has(k.idPonto)) || (k.idVao && idsVaos.has(k.idVao)));
+    // Item programado ou executado trava a exclusão inteira: avisa quais antes de pedir confirmação.
+    const travados = new Set(kitsDaSelecao.filter((k) => k.itens.some((i) => i.status !== 'PENDENTE')).map((k) => k.idPonto ?? k.idVao));
+    if (travados.size) {
+      const pontosPorId = this.pontosPorId();
+      const nomes = [
+        ...pontos.filter((p) => travados.has(p.id)).map((p) => `P${p.numero}`),
+        ...vaos.filter((v) => travados.has(v.id)).map((v) => `vão ${rotuloVao(v, pontosPorId)}`)
+      ];
+      const lista = nomes.length > 6 ? `${nomes.slice(0, 6).join(', ')} e mais ${nomes.length - 6}` : nomes.join(', ');
+      this.notificacoes.warning(`${lista} ${nomes.length === 1 ? 'tem' : 'têm'} item programado ou executado. Tire da seleção ou retire os itens da programação antes de excluir.`);
+      return;
+    }
+    const kits = kitsDaSelecao.length;
+    const partes = [
+      pontos.length ? `${pontos.length} ${pontos.length === 1 ? 'ponto' : 'pontos'}` : '',
+      vaos.length ? `${vaos.length} ${vaos.length === 1 ? 'vão' : 'vãos'}` : ''
+    ].filter(Boolean).join(' e ');
+    const ok = await this.confirmacao.confirm({
+      title: `Excluir ${partes}?`,
+      message: (kits ? `Saem junto ${kits} ${kits === 1 ? 'kit aplicado' : 'kits aplicados'}. ` : '')
+        + 'Vãos ligados aos pontos excluídos também saem. Se algum local tiver item programado ou executado, nada é excluído.',
+      variant: 'destructive',
+      confirmLabel: 'Excluir'
+    });
+    if (!ok) return;
+    this.executar(this.api.excluirLocais(this.idObra, [...idsPontos], plano.vaos.filter((v) => locais.has(v.id)).map((v) => v.id)), () => {
+      this.limparSelecao();
+      this.ativo.set(null);
+      this.notificacoes.success(`${partes[0].toUpperCase()}${partes.slice(1)} ${pontos.length + vaos.length === 1 ? 'excluído' : 'excluídos'}.`);
+    });
+  }
+
+  /** Seleciona todos os pontos e vãos da folha aberta (Ctrl+A). */
+  protected selecionarTudoNaFolha(): void {
+    const plano = this.plano();
+    if (!plano) return;
+    const pagina = this.pagina();
+    const pontos = plano.pontos.filter((p) => p.pagina === pagina);
+    const ids = new Set(pontos.map((p) => p.id));
+    const vaos = plano.vaos.filter((v) => ids.has(v.idPontoA) || ids.has(v.idPontoB));
+    this.locaisSelecionados.set(new Set([...ids, ...vaos.map((v) => v.id)]));
   }
 
   protected async excluirPonto(ponto: PontoPlanejamento): Promise<void> {

@@ -67,6 +67,11 @@ export class ObrasPlanejamentoService extends BaseService {
     return this.http.delete<PlanejamentoObra>(this.url(idObra, `/pontos/${idPonto}`));
   }
 
+  /** Tudo ou nada: com item programado ou executado em algum local, o servidor recusa e diz quais. */
+  excluirLocais(idObra: string, idsPontos: string[], idsVaos: string[]): Observable<PlanejamentoObra> {
+    return this.http.post<PlanejamentoObra>(this.url(idObra, '/locais/exclusao'), { idsPontos, idsVaos });
+  }
+
   adicionarVao(idObra: string, idPontoA: string, idPontoB: string): Observable<PlanejamentoObra> {
     return this.http.post<PlanejamentoObra>(this.url(idObra, '/vaos'), { idPontoA, idPontoB });
   }

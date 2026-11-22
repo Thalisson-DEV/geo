@@ -75,6 +75,10 @@ public final class PlanejamentoObraRequests {
                              @DecimalMin(value = "0.0001", message = "A quantidade deve ser maior que zero") BigDecimal multiplicador) {
     }
 
+    /** Pontos e vãos excluídos de uma vez; os vãos ligados aos pontos saem junto. */
+    public record ExcluirLocais(List<UUID> idsPontos, List<UUID> idsVaos) {
+    }
+
     public record AlterarMultiplicador(
             @NotNull @DecimalMin(value = "0.0001", message = "A quantidade deve ser maior que zero") BigDecimal multiplicador,
             Long versao) {

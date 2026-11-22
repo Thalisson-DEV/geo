@@ -7,6 +7,7 @@ import com.nexo.app.modules.obras.domain.KitAplicado;
 import com.nexo.app.modules.obras.domain.KitConstrutivo;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.OperacaoItemKit;
+import com.nexo.app.modules.obras.domain.OrigemPlanejamento;
 import com.nexo.app.modules.obras.domain.PontoPlanejamento;
 import com.nexo.app.modules.obras.domain.StatusItemPlanejado;
 import com.nexo.app.modules.obras.domain.TipoItemKit;
@@ -140,6 +141,54 @@ class PlanejamentoObraUseCasesTest {
                 .isInstanceOf(InvarianteVioladaException.class)
                 .hasMessageContaining("SERVICO");
         assertThat(ponto.isAtivo()).isTrue();
+    }
+
+    @Test
+    void excluirLocaisLevaJuntoOsVaosLigadosAosPontos() {
+        PontoPlanejamento a = ponto("1", 0);
+        PontoPlanejamento b = ponto("2", 0);
+        PontoPlanejamento c = ponto("3", 0);
+        VaoPlanejamento ab = vao(a, b);
+        VaoPlanejamento bc = vao(b, c);
+        when(pontoRepository.findByIdAndIdObraAndAtivoTrue(a.getId(), OBRA)).thenReturn(Optional.of(a));
+        when(pontoRepository.findByIdObraAndAtivoTrueOrderByPaginaAscNumeroAsc(OBRA)).thenReturn(List.of(a, b, c));
+        when(vaoRepository.findByIdObraAndAtivoTrue(OBRA)).thenReturn(List.of(ab, bc));
+
+        useCases.excluirLocais(OBRA, new PlanejamentoObraRequests.ExcluirLocais(List.of(a.getId()), List.of(bc.getId())));
+
+        assertThat(a.isAtivo()).isFalse();
+        assertThat(ab.isAtivo()).isFalse();
+        assertThat(bc.isAtivo()).isFalse();
+        assertThat(b.isAtivo()).isTrue();
+        assertThat(c.isAtivo()).isTrue();
+    }
+
+    @Test
+    void excluirLocaisComItemProgramadoNaoExcluiNadaEDizQuais() {
+        PontoPlanejamento livre = ponto("1", 0);
+        PontoPlanejamento programado = ponto("4", 0);
+        KitAplicado kit = kitPendente(programado.getId(), "1");
+        ReflectionTestUtils.setField(kit.getItensAtivos().get(0), "status", StatusItemPlanejado.PROGRAMADO);
+        when(pontoRepository.findByIdAndIdObraAndAtivoTrue(livre.getId(), OBRA)).thenReturn(Optional.of(livre));
+        when(pontoRepository.findByIdAndIdObraAndAtivoTrue(programado.getId(), OBRA)).thenReturn(Optional.of(programado));
+        when(pontoRepository.findByIdObraAndAtivoTrueOrderByPaginaAscNumeroAsc(OBRA)).thenReturn(List.of(livre, programado));
+        when(vaoRepository.findByIdObraAndAtivoTrue(OBRA)).thenReturn(List.of());
+        lenient().when(kitAplicadoRepository.findByIdPontoAndAtivoTrue(any())).thenReturn(List.of());
+        when(kitAplicadoRepository.findByIdPontoAndAtivoTrue(programado.getId())).thenReturn(List.of(kit));
+
+        assertThatThrownBy(() -> useCases.excluirLocais(OBRA,
+                new PlanejamentoObraRequests.ExcluirLocais(List.of(livre.getId(), programado.getId()), List.of())))
+                .isInstanceOf(InvarianteVioladaException.class)
+                .hasMessageContaining("P4")
+                .hasMessageContaining("Nada foi excluído");
+        assertThat(livre.isAtivo()).isTrue();
+        assertThat(programado.isAtivo()).isTrue();
+    }
+
+    private static VaoPlanejamento vao(PontoPlanejamento a, PontoPlanejamento b) {
+        VaoPlanejamento vao = new VaoPlanejamento(OBRA, a.getId(), b.getId(), null, OrigemPlanejamento.MANUAL);
+        ReflectionTestUtils.setField(vao, "id", UUID.randomUUID());
+        return vao;
     }
 
     @Test

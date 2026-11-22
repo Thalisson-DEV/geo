@@ -5,6 +5,7 @@ import com.nexo.app.modules.obras.application.dto.ItemKitResponse;
 import com.nexo.app.modules.obras.application.dto.KitConstrutivoResponse;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.AplicarKit;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.EditarPonto;
+import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.ExcluirLocais;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.MoverPonto;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.NovaAnotacao;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.NovoPonto;
@@ -171,6 +172,61 @@ public class PlanejamentoObraUseCases {
         kitAplicadoRepository.findByIdPontoAndAtivoTrue(idPonto).forEach(KitAplicado::remover);
         ponto.desativar();
         return montar(obra);
+    }
+
+    /**
+     * Exclui de uma vez os pontos e vãos escolhidos, com seus kits e os vãos ligados aos pontos. Tudo ou nada: se algum
+     * local tem item programado ou executado, nada é excluído e a mensagem diz quais são.
+     */
+    @Transactional
+    public PlanejamentoObraResponse excluirLocais(UUID idObra, ExcluirLocais request) {
+        Obra obra = buscarObra(idObra);
+        Set<UUID> idsPontos = new HashSet<>(request.idsPontos() != null ? request.idsPontos() : List.of());
+        Set<UUID> idsVaos = new HashSet<>(request.idsVaos() != null ? request.idsVaos() : List.of());
+        if (idsPontos.isEmpty() && idsVaos.isEmpty()) {
+            throw new InvarianteVioladaException("Selecione ao menos um ponto ou vão para excluir.");
+        }
+        List<PontoPlanejamento> pontos = idsPontos.stream().map(id -> buscarPonto(idObra, id)).toList();
+        Map<UUID, PontoPlanejamento> todosPontos = pontoRepository.findByIdObraAndAtivoTrueOrderByPaginaAscNumeroAsc(idObra).stream()
+                .collect(Collectors.toMap(PontoPlanejamento::getId, p -> p));
+        List<VaoPlanejamento> vaos = vaoRepository.findByIdObraAndAtivoTrue(idObra).stream()
+                .filter(v -> idsVaos.contains(v.getId()) || idsPontos.contains(v.getIdPontoA()) || idsPontos.contains(v.getIdPontoB()))
+                .toList();
+        Set<UUID> encontrados = vaos.stream().map(VaoPlanejamento::getId).collect(Collectors.toSet());
+        idsVaos.stream().filter(id -> !encontrados.contains(id)).findFirst().ifPresent(id -> buscarVao(idObra, id));
+
+        List<String> bloqueados = new ArrayList<>();
+        Map<UUID, List<KitAplicado>> kitsPorPonto = new HashMap<>();
+        for (PontoPlanejamento ponto : pontos) {
+            List<KitAplicado> kits = kitAplicadoRepository.findByIdPontoAndAtivoTrue(ponto.getId());
+            kitsPorPonto.put(ponto.getId(), kits);
+            if (kits.stream().anyMatch(k -> !k.itensBloqueantes().isEmpty())) bloqueados.add("P" + ponto.getNumero());
+        }
+        Map<UUID, List<KitAplicado>> kitsPorVao = new HashMap<>();
+        for (VaoPlanejamento vao : vaos) {
+            List<KitAplicado> kits = kitAplicadoRepository.findByIdVaoAndAtivoTrue(vao.getId());
+            kitsPorVao.put(vao.getId(), kits);
+            if (kits.stream().anyMatch(k -> !k.itensBloqueantes().isEmpty())) bloqueados.add(rotuloVao(vao, todosPontos));
+        }
+        if (!bloqueados.isEmpty()) {
+            throw new InvarianteVioladaException((bloqueados.size() == 1 ? bloqueados.get(0) + " tem" : String.join(", ", bloqueados) + " têm")
+                    + " item programado ou executado. Tire da seleção ou retire os itens da programação antes de excluir. Nada foi excluído.");
+        }
+        vaos.forEach(vao -> {
+            kitsPorVao.get(vao.getId()).forEach(KitAplicado::remover);
+            vao.desativar();
+        });
+        pontos.forEach(ponto -> {
+            kitsPorPonto.get(ponto.getId()).forEach(KitAplicado::remover);
+            ponto.desativar();
+        });
+        return montar(obra);
+    }
+
+    private static String rotuloVao(VaoPlanejamento vao, Map<UUID, PontoPlanejamento> pontos) {
+        PontoPlanejamento a = pontos.get(vao.getIdPontoA());
+        PontoPlanejamento b = pontos.get(vao.getIdPontoB());
+        return "vão " + (a != null ? "P" + a.getNumero() : "?") + "–" + (b != null ? "P" + b.getNumero() : "?");
     }
 
     // ---- Vãos ----

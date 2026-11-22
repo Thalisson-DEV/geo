@@ -90,6 +90,14 @@ public class PlanejamentoObraController implements PlanejamentoObraControllerDoc
     }
 
     @Override
+    @PostMapping("/locais/exclusao")
+    @PreAuthorize(GRAVAR)
+    public ResponseEntity<PlanejamentoObraResponse> excluirLocais(
+            @PathVariable UUID idObra, @RequestBody PlanejamentoObraRequests.ExcluirLocais request) {
+        return ResponseEntity.ok(useCases.excluirLocais(idObra, request));
+    }
+
+    @Override
     @PostMapping("/vaos")
     @PreAuthorize(GRAVAR)
     public ResponseEntity<PlanejamentoObraResponse> adicionarVao(
