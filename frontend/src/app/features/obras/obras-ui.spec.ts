@@ -26,10 +26,12 @@ describe('Obras UI Helpers & Sanitization', () => {
       expect(sanitizarNumeroObra('B-0012345')).toBe('0012345');
     });
 
-    it('deve converter para maiusculas e limitar a 7 caracteres', () => {
+    it('deve converter para maiusculas e limitar a 20 caracteres', () => {
       expect(sanitizarNumeroObra('sol1290')).toBe('SOL1290');
-      expect(sanitizarNumeroObra('123456789')).toBe('1234567');
-      expect(sanitizarNumeroObra('  abc-12345  ')).toBe('ABC-123');
+      expect(sanitizarNumeroObra('440247665')).toBe('440247665');
+      expect(sanitizarNumeroObra('B-440247665')).toBe('440247665');
+      expect(sanitizarNumeroObra('  abc-12345  ')).toBe('ABC-12345');
+      expect(sanitizarNumeroObra('1234567890123456789012')).toBe('12345678901234567890');
     });
 
     it('deve retornar string vazia para valores nulos ou vazios', () => {

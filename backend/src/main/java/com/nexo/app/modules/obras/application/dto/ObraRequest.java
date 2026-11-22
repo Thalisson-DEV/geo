@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public record ObraRequest(
         @NotBlank(message = "O número da obra é obrigatório")
-        @Size(min = 1, max = 7, message = "O número da obra deve ter até 7 caracteres")
+        @Size(min = 1, max = 20, message = "O número da obra deve ter até 20 caracteres")
         String numero,
 
         @NotBlank(message = "O título da obra é obrigatório")

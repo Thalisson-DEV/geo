@@ -63,7 +63,7 @@ import { ObrasKitService } from '../../../core/services/obras-kit.service';
 import { FechamentoObraService } from '../../../core/services/fechamento-obra.service';
 import { SituacaoFechamentoObra } from '../../../core/models/fechamento-obra.models';
 import { SITUACOES_OBRA } from '../fechamento/fechamento-ui';
-import { formatarDataParaApi, formatarMoeda, parseDataBrParaDate, sanitizarNumeroObra, sanitizarTituloObra, rotuloStatus, statusIcon, statusTone } from '../obras-ui';
+import { formatarDataParaApi, formatarMoeda, parseDataBrParaDate, sanitizarNumeroObra, sanitizarTituloObra, rotuloStatus, TAMANHO_MAXIMO_NUMERO_OBRA, statusIcon, statusTone } from '../obras-ui';
 
 export type ObraImportRow = ObraImportacaoDTO & { editing?: boolean };
 
@@ -339,7 +339,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
           [rows]="importacao.linhas()" [rowKey]="chaveImportacao" [pageSizeOptions]="[25, 50, 100]">
           <ng-template geoCell="numero" let-row>
-            @if (row.editing) { <geo-text-input label="Número" [labelVisible]="false" [(value)]="row.numero" [maxlength]="7"></geo-text-input> } @else { {{ row.numero || '—' }} }
+            @if (row.editing) { <geo-text-input label="Número" [labelVisible]="false" [(value)]="row.numero" [maxlength]="tamanhoMaximoNumero"></geo-text-input> } @else { {{ row.numero || '—' }} }
           </ng-template>
           <ng-template geoCell="titulo" let-row>
             @if (row.editing) { <geo-text-input label="Título" [labelVisible]="false" [(value)]="row.titulo"></geo-text-input> } @else { {{ row.titulo || '—' }} }
@@ -433,6 +433,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
   `
 })
 export class ObrasListComponent {
+  protected readonly tamanhoMaximoNumero = TAMANHO_MAXIMO_NUMERO_OBRA;
   private readonly service = inject(ObrasService);
   private readonly contratos = inject(ContratoService);
   private readonly rh = inject(RhService);

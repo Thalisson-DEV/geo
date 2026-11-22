@@ -47,6 +47,7 @@ import {
   formatarDataParaApi,
   parseDataBrParaDate,
   sanitizarNumeroObra,
+  TAMANHO_MAXIMO_NUMERO_OBRA,
   sanitizarTituloObra
 } from '../obras-ui';
 
@@ -236,6 +237,7 @@ export class ObraFormComponent implements OnInit {
     this.aoSair();
   }
 
+  protected readonly tamanhoMaximoNumero = TAMANHO_MAXIMO_NUMERO_OBRA;
   protected readonly numeroLimpo = () => sanitizarNumeroObra(this.numero());
   protected readonly tituloLimpo = () => sanitizarTituloObra(this.titulo());
 

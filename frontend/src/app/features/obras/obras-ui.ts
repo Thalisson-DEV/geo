@@ -1,13 +1,16 @@
 import { GeoTone } from '@geo/ui';
 import { TipoVinculoSubprojeto } from '../../core/models/obras.models';
 
+/** Até 20 caracteres: há contratantes com numeração maior que 7 dígitos (ex.: 440247665). Igual ao backend. */
+export const TAMANHO_MAXIMO_NUMERO_OBRA = 20;
+
 /**
  * Normaliza o número da obra de acordo com as invariantes de negócio:
  * - Remove espaços em branco nas extremidades.
  * - Remove prefixos 'B-' ou 'B' quando seguidos apenas por números (ex.: 'B-1228694' vira '1228694').
  * - Preserva zeros à esquerda (ex.: '0994094').
  * - Converte caracteres alfanuméricos para caixa alta.
- * - Limita ao tamanho máximo de 7 caracteres.
+ * - Limita ao tamanho máximo do número da obra.
  */
 export function sanitizarNumeroObra(raw?: string | null): string {
   if (!raw) return '';
@@ -18,7 +21,7 @@ export function sanitizarNumeroObra(raw?: string | null): string {
     limpo = limpo.replace(/^b-?/i, '');
   }
 
-  return limpo.toUpperCase().slice(0, 7);
+  return limpo.toUpperCase().slice(0, TAMANHO_MAXIMO_NUMERO_OBRA);
 }
 
 /**

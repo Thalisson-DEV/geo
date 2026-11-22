@@ -33,7 +33,7 @@ public class CadastrosObrasCopiloto implements ProvedorCadastros {
 
     /** Mesmos dados da tela de nova obra (o DTO da tela usa datas no formato do formulario). */
     public record ObraCadastro(
-            @NotBlank @Size(max = 7) @Schema(description = "Numero da obra, ate 7 caracteres") String numero,
+            @NotBlank @Size(max = 20) @Schema(description = "Numero da obra, ate 20 caracteres") String numero,
             @NotBlank @Size(min = 2, max = 300) String titulo,
             @Size(max = 1000) String descricao,
             TipoObra tipoObra,

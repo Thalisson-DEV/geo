@@ -2,7 +2,7 @@
   size="lg" [resizable]="true" [dirty]="alterado()" [loading]="carregando()">
   <geo-form-section title="Identificação" icon="pi pi-file-edit">
     <div class="geo-form-grid">
-      <geo-text-input label="Número da obra" [required]="true" [(value)]="numero" [maxlength]="7" placeholder="Ex.: 1228694" [error]="erro('numero')"
+      <geo-text-input label="Número da obra" [required]="true" [(value)]="numero" [maxlength]="tamanhoMaximoNumero" placeholder="Ex.: 1228694" [error]="erro('numero')"
         (focusout)="numero.set(numeroLimpo())"></geo-text-input>
       <geo-text-input label="Nota da obra" [(value)]="notaObra" [maxlength]="50" placeholder="Ex.: NOT-2026-8812" [showOptional]="true"></geo-text-input>
     </div>
