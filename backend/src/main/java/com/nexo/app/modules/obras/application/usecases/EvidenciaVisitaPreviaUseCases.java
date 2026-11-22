@@ -129,7 +129,8 @@ public class EvidenciaVisitaPreviaUseCases {
             } catch (IOException ex) {
                 throw new ArmazenamentoException("Falha ao ler a foto da visita.", ex);
             }
-            String autoria = e.getDataCriacao().atZoneSameInstant(ApontamentoExecucaoUseCases.FUSO).format(DATA_DA_FOTO)
+            // Foto da visita sobe pelo web, sem carimbo: a data é a do envio, e a legenda diz isso.
+            String autoria = "Enviada em " + e.getDataCriacao().atZoneSameInstant(ApontamentoExecucaoUseCases.FUSO).format(DATA_DA_FOTO)
                     + (e.getUsuarioCriacao() != null ? " · " + e.getUsuarioCriacao() : "");
             fotos.add(new DocumentoTecnicoPdf.Foto(item, e.getLegenda(), autoria,
                     FotoEvidencia.jpeg(FotoEvidencia.ler(original), FotoEvidencia.LADO_DOCUMENTO, 0.78f)));

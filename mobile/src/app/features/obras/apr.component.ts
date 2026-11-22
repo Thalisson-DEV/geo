@@ -133,7 +133,9 @@ const PASSOS = ['Equipe', 'Riscos', 'Medidas', 'Verificações', 'Assinaturas', 
       }
     } @else {
       <geo-barra-topo titulo="APR" (voltar)="voltar()" />
-      <geo-vazio icone="escudo" titulo="Programação não está no aparelho" />
+      <geo-vazio icone="escudo" titulo="Programação não está no aparelho" texto="Ela saiu da agenda (o dia passou, foi cancelada ou foi para outra equipe). O que já foi lançado continua salvo e é enviado.">
+        <a class="geo-btn geo-btn--principal" routerLink="/hoje">Ir para Hoje</a>
+      </geo-vazio>
     }
   `,
   styles: [`

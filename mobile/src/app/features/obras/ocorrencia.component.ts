@@ -6,7 +6,9 @@ import { BarraTopoComponent, FotoExibida, FotosComponent, IconeComponent } from 
 import { ToastService } from '../../core/ui/toast.service';
 import { TurnoService } from '../../core/turno/turno.service';
 import { AvisoTurnoFechadoComponent } from './aviso-turno-fechado.component';
-import { linhasDoCarimbo } from '../../core/fotos/carimbo';
+import { Carimbo, montarCarimbo } from '../../core/fotos/carimbo';
+import { LocalizacaoService } from '../../core/obras/localizacao.service';
+import { TokenService } from '../../core/auth/token.service';
 import { EvidenciaPreparada } from '../../core/sst/evidencia-foto.util';
 import { TIPOS_OCORRENCIA, TipoOcorrencia } from '../../core/obras/obras.models';
 import { ObrasContexto } from './obras-contexto';
@@ -40,7 +42,7 @@ import { ObrasContexto } from './obras-contexto';
         [placeholder]="tipo() === 'MATERIAL' ? 'Ex.: faltaram 2 cruzetas no caminhão' : 'Descreva, ou toque no microfone do teclado para ditar'"
         data-testid="descricao-ocorrencia"></textarea></label>
     <div class="fotos"><span class="fotos__rotulo">Fotos (opcional)</span>
-      <geo-fotos rotulo="Fotos da ocorrência" [fotos]="fotosExibidas()" [carimbo]="carimbo()" (adicionada)="adicionar($event)" (removida)="remover($event)" [galeria]="true" /></div>
+      <geo-fotos rotulo="Fotos da ocorrência" [fotos]="fotosExibidas()" [carimbo]="carimbo" (adicionada)="adicionar($event)" (removida)="remover($event)" [galeria]="true" /></div>
     <div class="geo-respiro"></div>
     <div class="geo-rodape-acoes" data-acao-fixa>
       <button type="button" class="geo-btn" [class.geo-btn--perigo]="impede()" [class.geo-btn--principal]="!impede()"
@@ -82,7 +84,16 @@ export class OcorrenciaObraComponent {
   readonly fotosExibidas = computed<FotoExibida[]>(() => this.fotos().map(f => ({ id: f.id, url: f.url })));
   readonly salvando = signal(false);
   readonly subtitulo = computed(() => { const p = this.programacao(); return p ? `Obra ${p.numeroObra ?? ''} · ${this.ctx.ref(p)}` : null; });
-  readonly carimbo = computed(() => linhasDoCarimbo({ contexto: [this.subtitulo() ?? 'Ocorrência', 'Ocorrência'], data: new Date() }));
+  private readonly gps = inject(LocalizacaoService);
+  private readonly tokens = inject(TokenService);
+  /** Montado na hora da foto: a hora e a posição daquele momento, não de quando a tela abriu. */
+  readonly carimbo = async (): Promise<Carimbo> => {
+    const posicao = await this.gps.agora(4000);
+    const tipo = TIPOS_OCORRENCIA.find(t => t.valor === this.tipo())?.rotulo;
+    return montarCarimbo({ titulo: this.subtitulo() ?? 'Ocorrência', detalhe: tipo ? `Ocorrência · ${tipo}` : 'Ocorrência', data: new Date(),
+      latitude: posicao?.latitude, longitude: posicao?.longitude, precisao: posicao?.precisao,
+      autoria: [this.ctx.pacote.codigoEquipe() ?? this.turno.composicao()?.codigo, this.tokens.nomeUsuario()].filter(Boolean).join(' · ') });
+  };
 
   constructor() {
     effect(() => {

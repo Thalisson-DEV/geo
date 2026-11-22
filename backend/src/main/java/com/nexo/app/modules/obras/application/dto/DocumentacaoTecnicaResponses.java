@@ -44,7 +44,7 @@ public final class DocumentacaoTecnicaResponses {
     public record Evidencia(UUID id, String idItem, String tituloItem, String legenda, String nomeArquivo, String usuario, OffsetDateTime data,
                             EvidenciaPonto.Etapa etapa, BigDecimal latitude, BigDecimal longitude, OffsetDateTime dataCaptura, long tamanhoBytes,
                             EvidenciaPonto.Revisao revisao, String rotuloInconformidade, String motivoReprovacao, String revisadaPor,
-                            OffsetDateTime revisadaEm) {
+                            OffsetDateTime revisadaEm, String codigo) {
     }
 
     public record Ficha(UUID id, UUID idModelo, String tituloModelo, boolean completa, List<String> pendencias,

@@ -159,6 +159,8 @@ export interface EvidenciaPonto {
   motivoReprovacao?: string | null;
   revisadaPor?: string | null;
   revisadaEm?: string | null;
+  /** Código impresso no carimbo da foto pelo app ("7F3A-21C9"); foto enviada pelo web não tem. */
+  codigo?: string | null;
 }
 
 export interface PontoDocumentacao {

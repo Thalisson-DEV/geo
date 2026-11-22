@@ -66,15 +66,17 @@ class DocumentoTecnicoPdfTest {
             // Capa, sumário, a folha executada do projeto e o book.
             assertThat(gerado.getNumberOfPages()).isEqualTo(4);
             String texto = new PDFTextStripper().getText(gerado);
-            assertThat(texto).contains("D381272", "Não se aplica", "Versão", "Religador com trafo auxiliar", "Aterramento · Vista da haste", "01/11/2026 10:00 · ANA", "Outras evidências");
-            assertThat(texto).contains("AS BUILT", "Sumário", "Folhas do projeto com o executado", "Página 4 de 4");
+            assertThat(texto).contains("D381272", "Não se aplica", "N/A", "Religador com trafo auxiliar", "FOTO 01", "Aterramento", "Vista da haste",
+                    "01/11/2026 10:00 · ANA", "FOTO 02", "Outras evidências");
+            assertThat(texto).contains("AS BUILT", "ASB-7000001-R02", "CONTROLE DE EMISSÃO", "Registro (CREA/CFT)", "Sumário", "Folhas do projeto com o executado",
+                    "Responsabilidade técnica", "Página 4 de 4");
             assertThat(gerado.getPage(3).getResources().getXObjectNames()).hasSize(2);
             assertThat(gerado.getPage(3).getResources().getXObject(gerado.getPage(3).getResources().getXObjectNames().iterator().next())).isInstanceOf(PDImageXObject.class);
         }
     }
 
     @Test
-    void bookTemCapaSumarioEUmaSecaoPorPontoComAsFotosPorEtapa() throws IOException {
+    void bookTemCapaSumarioEUmaSecaoPorPontoComAsFotosNaOrdemDaExecucao() throws IOException {
         byte[] foto = FotoEvidencia.jpeg(new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB), FotoEvidencia.LADO_DOCUMENTO, 0.78f);
         Obra obra = Mockito.mock(Obra.class);
         Mockito.when(obra.getNumero()).thenReturn("7000002");
@@ -88,11 +90,11 @@ class DocumentoTecnicoPdfTest {
         byte[] pdf = new DocumentoTecnicoPdf().book(new DocumentoTecnicoPdf.DadosBook(obra, 3, "ANA", pontos, 1, 1));
 
         try (PDDocument gerado = Loader.loadPDF(pdf)) {
-            // Capa, sumário e uma página por ponto.
-            assertThat(gerado.getNumberOfPages()).isEqualTo(4);
+            // Capa, sumário e uma página por ponto com foto; o ponto sem foto segue na mesma folha.
+            assertThat(gerado.getNumberOfPages()).isEqualTo(3);
             String texto = new PDFTextStripper().getText(gerado);
-            assertThat(texto).contains("BOOK DE OBRA", "Obra 7000002", "Sumário", "Ponto P01", "Antes da execução (1)", "Depois da execução (1)",
-                    "Equipamento: Regulador", "Atenção: falta foto de Aterramento", "Página 4 de 4");
+            assertThat(texto).contains("BOOK FOTOGRÁFICO DE OBRA", "BKF-7000002-R03", "Obra 7000002", "Sumário", "Ponto P01", "Antes da execução (1)",
+                    "Depois da execução (1)", "FOTO 01", "Vista geral · Antes", "Regulador", "Atenção: falta foto de Aterramento", "Página 3 de 3");
             assertThat(gerado.getPage(2).getResources().getXObjectNames()).hasSize(2);
         }
     }

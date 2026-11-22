@@ -118,6 +118,12 @@ const OPCOES_ETAPA: GeoSelectOption<EtapaEvidencia | 'SEM'>[] = [
                   }
                 </dd>
               </div>
+              @if (e.codigo) {
+                <div>
+                  <dt>Código da foto</dt>
+                  <dd class="ev-codigo">{{ e.codigo }}</dd>
+                </div>
+              }
               <div>
                 <dt>Arquivo</dt>
                 <dd class="ev-arquivo">{{ e.nomeArquivo }} · {{ tamanho() }}</dd>
@@ -174,6 +180,7 @@ const OPCOES_ETAPA: GeoSelectOption<EtapaEvidencia | 'SEM'>[] = [
     .ev-lista dd { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-caption); overflow-wrap: anywhere; }
     .ev-sem { color: var(--geo-foreground-subtle); }
     .ev-arquivo { font-size: var(--geo-font-caption); }
+    .ev-codigo { font-variant-numeric: tabular-nums; letter-spacing: 0.04em; font-weight: 600; }
     .ev-mapa { color: var(--geo-brand); font-variant-numeric: tabular-nums; text-decoration: none; }
     .ev-mapa:hover { text-decoration: underline; }
     .ev-mapa:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }

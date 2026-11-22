@@ -333,7 +333,7 @@ export class AbrirTurnoComponent implements OnInit {
   fazerChecklist(): void {
     const id = this.veiculo()?.id;
     if (!id) return;
-    void this.router.navigate(['/checklist/novo'], { queryParams: { veiculo: id, volta: '/turno/abrir' } });
+    void this.router.navigate(['/checklist/novo'], { queryParams: { veiculo: id, volta: this.router.serializeUrl(this.router.createUrlTree(['/turno/abrir'], { queryParams: this.volta ? { volta: this.volta } : {} })) } });
   }
 
   private async procurarNoServidor(idVeiculo: string): Promise<void> {

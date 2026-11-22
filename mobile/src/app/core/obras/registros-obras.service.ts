@@ -42,6 +42,8 @@ export interface NovoRegistro {
   arquivo?: { blob: Blob; nome: string; tipo: string } | null;
   /** Já com a posição (a foto do carimbo pegou o GPS); sem ela, pega agora. */
   posicao?: Posicao | null;
+  /** Id já reservado (o código impresso no carimbo da foto sai dele); sem ele, gera um. */
+  id?: string;
 }
 
 /**
@@ -70,7 +72,7 @@ export class RegistrosObrasService {
 
   /** Grava o registro e o põe na fila. Devolve o id do aparelho. */
   async registrar(novo: NovoRegistro): Promise<RegistroObraLocal> {
-    const idLocal = crypto.randomUUID();
+    const idLocal = novo.id ?? crypto.randomUUID();
     const posicao = novo.posicao !== undefined ? novo.posicao : await this.gps.agora(3000);
     const agora = new Date();
     const campo: CampoDoAparelho = {

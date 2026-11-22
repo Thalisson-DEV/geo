@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, afterNextRender, computed, inject, Injector, input, output, signal } from '@angular/core';
 import { EvidenciaPreparada, prepararEvidencia } from '../core/sst/evidencia-foto.util';
+import { Carimbo } from '../core/fotos/carimbo';
 import { FolhaComponent } from './folha.component';
 import { IconeComponent } from './icone.component';
 import { EstadoEnvio, StatusEnvioComponent } from './status-envio.component';
@@ -14,8 +15,8 @@ export interface FotoExibida {
   removivel?: boolean;
 }
 
-/** Linhas do carimbo, ou uma função que as monta na hora da foto (hora e GPS do momento, não de quando a tela abriu). */
-export type CarimboFoto = string[] | (() => string[]) | null;
+/** O carimbo, ou uma função que o monta na hora da foto (hora e GPS do momento, não de quando a tela abriu). */
+export type CarimboFoto = Carimbo | (() => Carimbo | Promise<Carimbo>) | null;
 
 /**
  * Fotos de evidência: abre a câmera direto (traseira), comprime, aplica o carimbo (contexto, data e
@@ -120,7 +121,7 @@ export class FotosComponent {
   readonly rotuloCamera = input('Tirar foto');
   /** Mostra "Da galeria" além da câmera. Desligado quando a evidência precisa ser tirada na hora. */
   readonly galeria = input(false);
-  /** Linhas do carimbo (ver `linhasDoCarimbo`), ou a função que as monta na hora da foto; sem carimbo a foto só é comprimida. */
+  /** O carimbo (ver `montarCarimbo`), ou a função que o monta na hora da foto; sem carimbo a foto só é comprimida. */
   readonly carimbo = input<CarimboFoto>(null);
   readonly maximo = input<number | null>(null);
   readonly removivel = input(true);
@@ -187,8 +188,8 @@ export class FotosComponent {
     this.processando.set(true);
     try {
       const carimbo = this.carimbo();
-      const linhas = typeof carimbo === 'function' ? carimbo() : carimbo;
-      this.adicionada.emit(await prepararEvidencia(arquivo, { carimbo: linhas ?? undefined }));
+      const quadro = typeof carimbo === 'function' ? await carimbo() : carimbo;
+      this.adicionada.emit(await prepararEvidencia(arquivo, { carimbo: quadro ?? undefined }));
     } finally {
       this.processando.set(false);
     }

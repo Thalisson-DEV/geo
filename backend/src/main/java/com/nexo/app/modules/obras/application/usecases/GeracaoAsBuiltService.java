@@ -1,5 +1,7 @@
 package com.nexo.app.modules.obras.application.usecases;
 
+import com.nexo.app.modules.rh.MunicipioApi;
+import com.nexo.app.modules.rh.MunicipioResponse;
 import com.nexo.app.modules.obras.application.dto.AnexoObraResponse;
 import com.nexo.app.modules.obras.domain.DocumentoAsBuilt;
 import com.nexo.app.modules.obras.domain.EquipamentoObra;
@@ -42,6 +44,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -73,6 +76,7 @@ public class GeracaoAsBuiltService {
     private final TipoAnexoObraRepository tipoAnexoRepository;
     private final AnexoObraUseCases anexoUseCases;
     private final DocumentoTecnicoPdf documentoPdf;
+    private final MunicipioApi municipioApi;
 
     @Async
     public void processar(UUID idDocumento) {
@@ -113,7 +117,7 @@ public class GeracaoAsBuiltService {
         Map<UUID, List<DocumentoTecnicoPdf.Foto>> fotos = fotos(idObra, pontosExecutados);
         byte[] pdf = documentoPdf.asBuilt(new DocumentoTecnicoPdf.DadosAsBuilt(obra, documento.getNumeroVersao(), projeto, pontos, pontosExecutados,
                 vaoRepository.findByIdObraAndAtivoTrue(idObra), Set.copyOf(itemRepository.vaosComExecucao(idObra)), fichas,
-                equipamentoRepository.findByIdObraAndAtivoTrue(idObra), fotos));
+                equipamentoRepository.findByIdObraAndAtivoTrue(idObra), fotos, municipio(obra)));
 
         String nome = "as-built-" + obra.getNumero().replaceAll("[^a-zA-Z0-9._-]", "_") + "-v" + documento.getNumeroVersao() + ".pdf";
         AnexoObraResponse anexo = anexoUseCases.anexarGerado(idObra, tipo, nome, "application/pdf", pdf, "As Built, versão " + documento.getNumeroVersao());
@@ -172,7 +176,7 @@ public class GeracaoAsBuiltService {
         }
         int pontosExecutados = (int) pontos.stream().filter(p -> executados.contains(p.getId())).count();
         byte[] pdf = documentoPdf.book(new DocumentoTecnicoPdf.DadosBook(obra, documento.getNumeroVersao(), documento.getUsuarioCriacao(), doBook,
-                pontosExecutados, fichasCompletas));
+                pontosExecutados, fichasCompletas, municipio(obra)));
         String nome = "book-" + obra.getNumero().replaceAll("[^a-zA-Z0-9._-]", "_") + "-v" + documento.getNumeroVersao() + ".pdf";
         AnexoObraResponse anexo = anexoUseCases.anexarGerado(idObra, tipo, nome, "application/pdf", pdf, "Book de obra, versão " + documento.getNumeroVersao());
         documento.concluir(anexo.id(), paginas(pdf), doBook.stream().mapToInt(p -> p.fotos().size()).sum());
@@ -236,7 +240,33 @@ public class GeracaoAsBuiltService {
         String autoria = evidencia.momentoDaFoto().atZoneSameInstant(ApontamentoExecucaoUseCases.FUSO).format(DATA_DA_FOTO)
                 + (evidencia.getUsuarioCriacao() != null ? " · " + evidencia.getUsuarioCriacao() : "");
         return new DocumentoTecnicoPdf.Foto(evidencia.getTituloItem() != null ? evidencia.getTituloItem() : "Outras evidências", evidencia.getLegenda(), autoria,
-                FotoEvidencia.jpeg(FotoEvidencia.ler(original), FotoEvidencia.LADO_DOCUMENTO, 0.78f), etapa(evidencia.getEtapa()));
+                FotoEvidencia.jpeg(FotoEvidencia.ler(original), FotoEvidencia.LADO_DOCUMENTO, 0.78f), etapa(evidencia.getEtapa()), local(evidencia),
+                evidencia.getIdLocal() != null ? codigoDaFoto(evidencia.getIdLocal()) : null);
+    }
+
+    /** O mesmo código curto que o app grava no carimbo da foto: os 8 primeiros hexadecimais do id do aparelho ("7F3A-21C9"). */
+    static String codigoDaFoto(UUID idLocal) {
+        String hex = idLocal.toString().replace("-", "").substring(0, 8).toUpperCase(Locale.ROOT);
+        return hex.substring(0, 4) + "-" + hex.substring(4);
+    }
+
+    /** Posição da captura (coordenadas e precisão do GPS), quando o app mandou. */
+    private static String local(EvidenciaPonto evidencia) {
+        if (evidencia.getLatitude() == null || evidencia.getLongitude() == null) {
+            return null;
+        }
+        String coordenadas = coordenadas(evidencia.getLatitude().doubleValue(), evidencia.getLongitude().doubleValue());
+        return evidencia.getPrecisao() != null ? coordenadas + " · ±" + evidencia.getPrecisao().setScale(0, java.math.RoundingMode.HALF_UP).toPlainString() + " m" : coordenadas;
+    }
+
+    /** "9,42938° S · 40,48958° O", no mesmo formato do carimbo do app. */
+    static String coordenadas(double latitude, double longitude) {
+        return String.format(Locale.ROOT, "%.5f° %s · %.5f° %s", Math.abs(latitude), latitude < 0 ? "S" : "N",
+                Math.abs(longitude), longitude < 0 ? "O" : "L").replace('.', ',');
+    }
+
+    private String municipio(Obra obra) {
+        return obra.getIdMunicipio() != null ? municipioApi.buscarPorIdResponse(obra.getIdMunicipio()).map(MunicipioResponse::nome).orElse(null) : null;
     }
 
     private static String etapa(EvidenciaPonto.Etapa etapa) {

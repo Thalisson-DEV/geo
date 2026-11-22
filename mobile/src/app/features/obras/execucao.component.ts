@@ -17,7 +17,8 @@ import {
   PontoDaExecucao, VagaFoto, aprQueLibera, etapaDaFoto, fotoAtrasada, nomeLocais, pendenciasDeFoto, proximaFoto, rotuloEtapaFoto, vagasDeFoto,
 } from '../../core/obras/obras-regras';
 import { EtapaFoto, ItemFoto } from '../../core/obras/obras.models';
-import { linhasDoCarimbo } from '../../core/fotos/carimbo';
+import { Carimbo, montarCarimbo } from '../../core/fotos/carimbo';
+import { TokenService } from '../../core/auth/token.service';
 import { EvidenciaPreparada, prepararEvidencia } from '../../core/sst/evidencia-foto.util';
 import { ObrasContexto } from './obras-contexto';
 import { MarcadorPonto, ProjetoPdfComponent } from './projeto-pdf.component';
@@ -236,7 +237,9 @@ type Vista = 'pontos' | 'projeto';
       </geo-folha>
     } @else {
       <geo-barra-topo titulo="Execução" (voltar)="voltar()" />
-      <geo-vazio icone="obra" titulo="Programação não está no aparelho" />
+      <geo-vazio icone="obra" titulo="Programação não está no aparelho" texto="Ela saiu da agenda (o dia passou, foi cancelada ou foi para outra equipe). O que já foi lançado continua salvo e é enviado.">
+        <a class="geo-btn geo-btn--principal" routerLink="/hoje">Ir para Hoje</a>
+      </geo-vazio>
     }
   `,
   styles: [`
@@ -322,6 +325,7 @@ export class ExecucaoComponent implements OnDestroy {
   private readonly turno = inject(TurnoService);
   private readonly arquivos = inject(ArquivosCampoService);
   private readonly gps = inject(LocalizacaoService);
+  private readonly tokens = inject(TokenService);
 
   readonly vistas = [{ valor: 'pontos' as Vista, rotulo: 'Pontos' }, { valor: 'projeto' as Vista, rotulo: 'Projeto' }];
   readonly vista = signal<Vista>('pontos');
@@ -536,14 +540,22 @@ export class ExecucaoComponent implements OnDestroy {
    * O carimbo é montado na hora da foto (a função roda quando a câmera devolve a imagem): hora e posição daquele
    * momento, não de quando a tela abriu. A etapa é a do modelo ou a da situação do ponto.
    */
-  carimboNaHora(ponto: PontoDaExecucao, titulo: string, item: ItemFoto | null): () => string[] {
-    return () => {
-      const etapa = { ANTES: 'Antes', DURANTE: 'Durante', DEPOIS: 'Depois' }[etapaDaFoto(item, ponto.situacao)];
-      return linhasDoCarimbo({
-        contexto: [`Obra ${this.programacao()?.numeroObra ?? ''} · ${ponto.rotulo}`, `${titulo} · ${etapa}`],
+  carimboNaHora(ponto: PontoDaExecucao, titulo: string, item: ItemFoto | null): () => Promise<Carimbo> {
+    return async () => {
+      // Sem posição ainda (tela recém-aberta), espera um pouco pelo GPS; sem sinal de satélite, o carimbo diz que não houve.
+      if (!this.posicao) this.posicao = await this.gps.agora(3000);
+      const etapa = { ANTES: 'Antes da execução', DURANTE: 'Durante a execução', DEPOIS: 'Depois da execução' }[etapaDaFoto(item, ponto.situacao)];
+      return montarCarimbo({
+        titulo: `Obra ${this.programacao()?.numeroObra ?? ''} · ${ponto.rotulo}`, detalhe: `${titulo} · ${etapa}`,
         data: new Date(), latitude: this.posicao?.latitude, longitude: this.posicao?.longitude, precisao: this.posicao?.precisao,
+        autoria: this.autoria(), id: crypto.randomUUID(),
       });
     };
+  }
+
+  /** "CON-BNF-01 · DIEGO FERNANDES ARAÚJO": a equipe do turno e quem está no aparelho. */
+  private autoria(): string {
+    return [this.ctx.pacote.codigoEquipe() ?? this.turno.composicao()?.codigo, this.tokens.nomeUsuario()].filter(Boolean).join(' · ');
   }
 
   /** "Próxima foto": a câmera abre direto para o item que falta agora. */
@@ -554,7 +566,7 @@ export class ExecucaoComponent implements OnDestroy {
     if (!arquivo) return;
     this.preparando.set(true);
     try {
-      const preparada = await prepararEvidencia(arquivo, { carimbo: this.carimboNaHora(ponto, vaga.item.titulo, vaga.item)() });
+      const preparada = await prepararEvidencia(arquivo, { carimbo: await this.carimboNaHora(ponto, vaga.item.titulo, vaga.item)() });
       await this.foto(ponto, vaga.item.id, preparada, vaga.item);
     } finally {
       this.preparando.set(false);
@@ -580,7 +592,7 @@ export class ExecucaoComponent implements OnDestroy {
       if (!blob || !r.arquivo) return;
       void this.ctx.registros.registrar({
         tipo: 'EVIDENCIA', idObra: r.idObra ?? undefined, idProgramacao: r.idProgramacao ?? undefined, idPonto: r.idPonto ?? undefined,
-        posicao: this.posicao, comando, arquivo: { blob, nome: r.arquivo.nome, tipo: r.arquivo.tipo },
+        posicao: this.posicao, comando, arquivo: { blob, nome: r.arquivo.nome, tipo: r.arquivo.tipo }, id: r.id,
       });
     });
   }
@@ -624,6 +636,7 @@ export class ExecucaoComponent implements OnDestroy {
         etapa: etapaDaFoto(item, ponto.situacao) satisfies EtapaFoto, legenda: equipamento ? `Equipamento${this.serie() ? ' · série ' + this.serie() : ''}` : null,
       },
       arquivo: { blob: foto.arquivo, nome: foto.nomeArquivo, tipo: foto.contentType },
+      id: foto.idLocal,
     });
     // Avisa qual é a próxima, para a equipe seguir sem procurar.
     const proxima = this.proxima();

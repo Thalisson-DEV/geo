@@ -1,4 +1,4 @@
-import { desenharCarimbo } from '../fotos/carimbo';
+import { Carimbo, desenharCarimbo } from '../fotos/carimbo';
 /**
  * Compressão das evidências fotográficas antes do upload.
  *
@@ -15,6 +15,8 @@ export interface EvidenciaPreparada {
   arquivo: Blob;
   nomeArquivo: string;
   contentType: string;
+  /** Id do registro impresso no carimbo: quem grava a foto usa o mesmo, para o código da imagem achar o registro. */
+  idLocal?: string;
 }
 
 /**
@@ -23,8 +25,8 @@ export interface EvidenciaPreparada {
  * exemplo — que o backend aceita sem conversão) ou quando comprimir não ajuda.
  */
 export interface OpcoesEvidencia {
-  /** Linhas gravadas numa faixa no pé da foto (ver `core/fotos/carimbo.ts`). Com carimbo, a foto sempre é regravada. */
-  carimbo?: string[];
+  /** Quadro técnico gravado no canto da foto (ver `core/fotos/carimbo.ts`). Com carimbo, a foto sempre é regravada. */
+  carimbo?: Carimbo;
 }
 
 export async function prepararEvidencia(arquivo: File, opcoes: OpcoesEvidencia = {}): Promise<EvidenciaPreparada> {
@@ -46,7 +48,7 @@ export async function prepararEvidencia(arquivo: File, opcoes: OpcoesEvidencia =
     const ctx = canvas.getContext('2d');
     if (!ctx) return original;
     ctx.drawImage(bitmap as CanvasImageSource, 0, 0, largura, altura);
-    const carimbada = !!opcoes.carimbo?.length;
+    const carimbada = !!opcoes.carimbo;
     if (carimbada) desenharCarimbo(ctx, largura, altura, opcoes.carimbo!);
 
     let comprimido: Blob | null = null;
@@ -63,6 +65,7 @@ export async function prepararEvidencia(arquivo: File, opcoes: OpcoesEvidencia =
       arquivo: comprimido,
       nomeArquivo: trocarExtensaoParaJpg(original.nomeArquivo),
       contentType: 'image/jpeg',
+      ...(opcoes.carimbo?.id ? { idLocal: opcoes.carimbo.id } : {}),
     };
   } finally {
     if (typeof ImageBitmap !== 'undefined' && bitmap instanceof ImageBitmap) bitmap.close();

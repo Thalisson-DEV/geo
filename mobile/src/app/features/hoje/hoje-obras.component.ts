@@ -77,9 +77,10 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
             <geo-icone nome="avancar" [tamanho]="18" /></a></li>
         }
         @if (fotosPendentes()) {
-          <li><a class="geo-linha geo-linha--acao" routerLink="/obras"><span class="geo-selo geo-selo--atencao"><geo-icone nome="camera" /></span>
+          <li><a class="geo-linha geo-linha--acao" [routerLink]="primeiraFoto() ? ['/obras', primeiraFoto()!.idProgramacao, 'execucao'] : '/obras'"
+            [queryParams]="primeiraFoto() ? { ponto: primeiraFoto()!.idPonto } : null" data-testid="fotos-pendentes"><span class="geo-selo geo-selo--atencao"><geo-icone nome="camera" /></span>
             <span class="geo-linha__texto"><span class="geo-linha__titulo geo-num">{{ fotosPendentes() }} {{ fotosPendentes() === 1 ? 'foto do modelo' : 'fotos do modelo' }}</span>
-              <span class="geo-linha__apoio">Tire quando puder; não bloqueia nada</span></span>
+              <span class="geo-linha__apoio">{{ primeiraFoto() ? 'A próxima: ' + primeiraFoto()!.titulo + ' · ' + primeiraFoto()!.rotuloPonto : 'Tire quando puder; não bloqueia nada' }}</span></span>
             <geo-icone nome="avancar" [tamanho]="18" /></a></li>
         }
         @for (c of ctx.registros.conflitos(); track c.id) {
@@ -139,6 +140,15 @@ export class HojeObrasComponent {
   });
   /** As que faltam (as reprovadas já aparecem uma a uma acima). */
   readonly fotosPendentes = computed(() => this.ctx.doDia().reduce((n, p) => n + this.ctx.pendencias(p).filter(x => !x.motivoReprovacao).length, 0));
+
+  /** A foto que falta primeiro (obra do dia na ordem, ponto na ordem): o atalho abre a execução já nesse ponto. */
+  readonly primeiraFoto = computed(() => {
+    for (const p of this.ctx.doDia()) {
+      const pend = this.ctx.pendencias(p).find(x => !x.motivoReprovacao);
+      if (pend) return { idProgramacao: p.id, idPonto: pend.idPonto, titulo: pend.titulo, rotuloPonto: pend.rotuloPonto };
+    }
+    return null;
+  });
 
   concluida(p: ProgramacaoCampo): boolean {
     const pontos = this.ctx.pontos(p);

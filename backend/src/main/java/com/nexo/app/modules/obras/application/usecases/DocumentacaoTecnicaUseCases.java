@@ -24,6 +24,8 @@ import com.nexo.app.modules.obras.infrastructure.persistence.PontoPlanejamentoRe
 import com.nexo.app.modules.obras.infrastructure.persistence.VisitaPreviaObraRepository;
 import com.nexo.app.modules.obras.domain.EvidenciaVisitaPrevia;
 import com.nexo.app.modules.rh.ColaboradorApi;
+import com.nexo.app.modules.rh.MunicipioApi;
+import com.nexo.app.modules.rh.MunicipioResponse;
 import com.nexo.app.modules.rh.ResumoColaborador;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
@@ -67,6 +69,7 @@ public class DocumentacaoTecnicaUseCases {
     private final EvidenciaVisitaPreviaRepository evidenciaVisitaRepository;
     private final EvidenciaVisitaPreviaUseCases evidenciaVisitaUseCases;
     private final ColaboradorApi colaboradorApi;
+    private final MunicipioApi municipioApi;
 
     @Transactional(readOnly = true)
     public DocumentacaoTecnicaResponses.Documentacao consultar(UUID idObra) {
@@ -163,7 +166,10 @@ public class DocumentacaoTecnicaUseCases {
     @Transactional(readOnly = true)
     public byte[] pdfDaVisita(UUID idObra, UUID idVisita) {
         VisitaPreviaObra visita = buscarVisita(idObra, idVisita);
-        return documentoPdf.visita(buscarObra(idObra), visita, evidenciaVisitaUseCases.paraDocumento(visita));
+        Obra obra = buscarObra(idObra);
+        String municipio = obra.getIdMunicipio() != null
+                ? municipioApi.buscarPorIdResponse(obra.getIdMunicipio()).map(MunicipioResponse::nome).orElse(null) : null;
+        return documentoPdf.visita(obra, visita, evidenciaVisitaUseCases.paraDocumento(visita), municipio);
     }
 
     @Transactional
@@ -309,7 +315,7 @@ public class DocumentacaoTecnicaUseCases {
         return new DocumentacaoTecnicaResponses.Evidencia(e.getId(), e.getIdItem(), e.getTituloItem(), e.getLegenda(), e.getNomeArquivo(),
                 e.getUsuarioCriacao(), e.getDataCriacao(), e.getEtapa(), e.getLatitude(), e.getLongitude(), e.getDataCaptura(), e.getTamanhoBytes(),
                 e.getRevisao(), e.getInconformidade() != null ? e.getInconformidade().rotulo() : null, e.getMotivoReprovacao(),
-                e.getRevisadaPor(), e.getRevisadaEm());
+                e.getRevisadaPor(), e.getRevisadaEm(), e.getIdLocal() != null ? GeracaoAsBuiltService.codigoDaFoto(e.getIdLocal()) : null);
     }
 
     /** Tentativa com erro só aparece se for a última do seu tipo: depois de gerar de novo, deixa de interessar. */

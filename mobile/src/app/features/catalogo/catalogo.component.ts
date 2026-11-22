@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ToastService } from '../../core/ui/toast.service';
-import { linhasDoCarimbo } from '../../core/fotos/carimbo';
+import { montarCarimbo } from '../../core/fotos/carimbo';
 import { EvidenciaPreparada } from '../../core/sst/evidencia-foto.util';
 import {
   BarraTopoComponent, ChipsComponent, FolhaComponent, FotoExibida, FotosComponent, IconeComponent, OpcaoChip, OpcaoSegmento,
@@ -121,7 +121,8 @@ export class CatalogoComponent {
   ];
   readonly estados = ['committed', 'queued', 'syncing', 'synced', 'error', 'conflict'] as const;
   readonly motivos = ['Clima', 'Acesso impedido', 'Falta de material', 'Desligamento não confirmado'];
-  readonly carimbo = linhasDoCarimbo({ contexto: ['Obra 1234 · Ponto 4', 'Depois'], data: new Date(), latitude: -3.7319, longitude: -38.5267, precisao: 12 });
+  readonly carimbo = () => montarCarimbo({ titulo: 'Obra 1234 · Ponto 4', detalhe: 'Poste instalado · Depois da execução', data: new Date(),
+    latitude: -3.7319, longitude: -38.5267, precisao: 12, autoria: 'EQP-01 · ENCARREGADO' });
 
   readonly etapa = signal('DEPOIS');
   readonly quantidade = signal(2);
