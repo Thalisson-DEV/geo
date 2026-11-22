@@ -77,18 +77,20 @@ function realizadoDo(item: ItemProgramado): number {
           }
           @case ('reprogramar') {
             <geo-callout tone="info" [dense]="true">Hoje: {{ programacao.codigoEquipe }}, {{ periodoDe(programacao) }}. A mudança fica no histórico com o motivo.</geo-callout>
-            <geo-form-section title="Novo período" icon="pi pi-calendar">
+            <geo-form-section title="Novo período" icon="pi pi-calendar" description="Mudar o início leva o fim junto, mantendo a duração.">
               <div class="geo-form-grid">
-                <geo-datepicker label="Início" [required]="true" [value]="inicio()" (valueChange)="inicio.set($any($event)); projetar()"></geo-datepicker>
-                <geo-datepicker label="Fim" [required]="true" [value]="fim()" [minDate]="inicio()" (valueChange)="fim.set($any($event)); projetar()"></geo-datepicker>
+                <geo-datepicker label="Início" [required]="true" [value]="inicio()" (valueChange)="mudarInicio($any($event))"
+                  [error]="tentou() && !inicio() ? 'Informe o início.' : undefined"></geo-datepicker>
+                <geo-datepicker label="Fim" [required]="true" [value]="fim()" [minDate]="inicio()" (valueChange)="mudarFim($any($event))"
+                  [error]="erroFim()"></geo-datepicker>
               </div>
-            </geo-form-section>
-            <geo-form-section title="Equipe" icon="pi pi-users" description="O valor congelado na confirmação não muda.">
-              <app-equipes-projecao [equipes]="equipes()" [carregando]="carregandoEquipes()" [turno]="programacao.turno" [(selecionada)]="idEquipe"></app-equipes-projecao>
             </geo-form-section>
             <geo-form-section title="Motivo" icon="pi pi-comment">
               <geo-textarea label="Motivo da reprogramação" [required]="true" [rows]="2" [maxlength]="1000" [(value)]="motivo" placeholder="Ex.: desligamento negado na data original"
                 [error]="tentou() && !motivo().trim() ? 'Informe o motivo da reprogramação.' : undefined"></geo-textarea>
+            </geo-form-section>
+            <geo-form-section title="Equipe" icon="pi pi-users" description="O valor congelado na confirmação não muda.">
+              <app-equipes-projecao [equipes]="equipes()" [carregando]="carregandoEquipes()" [turno]="programacao.turno" [(selecionada)]="idEquipe"></app-equipes-projecao>
             </geo-form-section>
           }
           @case ('cancelar') {
@@ -356,6 +358,8 @@ export class ProgramacaoDetalheComponent {
   protected readonly inicio = signal<Date | null>(null);
   protected readonly fim = signal<Date | null>(null);
   protected readonly idEquipe = signal<string | null>(null);
+  /** Dias entre o início e o fim, para o fim acompanhar quando o início muda. */
+  private duracaoDias = 0;
   protected readonly motivo = signal('');
   protected readonly equipes = signal<EquipeProjetada[]>([]);
   protected readonly carregandoEquipes = signal(false);
@@ -493,17 +497,44 @@ export class ProgramacaoDetalheComponent {
     if (modo === 'reprogramar') {
       this.inicio.set(parseDataBrParaDate(p.inicio));
       this.fim.set(parseDataBrParaDate(p.fim));
+      const [i, f] = [this.inicio(), this.fim()];
+      this.duracaoDias = i && f ? diasEntre(i, f) : 0;
       this.idEquipe.set(p.idEquipe);
       this.projetar();
     }
     this.modo.set(modo);
   }
 
+  /** Como no arraste da linha do tempo: o período anda inteiro e a duração se mantém. */
+  protected mudarInicio(novo: Date | null): void {
+    this.inicio.set(novo);
+    if (novo) {
+      const novoFim = new Date(novo);
+      novoFim.setDate(novoFim.getDate() + this.duracaoDias);
+      this.fim.set(novoFim);
+    }
+    this.projetar();
+  }
+
+  protected mudarFim(novo: Date | null): void {
+    this.fim.set(novo);
+    const inicio = this.inicio();
+    if (novo && inicio && novo >= inicio) this.duracaoDias = diasEntre(inicio, novo);
+    this.projetar();
+  }
+
+  protected erroFim(): string | undefined {
+    const [inicio, fim] = [this.inicio(), this.fim()];
+    if (inicio && fim && fim < inicio) return 'O fim não pode ser antes do início.';
+    return this.tentou() && !fim ? 'Informe o fim.' : undefined;
+  }
+
   protected projetar(): void {
     const p = this.p();
     const inicio = this.inicio();
     const fim = this.fim();
-    if (!p || !inicio || !fim || fim < inicio) return;
+    // Enquanto a data é digitada passam anos parciais (2, 20, 202): só projeta a data completa.
+    if (!p || !inicio || !fim || fim < inicio || inicio.getFullYear() < 2000 || fim.getFullYear() < 2000) return;
     this.carregandoEquipes.set(true);
     this.api.previa(p.idObra, { inicio: formatarDataParaApi(inicio)!, fim: formatarDataParaApi(fim)!, idProgramacao: p.id }).pipe(take(1)).subscribe({
       next: (previa) => {
@@ -541,7 +572,14 @@ export class ProgramacaoDetalheComponent {
 
   private salvarReprogramacao(p: ProgramacaoDetalhe): void {
     const [inicio, fim, idEquipe] = [this.inicio(), this.fim(), this.idEquipe()];
-    if (!inicio || !fim || fim < inicio || !idEquipe || !this.motivo().trim()) return;
+    const falta = !inicio || !fim ? 'Informe o início e o fim do novo período.'
+      : fim < inicio ? 'O fim não pode ser antes do início.'
+      : !idEquipe ? 'Escolha a equipe.'
+      : !this.motivo().trim() ? 'Informe o motivo da reprogramação.' : null;
+    if (falta || !inicio || !fim || !idEquipe) {
+      this.notificacoes.warning(falta ?? 'Confira o período e a equipe.');
+      return;
+    }
     if (idEquipe === p.idEquipe && formatarDataParaApi(inicio) === p.inicio && formatarDataParaApi(fim) === p.fim) {
       this.notificacoes.warning('Nada mudou: escolha outra equipe ou outro período para reprogramar.');
       return;
@@ -626,4 +664,8 @@ export class ProgramacaoDetalheComponent {
       error: (e) => this.tratarErro(e)
     });
   }
+}
+
+function diasEntre(inicio: Date, fim: Date): number {
+  return Math.max(Math.round((fim.getTime() - inicio.getTime()) / 86_400_000), 0);
 }
