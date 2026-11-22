@@ -71,6 +71,8 @@ export class MeuVeiculoService {
   }
 
   async atual(veiculos: Pick<VeiculoChecklist, 'idVeiculo' | 'idCondutorAtual'>[]): Promise<VeiculoAtual | null> {
+    // Aberto direto na Frota (sem passar pelo Hoje), o turno do aparelho ainda não foi lido.
+    if (!this.turnos.turnoAtivo()) await this.turnos.loadTurnoAtivo().catch(() => undefined);
     const turno = this.turnos.turnoAtivo();
     const [composicao, idColaborador, checklists] = await Promise.all([
       this.turnos.loadComposicaoLocal().catch(() => null),

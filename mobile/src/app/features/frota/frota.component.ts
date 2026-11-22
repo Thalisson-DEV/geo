@@ -48,6 +48,15 @@ import { IconeComponent, IndicadorRedeComponent, TituloGrandeComponent } from '.
             <a class="geo-btn geo-btn--principal geo-btn--compacto" routerLink="/checklist/novo" [queryParams]="{ veiculo: a.idVeiculo }"><geo-icone nome="check" [tamanho]="16" />Fazer checklist</a>
           }
         </div>
+      } @else if (semFicha(); as sf) {
+        <div class="atual__topo">
+          <span class="geo-selo"><geo-icone nome="caminhao" /></span>
+          <span class="atual__texto">
+            <span class="atual__rotulo">Seu veículo</span>
+            <span class="atual__placa geo-num">{{ placa(sf.placa) }}</span>
+          </span>
+        </div>
+        <p class="atual__checklist atual__checklist--falta" role="status"><geo-icone nome="alerta" [tamanho]="16" />Veículo do turno ainda sem ficha na frota: a ficha, os documentos e o checklist dele não abrem. Avise o gestor da frota.</p>
       } @else {
         <div class="atual__topo">
           <span class="geo-selo"><geo-icone nome="caminhao" /></span>
@@ -179,6 +188,9 @@ export class FrotaComponent implements OnInit {
     };
   });
 
+  /** Turno aberto com um veículo que a frota não conhece (sem ficha): a tela diz isso em vez de "nenhum veículo". */
+  protected readonly semFicha = signal<{ placa: string } | null>(null);
+
   private readonly todosChecklists = signal<ChecklistVeiculoLocal[]>([]);
   private readonly todosAbastecimentos = signal<AbastecimentoLocal[]>([]);
 
@@ -211,9 +223,19 @@ export class FrotaComponent implements OnInit {
     // Turno aberto/fechado ou catálogo atualizado mudam o veículo atual.
     effect(() => {
       const veiculos = this.checklists.catalogo()?.veiculos ?? [];
-      this.turnos.turnoAtivo();
       this.todosChecklists();
-      untracked(() => void this.meuVeiculo.atual(veiculos).then((a) => this.veiculoAtual.set(a)));
+      const turno = this.turnos.turnoAtivo();
+      untracked(() => void this.meuVeiculo.atual(veiculos).then(async (a) => {
+        this.veiculoAtual.set(a);
+        const idTurno = turno?.status === 'ABERTO' ? turno.idVeiculo ?? null : null;
+        if (a || !idTurno || veiculos.some((v) => v.idVeiculo === idTurno)) {
+          this.semFicha.set(null);
+          return;
+        }
+        const composicao = await this.turnos.loadComposicaoLocal().catch(() => null);
+        const placa = composicao?.veiculo?.id === idTurno ? composicao.veiculo.placa : composicao?.opcoes?.veiculos.find((v) => v.id === idTurno)?.placa;
+        this.semFicha.set(placa ? { placa } : null);
+      }));
     });
   }
 
@@ -222,7 +244,11 @@ export class FrotaComponent implements OnInit {
     const a = liveQuery(() => this.checklists.listar()).subscribe({ next: (lista) => this.todosChecklists.set(lista) });
     const b = liveQuery(() => this.abastecimentos.listar()).subscribe({ next: (lista) => this.todosAbastecimentos.set(lista) });
     this.destroyRef.onDestroy(() => { a.unsubscribe(); b.unsubscribe(); });
-    if (this.rede.isOnline()) void this.abastecimentos.atualizarDoServidor().catch(() => undefined);
+    if (this.rede.isOnline()) {
+      void this.abastecimentos.atualizarDoServidor().catch(() => undefined);
+      // Veículo cadastrado ou trocado depois do login aparece sem precisar sair e entrar: o catálogo da frota é refeito ao abrir.
+      void this.checklists.catalogoAtualizado();
+    }
     if (this.rede.isOnline() && this.podeAprovar()) {
       void this.aprovacoes.fila().then((f) => this.paraAprovar.set(f.length)).catch(() => undefined);
     }

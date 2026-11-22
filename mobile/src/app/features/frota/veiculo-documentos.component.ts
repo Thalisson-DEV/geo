@@ -148,7 +148,7 @@ export class VeiculoDocumentosComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     if (!this.idVeiculo()) {
-      const catalogo = this.checklists.catalogo() ?? await this.checklists.carregarCatalogoLocal();
+      const catalogo = await this.checklists.catalogoAtualizado();
       const id = await this.meuVeiculo.sugerido(catalogo?.veiculos ?? []);
       if (id) this.escolher(id);
       return;

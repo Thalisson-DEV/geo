@@ -8,4 +8,10 @@ FROM (VALUES ('RPA4C21','Hilux CD 2.8 4x4','Toyota','JUAZEIRO'),('SJK2D45','S10 
  ('QTE2M19','Hilux CD 2.8 4x4','Toyota','BONFIM'),('RPH6N52','Montana 1.2 Turbo','Chevrolet','JUAZEIRO')) v(placa,modelo,fab,base)
 JOIN bases_operacionais b ON b.nome=v.base
 WHERE NOT EXISTS (SELECT 1 FROM veiculos x WHERE x.placa=v.placa);
+-- Todo veículo tem ficha na frota (o cadastro pelo sistema cria; a carga direta precisa criar junto, como a V169).
+-- Sem ela o veículo não aparece no app: nem no turno, nem no checklist, nem na ficha do veículo.
+INSERT INTO frota_fichas_veiculo (id, id_veiculo, placa, id_base_operacional, situacao, regime, usuario_criacao, ativo)
+SELECT gen_random_uuid(), v.id, v.placa, v.id_base_operacional, 'ATIVO', 'PROPRIO', 'SISTEMA', COALESCE(v.ativo, TRUE)
+FROM veiculos v
+WHERE NOT EXISTS (SELECT 1 FROM frota_fichas_veiculo f WHERE f.id_veiculo = v.id);
 COMMIT;

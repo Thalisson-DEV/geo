@@ -53,6 +53,22 @@ export class ChecklistVeiculoService {
     this.catalogo.set(catalogo);
   }
 
+  /**
+   * Catálogo para escolher e sugerir veículo: com sinal, refeito no servidor (veículo cadastrado depois do login já
+   * aparece); sem sinal ou com erro, o guardado no aparelho.
+   */
+  async catalogoAtualizado(): Promise<CatalogoChecklist | null> {
+    if (typeof navigator === 'undefined' || navigator.onLine) {
+      try {
+        await this.sincronizarCatalogo();
+        return this.catalogo();
+      } catch {
+        /* segue com o do aparelho */
+      }
+    }
+    return this.catalogo() ?? await this.carregarCatalogoLocal();
+  }
+
   async carregarCatalogoLocal(): Promise<CatalogoChecklist | null> {
     const salvo = await db.config.get(CHAVE_CATALOGO);
     const catalogo = salvo?.value ? normalizarCatalogo(salvo.value as Partial<CatalogoChecklist>) : null;

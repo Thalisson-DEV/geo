@@ -221,7 +221,7 @@ export class VeiculoSituacaoComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     if (!this.idVeiculo()) {
       // Mesmo veículo que já vem marcado no checklist e no abastecimento.
-      const catalogo = this.checklists.catalogo() ?? await this.checklists.carregarCatalogoLocal();
+      const catalogo = await this.checklists.catalogoAtualizado();
       const id = await this.meuVeiculo.sugerido(catalogo?.veiculos ?? []);
       if (id) this.escolher(id);
       return;

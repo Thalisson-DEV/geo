@@ -5,6 +5,15 @@ FROM (VALUES ('Picape 4x4','Picape cabine dupla para equipes de manutenção','B
  ('Caminhão Munck','Caminhão com guindauto para postes e transformadores','C'),('Caminhão Cesto Aéreo','Caminhão com cesto isolado para linha viva','C')) t(n,d,c)
 WHERE NOT EXISTS (SELECT 1 FROM frota_tipos_veiculo x WHERE x.nome=t.n);
 
+-- Ficha sem tipo não recebe modelo de checklist no app: o tipo sai do modelo do veículo.
+UPDATE frota_fichas_veiculo f SET id_tipo_veiculo = t.id
+FROM veiculos v, frota_tipos_veiculo t
+WHERE f.id_veiculo = v.id AND f.id_tipo_veiculo IS NULL AND t.ativo AND t.nome = CASE
+  WHEN v.modelo ILIKE '%cesto%' THEN 'Caminhão Cesto Aéreo'
+  WHEN v.modelo ILIKE '%munck%' THEN 'Caminhão Munck'
+  WHEN v.modelo ~* '(hilux|s10|ranger|l200|4x4)' THEN 'Picape 4x4'
+  ELSE 'Picape leve' END;
+
 -- Condutores (CNH número é cifrado pela aplicação: fica nulo)
 INSERT INTO frota_condutores (id, id_colaborador, cnh_categoria, cnh_validade, cnh_primeira_habilitacao, versao, data_criacao, usuario_criacao, ativo)
 SELECT gen_random_uuid(), c.id, (ARRAY['B','AB','AD','D','AE'])[1+rn%5], (now() + ((rn*23 - 60)||' days')::interval)::date,
