@@ -1,6 +1,6 @@
 /*
- * Entrada do GEO na identidade compacta: cabeçalho de página (título 20px) com a pergunta à
- * Bússola à direita e, abaixo, os módulos em cartões só com borda. O layout responde à largura
+ * Entrada do GEO: faixa da marca (mapa de campo, saudação e a pergunta à Bússola) e, abaixo,
+ * os módulos em cartões só com borda. O layout responde à largura
  * do próprio conteúdo (container query), que muda com o menu aberto ou recolhido.
  */
 :host {
@@ -14,35 +14,77 @@
   gap: 1.25rem;
 }
 
-/* ---------- Cabeçalho: título e a Bússola ---------- */
+/* ---------- Faixa de entrada: a marca, a saudação e a Bússola ---------- */
 
+/*
+ * Mesmo azul profundo e mesmo mapa de campo do login: as duas portas do GEO falam a mesma língua.
+ * É o único lugar da tela com cor; os módulos abaixo seguem neutros.
+ */
 .entrada {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: center;
-  gap: 1rem;
+  --faixa-fundo: var(--p-blue-950);
+  --faixa-texto: var(--p-blue-50);
+  --faixa-suave: var(--p-blue-200);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 1.5rem 1.25rem;
+  border-radius: var(--geo-radius-xl);
+  background: var(--faixa-fundo);
+  color: var(--faixa-suave);
 }
 
-@container (min-width: 900px) {
+@container (min-width: 700px) {
   .entrada {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 36rem);
-    gap: 2rem;
+    padding: 2rem 2.25rem 1.75rem;
   }
+}
+
+/* Quadrado e erguido: a rede e as equipes (terço de cima do mapa) caem no meio da faixa. */
+.entrada__mapa {
+  position: absolute;
+  inset: 0 0 auto auto;
+  z-index: -1;
+  inline-size: min(55%, 40rem);
+  aspect-ratio: 1;
+  translate: 0 -17%;
+  color: color-mix(in srgb, var(--p-blue-300) 40%, transparent);
+  --geo-mapa-rede: var(--p-blue-200);
+  --geo-mapa-fundo: var(--faixa-fundo);
+}
+
+/* O mapa esmaece para a esquerda, onde ficam a saudação e o campo. */
+.entrada::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to right, var(--faixa-fundo) 34%, color-mix(in srgb, var(--faixa-fundo) 35%, transparent) 50%, transparent 64%);
+}
+
+.entrada__conteudo {
+  max-inline-size: 38rem;
+}
+
+.entrada__data {
+  margin: 0 0 0.375rem;
+  color: var(--faixa-suave);
+  font-size: var(--geo-text-body-sm);
 }
 
 .entrada__titulo {
   margin: 0;
-  color: var(--geo-foreground);
-  font-size: var(--geo-text-title-1);
+  color: var(--faixa-texto);
+  font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2rem);
   font-weight: var(--geo-font-weight-semibold);
-  line-height: var(--geo-text-leading-tight);
-  letter-spacing: var(--geo-text-tracking-display);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .entrada__texto {
-  max-inline-size: 36rem;
-  margin: 0.25rem 0 0;
-  color: var(--geo-foreground-muted);
+  max-inline-size: 34rem;
+  margin: 0.5rem 0 0;
+  color: var(--faixa-suave);
   font-size: var(--geo-text-body);
   line-height: var(--geo-text-leading-normal);
   text-wrap: pretty;
@@ -52,16 +94,17 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.25rem 0.25rem 0.25rem 0.375rem;
-  border: 1px solid var(--geo-border-strong);
-  border-radius: var(--geo-radius-md);
+  margin-block-start: 1.25rem;
+  padding: 0.3125rem 0.3125rem 0.3125rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--geo-radius-lg);
   background: var(--geo-surface);
-  transition: border-color var(--geo-motion-fast) var(--geo-ease-standard);
+  box-shadow: var(--geo-shadow-md);
 }
 
 .bussola:focus-within {
   border-color: var(--geo-focus-ring);
-  box-shadow: 0 0 0 1px var(--geo-focus-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-blue-300) 45%, transparent);
 }
 
 .bussola geo-bussola-avatar {
@@ -70,7 +113,7 @@
 
 .bussola__campo {
   min-inline-size: 0;
-  min-block-size: 2rem;
+  min-block-size: 2.25rem;
   flex: 1;
   border: 0;
   outline: none;
@@ -84,15 +127,15 @@
   color: var(--geo-foreground-subtle);
 }
 
-/* Ação primária da tela: único elemento no acento. */
+/* Ação primária da tela: único botão no acento. */
 .bussola__enviar {
-  inline-size: 2rem;
-  block-size: 2rem;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
   flex: none;
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: var(--geo-radius-sm);
+  border-radius: var(--geo-radius-md);
   background: var(--geo-brand);
   color: var(--geo-brand-foreground);
   cursor: pointer;
@@ -108,7 +151,7 @@
 }
 
 .bussola__sugestoes {
-  margin: 0.5rem 0 0;
+  margin: 0.75rem 0 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
@@ -119,31 +162,41 @@
 .bussola__sugestoes button {
   min-block-size: 1.75rem;
   white-space: nowrap;
-  padding: 0.125rem 0.625rem;
-  border: 1px solid var(--geo-border);
+  padding: 0.125rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--p-blue-200) 30%, transparent);
   border-radius: var(--geo-radius-full);
-  background: transparent;
-  color: var(--geo-foreground-muted);
+  background: color-mix(in srgb, var(--p-blue-200) 8%, transparent);
+  color: var(--faixa-texto);
   font: inherit;
   font-size: var(--geo-text-caption);
   font-weight: var(--geo-font-weight-medium);
   cursor: pointer;
   transition:
     background-color var(--geo-motion-fast) var(--geo-ease-standard),
-    border-color var(--geo-motion-fast) var(--geo-ease-standard),
-    color var(--geo-motion-fast) var(--geo-ease-standard);
+    border-color var(--geo-motion-fast) var(--geo-ease-standard);
 }
 
 .bussola__sugestoes button:focus-visible {
-  outline: 2px solid var(--geo-focus-ring);
+  outline: 2px solid var(--p-blue-200);
   outline-offset: 2px;
 }
 
 @media (hover: hover) {
   .bussola__sugestoes button:hover {
-    border-color: var(--geo-border-strong);
-    background: var(--geo-surface-muted);
-    color: var(--geo-foreground);
+    border-color: color-mix(in srgb, var(--p-blue-200) 60%, transparent);
+    background: color-mix(in srgb, var(--p-blue-200) 18%, transparent);
+  }
+}
+
+/* Celular: o mapa vai para o alto da faixa, atrás da data, e o texto ocupa a largura toda. */
+@container (max-width: 559px) {
+  .entrada__mapa {
+    inline-size: 100%;
+    translate: 0 -22%;
+  }
+
+  .entrada::after {
+    background: linear-gradient(to top, var(--faixa-fundo) 55%, transparent 100%);
   }
 }
 
@@ -162,7 +215,7 @@
   }
 }
 
-/* 3×3: os oito módulos e a administração, em cartões do mesmo tamanho. */
+/* 3×3: os nove módulos em cartões do mesmo tamanho; a administração fecha a grade na largura toda. */
 @container (min-width: 900px) {
   .modulos {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -233,7 +286,9 @@
 
 .modulo__seta {
   color: var(--geo-foreground-subtle);
-  transition: color var(--geo-motion-fast) var(--geo-ease-standard);
+  transition:
+    color var(--geo-motion-fast) var(--geo-ease-standard),
+    translate var(--geo-motion-fast) var(--geo-ease-standard);
 }
 
 .modulo__atalhos {
@@ -276,7 +331,8 @@
   }
 
   .modulo__entrada:hover .modulo__seta {
-    color: var(--geo-foreground);
+    color: var(--geo-brand-text);
+    translate: 2px -2px;
   }
 
   .modulo__atalhos a:hover {
@@ -286,7 +342,53 @@
   }
 }
 
-/* O módulo em destaque vem primeiro na grade; sem faixa nem fundo colorido. */
+/* O módulo em destaque vem primeiro: ícone no acento e, em duas colunas, a linha inteira. */
+.modulo--destaque .modulo__icone {
+  border-color: transparent;
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand-text);
+}
+
+@container (min-width: 560px) and (max-width: 899px) {
+  .modulo--destaque {
+    grid-column: 1 / -1;
+  }
+}
+
+.modulo--sistema {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  border-style: dashed;
+  background: transparent;
+}
+
+.modulo--sistema .modulo__entrada {
+  flex: 0 1 auto;
+  align-items: center;
+}
+
+.modulo--sistema .modulo__seta {
+  display: none;
+}
+
+.modulo--sistema .modulo__atalhos {
+  border-block-start: 0;
+  padding-block: 0;
+  margin-inline-start: auto;
+}
+
+@container (max-width: 559px) {
+  .modulo--sistema {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .modulo--sistema .modulo__atalhos {
+    margin-inline-start: 0;
+    padding-block: 0 0.75rem;
+  }
+}
 
 /* ---------- Vazio ---------- */
 
@@ -317,7 +419,6 @@
   .modulo,
   .modulo__seta,
   .modulo__atalhos a,
-  .bussola,
   .bussola__sugestoes button {
     transition: none;
   }

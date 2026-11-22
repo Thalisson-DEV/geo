@@ -1,17 +1,19 @@
 <section class="inicio" aria-labelledby="inicio-titulo">
   <header class="entrada">
+    <geo-mapa-campo class="entrada__mapa" [animar]="animarMapa" />
+
     <div class="entrada__conteudo">
-      <h1 id="inicio-titulo" class="entrada__titulo">Escolha um módulo</h1>
+      <p class="entrada__data">{{ hoje }}</p>
+      <h1 id="inicio-titulo" class="entrada__titulo">{{ saudacao() }}</h1>
       <p class="entrada__texto">
-        Cada área reúne as telas do dia a dia.
         @if (podeUsarBussola()) {
-          Precisa de uma resposta rápida? Pergunte à Bússola.
+          Escolha um módulo ou pergunte à Bússola sobre obras, estoque e equipes.
+        } @else {
+          Escolha um módulo para começar. Cada área reúne as telas do dia a dia.
         }
       </p>
-    </div>
 
-    @if (podeUsarBussola()) {
-      <div class="entrada__bussola">
+      @if (podeUsarBussola()) {
         <form class="bussola" aria-label="Perguntar à Bússola" (submit)="perguntar($event, campo)">
           <geo-bussola-avatar size="1.75rem" />
           <label class="geo-sr-only" for="inicio-pergunta">Pergunta para a Bússola</label>
@@ -36,14 +38,14 @@
             </li>
           }
         </ul>
-      </div>
-    }
+      }
+    </div>
   </header>
 
   @if (modulos().length || administracao().length) {
     <nav class="modulos" aria-labelledby="inicio-titulo">
-      @for (modulo of modulos(); track modulo.rota; let i = $index) {
-        <article class="modulo" [class.modulo--destaque]="modulo.destaque" [style.--ordem]="i">
+      @for (modulo of modulos(); track modulo.rota) {
+        <article class="modulo" [class.modulo--destaque]="modulo.destaque">
           <a class="modulo__entrada" [routerLink]="modulo.rota">
             <span class="modulo__icone" aria-hidden="true">
               <geo-icon [name]="modulo.icone" size="lg" />
@@ -69,7 +71,7 @@
 
       @if (administracao(); as admin) {
         @if (admin.length) {
-          <article class="modulo modulo--sistema" [style.--ordem]="modulos().length">
+          <article class="modulo modulo--sistema">
             <a class="modulo__entrada" [routerLink]="admin[0].rota">
               <span class="modulo__icone" aria-hidden="true">
                 <geo-icon name="settings" size="lg" />

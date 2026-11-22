@@ -316,6 +316,7 @@ export class AuthService {
       ...atual,
       id: decoded?.sub || '',
       login: login ?? atual?.login ?? '',
+      nome: decoded?.nome || atual?.nome,
       tipoUsuario,
       usarRedesMoveis: atual?.usarRedesMoveis ?? usarRedesMoveis,
       token: response.token,

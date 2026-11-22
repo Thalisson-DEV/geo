@@ -8,6 +8,8 @@ import {
   HomeComponent,
   MODULOS_DO_INICIO,
   SUGESTOES_DA_BUSSOLA,
+  primeiroNome,
+  saudacaoPelaHora,
 } from './home.component';
 
 const TODAS = [
@@ -15,8 +17,8 @@ const TODAS = [
   ...ADMINISTRACAO_DO_INICIO.map((d) => d.permissao),
 ];
 
-async function montar(permissoes: string[]): Promise<ComponentFixture<HomeComponent>> {
-  const sessao = signal({ permissoes });
+async function montar(permissoes: string[], nome?: string, login = 'USR123456'): Promise<ComponentFixture<HomeComponent>> {
+  const sessao = signal({ permissoes, nome, login });
   await TestBed.configureTestingModule({
     imports: [HomeComponent],
     providers: [
@@ -113,10 +115,29 @@ describe('HomeComponent', () => {
     expect(el(fixture).querySelector('.bussola__sugestoes')).toBeNull();
   });
 
-  it('nomeia a navegação pelo título da página', async () => {
-    const fixture = await montar(TODAS);
+  it('cumprimenta pelo primeiro nome e nomeia a navegação pelo título da página', async () => {
+    const fixture = await montar(TODAS, 'MARIA DA SILVA');
 
-    expect(el(fixture).querySelector('h1')?.textContent).toContain('Escolha um módulo');
+    expect(el(fixture).querySelector('h1')?.textContent).toMatch(/^(Bom dia|Boa tarde|Boa noite), Maria$/);
     expect(el(fixture).querySelector('nav')?.getAttribute('aria-labelledby')).toBe('inicio-titulo');
+
+    TestBed.resetTestingModule();
+    const tecnica = await montar(TODAS, 'USRADMIN', 'USRADMIN');
+    expect(el(tecnica).querySelector('h1')?.textContent?.trim()).toMatch(/^(Bom dia|Boa tarde|Boa noite)$/);
+  });
+});
+
+describe('saudação do início', () => {
+  it('escolhe a saudação pela hora', () => {
+    expect(saudacaoPelaHora(5)).toBe('Bom dia');
+    expect(saudacaoPelaHora(11)).toBe('Bom dia');
+    expect(saudacaoPelaHora(12)).toBe('Boa tarde');
+    expect(saudacaoPelaHora(18)).toBe('Boa noite');
+    expect(saudacaoPelaHora(2)).toBe('Boa noite');
+  });
+
+  it('usa só o primeiro nome, sem caixa alta', () => {
+    expect(primeiroNome('  JOÃO  PEREIRA ')).toBe('João');
+    expect(primeiroNome(undefined)).toBe('');
   });
 });

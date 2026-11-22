@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { GeoBussolaAvatarComponent, GeoIconComponent } from '@geo/ui';
+import { GeoBussolaAvatarComponent, GeoIconComponent, GeoMapaCampoComponent } from '@geo/ui';
 import { AuthService } from '../../core/services/auth.service';
 import { rotaOculta } from '../../core/white-label/modulos-ocultos';
 
@@ -110,6 +110,14 @@ export const MODULOS_DO_INICIO: readonly ModuloDoInicio[] = [
     ],
   },
   {
+    rotulo: 'Automações',
+    descricao: 'Relatórios e avisos que saem sozinhos, na hora combinada.',
+    icone: 'network',
+    rota: '/notificacoes/automacoes',
+    permissao: 'automacao:read',
+    atalhos: [{ rotulo: 'Nova automação', rota: '/notificacoes/automacoes', query: { novo: '1' }, permissao: 'automacao:manage' }],
+  },
+  {
     rotulo: 'Chamados',
     descricao: 'Suporte interno e atendimento da central.',
     icone: 'ticket',
@@ -122,7 +130,7 @@ export const MODULOS_DO_INICIO: readonly ModuloDoInicio[] = [
   },
 ];
 
-/** Administração não é trabalho do dia a dia: fica numa faixa discreta no fim da página. */
+/** Administração não é trabalho do dia a dia: fica numa faixa discreta no fim da página, na largura toda. */
 export const ADMINISTRACAO_DO_INICIO: readonly DestinoDoInicio[] = [
   { rotulo: 'Usuários', rota: '/admin/cadastros/usuarios', permissao: 'iam:usuario:read' },
   { rotulo: 'Perfis de acesso', rota: '/admin/cadastros/perfis-acesso', permissao: 'iam:perfil:read' },
@@ -138,14 +146,33 @@ export const SUGESTOES_DA_BUSSOLA: readonly string[] = [
 /** Mesma permissão da rota /bussola. */
 const PERMISSAO_BUSSOLA = 'assistente:chat:use';
 
+/** O mapa da entrada se desenha só na primeira visita da sessão; depois, já aparece pronto. */
+let mapaJaDesenhado = false;
+
+/** "Bom dia", "Boa tarde" ou "Boa noite", pela hora local. */
+export function saudacaoPelaHora(hora: number): string {
+  if (hora >= 5 && hora < 12) return 'Bom dia';
+  if (hora >= 12 && hora < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
+
+/** Primeiro nome, com só a inicial maiúscula (os cadastros costumam vir em caixa alta). */
+export function primeiroNome(nome: string | undefined | null): string {
+  const primeiro = (nome ?? '').trim().split(/\s+/)[0] ?? '';
+  return primeiro ? primeiro.charAt(0).toLocaleUpperCase('pt-BR') + primeiro.slice(1).toLocaleLowerCase('pt-BR') : '';
+}
+
+const FORMATO_DATA = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+
 /**
- * Entrada do GEO: a marca, a pergunta à Bússola e os módulos que o perfil pode abrir, cada um com
- * os atalhos mais usados. Sem dados do servidor: abre na hora, inclusive sem sinal.
+ * Entrada do GEO: faixa da marca (mapa de campo, saudação e a pergunta à Bússola) e os módulos que o
+ * perfil pode abrir, cada um com os atalhos mais usados. Sem dados do servidor: abre na hora, inclusive
+ * sem sinal.
  */
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, GeoBussolaAvatarComponent, GeoIconComponent],
+  imports: [RouterLink, GeoBussolaAvatarComponent, GeoIconComponent, GeoMapaCampoComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -155,6 +182,20 @@ export class HomeComponent {
   private readonly router = inject(Router);
 
   protected readonly sugestoes = SUGESTOES_DA_BUSSOLA;
+
+  protected readonly animarMapa = !mapaJaDesenhado;
+  protected readonly hoje = primeiraMaiuscula(FORMATO_DATA.format(new Date()));
+  protected readonly saudacao = computed(() => {
+    const usuario = this.auth.currentUser();
+    // Conta técnica (nome igual ao login, como USRADMIN) não tem nome de gente para cumprimentar.
+    const nome = usuario?.nome?.trim().toUpperCase() === usuario?.login?.trim().toUpperCase() ? '' : primeiroNome(usuario?.nome);
+    const ola = saudacaoPelaHora(new Date().getHours());
+    return nome ? `${ola}, ${nome}` : ola;
+  });
+
+  constructor() {
+    mapaJaDesenhado = true;
+  }
 
   private readonly permissoes = computed(() => new Set(this.auth.currentUser()?.permissoes ?? []));
 
@@ -188,4 +229,8 @@ export class HomeComponent {
   private liberado(destino: DestinoDoInicio): boolean {
     return this.permissoes().has(destino.permissao) && !rotaOculta(destino.rota);
   }
+}
+
+function primeiraMaiuscula(texto: string): string {
+  return texto.charAt(0).toLocaleUpperCase('pt-BR') + texto.slice(1);
 }

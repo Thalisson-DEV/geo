@@ -5,6 +5,7 @@ import {
   GeoIconButtonComponent,
   GeoIconComponent,
   GeoLogoComponent,
+  GeoMapaCampoComponent,
 } from '@geo/ui';
 import { GeoPasswordInputComponent, GeoTextInputComponent } from '@geo/ui/forms';
 import { AuthService } from '../../../core/services/auth.service';
@@ -15,7 +16,8 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { environment } from '../../../../environments/environment';
 
 /**
- * Entrada do GEO: painel da marca (some no celular, onde a marca vai para o topo) e o formulário.
+ * Entrada do GEO: painel da marca com o mapa de campo (faixa no topo no celular e no tablet em pé)
+ * e o formulário.
  * O erro do login aparece no próprio formulário, perto do botão, e não em aviso flutuante.
  */
 @Component({
@@ -26,6 +28,7 @@ import { environment } from '../../../../environments/environment';
     GeoIconButtonComponent,
     GeoIconComponent,
     GeoLogoComponent,
+    GeoMapaCampoComponent,
     GeoPasswordInputComponent,
     GeoTextInputComponent,
     RouterLink,
@@ -36,6 +39,8 @@ import { environment } from '../../../../environments/environment';
   template: `
     <div class="geo-login">
       <aside class="geo-login__marca" aria-label="Sobre o GEO">
+        <geo-mapa-campo class="geo-login__mapa" alinhamento="xMidYMin" />
+
         <div class="geo-login__identidade">
           <geo-logo size="2.25rem" label="GEO" />
           <div>
@@ -45,32 +50,32 @@ import { environment } from '../../../../environments/environment';
         </div>
 
         <div class="geo-login__manchete">
-          <h2>A operação inteira, do campo ao escritório.</h2>
+          <p class="geo-login__titulo-marca">A operação inteira, do campo ao escritório.</p>
           <ul>
             <li>
-              <span class="geo-login__ponto"><geo-icon name="wifi-off" /></span>
+              <geo-icon name="wifi-off" size="sm" />
               <span>Funciona sem sinal: o que a equipe lança fica no aparelho e sobe quando a conexão volta.</span>
             </li>
             <li>
-              <span class="geo-login__ponto"><geo-icon name="compass" /></span>
+              <geo-icon name="compass" size="sm" />
               <span>A Bússola responde sobre obras, estoque e equipes em linguagem simples.</span>
             </li>
             <li>
-              <span class="geo-login__ponto"><geo-icon name="shield-check" /></span>
+              <geo-icon name="shield-check" size="sm" />
               <span>Cada pessoa vê só o que o perfil dela permite.</span>
             </li>
           </ul>
         </div>
 
-        <p class="geo-login__rodape">GEO · {{ ano }}</p>
+        <dl class="geo-login__legenda" aria-label="Legenda do mapa">
+          <div><dt><span class="geo-login__simbolo geo-login__simbolo--equipe"></span></dt><dd>Equipe em campo</dd></div>
+          <div><dt><span class="geo-login__simbolo geo-login__simbolo--rede"></span></dt><dd>Rede construída</dd></div>
+          <div><dt><span class="geo-login__simbolo geo-login__simbolo--programada"></span></dt><dd>Programada</dd></div>
+        </dl>
       </aside>
 
       <main class="geo-login__lado">
         <div class="geo-login__topo">
-          <div class="geo-login__marca-curta">
-            <geo-logo size="2rem" label="GEO" />
-            <strong>GEO</strong>
-          </div>
           <geo-icon-button
             variant="outline"
             [icon]="tema.isDarkMode() ? 'sun' : 'moon'"
@@ -160,58 +165,96 @@ import { environment } from '../../../../environments/environment';
   styles: `
     app-login { display: block; min-block-size: 100dvh; background: var(--geo-canvas); }
 
-    .geo-login { display: grid; grid-template-columns: minmax(0, 1fr); min-block-size: 100dvh; }
-    @media (min-width: 1024px) { .geo-login { grid-template-columns: minmax(26rem, 0.9fr) minmax(0, 1.1fr); } }
+    .geo-login { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; min-block-size: 100dvh; }
+    @media (min-width: 1024px) {
+      .geo-login { grid-template-columns: minmax(28rem, 1fr) minmax(0, 1fr); grid-template-rows: none; }
+    }
 
-    /* Painel da marca */
+    /*
+     * Painel da marca: azul profundo da marca com o mapa de campo ao fundo. No celular e no tablet
+     * em pé vira uma faixa no topo, com a marca e a manchete; a lista e a legenda ficam para a tela larga.
+     */
     .geo-login__marca {
-      position: relative; display: none; flex-direction: column; justify-content: space-between; gap: 2.5rem;
-      overflow: hidden; padding: clamp(2rem, 4vw, 3.5rem);
-      border-inline-end: 1px solid var(--geo-nav-border);
-      background: var(--geo-nav-bg); color: var(--geo-nav-fg);
+      --marca-fundo: var(--p-blue-950);
+      --marca-texto: var(--p-blue-50);
+      --marca-suave: var(--p-blue-200);
+      position: relative; isolation: isolate; display: flex; flex-direction: column; 
+      gap: 1.5rem; overflow: hidden; min-block-size: 12.5rem; padding: 1.25rem 1.25rem 1.5rem;
+      background: var(--marca-fundo); color: var(--marca-suave);
     }
-    @media (min-width: 1024px) { .geo-login__marca { display: flex; } }
-    :root[data-motion='reduced'] .geo-login__cartao { animation: none; }
+    @media (min-width: 640px) { .geo-login__marca { min-block-size: 15rem; padding: 1.5rem 2rem 1.75rem; } }
+    @media (min-width: 1024px) { .geo-login__marca { gap: 2.5rem; padding: clamp(2rem, 4vw, 3.5rem); } }
 
-    .geo-login__identidade { position: relative; display: flex; align-items: center; gap: 0.875rem; color: var(--geo-nav-fg-active); }
+    .geo-login__mapa {
+      position: absolute; inset: 0; z-index: -1;
+      color: color-mix(in srgb, var(--p-blue-300) 42%, transparent);
+      --geo-mapa-rede: var(--p-blue-200);
+      --geo-mapa-fundo: var(--marca-fundo);
+    }
+    /* Véu sob o texto: o mapa aparece inteiro no alto e esmaece onde a manchete se apoia. */
+    .geo-login__marca::after {
+      content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+      background: linear-gradient(to top, var(--marca-fundo) 22%, color-mix(in srgb, var(--marca-fundo) 55%, transparent) 48%, transparent 66%);
+    }
+
+    /* Na faixa (tela estreita) o mapa fica quadrado e sobe, para a rede e as equipes entrarem no recorte. */
+    @media (max-width: 1023.98px) {
+      .geo-login__mapa { inset: 0 0 auto 30%; block-size: auto; aspect-ratio: 1; translate: 0 -16%; }
+      .geo-login__marca::after { background: linear-gradient(to right, var(--marca-fundo) 28%, transparent 62%); }
+    }
+    .geo-login__identidade { display: flex; align-items: center; gap: 0.75rem; color: var(--marca-texto); }
     .geo-login__identidade div { display: flex; flex-direction: column; line-height: 1.25; }
-    .geo-login__identidade strong { font-size: var(--geo-text-title-3); font-weight: var(--geo-font-weight-semibold); letter-spacing: 0; }
-    .geo-login__identidade span { color: var(--geo-nav-fg-muted); font-size: var(--geo-text-body-sm); }
+    .geo-login__identidade strong { font-size: var(--geo-text-title-3); font-weight: var(--geo-font-weight-semibold); }
+    .geo-login__identidade span { color: var(--marca-suave); font-size: var(--geo-text-body-sm); }
 
-    .geo-login__manchete { position: relative; max-inline-size: 30rem; }
-    .geo-login__manchete h2 {
-      margin: 0 0 1.25rem; color: var(--geo-nav-fg-active);
-      font-size: var(--geo-text-title-1); font-weight: var(--geo-font-weight-semibold); line-height: 1.3; letter-spacing: -0.01em;
-      text-wrap: balance;
+    .geo-login__manchete { max-inline-size: 32rem; margin-block-start: auto; }
+    .geo-login__titulo-marca {
+      margin: 0; color: var(--marca-texto);
+      font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem); font-weight: var(--geo-font-weight-semibold);
+      line-height: 1.12; letter-spacing: -0.025em; text-wrap: balance;
     }
-    .geo-login__manchete ul { display: grid; gap: 1.125rem; margin: 0; padding: 0; list-style: none; }
-    .geo-login__manchete li { display: flex; align-items: flex-start; gap: 0.875rem; font-size: var(--geo-text-body); line-height: 1.5; }
-    .geo-login__ponto {
-      display: inline-flex; flex: none; align-items: center; justify-content: center;
-      inline-size: 2rem; block-size: 2rem; border-radius: var(--geo-radius-md);
-      border: 1px solid var(--geo-nav-border); color: var(--geo-nav-fg-muted);
-    }
-    .geo-login__rodape { position: relative; margin: 0; color: var(--geo-nav-fg-muted); font-size: var(--geo-text-caption); }
+    .geo-login__manchete ul { display: none; gap: 0.75rem; margin: 1.75rem 0 0; padding: 0; list-style: none; }
+    .geo-login__manchete li { display: flex; align-items: flex-start; gap: 0.75rem; max-inline-size: 26rem; font-size: var(--geo-text-body); line-height: 1.5; }
+    .geo-login__manchete li geo-icon { flex: none; margin-block-start: 0.2rem; color: var(--p-amber-300); }
 
-    /* Lado do formulário */
+    .geo-login__legenda { display: none; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0; font-size: var(--geo-text-caption); }
+    .geo-login__legenda div { display: flex; align-items: center; gap: 0.5rem; }
+    .geo-login__legenda dt, .geo-login__legenda dd { margin: 0; display: flex; }
+    .geo-login__simbolo { display: inline-block; }
+    .geo-login__simbolo--equipe { inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; background: var(--p-amber-400); }
+    .geo-login__simbolo--rede { inline-size: 1.25rem; border-block-start: 2px solid var(--p-blue-200); }
+    .geo-login__simbolo--programada { inline-size: 1.25rem; border-block-start: 2px dotted var(--p-blue-200); }
+
+    @media (min-width: 1024px) {
+      .geo-login__manchete ul { display: grid; }
+      .geo-login__legenda { display: flex; }
+    }
+
+    /* Lado do formulário: quieto, para a atenção ir aos campos. */
     .geo-login__lado { display: flex; flex-direction: column; min-inline-size: 0; padding: 1rem; }
     @media (min-width: 640px) { .geo-login__lado { padding: 1.5rem 2rem; } }
-    .geo-login__topo { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-    .geo-login__marca-curta { display: flex; align-items: center; gap: 0.625rem; color: var(--geo-foreground); font-weight: var(--geo-font-weight-semibold); letter-spacing: 0; }
-    @media (min-width: 1024px) {
-      .geo-login__topo { justify-content: flex-end; }
-      .geo-login__marca-curta { display: none; }
+    .geo-login__topo { display: flex; justify-content: flex-end; }
+    /* Tela estreita: o botão de tema sobe para o canto da faixa e o formulário começa logo abaixo dela. */
+    @media (max-width: 1023.98px) {
+      .geo-login__topo { position: absolute; inset-block-start: 1rem; inset-inline-end: 1rem; }
+      .geo-login__lado .geo-login__cartao { margin: 0 auto; padding-block-start: 1rem; }
     }
 
     .geo-login__cartao {
-      box-sizing: border-box; inline-size: 100%; max-inline-size: 26rem; margin: auto; padding-block: 2rem 3rem;
-      animation: geo-rise-in var(--geo-motion-slow) var(--geo-ease-out) both;
+      box-sizing: border-box; inline-size: 100%; max-inline-size: 24rem; margin: auto; padding-block: 1.5rem 2.5rem;
+      animation: geo-rise-in var(--geo-motion-slow) var(--geo-ease-out) 0.15s both;
     }
-    .geo-login__cartao h1 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-text-title-1); font-weight: var(--geo-font-weight-semibold); letter-spacing: -0.01em; }
-    .geo-login__subtitulo { margin: 0.375rem 0 1.75rem; color: var(--geo-foreground-muted); font-size: var(--geo-text-body); }
+    :root[data-motion='reduced'] .geo-login__cartao { animation: none; }
+    @media (prefers-reduced-motion: reduce) { .geo-login__cartao { animation: none; } }
+
+    .geo-login__cartao h1 {
+      margin: 0; color: var(--geo-foreground);
+      font-size: 1.75rem; font-weight: var(--geo-font-weight-semibold); line-height: 1.15; letter-spacing: -0.02em;
+    }
+    .geo-login__subtitulo { margin: 0.5rem 0 2rem; color: var(--geo-foreground-muted); font-size: var(--geo-text-body); }
     .geo-login__form { display: grid; gap: 1.125rem; }
     .geo-login__form input { min-block-size: 2.75rem; font-size: var(--geo-text-body); }
-    .geo-login__form geo-button { margin-block-start: 0.375rem; }
+    .geo-login__form geo-button { margin-block-start: 0.5rem; }
 
     .geo-login__aviso {
       display: flex; align-items: flex-start; gap: 0.625rem; margin: 0 0 1.25rem; padding: 0.75rem 0.875rem;
@@ -226,17 +269,14 @@ import { environment } from '../../../../environments/environment';
     .geo-login__nota { display: flex; align-items: flex-start; gap: 0.5rem; margin: 1.5rem 0 0; color: var(--geo-foreground-subtle); font-size: var(--geo-text-body-sm); line-height: 1.45; }
     .geo-login__nota geo-icon { flex: none; margin-block-start: 0.1rem; }
 
-    .geo-login__status {
-      display: inline-flex; align-items: center; gap: 0.375rem; margin-block-start: 1rem; padding: 0.25rem 0;
-      border: 0; background: transparent; color: var(--geo-brand-text); font: inherit; font-size: var(--geo-text-body-sm);
-      font-weight: var(--geo-font-weight-semibold); cursor: pointer;
+    .geo-login__legal {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; margin-block-start: 1.5rem; padding-block-start: 1rem;
+      border-block-start: 1px solid var(--geo-border); font-size: var(--geo-text-caption);
     }
-    .geo-login__status:hover { text-decoration: underline; }
-    .geo-login__legal { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin-block-start: 1.25rem; padding-block-start: 1rem; border-block-start: 1px solid var(--geo-border); font-size: var(--geo-text-caption); }
-    .geo-login__legal a { color: var(--geo-foreground-muted); text-decoration: none; }
-    .geo-login__legal a:hover { color: var(--geo-brand-text); text-decoration: underline; }
-    .geo-login__legal a:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
-    .geo-login__status:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
+    .geo-login__legal a, .geo-login__status { color: var(--geo-foreground-muted); text-decoration: none; }
+    .geo-login__status { display: inline-flex; margin-block-start: 1rem; align-items: center; gap: 0.375rem; padding: 0; border: 0; background: transparent; font: inherit; font-size: var(--geo-text-body-sm); cursor: pointer; }
+    .geo-login__legal a:hover, .geo-login__status:hover { color: var(--geo-brand-text); text-decoration: underline; }
+    .geo-login__legal a:focus-visible, .geo-login__status:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
   `,
 })
 export class LoginComponent {
