@@ -122,7 +122,8 @@ public final class CampoObrasResponses {
     public record ModeloFoto(UUID id, String titulo, List<ItemFoto> itens) {
     }
 
-    public record ItemFoto(String id, String titulo, boolean obrigatoria) {
+    /** {@code etapa}: o momento da foto (ANTES, DURANTE, DEPOIS); nula, o app segue a situação do ponto. */
+    public record ItemFoto(String id, String titulo, boolean obrigatoria, String etapa) {
     }
 
     /** Mudança na agenda da equipe, para avisar ao abrir o app. */

@@ -489,7 +489,7 @@ public class PacoteCampoObras {
                 .filter(m -> m.isAtivo() && m.getFinalidade() == ModeloChecklistObra.Finalidade.AS_BUILT
                         && !m.getEstrutura().evidencias().isEmpty())
                 .map(m -> new CampoObrasResponses.ModeloFoto(m.getId(), m.getTitulo(), m.getEstrutura().evidencias().stream()
-                        .map(i -> new CampoObrasResponses.ItemFoto(i.id(), i.titulo(), i.obrigatoria())).toList()))
+                        .map(i -> new CampoObrasResponses.ItemFoto(i.id(), i.titulo(), i.obrigatoria(), i.etapa() != null ? i.etapa().name() : null)).toList()))
                 .toList();
     }
 

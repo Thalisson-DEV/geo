@@ -66,9 +66,16 @@ import { ProgramacaoCampo } from '../../core/obras/obras.models';
           <span class="geo-linha__apoio">Obra fora da agenda: busque pelo número</span></span>
         <geo-icone nome="avancar" [tamanho]="18" /></a></li>
     </ul>
-    @if (fotosPendentes() || ctx.registros.conflitos().length) {
+    @if (fotosPendentes() || refazer().length || ctx.registros.conflitos().length) {
       <h2 class="geo-secao">Pendências</h2>
       <ul class="geo-grupo">
+        @for (r of refazer(); track r.chave) {
+          <li><a class="geo-linha geo-linha--acao" [routerLink]="['/obras', r.idProgramacao, 'execucao']" [queryParams]="{ ponto: r.idPonto }" data-testid="foto-refazer">
+            <span class="geo-selo geo-selo--erro"><geo-icone nome="camera" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Refazer foto: {{ r.titulo }}</span>
+              <span class="geo-linha__apoio">Obra {{ r.numeroObra }} · {{ r.rotuloPonto }} · {{ r.motivo }}</span></span>
+            <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+        }
         @if (fotosPendentes()) {
           <li><a class="geo-linha geo-linha--acao" routerLink="/obras"><span class="geo-selo geo-selo--atencao"><geo-icone nome="camera" /></span>
             <span class="geo-linha__texto"><span class="geo-linha__titulo geo-num">{{ fotosPendentes() }} {{ fotosPendentes() === 1 ? 'foto do modelo' : 'fotos do modelo' }}</span>
@@ -114,7 +121,24 @@ export class HojeObrasComponent {
     registros: this.ctx.registrosDoDia(), dia: this.ctx.hoje(),
     concluida: p => this.concluida(p), temRascunhoApr: () => false,
   }));
-  readonly fotosPendentes = computed(() => this.ctx.doDia().reduce((n, p) => n + this.ctx.pendencias(p).length, 0));
+  /** Fotos reprovadas pelo escritório, de qualquer obra no aparelho (não só as do dia): cada uma leva ao ponto. */
+  readonly refazer = computed(() => {
+    const vistas = new Map<string, { chave: string; idProgramacao: string; numeroObra: string; idPonto: string; rotuloPonto: string; titulo: string; motivo: string }>();
+    for (const p of this.ctx.pacote.programacoes().filter(x => x.situacao !== 'CANCELADA')) {
+      // Só os pontos desta programação: o link abre a execução dela no ponto.
+      const daqui = new Set(this.ctx.pontos(p).map(x => x.id));
+      for (const pend of this.ctx.pendencias(p).filter(x => x.motivoReprovacao && daqui.has(x.idPonto))) {
+        const chave = `${pend.idPonto}|${pend.idItem}`;
+        if (!vistas.has(chave)) {
+          vistas.set(chave, { chave, idProgramacao: p.id, numeroObra: p.numeroObra ?? '', idPonto: pend.idPonto, rotuloPonto: pend.rotuloPonto,
+            titulo: pend.titulo, motivo: pend.motivoReprovacao! });
+        }
+      }
+    }
+    return [...vistas.values()];
+  });
+  /** As que faltam (as reprovadas já aparecem uma a uma acima). */
+  readonly fotosPendentes = computed(() => this.ctx.doDia().reduce((n, p) => n + this.ctx.pendencias(p).filter(x => !x.motivoReprovacao).length, 0));
 
   concluida(p: ProgramacaoCampo): boolean {
     const pontos = this.ctx.pontos(p);

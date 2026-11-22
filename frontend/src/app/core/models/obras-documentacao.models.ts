@@ -27,6 +27,8 @@ export interface ItemEvidenciaModelo {
   id: string;
   titulo: string;
   obrigatoria: boolean;
+  /** Momento da foto no ponto; sem ele, o app usa a situação do ponto na hora da foto. */
+  etapa?: EtapaEvidencia | null;
 }
 
 export interface EstruturaChecklist {

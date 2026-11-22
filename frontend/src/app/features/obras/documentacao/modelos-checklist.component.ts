@@ -141,7 +141,7 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
     <geo-form-drawer [(visible)]="aberto" [title]="tituloDrawer()" [description]="emEdicao()?.descricao ?? undefined" [dirty]="alterado()" size="xl">
       @if (estruturaTravada() && podeConfigurar) {
         <geo-callout tone="info" icon="pi pi-lock" title="Modelo em uso" [dense]="true">
-          Dá para mudar o título e a descrição. Para mudar as perguntas e as fotos pedidas, duplique o modelo: o que já foi lançado continua como foi respondido.
+          Dá para mudar o título, a descrição e o momento de cada foto. Para mudar as perguntas e as fotos pedidas, duplique o modelo: o que já foi lançado continua como foi respondido.
         </geo-callout>
       }
       <geo-form-section title="Modelo" icon="pi pi-file-edit">
@@ -213,12 +213,14 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
         <section class="mc-grupo" aria-labelledby="mc-evidencias">
           <div>
             <h3 id="mc-evidencias" class="mc-evidencias__titulo">Fotos do book</h3>
-            <p class="mc-evidencias__ajuda">O que precisa ser fotografado em cada ponto. Foto obrigatória que faltar gera um aviso ao gerar o As Built, sem impedir.</p>
+            <p class="mc-evidencias__ajuda">O que precisa ser fotografado em cada ponto e em que momento. O app mostra as fotos nessa ordem e marca a etapa sozinho. Foto obrigatória que faltar gera um aviso ao gerar o As Built, sem impedir. O momento pode ser ajustado mesmo com o modelo em uso.</p>
           </div>
           @for (item of evidencias(); track item.id; let i = $index) {
             <div class="mc-pergunta__linha">
               <geo-text-input class="mc-pergunta__enunciado" [label]="'Foto ' + (i + 1)" [required]="true" placeholder="Ex.: Aterramento" [maxlength]="150" [value]="item.titulo" [readonly]="estruturaTravada()"
                 (valueChange)="alterarItem(i, { titulo: $event })"></geo-text-input>
+              <geo-select class="mc-evidencias__momento" label="Momento" [options]="momentos" [value]="item.etapa ?? 'QUALQUER'" [readonly]="somenteLeitura()"
+                (valueChange)="alterarItem(i, { etapa: $event === 'QUALQUER' ? null : $any($event) })"></geo-select>
               <geo-boolean-control class="mc-evidencias__marca" label="Obrigatória" kind="toggle" [value]="item.obrigatoria" [readonly]="estruturaTravada()" (valueChange)="alterarItem(i, { obrigatoria: $event })"></geo-boolean-control>
               @if (!estruturaTravada()) {
                 <span class="mc-acoes">
@@ -261,6 +263,7 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
     .mc-evidencias__titulo { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 600; }
     .mc-evidencias__ajuda { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .mc-evidencias__marca { margin-top: 1.75rem; }
+    .mc-evidencias__momento { flex: 0 1 13rem; min-width: 12rem; }
   `
 })
 export class ModelosChecklistComponent {
@@ -305,6 +308,12 @@ export class ModelosChecklistComponent {
   protected readonly descricao = signal('');
   protected readonly grupos = signal<GrupoChecklist[]>([]);
   protected readonly evidencias = signal<ItemEvidenciaModelo[]>([]);
+  protected readonly momentos = [
+    { label: 'Antes de começar', value: 'ANTES' },
+    { label: 'Durante o serviço', value: 'DURANTE' },
+    { label: 'Depois de pronto', value: 'DEPOIS' },
+    { label: 'Qualquer momento', value: 'QUALQUER' }
+  ];
   protected readonly tentou = signal(false);
   protected readonly salvando = signal(false);
   private readonly original = signal('');

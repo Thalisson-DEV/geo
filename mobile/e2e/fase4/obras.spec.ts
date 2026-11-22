@@ -102,13 +102,16 @@ test.describe('Obras offline', () => {
     await page.getByTestId('tudo-feito-4').click();
     await expect(page.getByTestId('ponto-4')).toContainText('Feito');
 
-    // Foto do modelo no ponto 4 (pendência some).
+    // Foto do modelo no ponto 4 pelo "Próxima foto" (a de depois, com o ponto pronto); a pendência some.
     await page.getByRole('button', { name: 'Abrir Ponto 4' }).click();
     const detalhe = page.getByTestId('detalhe-ponto');
-    await expect(detalhe.getByText('Pendente')).toBeVisible();
-    await detalhe.locator('input[type=file][capture]').first().setInputFiles({ name: 'poste.jpg', mimeType: 'image/jpeg', buffer: Buffer.from(JPEG_1PX, 'base64') });
+    await expect(detalhe.getByText('Falta', { exact: true })).toBeVisible();
+    await expect(detalhe.getByTestId('proxima-foto')).toContainText('Poste instalado');
+    await expect(detalhe.getByTestId('proxima-foto')).toContainText('Depois de pronto');
+    await detalhe.getByTestId('proxima-foto').locator('input[type=file]').setInputFiles({ name: 'poste.jpg', mimeType: 'image/jpeg', buffer: Buffer.from(JPEG_1PX, 'base64') });
     await expect(page.getByText('Foto guardada')).toBeVisible();
-    await expect(detalhe.getByText('Pendente')).toHaveCount(0);
+    await expect(detalhe.getByText('Falta', { exact: true })).toHaveCount(0);
+    await expect(detalhe.getByText('Todas as fotos pedidas neste ponto estão tiradas.')).toBeVisible();
 
     // Fecha o dia com o relatório montado (navegando no app: sem rede não há recarga).
     await irParaHoje(page);
@@ -175,6 +178,40 @@ test.describe('Obras offline', () => {
     await expect(nova.getByText('APR · Medidas')).toBeVisible({ timeout: 15_000 });
     await nova.getByRole('button', { name: 'Anterior' }).click();
     await expect(nova.getByRole('checkbox', { name: /Queda de altura/ })).toHaveAttribute('aria-checked', 'true');
+  });
+
+  test('foto reprovada pelo escritório: aparece no Hoje com o motivo, abre no ponto e sai ao tirar outra; a errada pode ser apagada', async ({ page, context }) => {
+    test.setTimeout(90_000);
+    const api = new MockApi({ perfil: 'CAMPO', turnoAberto: true, obras: true });
+    api.fotoReprovada = true;
+    await api.install(context);
+    await loginPelaUi(page);
+    const aviso = page.getByTestId('foto-refazer');
+    await expect(aviso).toContainText('Refazer foto: Poste instalado', { timeout: 15_000 });
+    await expect(aviso).toContainText('Fora de foco ou escura: carimbo ilegível');
+    await aviso.click();
+    await expect(page).toHaveURL(/\/obras\/p-12\/execucao\?ponto=pt-5/);
+    const detalhe = page.getByTestId('detalhe-ponto');
+    await expect(detalhe.getByTestId('proxima-foto')).toContainText('Refazer a foto');
+    await expect(detalhe.getByTestId('proxima-foto')).toContainText('Fora de foco ou escura · carimbo ilegível');
+
+    await semRede(page, context, api);
+    await detalhe.getByTestId('proxima-foto').locator('input[type=file]').setInputFiles({ name: 'poste.jpg', mimeType: 'image/jpeg', buffer: Buffer.from(JPEG_1PX, 'base64') });
+    await expect(page.getByText(/Foto guardada/)).toBeVisible();
+    await expect(detalhe.getByText('Refazer', { exact: true })).toHaveCount(0);
+
+    // Foto em tela cheia: o Voltar do aparelho fecha a foto, e o ponto continua aberto.
+    await detalhe.getByRole('button', { name: /em tela cheia/ }).first().click();
+    await expect(page.getByRole('dialog', { name: /Poste instalado/ })).toBeVisible();
+    await page.goBack();
+    await expect(page.getByRole('dialog', { name: /Poste instalado/ })).toHaveCount(0);
+    await expect(detalhe).toBeVisible();
+
+    // Foto tirada errada: apaga antes de enviar (a pendência volta) e desfaz.
+    await detalhe.getByRole('button', { name: /^Apagar/ }).first().click();
+    await expect(detalhe.getByTestId('proxima-foto')).toContainText('Refazer a foto');
+    await page.getByRole('button', { name: 'Desfazer' }).click();
+    await expect(detalhe.getByTestId('proxima-foto')).toHaveCount(0);
   });
 
   test('aviso de cancelamento aparece ao abrir e a obra sai da agenda', async ({ page, context }) => {

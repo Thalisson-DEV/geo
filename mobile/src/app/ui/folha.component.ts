@@ -18,7 +18,7 @@ const ARRASTE_FECHA_PX = 90;
   selector: 'geo-folha',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '(document:keydown.escape)': 'aberta() && pedirFechar()' },
+  host: { '(document:keydown.escape)': 'aberta() && !temCamada() && pedirFechar()' },
   template: `
     @if (montada()) {
       <div class="veu" [class.visivel]="visivel()" (click)="pedirFechar()" aria-hidden="true"></div>
@@ -70,8 +70,12 @@ export class FolhaComponent implements OnDestroy {
   private static pilha: FolhaComponent[] = [];
   private static voltasIgnoradas = 0;
   private static ouvindo = false;
+  /** Camadas abertas por cima das folhas (ex.: foto em tela cheia): Voltar e Esc fecham primeiro elas. */
+  private static camadas: { fechar: () => void }[] = [];
   private static readonly aoVoltarGlobal = () => {
     if (FolhaComponent.voltasIgnoradas > 0) { FolhaComponent.voltasIgnoradas--; return; }
+    const camada = FolhaComponent.camadas.pop();
+    if (camada) { camada.fechar(); return; }
     const topo = FolhaComponent.pilha.pop();
     if (!topo) return;
     topo.empurrouHistorico = false;
@@ -102,6 +106,33 @@ export class FolhaComponent implements OnDestroy {
 
   pedirFechar(): void {
     this.fechar.emit();
+  }
+
+  protected temCamada(): boolean {
+    return FolhaComponent.camadas.length > 0;
+  }
+
+  /**
+   * Abre uma camada sobre a tela (foto em tela cheia, por exemplo): o Voltar do Android e o Esc fecham a camada, e não a
+   * folha que está por baixo. Devolve a função que fecha a camada pela própria tela (consome o histórico empurrado).
+   */
+  static abrirCamada(fechar: () => void): () => void {
+    const camada = { fechar };
+    FolhaComponent.camadas.push(camada);
+    history.pushState({ ...(history.state ?? {}), geoCamada: true }, '');
+    if (!FolhaComponent.ouvindo) {
+      FolhaComponent.ouvindo = true;
+      window.addEventListener('popstate', FolhaComponent.aoVoltarGlobal);
+    }
+    return () => {
+      const i = FolhaComponent.camadas.indexOf(camada);
+      if (i < 0) return;
+      FolhaComponent.camadas.splice(i, 1);
+      if (history.state?.geoCamada) {
+        FolhaComponent.voltasIgnoradas++;
+        history.back();
+      }
+    };
   }
 
   iniciarArraste(ev: PointerEvent): void {

@@ -55,7 +55,8 @@ export interface PontoCampo {
 }
 export interface VaoCampo { id: string; idPontoA: string; idPontoB: string; metragem?: number | null }
 export interface FotoCampo { id: string; idLocal?: string | null; idPonto: string; idVao?: string | null; idModelo?: string | null; idItem?: string | null; etapa?: string | null }
-export interface PendenciaFoto { idPonto: string; numeroPonto: string; idItem: string; titulo: string }
+/** {@code motivoReprovacao}: o escritório reprovou a foto deste item ("Fora de foco ou escura: ...") e ela precisa ser refeita. */
+export interface PendenciaFoto { idPonto: string; numeroPonto: string; idItem: string; titulo: string; motivoReprovacao?: string | null }
 
 /** Recado da visita prévia: data (dd/MM/yyyy), quem visitou, observações e respostas que pedem atenção. */
 export interface VisitaCampo {
@@ -92,7 +93,9 @@ export interface ObraResumo { id: string; numero: string; titulo?: string | null
 
 export interface Sugestao { riscos: string[]; medidas: string[] }
 export interface ModeloApr { riscos: string[]; medidas: string[]; verificacoes: string[]; sugestoes: Record<string, Sugestao> }
-export interface ItemFoto { id: string; titulo: string; obrigatoria: boolean }
+export type EtapaFoto = 'ANTES' | 'DURANTE' | 'DEPOIS';
+/** {@code etapa}: o momento da foto definido no modelo; sem ele, vale a situação do ponto na hora da foto. */
+export interface ItemFoto { id: string; titulo: string; obrigatoria: boolean; etapa?: EtapaFoto | null }
 export interface ModeloFoto { id: string; titulo: string; itens: ItemFoto[] }
 export interface AvisoProgramacao {
   id: string; tipo: 'CRIADA' | 'EDITADA' | 'REPROGRAMADA' | 'CANCELADA' | 'EXCLUIDA'; idProgramacao: string;

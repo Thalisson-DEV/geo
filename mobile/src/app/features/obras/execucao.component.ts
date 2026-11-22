@@ -13,19 +13,23 @@ import { ToastService } from '../../core/ui/toast.service';
 import { TurnoService } from '../../core/turno/turno.service';
 import { ArquivosCampoService } from '../../core/obras/arquivos-campo.service';
 import { LocalizacaoService, Posicao } from '../../core/obras/localizacao.service';
-import { PontoDaExecucao, aprQueLibera, nomeLocais, pendenciasDeFoto } from '../../core/obras/obras-regras';
+import {
+  PontoDaExecucao, VagaFoto, aprQueLibera, etapaDaFoto, fotoAtrasada, nomeLocais, pendenciasDeFoto, proximaFoto, rotuloEtapaFoto, vagasDeFoto,
+} from '../../core/obras/obras-regras';
+import { EtapaFoto, ItemFoto } from '../../core/obras/obras.models';
 import { linhasDoCarimbo } from '../../core/fotos/carimbo';
-import { EvidenciaPreparada } from '../../core/sst/evidencia-foto.util';
+import { EvidenciaPreparada, prepararEvidencia } from '../../core/sst/evidencia-foto.util';
 import { ObrasContexto } from './obras-contexto';
 import { MarcadorPonto, ProjetoPdfComponent } from './projeto-pdf.component';
 
 type Vista = 'pontos' | 'projeto';
-type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
 
 /**
  * Execução sobre o projeto. Cada ponto mostra os itens programados; "Tudo feito" aponta o ponto inteiro com um toque e
- * "Parcial" abre as quantidades. As fotos do modelo vêm por item, com carimbo; foto faltando avisa e vira pendência, sem
- * bloquear. No tablet deitado: projeto à esquerda e o ponto à direita; no celular, o ponto abre numa folha.
+ * "Parcial" abre as quantidades. As fotos do modelo aparecem na ordem do trabalho (antes, durante, depois), cada uma com
+ * o seu momento (do modelo ou da situação do ponto), e o botão "Próxima foto" leva à que falta agora; a reprovada pelo
+ * escritório vem primeiro, com o motivo. Foto faltando avisa e vira pendência, sem bloquear. No tablet deitado: projeto
+ * à esquerda e o ponto à direita; no celular, o ponto abre numa folha.
  */
 @Component({
   selector: 'app-execucao',
@@ -81,7 +85,9 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
                           @if (ponto.id === proximo()?.id) { <span class="geo-etiqueta geo-etiqueta--destaque proximo">Próximo</span> }
                           @if (ponto.situacao === 'PARCIAL') { <span class="geo-etiqueta geo-etiqueta--atencao proximo">Parcial</span> }</span>
                         <span class="fazer">{{ oQueFazer(ponto) }}</span>
-                        <span class="geo-linha__apoio">{{ resumoMateriais(ponto) }}{{ pendenciasDoPonto(ponto.id) ? (resumoMateriais(ponto) ? ' · ' : '') + fotosPendentes(pendenciasDoPonto(ponto.id)) : '' }}</span>
+                        <span class="geo-linha__apoio">{{ resumoMateriais(ponto) }}
+                          @if (refazerDoPonto(ponto.id); as n) { {{ resumoMateriais(ponto) ? ' · ' : '' }}<span class="refazer">{{ n === 1 ? '1 foto para refazer' : n + ' fotos para refazer' }}</span> }
+                          @else if (pendenciasDoPonto(ponto.id)) { {{ (resumoMateriais(ponto) ? ' · ' : '') + fotosPendentes(pendenciasDoPonto(ponto.id)) }} }</span>
                       </span>
                     </button>
                     @if (ponto.situacao !== 'FEITO') {
@@ -110,7 +116,11 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
                 </ul>
               }
               @if (pendencias().length) {
-                <p class="nota"><geo-icone nome="camera" [tamanho]="16" /> {{ fotosPendentes(pendencias().length) }} do modelo. Tire quando puder; não bloqueia o envio.</p>
+                <button type="button" class="nota" (click)="irParaPendencia()">
+                  <geo-icone nome="camera" [tamanho]="16" />
+                  <span>{{ refazerTotal() ? (refazerTotal() === 1 ? '1 foto reprovada para refazer' : refazerTotal() + ' fotos reprovadas para refazer') + ' · ' : '' }}{{ fotosPendentes(pendencias().length) }} do modelo. Não bloqueia o envio.</span>
+                  <span class="nota__ir">Ver</span>
+                </button>
               }
               <div class="geo-respiro"></div>
             }
@@ -154,6 +164,9 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
               <a class="geo-btn geo-btn--principal geo-btn--compacto" [routerLink]="['/obras', programacao()!.id, 'apr']">{{ liberacao() === 'IMPEDIDA' ? 'Nova APR' : 'Fazer APR' }}</a>
             </div>
           } @else if (ponto.situacao !== 'FEITO') {
+            @if (ponto.situacao === 'A_FAZER' && antesQueFalta(); as v) {
+              <p class="lembrete" role="status"><geo-icone nome="camera" [tamanho]="18" />Antes de começar, tire a foto “{{ v.item.titulo }}”: depois do serviço ela não dá mais para ser feita.</p>
+            }
             <div class="acoes">
               @if (!parcial()) {
                 <button type="button" class="geo-btn geo-btn--principal" (click)="tudoFeito(ponto)" data-testid="tudo-feito">
@@ -166,20 +179,49 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
             </div>
           }
 
-          <h3 class="geo-secao">Fotos do ponto</h3>
-          <div class="etapa"><geo-segmentado rotulo="Etapa da foto" [opcoes]="etapas" [(valor)]="etapa" /></div>
-          @for (item of itensFoto(); track item.id) {
-            <div class="foto-item">
-              <div class="foto-item__titulo"><span>{{ item.titulo }}{{ item.obrigatoria && !ponto.vao ? '' : ' (opcional)' }}</span>
-                @if (item.obrigatoria && !ponto.vao && !temFoto(ponto.id, item.id) && ponto.situacao !== 'A_FAZER') { <span class="geo-etiqueta geo-etiqueta--erro">Pendente</span> }</div>
-              <geo-fotos [rotulo]="item.titulo + (item.obrigatoria && !ponto.vao ? '' : ' (opcional)')" [fotos]="fotosDoItem(ponto.id, item.id)"
-                [carimbo]="carimbo(ponto, item.titulo)" [removivel]="false" [galeria]="false" (adicionada)="foto(ponto, item.id, $event)" />
+          <h3 class="geo-secao fotos-titulo">Fotos do ponto
+            @if (resumoFotos(); as r) { <span class="fotos-titulo__conta geo-num">{{ r }}</span> }</h3>
+          @if (proxima(); as v) {
+            <!-- Com outra ação principal na tela (APR, turno), o cartão fica suave: um botão forte por vez. -->
+            <label class="proxima" [class.proxima--refazer]="v.situacao === 'REFAZER'" [class.proxima--suave]="outraAcaoPrincipal()"
+              [class.processando]="preparando()" data-testid="proxima-foto">
+              <input type="file" accept="image/*" capture="environment" [disabled]="preparando()" (change)="tirarProxima(ponto, v, $event)">
+              <span class="proxima__icone"><geo-icone nome="camera" [tamanho]="26" /></span>
+              <span class="proxima__texto">
+                <span class="proxima__rotulo">{{ preparando() ? 'Preparando a foto…' : v.situacao === 'REFAZER' ? 'Refazer a foto' : 'Próxima foto' }}</span>
+                <strong>{{ v.item.titulo }}</strong>
+                <span class="proxima__apoio">{{ v.situacao === 'REFAZER' ? motivoLegivel(v.motivo)
+                  : fotoAtrasada(v, ponto.situacao) ? 'Ficou faltando · era ' + rotuloEtapaFoto(v.etapa).toLowerCase() : rotuloEtapaFoto(etapaDaFoto(v.item, ponto.situacao)) }}</span>
+              </span>
+            </label>
+          } @else if (vagas().length && !faltaAlguma()) {
+            <p class="fotos-ok"><geo-icone nome="check" [tamanho]="18" />Todas as fotos pedidas neste ponto estão tiradas.</p>
+          }
+          @for (v of vagas(); track v.item.id) {
+            <div class="foto-item" [class.foto-item--refazer]="v.situacao === 'REFAZER'">
+              <div class="foto-item__titulo">
+                <span class="foto-item__nome">{{ v.item.titulo }}
+                  <span class="foto-item__momento">{{ rotuloEtapaFoto(v.etapa) }}{{ v.obrigatoria ? '' : ' · opcional' }}</span></span>
+                @switch (v.situacao) {
+                  @case ('REFAZER') { <span class="geo-etiqueta geo-etiqueta--erro">Refazer</span> }
+                  @case ('FEITA') { <span class="geo-etiqueta geo-etiqueta--ok">{{ v.naFila ? 'Tirada · na fila' : 'Enviada' }}</span> }
+                  @case ('FALTA') { @if (!v.cedo && (ponto.situacao !== 'A_FAZER' || v.etapa === 'ANTES')) { <span class="geo-etiqueta geo-etiqueta--atencao">Falta</span> } }
+                }
+              </div>
+              @if (v.situacao === 'REFAZER' && proxima()?.item?.id !== v.item.id) { <p class="foto-item__motivo">Reprovada pelo escritório: {{ motivoLegivel(v.motivo) }}.</p> }
+              @if (v.noServidor && !fotosDoItem(ponto.id, v.item.id).length) {
+                <p class="foto-item__enviada"><geo-icone nome="check" [tamanho]="16" />{{ v.noServidor === 1 ? '1 foto já enviada' : v.noServidor + ' fotos já enviadas' }}. Tire outra só se precisar.</p>
+              }
+              <geo-fotos [rotulo]="v.item.titulo" [fotos]="fotosDoItem(ponto.id, v.item.id)" [rotuloCamera]="v.situacao === 'FEITA' ? 'Mais uma' : v.situacao === 'REFAZER' ? 'Outra foto' : 'Tirar foto'"
+                [carimbo]="carimboNaHora(ponto, v.item.titulo, v.item)" [removivel]="false" [galeria]="false"
+                (adicionada)="foto(ponto, v.item.id, $event, v.item)" (removida)="apagarFoto($event)" />
             </div>
           }
           <div class="foto-item">
-            <div class="foto-item__titulo"><span>Equipamento instalado (placa ou QR)</span></div>
-            <geo-fotos rotulo="Equipamento instalado (placa ou QR)" [fotos]="fotosDoItem(ponto.id, 'EQUIPAMENTO')" [carimbo]="carimbo(ponto, 'Equipamento ' + (serie() || ''))"
-              [removivel]="false" (adicionada)="foto(ponto, 'EQUIPAMENTO', $event)" />
+            <div class="foto-item__titulo"><span class="foto-item__nome">Equipamento instalado (placa ou QR)
+              <span class="foto-item__momento">Só quando houver equipamento</span></span></div>
+            <geo-fotos rotulo="Equipamento instalado (placa ou QR)" [fotos]="fotosDoItem(ponto.id, 'EQUIPAMENTO')" [carimbo]="carimboNaHora(ponto, 'Equipamento ' + (serie() || ''), null)"
+              [removivel]="false" (adicionada)="foto(ponto, 'EQUIPAMENTO', $event, null)" (removida)="apagarFoto($event)" />
             <div class="serie">
               <label class="geo-campo"><span>Série do equipamento</span>
                 <input class="geo-input geo-num" [value]="serie()" (input)="serie.set($any($event.target).value)" maxlength="80" placeholder="Leia o QR ou digite"></label>
@@ -231,9 +273,39 @@ type Etapa = 'ANTES' | 'DURANTE' | 'DEPOIS';
     .item__texto span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .acoes { display: flex; gap: var(--geo-e3); padding: var(--geo-e4) var(--geo-margem) 0; }
     .acoes .geo-btn { flex: 1; min-height: var(--geo-alvo-principal); }
-    .etapa { padding: 0 var(--geo-margem); }
+    .nota { width: calc(100% - 2 * var(--geo-margem)); min-height: var(--geo-alvo); border: 0; border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave);
+      padding: var(--geo-e2) var(--geo-e3); text-align: left; cursor: pointer; color: var(--geo-texto); touch-action: manipulation; }
+    .nota span:first-of-type { flex: 1; }
+    .nota__ir { font-weight: 600; color: var(--geo-destaque); }
+    .refazer { color: var(--geo-erro); font-weight: 600; }
+    .lembrete { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e4) var(--geo-margem) 0; padding: var(--geo-e3);
+      border-radius: var(--geo-r-grupo); background: var(--geo-destaque-suave); font: var(--geo-t-apoio); color: var(--geo-texto); }
+    .fotos-titulo { display: flex; align-items: baseline; justify-content: space-between; gap: var(--geo-e2); }
+    .fotos-titulo__conta { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .proxima { position: relative; display: flex; align-items: center; gap: var(--geo-e3); margin: 0 var(--geo-margem); padding: var(--geo-e3) var(--geo-e4);
+      min-height: calc(var(--geo-alvo) + var(--geo-e5)); border-radius: var(--geo-r-grupo); background: var(--geo-destaque); color: var(--geo-destaque-texto);
+      cursor: pointer; -webkit-user-select: none; user-select: none; touch-action: manipulation; transition: transform 100ms var(--geo-curva); }
+    .proxima:active { transform: scale(.98); }
+    .proxima:focus-within { outline: 2px solid var(--geo-destaque); outline-offset: 3px; }
+    .proxima--refazer { background: var(--geo-erro-forte); color: var(--geo-erro-forte-texto); }
+    .proxima--suave { background: var(--geo-destaque-suave); color: var(--geo-destaque); border: 1.5px solid var(--geo-destaque); }
+    .proxima--suave.proxima--refazer { background: var(--geo-erro-suave); color: var(--geo-erro); border-color: var(--geo-erro); }
+    .proxima--suave .proxima__icone { background: var(--geo-superficie); }
+    .proxima.processando { opacity: .7; cursor: progress; }
+    .proxima input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .proxima__icone { flex: none; display: grid; place-items: center; width: var(--geo-alvo); height: var(--geo-alvo); border-radius: 50%;
+      background: color-mix(in srgb, currentColor 18%, transparent); }
+    .proxima__texto { display: grid; gap: 2px; min-width: 0; }
+    .proxima__rotulo, .proxima__apoio { font: var(--geo-t-apoio); opacity: .92; }
+    .proxima__texto strong { font: var(--geo-t-corpo-forte); }
+    .fotos-ok { display: flex; align-items: center; gap: var(--geo-e2); margin: 0 var(--geo-margem); font: var(--geo-t-apoio); color: var(--geo-ok); }
     .foto-item { margin-top: var(--geo-e4); padding: 0 var(--geo-margem); }
+    .foto-item--refazer { margin-left: var(--geo-margem); padding-left: calc(var(--geo-e3) - 3px); border-left: 3px solid var(--geo-erro); }
     .foto-item__titulo { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); margin-bottom: var(--geo-e2); font: var(--geo-t-corpo-forte); }
+    .foto-item__nome { display: grid; gap: 2px; }
+    .foto-item__momento { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .foto-item__motivo { margin: 0 0 var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-erro); }
+    .foto-item__enviada { display: flex; align-items: center; gap: var(--geo-e2); margin: 0 0 var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .serie { display: flex; gap: var(--geo-e2); align-items: end; margin-top: var(--geo-e4); }
     .motivo { margin: var(--geo-e3) var(--geo-margem) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .parcial { margin-left: var(--geo-e2); }
@@ -252,9 +324,11 @@ export class ExecucaoComponent implements OnDestroy {
   private readonly gps = inject(LocalizacaoService);
 
   readonly vistas = [{ valor: 'pontos' as Vista, rotulo: 'Pontos' }, { valor: 'projeto' as Vista, rotulo: 'Projeto' }];
-  readonly etapas = [{ valor: 'ANTES' as Etapa, rotulo: 'Antes' }, { valor: 'DURANTE' as Etapa, rotulo: 'Durante' }, { valor: 'DEPOIS' as Etapa, rotulo: 'Depois' }];
   readonly vista = signal<Vista>('pontos');
-  readonly etapa = signal<Etapa>('DEPOIS');
+  readonly rotuloEtapaFoto = rotuloEtapaFoto;
+  readonly etapaDaFoto = etapaDaFoto;
+  readonly fotoAtrasada = fotoAtrasada;
+  readonly preparando = signal(false);
   readonly selecionado = signal<string | null>(null);
   readonly parcial = signal(false);
   readonly quantidades = signal<Record<string, number>>({});
@@ -282,8 +356,30 @@ export class ExecucaoComponent implements OnDestroy {
     const feitos = this.pontos().filter(p => p.situacao !== 'A_FAZER').map(p => ({ id: p.id, rotulo: p.rotulo }));
     // Só os pontos desta tela: a obra pode ter pendências de outra programação (que aparecem lá).
     const daqui = new Set(this.pontos().map(p => p.id));
-    return pendenciasDeFoto(obra, this.itensFoto(), feitos, this.ctx.registros.registros()).filter(x => daqui.has(x.idPonto));
+    return pendenciasDeFoto(obra, this.itensFoto(), feitos, this.ctx.registros.registros(), this.ctx.pacote.recebidoEm()).filter(x => daqui.has(x.idPonto));
   });
+  /** Fotos do modelo do ponto aberto, na ordem do trabalho. */
+  readonly vagas = computed<VagaFoto[]>(() => {
+    const ponto = this.pontoSelecionado();
+    if (!ponto) return [];
+    return vagasDeFoto(ponto, this.itensFoto(), this.obra(), this.ctx.registros.registros(), this.pendencias());
+  });
+  readonly proxima = computed(() => {
+    const ponto = this.pontoSelecionado();
+    return ponto ? proximaFoto(this.vagas(), ponto.situacao) : null;
+  });
+  readonly faltaAlguma = computed(() => this.vagas().some(v => v.situacao === 'FALTA' || v.situacao === 'REFAZER'));
+  /** "2 de 3 obrigatórias" no título da seção. */
+  readonly resumoFotos = computed(() => {
+    const obrigatorias = this.vagas().filter(v => v.obrigatoria);
+    if (!obrigatorias.length) return '';
+    return `${obrigatorias.filter(v => v.situacao === 'FEITA').length} de ${obrigatorias.length} ${obrigatorias.length === 1 ? 'obrigatória' : 'obrigatórias'}`;
+  });
+  /** Foto de "antes" que falta com o ponto ainda por fazer: o lembrete aparece junto do "Tudo feito". */
+  readonly antesQueFalta = computed(() => this.vagas().find(v => v.etapa === 'ANTES' && v.situacao === 'FALTA') ?? null);
+  /** Há outra ação forte na tela (APR a fazer ou turno fechado): o "Próxima foto" fica em versão suave. */
+  readonly outraAcaoPrincipal = computed(() => this.liberacao() !== 'LIBERADA' || !this.turno.turnoAtivo());
+  readonly refazerTotal = computed(() => this.pendencias().filter(p => p.motivoReprovacao).length);
   readonly marcadores = computed<MarcadorPonto[]>(() => {
     const doProjeto = new Map((this.obra()?.pontos ?? []).map(pt => [pt.id, pt]));
     const lista: MarcadorPonto[] = [];
@@ -315,11 +411,10 @@ export class ExecucaoComponent implements OnDestroy {
       untracked(() => void this.carregarMiniaturas(regs.map(r => ({ id: r.id, chave: r.arquivo!.chave }))));
     });
     effect(() => {
-      this.selecionado();
+      const selecionado = this.selecionado();
       untracked(() => {
-        // A foto esperada segue a situação: antes de começar, "Antes"; no meio, "Durante"; feito, "Depois".
-        const s = this.pontoSelecionado()?.situacao;
-        this.etapa.set(s === 'A_FAZER' ? 'ANTES' : s === 'PARCIAL' ? 'DURANTE' : 'DEPOIS');
+        // Ponto novo: posição nova para o carimbo (andando pela rede, a do ponto anterior pode estar a centenas de metros).
+        if (selecionado) void this.gps.agora(5000).then(p => (this.posicao = p ?? this.posicao));
         this.parcial.set(false);
         this.quantidades.set({});
         this.materiaisAjustados.clear();
@@ -327,6 +422,9 @@ export class ExecucaoComponent implements OnDestroy {
       });
     });
     void this.gps.agora(5000).then(p => (this.posicao = p));
+    // Vindo de uma pendência (Hoje, aviso de foto reprovada): abre direto no ponto.
+    const ponto = this.rota.snapshot.queryParamMap.get('ponto');
+    if (ponto) this.selecionado.set(ponto);
   }
 
   ngOnDestroy(): void {
@@ -343,6 +441,16 @@ export class ExecucaoComponent implements OnDestroy {
 
   pendenciasDoPonto(id: string): number {
     return this.pendencias().filter(p => p.idPonto === id).length;
+  }
+
+  refazerDoPonto(id: string): number {
+    return this.pendencias().filter(p => p.idPonto === id && p.motivoReprovacao).length;
+  }
+
+  /** O aviso de fotos pendentes leva ao primeiro ponto com foto reprovada ou faltando. */
+  irParaPendencia(): void {
+    const alvo = this.pendencias().find(p => p.motivoReprovacao) ?? this.pendencias()[0];
+    if (alvo) this.selecionado.set(alvo.idPonto);
   }
 
   /** Os serviços do ponto em texto ("Instalar poste · Instalar cruzeta (3 UN)"): o que a equipe vai fazer ali. */
@@ -382,10 +490,9 @@ export class ExecucaoComponent implements OnDestroy {
       tipo: 'APONTAMENTO', idObra: p.idObra, idProgramacao: p.id, idPonto: ponto.id, dependeDe: apr?.id ?? null,
       comando: { idProgramacao: p.id, idPonto: ponto.id, pontoInteiro: true, itens: null, idApr: apr?.id ?? null },
     });
-    // Com o ponto feito, as fotos que faltam são as de depois.
-    this.etapa.set('DEPOIS');
-    const faltam = ponto.vao ? 0 : this.itensFoto().filter(i => i.obrigatoria).length;
-    this.toast.desfazer(`${ponto.rotulo}: tudo feito${faltam ? ' · tire as fotos do modelo' : ''}`, () => void this.ctx.registros.desfazer(r.id));
+    // Com o ponto pronto, o botão "Próxima foto" passa para as fotos de depois.
+    const faltam = ponto.vao ? 0 : this.itensFoto().filter(i => i.obrigatoria && (i.etapa ?? 'DEPOIS') !== 'ANTES').length;
+    this.toast.desfazer(`${ponto.rotulo}: tudo feito${faltam ? ' · agora as fotos de depois' : ''}`, () => void this.ctx.registros.desfazer(r.id));
   }
 
   /** Materiais que a equipe já ajustou à mão no parcial (o preenchimento automático não mexe neles). */
@@ -422,30 +529,75 @@ export class ExecucaoComponent implements OnDestroy {
     this.parcial.set(false);
     this.quantidades.set({});
     this.materiaisAjustados.clear();
-    this.etapa.set('DURANTE');
     this.toast.desfazer('Parcial registrado', () => void this.ctx.registros.desfazer(r.id));
   }
 
-  carimbo(ponto: PontoDaExecucao, titulo: string): string[] {
-    const etapa = { ANTES: 'Antes', DURANTE: 'Durante', DEPOIS: 'Depois' }[this.etapa()];
-    return linhasDoCarimbo({
-      contexto: [`Obra ${this.programacao()?.numeroObra ?? ''} · ${ponto.rotulo}`, `${titulo} · ${etapa}`],
-      data: new Date(), latitude: this.posicao?.latitude, longitude: this.posicao?.longitude, precisao: this.posicao?.precisao,
+  /**
+   * O carimbo é montado na hora da foto (a função roda quando a câmera devolve a imagem): hora e posição daquele
+   * momento, não de quando a tela abriu. A etapa é a do modelo ou a da situação do ponto.
+   */
+  carimboNaHora(ponto: PontoDaExecucao, titulo: string, item: ItemFoto | null): () => string[] {
+    return () => {
+      const etapa = { ANTES: 'Antes', DURANTE: 'Durante', DEPOIS: 'Depois' }[etapaDaFoto(item, ponto.situacao)];
+      return linhasDoCarimbo({
+        contexto: [`Obra ${this.programacao()?.numeroObra ?? ''} · ${ponto.rotulo}`, `${titulo} · ${etapa}`],
+        data: new Date(), latitude: this.posicao?.latitude, longitude: this.posicao?.longitude, precisao: this.posicao?.precisao,
+      });
+    };
+  }
+
+  /** "Próxima foto": a câmera abre direto para o item que falta agora. */
+  async tirarProxima(ponto: PontoDaExecucao, vaga: VagaFoto, evento: Event): Promise<void> {
+    const entrada = evento.target as HTMLInputElement;
+    const arquivo = entrada.files?.[0];
+    entrada.value = '';
+    if (!arquivo) return;
+    this.preparando.set(true);
+    try {
+      const preparada = await prepararEvidencia(arquivo, { carimbo: this.carimboNaHora(ponto, vaga.item.titulo, vaga.item)() });
+      await this.foto(ponto, vaga.item.id, preparada, vaga.item);
+    } finally {
+      this.preparando.set(false);
+    }
+  }
+
+  /**
+   * Apaga a foto que ainda está na fila (tirada errada, borrada, do ponto errado). Desfazer devolve a mesma foto.
+   * Foto que já começou a ser enviada não sai do aparelho por aqui.
+   */
+  async apagarFoto(id: string): Promise<void> {
+    const r = this.ctx.registros.registros().find(x => x.id === id);
+    if (!r) return;
+    // Cópia em memória: o arquivo lido do aparelho é uma referência que deixa de valer quando ele é apagado.
+    const lido = r.arquivo ? await this.arquivos.ler(r.arquivo.chave) : null;
+    const blob = lido ? new Blob([await lido.arrayBuffer()], { type: r.arquivo!.tipo }) : null;
+    if (!(await this.ctx.registros.desfazer(id))) {
+      this.toast.warning('Esta foto já está sendo enviada; não dá mais para apagar.');
+      return;
+    }
+    const { campo: _campo, ...comando } = r.comando;
+    this.toast.desfazer('Foto apagada', () => {
+      if (!blob || !r.arquivo) return;
+      void this.ctx.registros.registrar({
+        tipo: 'EVIDENCIA', idObra: r.idObra ?? undefined, idProgramacao: r.idProgramacao ?? undefined, idPonto: r.idPonto ?? undefined,
+        posicao: this.posicao, comando, arquivo: { blob, nome: r.arquivo.nome, tipo: r.arquivo.tipo },
+      });
     });
+  }
+
+  /** "Fora de foco ou escura: carimbo ilegível" → "Fora de foco ou escura · carimbo ilegível". */
+  motivoLegivel(motivo: string | null | undefined): string {
+    return (motivo ?? '').replace(': ', ' · ');
   }
 
   /** Fotos tiradas no aparelho que ainda têm o arquivo (as enviadas saem do aparelho). */
   fotosDoItem(idPonto: string, idItem: string): FotoExibida[] {
     return this.registrosDaFoto(idPonto, idItem)
       .filter(r => !!this.miniaturas()[r.id])
-      .map(r => ({ id: r.id, url: this.miniaturas()[r.id], legenda: (r.comando as { etapa?: string }).etapa?.toLowerCase(),
-        estado: r.envio === 'ENVIADO' ? 'synced' : r.envio === 'CONFLITO' ? 'conflict' : r.envio === 'ENVIANDO' ? 'syncing' : 'queued' } as FotoExibida));
-  }
-
-  /** Já tem foto (no aparelho ou no servidor): a pendência some. */
-  temFoto(idPonto: string, idItem: string): boolean {
-    return this.registrosDaFoto(idPonto, idItem).length > 0
-      || (this.obra()?.fotos ?? []).some(f => (f.idVao ?? f.idPonto) === idPonto && f.idItem === idItem);
+      .map(r => ({ id: r.id, url: this.miniaturas()[r.id],
+        estado: r.envio === 'ENVIADO' ? 'synced' : r.envio === 'CONFLITO' ? 'conflict' : r.envio === 'ENVIANDO' ? 'syncing' : 'queued',
+        // Na fila do aparelho ainda dá para apagar (foto errada); enviada, não.
+        removivel: r.envio === 'NO_APARELHO' } as FotoExibida));
   }
 
   private registrosDaFoto(idPonto: string, idItem: string) {
@@ -454,7 +606,7 @@ export class ExecucaoComponent implements OnDestroy {
       && (equipamento ? !!(r.comando as { legenda?: string }).legenda?.startsWith('Equipamento') : (r.comando as { idItem?: string }).idItem === idItem));
   }
 
-  async foto(ponto: PontoDaExecucao, idItem: string, foto: EvidenciaPreparada): Promise<void> {
+  async foto(ponto: PontoDaExecucao, idItem: string, foto: EvidenciaPreparada, item: ItemFoto | null = null): Promise<void> {
     const p = this.programacao();
     if (!p) return;
     if (!this.turno.turnoAtivo()) {
@@ -469,11 +621,14 @@ export class ExecucaoComponent implements OnDestroy {
       comando: {
         idObra: p.idObra, idPonto: ponto.ponto ? ponto.id : null, idVao: ponto.vao ? ponto.id : null, idProgramacao: p.id,
         idApontamento: apontamento?.id ?? null, idModelo: equipamento ? null : modelo?.id ?? null, idItem: equipamento ? null : idItem,
-        etapa: this.etapa(), legenda: equipamento ? `Equipamento${this.serie() ? ' · série ' + this.serie() : ''}` : null,
+        etapa: etapaDaFoto(item, ponto.situacao) satisfies EtapaFoto, legenda: equipamento ? `Equipamento${this.serie() ? ' · série ' + this.serie() : ''}` : null,
       },
       arquivo: { blob: foto.arquivo, nome: foto.nomeArquivo, tipo: foto.contentType },
     });
-    this.toast.success('Foto guardada');
+    // Avisa qual é a próxima, para a equipe seguir sem procurar.
+    const proxima = this.proxima();
+    this.toast.success(proxima && proxima.item.id !== idItem ? `Foto guardada · próxima: ${proxima.item.titulo}` : 'Foto guardada');
+    void this.gps.agora(5000).then(p => (this.posicao = p ?? this.posicao));
   }
 
   serieLida(codigo: string): void {

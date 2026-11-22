@@ -60,7 +60,7 @@ export class ObrasContexto {
     if (!obra) return [];
     // O modelo de fotos é dos postes (fichas As Built por ponto): vão não tem foto obrigatória.
     const feitos = this.pontos(p).filter(x => x.situacao !== 'A_FAZER' && !x.vao).map(x => ({ id: x.id, rotulo: x.rotulo }));
-    return pendenciasDeFoto(obra, this.itensModelo(obra), feitos, this.registros.registros());
+    return pendenciasDeFoto(obra, this.itensModelo(obra), feitos, this.registros.registros(), this.pacote.recebidoEm());
   }
 
   liberacao(p: ProgramacaoCampo, temRascunho = false) {

@@ -48,7 +48,9 @@ public class ModeloChecklistObraUseCases {
         }
         exigirTituloLivre(modelo.getFinalidade(), request.titulo(), id);
         if (!modelo.getEstrutura().equals(request.estrutura())) {
-            if (emUso(id)) {
+            boolean soMomentoDasFotos = request.estrutura() != null
+                    && modelo.getEstrutura().semMomentoDasFotos().equals(request.estrutura().semMomentoDasFotos());
+            if (!soMomentoDasFotos && emUso(id)) {
                 throw new InvarianteVioladaException("Este modelo já foi usado: duplique-o para mudar as perguntas e as evidências.");
             }
             modelo.alterarEstrutura(request.estrutura());

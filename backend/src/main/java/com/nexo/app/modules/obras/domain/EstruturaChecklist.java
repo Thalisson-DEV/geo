@@ -53,7 +53,24 @@ public record EstruturaChecklist(List<Grupo> grupos, List<ItemEvidencia> evidenc
         }
     }
 
-    public record ItemEvidencia(String id, String titulo, boolean obrigatoria) {
+    /**
+     * Foto pedida em cada ponto. {@code etapa} é o momento em que ela é tirada (antes de começar, durante ou depois de
+     * pronto); sem ela, o app usa a situação do ponto na hora da foto.
+     */
+    public record ItemEvidencia(String id, String titulo, boolean obrigatoria, EvidenciaPonto.Etapa etapa) {
+
+        public ItemEvidencia(String id, String titulo, boolean obrigatoria) {
+            this(id, titulo, obrigatoria, null);
+        }
+    }
+
+    /**
+     * A mesma estrutura sem o momento das fotos: mudar só o momento não mexe em respostas nem em fotos já tiradas, então
+     * vale também para modelo em uso.
+     */
+    public EstruturaChecklist semMomentoDasFotos() {
+        return new EstruturaChecklist(grupos, evidencias.stream()
+                .map(i -> new ItemEvidencia(i.id(), i.titulo(), i.obrigatoria(), null)).toList());
     }
 
     void validar() {

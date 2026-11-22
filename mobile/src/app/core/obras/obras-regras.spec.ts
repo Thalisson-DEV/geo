@@ -1,6 +1,6 @@
 import {
   pontoNaFolhaGirada, contarLocais, idadeDaAgenda,
-  aprVazia, condicoesDaProgramacao, medidasDoRisco, nomeLocais, faltasDaApr, aprQueLibera, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
+  aprVazia, condicoesDaProgramacao, etapaDaFoto, proximaFoto, vagasDeFoto, medidasDoRisco, nomeLocais, faltasDaApr, aprQueLibera, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
   pontosDaExecucao, programacoesDoDia, proximoPasso, relatorioDoDia, sugestoesApr, verificacoesDaApr, EstadoDoDia,
 } from './obras-regras';
 import { ModeloApr, ObraCampo, ProgramacaoCampo, RegistroObraLocal } from './obras.models';
@@ -146,6 +146,49 @@ describe('regras de Obras no app', () => {
     expect(pend).toEqual([{ idPonto: 'pt-4', rotuloPonto: 'Ponto 4', idItem: 'depois', titulo: 'Poste instalado' }]);
     const foto = registro('EVIDENCIA', { idItem: 'depois' }, '2026-11-20T11:00:00-03:00', { idPonto: 'pt-4' });
     expect(pendenciasDeFoto(OBRA, itens, [{ id: 'pt-4', rotulo: 'Ponto 4' }], [foto])).toEqual([]);
+  });
+
+  it('foto reprovada pelo escritório volta como pendência com o motivo, mesmo com a foto antiga ainda no aparelho', () => {
+    const itens = [{ id: 'depois', titulo: 'Poste instalado', obrigatoria: true }];
+    const obra: ObraCampo = { ...OBRA, pendenciasFoto: [{ idPonto: 'pt-4', numeroPonto: '4', idItem: 'depois', titulo: 'Poste instalado', motivoReprovacao: 'Fora de foco ou escura' }] };
+    // Enviada às 11:05; o pacote das 14:00 ainda pede a foto: foi reprovada.
+    const antiga = registro('EVIDENCIA', { idItem: 'depois' }, '2026-11-20T11:00:00-03:00',
+      { idPonto: 'pt-4', envio: 'ENVIADO', enviadoEm: '2026-11-20T11:05:00-03:00' });
+    const pend = pendenciasDeFoto(obra, itens, [{ id: 'pt-4', rotulo: 'Ponto 4' }], [antiga], '2026-11-20T14:00:00-03:00');
+    expect(pend).toEqual([{ idPonto: 'pt-4', rotuloPonto: 'Ponto 4', idItem: 'depois', titulo: 'Poste instalado', motivoReprovacao: 'Fora de foco ou escura' }]);
+    // A foto nova, tirada depois, cobre a pendência (ainda na fila ou já enviada depois do pacote).
+    const nova = registro('EVIDENCIA', { idItem: 'depois' }, '2026-11-20T15:00:00-03:00', { idPonto: 'pt-4' });
+    expect(pendenciasDeFoto(obra, itens, [{ id: 'pt-4', rotulo: 'Ponto 4' }], [antiga, nova], '2026-11-20T14:00:00-03:00')).toEqual([]);
+  });
+
+  it('fotos do ponto na ordem do trabalho, com a próxima a tirar conforme o momento', () => {
+    const itens = [
+      { id: 'estrutura', titulo: 'Estrutura montada', obrigatoria: true, etapa: 'DEPOIS' as const },
+      { id: 'geral', titulo: 'Vista geral', obrigatoria: true, etapa: 'ANTES' as const },
+      { id: 'entorno', titulo: 'Entorno', obrigatoria: false },
+    ];
+    const aFazer = vagasDeFoto({ id: 'pt-4', situacao: 'A_FAZER' }, itens, OBRA, [], []);
+    expect(aFazer.map(v => v.item.id)).toEqual(['geral', 'estrutura', 'entorno']);
+    expect(aFazer.find(v => v.item.id === 'estrutura')!.cedo).toBe(true);
+    expect(proximaFoto(aFazer, 'A_FAZER')!.item.id).toBe('geral');
+
+    // Vista geral tirada; ponto pronto: a próxima é a de depois.
+    const geral = registro('EVIDENCIA', { idItem: 'geral' }, '2026-11-20T09:00:00-03:00', { idPonto: 'pt-4' });
+    const feito = vagasDeFoto({ id: 'pt-4', situacao: 'FEITO' }, itens, OBRA, [geral], []);
+    expect(feito[0].situacao).toBe('FEITA');
+    expect(proximaFoto(feito, 'FEITO')!.item.id).toBe('estrutura');
+    // Ponto pronto sem a de antes: ela ficou para trás, mas ainda é sugerida depois da do momento.
+    const semGeral = vagasDeFoto({ id: 'pt-4', situacao: 'FEITO' }, itens, OBRA,
+      [registro('EVIDENCIA', { idItem: 'estrutura' }, '2026-11-20T10:00:00-03:00', { idPonto: 'pt-4' })], []);
+    expect(proximaFoto(semGeral, 'FEITO')!.item.id).toBe('geral');
+
+    // Reprovada passa na frente, com o motivo.
+    const reprovada = vagasDeFoto({ id: 'pt-4', situacao: 'FEITO' }, itens, OBRA, [geral],
+      [{ idPonto: 'pt-4', rotuloPonto: 'Ponto 4', idItem: 'geral', titulo: 'Vista geral', motivoReprovacao: 'Ponto errado' }]);
+    expect(proximaFoto(reprovada, 'FEITO')).toMatchObject({ situacao: 'REFAZER', motivo: 'Ponto errado' });
+
+    expect(etapaDaFoto(itens[2], 'PARCIAL')).toBe('DURANTE');
+    expect(etapaDaFoto(itens[0], 'A_FAZER')).toBe('DEPOIS');
   });
 
   it('relatório montado lista obra, pontos e ocorrências', () => {

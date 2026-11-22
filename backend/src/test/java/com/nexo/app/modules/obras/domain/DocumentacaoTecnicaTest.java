@@ -153,4 +153,21 @@ class DocumentacaoTecnicaTest {
         assertThatThrownBy(() -> new EquipamentoObra(OBRA, PONTO, EquipamentoObra.Tipo.REGULADOR, true, null))
                 .isInstanceOf(InvarianteVioladaException.class);
     }
+
+    @Test
+    void momentoDaFotoNoModeloNaoContaComoMudancaDeEstrutura() throws Exception {
+        EstruturaChecklist sem = new EstruturaChecklist(List.of(), List.of(new EstruturaChecklist.ItemEvidencia("foto-geral", "Vista geral", true)));
+        EstruturaChecklist com = new EstruturaChecklist(List.of(),
+                List.of(new EstruturaChecklist.ItemEvidencia("foto-geral", "Vista geral", true, EvidenciaPonto.Etapa.ANTES)));
+
+        assertThat(com).isNotEqualTo(sem);
+        assertThat(com.semMomentoDasFotos()).isEqualTo(sem.semMomentoDasFotos());
+
+        // Modelo gravado antes do momento continua sendo lido (o JSON não tem o campo).
+        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        var lido = mapper.readValue("{\"id\":\"foto-geral\",\"titulo\":\"Vista geral\",\"obrigatoria\":true}", EstruturaChecklist.ItemEvidencia.class);
+        assertThat(lido.etapa()).isNull();
+        var comEtapa = mapper.readValue("{\"id\":\"a\",\"titulo\":\"A\",\"obrigatoria\":false,\"etapa\":\"DEPOIS\"}", EstruturaChecklist.ItemEvidencia.class);
+        assertThat(comEtapa.etapa()).isEqualTo(EvidenciaPonto.Etapa.DEPOIS);
+    }
 }

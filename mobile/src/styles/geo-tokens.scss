@@ -77,6 +77,9 @@
   --geo-atencao-suave: #FFFBEB;
   --geo-erro: #B91C1C;            // red-700
   --geo-erro-suave: #FEF2F2;
+  // Bloco sólido de erro (ação "Refazer"): vermelho fechado com texto branco nos dois temas.
+  --geo-erro-forte: #B91C1C;      // red-700
+  --geo-erro-forte-texto: #FFFFFF;
 
   // Tipo — Inter (a mesma do web), empacotada no app: funciona offline. Nada acima de 600, como no web.
   --geo-fonte: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -175,6 +178,8 @@
   --geo-atencao-suave: rgba(245, 158, 11, .14);
   --geo-erro: #F87171;            // red-400
   --geo-erro-suave: rgba(239, 68, 68, .16);
+  --geo-erro-forte: #B91C1C;      // red-700: no escuro, bloco fechado (o red-400 vira salmão chapado)
+  --geo-erro-forte-texto: #FFFFFF;
   --geo-inverso: #F4F4F5;
   --geo-inverso-texto: #18181B;
   --geo-inverso-ok: #15803D;
@@ -204,6 +209,7 @@
   --geo-ok: #14532D;
   --geo-atencao: #78350F;
   --geo-erro: #7F1D1D;
+  --geo-erro-forte: #7F1D1D;
 }
 
 // Sol forte no tema escuro: preto puro, texto branco, linhas claras e destaque que lê sobre preto.

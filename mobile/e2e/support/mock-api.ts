@@ -137,6 +137,8 @@ export class MockApi {
   recusarObras: Partial<Record<string, string>> = {};
   /** O pacote devolve a programação #12 como cancelada (removida da agenda). */
   programacaoCancelada = false;
+  /** O escritório reprovou a foto do ponto 5 (volta como pendência com o motivo). */
+  fotoReprovada = false;
   /** "Hoje" da agenda de Obras (as capturas usam relógio fixo). */
   hojeObras = new Date();
   readonly obras: boolean;
@@ -381,7 +383,9 @@ export class MockApi {
     }
     // ---------- Obras (app de campo) ----------
     if (path === '/v1/obras/campo/pacote') {
-      return this.json(route, 200, pacoteObras(url.searchParams.get('desde'), this.programacaoCancelada, this.hojeObras));
+      return this.json(route, 200, pacoteObras(url.searchParams.get('desde'), this.programacaoCancelada, this.hojeObras,
+        // Como o servidor: a foto nova do item reprovado tira a pendência.
+        this.fotoReprovada && !this.operacoesObras.some(o => o.tipo === 'OBRA_EVIDENCIA')));
     }
     if (path === '/v1/obras/campo/obras/avulsa') {
       const numero = url.searchParams.get('numero');
@@ -429,7 +433,7 @@ export function diaBr(somarDias = 0, base = new Date()): string {
 }
 
 /** Pacote offline da equipe EQ-101: a programação #12 hoje (obra 7000001, 2 pontos) e a #13 amanhã. */
-export function pacoteObras(desde: string | null, cancelada = false, base = new Date()) {
+export function pacoteObras(desde: string | null, cancelada = false, base = new Date(), fotoReprovada = false) {
   const hoje = diaBr(0, base);
   const amanha = diaBr(1, base);
   const p12 = {
@@ -452,7 +456,10 @@ export function pacoteObras(desde: string | null, cancelada = false, base = new 
     obras: [{
       id: 'o-1', numero: '7000001', titulo: 'Rede Vila Nova', endereco: 'Rua das Flores, 100 - Vila Nova', referencia: 'Ao lado da escola',
       latitude: -3.7319, longitude: -38.5267, municipio: 'Fortaleza', projeto: { idAnexo: 'an-1', nome: 'projeto.pdf', tamanhoBytes: 900, hash: 'h1' },
-      rotacoes: {}, idModeloFoto: 'mf-1', fotos: [], pendenciasFoto: [],
+      rotacoes: {}, idModeloFoto: 'mf-1', fotos: [],
+      pendenciasFoto: fotoReprovada
+        ? [{ idPonto: 'pt-5', numeroPonto: '5', idItem: 'depois', titulo: 'Poste instalado', motivoReprovacao: 'Fora de foco ou escura: carimbo ilegível' }]
+        : [],
       pontos: [
         { id: 'pt-4', numero: '4', pagina: 1, x: 0.3, y: 0.4, tipo: 'POSTE', tipoExecucao: null, temPoda: false, temAterramento: false },
         { id: 'pt-5', numero: '5', pagina: 1, x: 0.6, y: 0.5, tipo: 'POSTE', tipoExecucao: null, temPoda: false, temAterramento: false },
@@ -468,7 +475,7 @@ export function pacoteObras(desde: string | null, cancelada = false, base = new 
         DESLIGAMENTO: { riscos: ['Choque elétrico', 'Arco elétrico'], medidas: ['Desenergização', 'Bloqueio e aterramento'] },
       },
     },
-    modelosFoto: [{ id: 'mf-1', titulo: 'Book padrão', itens: [{ id: 'depois', titulo: 'Poste instalado', obrigatoria: true }] }],
+    modelosFoto: [{ id: 'mf-1', titulo: 'Book padrão', itens: [{ id: 'depois', titulo: 'Poste instalado', obrigatoria: true, etapa: 'DEPOIS' }] }],
     avisos: cancelada
       ? [{ id: 'ev-1', tipo: 'CANCELADA', idProgramacao: 'p-12', numeroProgramacao: 12, idObra: 'o-1', numeroObra: '7000001',
           texto: 'Programação #12 da obra 7000001 foi cancelada: desligamento negado.', em: new Date().toISOString() }]

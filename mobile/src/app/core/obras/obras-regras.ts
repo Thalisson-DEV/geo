@@ -1,5 +1,5 @@
 import {
-  AprRascunho, FormularioApr, ItemCampo, ModeloApr, ObraCampo, PontoCampo, ProgramacaoCampo, RegistroObraLocal, VaoCampo,
+  AprRascunho, EtapaFoto, FormularioApr, ItemCampo, ItemFoto, ModeloApr, ObraCampo, PontoCampo, ProgramacaoCampo, RegistroObraLocal, VaoCampo,
 } from './obras.models';
 
 /** Regras puras de Obras no app (sem Angular), testadas em `obras-regras.spec.ts`. */
@@ -98,29 +98,123 @@ export function progressoDaProgramacao(pontos: PontoDaExecucao[]): { feitos: num
 
 // ---------- Fotos: pendências do modelo ----------
 
-export interface PendenciaLocal { idPonto: string; rotuloPonto: string; idItem: string; titulo: string }
+export interface PendenciaLocal {
+  idPonto: string; rotuloPonto: string; idItem: string; titulo: string;
+  /** Presente quando o escritório reprovou a foto: o que estava errado, para a equipe refazer certo. */
+  motivoReprovacao?: string | null;
+}
 
 /**
  * Fotos obrigatórias que faltam nos pontos já executados: o que o servidor apontou, menos as fotos tiradas no aparelho
  * desde então, mais os pontos feitos no aparelho que ainda não têm a foto.
+ *
+ * Foto que já tinha sido enviada quando o pacote chegou ({@code recebidoEm}) não cobre a pendência do servidor: se ele
+ * ainda a pede, é porque o escritório reprovou aquela foto, e a equipe precisa ver isso (com o motivo) para refazer.
  */
 export function pendenciasDeFoto(obra: ObraCampo, itensModelo: { id: string; titulo: string; obrigatoria: boolean }[],
-                                 pontosFeitos: { id: string; rotulo: string }[], registros: RegistroObraLocal[]): PendenciaLocal[] {
-  const tiradas = new Set(registros.filter(r => r.tipo === 'EVIDENCIA' && r.idObra === obra.id)
-    .map(r => `${r.idPonto}|${(r.comando as { idItem?: string }).idItem}`));
+                                 pontosFeitos: { id: string; rotulo: string }[], registros: RegistroObraLocal[],
+                                 recebidoEm: string | null = null): PendenciaLocal[] {
+  const fotosDaObra = registros.filter(r => r.tipo === 'EVIDENCIA' && r.idObra === obra.id);
+  const chave = (r: RegistroObraLocal) => `${r.idPonto}|${(r.comando as { idItem?: string }).idItem}`;
+  const tiradas = new Set(fotosDaObra.map(chave));
   for (const f of obra.fotos) tiradas.add(`${f.idVao ?? f.idPonto}|${f.idItem}`);
+  // Para o que o servidor pede: só vale foto ainda não enviada ou enviada depois que o pacote chegou.
+  const recebido = recebidoEm ? Date.parse(recebidoEm) : NaN;
+  const depoisDoPacote = new Set(fotosDaObra
+    .filter(r => r.envio !== 'ENVIADO' || Number.isNaN(recebido) || !r.enviadoEm || Date.parse(r.enviadoEm) >= recebido)
+    .map(chave));
   const lista = new Map<string, PendenciaLocal>();
   for (const p of obra.pendenciasFoto) {
-    const chave = `${p.idPonto}|${p.idItem}`;
-    if (!tiradas.has(chave)) lista.set(chave, { idPonto: p.idPonto, rotuloPonto: `Ponto ${p.numeroPonto}`, idItem: p.idItem, titulo: p.titulo });
+    const k = `${p.idPonto}|${p.idItem}`;
+    if (!depoisDoPacote.has(k)) {
+      lista.set(k, { idPonto: p.idPonto, rotuloPonto: `Ponto ${p.numeroPonto}`, idItem: p.idItem, titulo: p.titulo,
+        ...(p.motivoReprovacao ? { motivoReprovacao: p.motivoReprovacao } : {}) });
+    }
   }
   for (const ponto of pontosFeitos) {
     for (const item of itensModelo.filter(i => i.obrigatoria)) {
-      const chave = `${ponto.id}|${item.id}`;
-      if (!tiradas.has(chave) && !lista.has(chave)) lista.set(chave, { idPonto: ponto.id, rotuloPonto: ponto.rotulo, idItem: item.id, titulo: item.titulo });
+      const k = `${ponto.id}|${item.id}`;
+      if (!tiradas.has(k) && !lista.has(k)) lista.set(k, { idPonto: ponto.id, rotuloPonto: ponto.rotulo, idItem: item.id, titulo: item.titulo });
     }
   }
   return [...lista.values()];
+}
+
+// ---------- Fotos do ponto: o que tirar, em que momento e o que já foi ----------
+
+const ORDEM_ETAPA: Record<EtapaFoto, number> = { ANTES: 0, DURANTE: 1, DEPOIS: 2 };
+const FASE_DO_PONTO: Record<SituacaoPonto, number> = { A_FAZER: 0, FORA: 0, PARCIAL: 1, FEITO: 2 };
+
+/** O momento da foto que a pessoa vai tirar agora: o do modelo ou, sem ele, o da situação do ponto. */
+export function etapaDaFoto(item: { etapa?: EtapaFoto | null } | null, situacao: SituacaoPonto): EtapaFoto {
+  if (item?.etapa) return item.etapa;
+  return situacao === 'FEITO' ? 'DEPOIS' : situacao === 'PARCIAL' ? 'DURANTE' : 'ANTES';
+}
+
+export type SituacaoVagaFoto = 'FEITA' | 'REFAZER' | 'FALTA' | 'OPCIONAL';
+
+export interface VagaFoto {
+  item: ItemFoto;
+  /** Momento do modelo (nulo = qualquer momento). */
+  etapa: EtapaFoto | null;
+  obrigatoria: boolean;
+  situacao: SituacaoVagaFoto;
+  /** Por que o escritório reprovou a foto anterior. */
+  motivo?: string | null;
+  /** Fotos deste item no aparelho (ainda não enviadas ou enviadas há pouco) e as que o servidor já tem. */
+  noAparelho: number;
+  noServidor: number;
+  /** Fotos deste item ainda esperando envio. */
+  naFila: number;
+  /** O momento desta foto ainda não chegou (foto de depois com o ponto por fazer). */
+  cedo: boolean;
+}
+
+/**
+ * As fotos do modelo para um ponto, na ordem do trabalho (antes, durante, depois, qualquer momento), com o que já foi
+ * tirado e o que falta. Vão não tem foto obrigatória. Reprovada vem como "refazer", com o motivo.
+ */
+export function vagasDeFoto(ponto: { id: string; situacao: SituacaoPonto; vao?: unknown }, itens: ItemFoto[], obra: ObraCampo | undefined,
+                            registros: RegistroObraLocal[], pendencias: PendenciaLocal[]): VagaFoto[] {
+  const fase = FASE_DO_PONTO[ponto.situacao];
+  return itens.map((item, ordem) => {
+    const doItem = registros.filter(r => r.tipo === 'EVIDENCIA' && r.idPonto === ponto.id && (r.comando as { idItem?: string }).idItem === item.id);
+    const noAparelho = doItem.length;
+    const naFila = doItem.filter(r => r.envio !== 'ENVIADO').length;
+    const noServidor = (obra?.fotos ?? []).filter(f => (f.idVao ?? f.idPonto) === ponto.id && f.idItem === item.id).length;
+    const pendencia = pendencias.find(p => p.idPonto === ponto.id && p.idItem === item.id);
+    const obrigatoria = item.obrigatoria && !ponto.vao;
+    const etapa = item.etapa ?? null;
+    const situacao: SituacaoVagaFoto = pendencia?.motivoReprovacao ? 'REFAZER'
+      : noAparelho + noServidor > 0 ? 'FEITA' : obrigatoria ? 'FALTA' : 'OPCIONAL';
+    return { item, etapa, obrigatoria, situacao, motivo: pendencia?.motivoReprovacao ?? null, noAparelho, noServidor, naFila,
+      cedo: etapa != null && ORDEM_ETAPA[etapa] > fase, ordem };
+  }).sort((a, b) => (a.etapa ? ORDEM_ETAPA[a.etapa] : 3) - (b.etapa ? ORDEM_ETAPA[b.etapa] : 3) || a.ordem - b.ordem)
+    .map(({ ordem: _ordem, ...vaga }) => vaga);
+}
+
+/**
+ * A foto que a equipe deve tirar agora: primeiro a reprovada; depois a obrigatória que falta no momento atual (a de
+ * "antes" enquanto o ponto está por fazer, a de "depois" quando ficou pronto); por fim a que ficou para trás (momento já
+ * passou), para não sumir da vista: melhor tirar agora do que ficar sem. A do momento que ainda não chegou espera.
+ */
+export function proximaFoto(vagas: VagaFoto[], situacao: SituacaoPonto): VagaFoto | null {
+  const refazer = vagas.find(v => v.situacao === 'REFAZER');
+  if (refazer) return refazer;
+  const fase = FASE_DO_PONTO[situacao];
+  return vagas.find(v => v.situacao === 'FALTA' && (v.etapa == null ? fase > 0 : ORDEM_ETAPA[v.etapa] === fase))
+    ?? vagas.find(v => v.situacao === 'FALTA' && v.etapa != null && ORDEM_ETAPA[v.etapa] < fase)
+    ?? null;
+}
+
+/** A foto do momento que já passou (ex.: a de "durante" com o ponto pronto). */
+export function fotoAtrasada(vaga: VagaFoto, situacao: SituacaoPonto): boolean {
+  return vaga.etapa != null && ORDEM_ETAPA[vaga.etapa] < FASE_DO_PONTO[situacao];
+}
+
+/** Rótulo do momento para a equipe. */
+export function rotuloEtapaFoto(etapa: EtapaFoto | null): string {
+  return etapa === 'ANTES' ? 'Antes de começar' : etapa === 'DURANTE' ? 'Durante o serviço' : etapa === 'DEPOIS' ? 'Depois de pronto' : 'Qualquer momento';
 }
 
 /** Nome do que se conta na execução: "pontos e vãos" quando há vão, senão "ponto(s)". */
