@@ -108,6 +108,12 @@ public class NosGatilhos implements ProvedorNos {
         ROTULOS.put("requisitante", "Requisitante");
         ROTULOS.put("mencionado", "Pessoa marcada");
         ROTULOS.put("equipeAtendimento", "Equipe de atendimento");
+        // Avisos do campo de Obras (ocorrência e equipe sem condição de executar).
+        ROTULOS.put("numeroObra", "Número da obra");
+        ROTULOS.put("tituloObra", "Título da obra");
+        ROTULOS.put("impedeExecucao", "Impede a execução");
+        ROTULOS.put("idTurno", "Turno (identificador)");
+        ROTULOS.put("idObra", "Obra (identificador)");
     }
 
     static final List<EspecSaida> SAIDAS_DATA = List.of(

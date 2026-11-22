@@ -341,23 +341,35 @@ public class Catalogo {
         Collection<EspecNo> nos();
     }
 
-    private final Map<String, EspecNo> nos = new LinkedHashMap<>();
+    /** Montado na primeira consulta; null até lá. */
+    private volatile Map<String, EspecNo> nos;
     private final List<ProvedorNos> provedores;
 
     public Catalogo(List<ProvedorNos> provedores) {
         this.provedores = provedores;
     }
 
-    private synchronized Map<String, EspecNo> registro() {
-        if (nos.isEmpty()) {
-            for (ProvedorNos provedor : provedores) {
-                for (EspecNo no : provedor.nos()) {
-                    if (nos.containsKey(no.tipo())) throw new IllegalStateException("Nó duplicado no catálogo: " + no.tipo());
-                    nos.put(no.tipo(), no);
+    /**
+     * Monta tudo ou nada: o registro só é publicado completo. Se um provedor falhar no meio, nada
+     * fica guardado e a próxima consulta tenta de novo; antes, um catálogo pela metade ficava
+     * valendo até reiniciar o servidor (o detalhe e o verificador respondiam 500).
+     */
+    private Map<String, EspecNo> registro() {
+        Map<String, EspecNo> pronto = nos;
+        if (pronto != null) return pronto;
+        synchronized (this) {
+            if (nos == null) {
+                Map<String, EspecNo> novo = new LinkedHashMap<>();
+                for (ProvedorNos provedor : provedores) {
+                    for (EspecNo no : provedor.nos()) {
+                        if (novo.containsKey(no.tipo())) throw new IllegalStateException("Nó duplicado no catálogo: " + no.tipo());
+                        novo.put(no.tipo(), no);
+                    }
                 }
+                nos = java.util.Collections.unmodifiableMap(novo);
             }
+            return nos;
         }
-        return nos;
     }
 
     public EspecNo buscar(String tipo) {
