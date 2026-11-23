@@ -558,8 +558,21 @@ export class ObraPlanejamentoComponent {
   protected carregar(): void {
     this.erro.set(null);
     this.api.buscar(this.idObra).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (plano) => this.plano.set(plano),
+      next: (plano) => {
+        this.plano.set(plano);
+        this.atualizarMateriais();
+      },
       error: (e) => this.erro.set(getErrorMessage(e))
+    });
+  }
+
+  /** Material planejado pelos kits, com o valor unitário do kit; aparece no topo ao lado do total de serviços. */
+  protected readonly materiaisPlanejados = signal(0);
+
+  private atualizarMateriais(): void {
+    this.obras.buscarOrcamento(this.idObra).pipe(take(1)).subscribe({
+      next: (orcamento) => this.materiaisPlanejados.set(orcamento?.totais.planejadoMateriais ?? 0),
+      error: () => this.materiaisPlanejados.set(0)
     });
   }
 
@@ -591,6 +604,7 @@ export class ObraPlanejamentoComponent {
       next: (plano) => {
         this.salvando.set(false);
         this.plano.set(plano);
+        this.atualizarMateriais();
         depois?.(plano);
       },
       error: (e) => this.tratarErro(e)

@@ -39,6 +39,7 @@ public class ObraController implements ObraControllerDoc {
     private final ImportarObrasUseCase importarObrasUseCase;
     private final ExportarObrasUseCase exportarObrasUseCase;
     private final RelacionamentoProjetoUseCases relacionamentoProjetoUseCases;
+    private final com.nexo.app.modules.obras.application.usecases.OrcamentoObraUseCases orcamentos;
 
     @Override
     @PostMapping
@@ -76,7 +77,7 @@ public class ObraController implements ObraControllerDoc {
     @PreAuthorize("hasAuthority('obras:obra:read')")
     public ResponseEntity<PageResponse<ObraResumoResponse>> listar(@ParameterObject ObraFilter filter,
                                                                    @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(useCases.listar(filter, pageable));
+        return ResponseEntity.ok(useCases.listar(orcamentos.resolverFiltro(filter), pageable));
     }
 
     @Override
@@ -205,13 +206,14 @@ public class ObraController implements ObraControllerDoc {
     @GetMapping("/exportar/resumo")
     @PreAuthorize("hasAuthority('obras:obra:export')")
     public ResponseEntity<StreamingResponseBody> exportarResumo(@ParameterObject ObraFilter filter) {
+        ObraFilter filtro = orcamentos.resolverFiltro(filter);
         StreamingResponseBody responseBody = outputStream -> {
             try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
                 // UTF-8 BOM para Excel
                 outputStream.write(0xEF);
                 outputStream.write(0xBB);
                 outputStream.write(0xBF);
-                exportarObrasUseCase.exportarResumo(filter, writer);
+                exportarObrasUseCase.exportarResumo(filtro, writer);
             }
         };
 
@@ -225,13 +227,14 @@ public class ObraController implements ObraControllerDoc {
     @GetMapping("/exportar/detalhado")
     @PreAuthorize("hasAuthority('obras:obra:export')")
     public ResponseEntity<StreamingResponseBody> exportarDetalhado(@ParameterObject ObraFilter filter) {
+        ObraFilter filtro = orcamentos.resolverFiltro(filter);
         StreamingResponseBody responseBody = outputStream -> {
             try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
                 // UTF-8 BOM para Excel
                 outputStream.write(0xEF);
                 outputStream.write(0xBB);
                 outputStream.write(0xBF);
-                exportarObrasUseCase.exportarDetalhado(filter, writer);
+                exportarObrasUseCase.exportarDetalhado(filtro, writer);
             }
         };
 

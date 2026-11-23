@@ -95,6 +95,9 @@ public class ObraSpecification {
                 if (filter.equipeId() != null) {
                     predicates.add(cb.isMember(filter.equipeId(), root.get("equipes")));
                 }
+                if (filter.ids() != null) {
+                    predicates.add(filter.ids().isEmpty() ? cb.disjunction() : root.get("id").in(filter.ids()));
+                }
                 if (filter.comOrcamento() != null && query != null) {
                     Subquery<UUID> orcamento = query.subquery(UUID.class);
                     Root<RevisaoOrcamentoObra> revisao = orcamento.from(RevisaoOrcamentoObra.class);

@@ -32,7 +32,10 @@
               <span>Medido</span><strong>{{ moeda(m.valorMedido) }}</strong>
             </a>
           }
-          <div class="plan-indicadores__total"><span>Total</span><strong>{{ moeda(p.indicadores.valorTotal) }}</strong></div>
+          <div class="plan-indicadores__total" title="Serviços planejados, pelo valor do contrato."><span>Serviços</span><strong>{{ moeda(p.indicadores.valorTotal) }}</strong></div>
+          @if (materiaisPlanejados() > 0) {
+            <div class="plan-indicadores__total" title="Material planejado pelos kits, pelo valor unitário cadastrado no kit."><span>Materiais</span><strong>{{ moeda(materiaisPlanejados()) }}</strong></div>
+          }
         </div>
       }
       <div class="plan-topo__acoes">

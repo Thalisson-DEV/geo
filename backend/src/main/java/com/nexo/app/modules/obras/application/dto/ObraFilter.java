@@ -41,6 +41,15 @@ public record ObraFilter(
         BigDecimal valorProjetoMax,
         /** true: só obras com orçamento; false: só obras sem orçamento. */
         Boolean comOrcamento,
+        /** true: só obras com algum item acima do orçado (planejado, executado ou medido). */
+        Boolean acimaDoOrcado,
+        /** Restrição por identificadores, resolvida no servidor (ex.: obras acima do orçado). */
+        List<UUID> ids,
         Boolean ativo
 ) {
+
+    /** Cópia do filtro restrita às obras informadas. */
+    public ObraFilter restritoA(List<UUID> restricao) {
+        return new ObraFilter(buscaGlobal, numero, titulo, notaObra, tipoObra, tipoObraId, statusId, statusIds, processoId, processoIds, baseOperacionalId, baseOperacionalIds, municipioId, municipioIds, centroCustoId, supervisorId, supervisorIds, coordenadorId, coordenadorIds, agenteResponsavelId, equipeId, projetoRelacionadoId, apenasPrincipais, obraPaiId, dataInicioDe, dataInicioAte, dataPrevisaoFimDe, dataPrevisaoFimAte, valorProjetoMin, valorProjetoMax, comOrcamento, acimaDoOrcado, restricao, ativo);
+    }
 }

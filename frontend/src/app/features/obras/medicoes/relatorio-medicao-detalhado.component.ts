@@ -243,7 +243,7 @@ export class RelatorioMedicaoDetalhadoComponent {
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (o) => o.numero, display: (o) => `${o.numero} ${o.titulo}` },
     { key: 'municipio', header: 'Município', value: (o) => o.municipio },
     { key: 'orcadoMaoDeObra', header: 'Orçado mão de obra', type: 'currency', priority: 1, value: (o) => orcadoUsado(o) },
-    { key: 'orcadoMateriais', header: 'Orçado materiais', type: 'currency', value: (o) => o.orcadoMateriais },
+    { key: 'orcadoMateriais', header: 'Orçado materiais', type: 'currency', value: (o) => (o.revisaoOrcamento ? (o.orcamentoGravadoMateriais || null) : o.orcadoMateriais) },
     { key: 'orcamento', header: 'Orçamento usado', type: 'custom', value: (o) => (o.revisaoOrcamento ? 'Revisão da obra' : 'Planilha') },
     { key: 'faturado', header: 'Faturado', type: 'currency', priority: 1, value: (o) => o.faturado },
     { key: 'ultimoFaturamento', header: 'Último faturamento', type: 'custom', value: (o) => o.ultimoFaturamento, display: (o) => o.ultimoFaturamento ?? '' },

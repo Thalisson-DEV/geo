@@ -17,6 +17,9 @@ public interface RevisaoOrcamentoObraRepository extends JpaRepository<RevisaoOrc
     List<RevisaoOrcamentoObra> findByIdObraAndAtivoTrueOrderByNumeroDesc(UUID idObra);
 
     /** Obras do recorte que já têm orçamento. */
+    @Query("select distinct r.idObra from RevisaoOrcamentoObra r where r.ativo = true")
+    List<UUID> obrasComOrcamento();
+
     @Query("select distinct r.idObra from RevisaoOrcamentoObra r where r.ativo = true and r.idObra in :ids")
     List<UUID> obrasComOrcamento(@Param("ids") Collection<UUID> ids);
 }

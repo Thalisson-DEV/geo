@@ -331,6 +331,7 @@ export interface ObraFilter {
   valorProjetoMax?: number;
   /** true: só obras com orçamento; false: só sem. */
   comOrcamento?: boolean;
+  acimaDoOrcado?: boolean;
   ativo?: boolean;
   page?: number;
   size?: number;

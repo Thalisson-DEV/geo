@@ -116,6 +116,7 @@ public class RelatorioMedicaoDetalhadoUseCases {
             List<PlanilhaOrcadoFaturado.LinhaOrcada> mo = maoDeObra.getOrDefault(numero, List.of());
             List<PlanilhaOrcadoFaturado.LinhaOrcada> mat = materiais.getOrDefault(numero, List.of());
             List<PlanilhaOrcadoFaturado.LinhaFaturada> fat = faturado.getOrDefault(numero, List.of());
+            java.util.Optional<RevisaoOrcamentoObra> revisao = revisaoRepository.findFirstByIdObraAndAtivoTrueOrderByNumeroDesc(obra.getId());
             reconhecidas.add(new MedicaoResponses.ObraNaPlanilha(obra.getId(), obra.getNumero(), obra.getTitulo(),
                     municipios.get(obra.getIdMunicipio()), mo.size(), mat.size(), fat.size(),
                     somar(mo, PlanilhaOrcadoFaturado.LinhaOrcada::valorVigente), somar(mat, PlanilhaOrcadoFaturado.LinhaOrcada::valorVigente),
@@ -123,8 +124,9 @@ public class RelatorioMedicaoDetalhadoUseCases {
                     fat.stream().map(PlanilhaOrcadoFaturado.LinhaFaturada::data).max(Comparator.naturalOrder()).orElse(null),
                     (int) fat.stream().filter(PlanilhaOrcadoFaturado.LinhaFaturada::paraConferir).count(),
                     erros.getOrDefault(numero, List.of()),
-                    revisaoRepository.findFirstByIdObraAndAtivoTrueOrderByNumeroDesc(obra.getId()).map(RevisaoOrcamentoObra::getNumero).orElse(null),
-                    revisaoRepository.findFirstByIdObraAndAtivoTrueOrderByNumeroDesc(obra.getId()).map(RevisaoOrcamentoObra::getValorServicos).orElse(null)));
+                    revisao.map(RevisaoOrcamentoObra::getNumero).orElse(null),
+                    revisao.map(RevisaoOrcamentoObra::getValorServicos).orElse(null),
+                    revisao.map(RevisaoOrcamentoObra::getValorMateriais).orElse(null)));
         }
         reconhecidas.sort(Comparator.comparing(MedicaoResponses.ObraNaPlanilha::numero));
         return new MedicaoResponses.AnaliseOrcadoFaturado(reconhecidas, naoIdentificadas, errosSemObra,

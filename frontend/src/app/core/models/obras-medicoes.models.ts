@@ -248,6 +248,7 @@ export interface ObraNaPlanilha {
   /** Revisão do orçamento gravado na obra; com ela, o relatório usa o orçamento da obra e não o da planilha. */
   revisaoOrcamento?: number | null;
   orcamentoGravadoMaoDeObra?: number | null;
+  orcamentoGravadoMateriais?: number | null;
 }
 
 export interface AnaliseOrcadoFaturado {

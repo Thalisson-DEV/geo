@@ -10,11 +10,12 @@ import {
   GeoTextareaComponent,
   NotificationService
 } from '@geo/ui';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
-import { EstoqueResponse } from '../../../core/models/almoxarifado.models';
+import { EstoqueResponse, MaterialResponse } from '../../../core/models/almoxarifado.models';
 import { CriarFechamentoRequest, TipoFechamento } from '../../../core/models/fechamento-obra.models';
 import { ObraResumoResponse } from '../../../core/models/obras.models';
 import { SupervisorMinResponse } from '../../../core/models/rh.models';
@@ -114,6 +115,13 @@ const ehFisico = (e: EstoqueResponse) => e.ativo && e.tipoEstoque?.nome?.trim().
               </button>
             }
           </div>
+          @if (idObra()) {
+            <div class="ns-sugestao">
+              <geo-button variant="outline" size="sm" icon="pi pi-calculator" label="Sugerir adição pelo orçamento"
+                [loading]="sugerindo()" (pressed)="sugerirPeloOrcamento()" />
+              <span class="ns-secao__dica">Preenche a 221/921 com o material acima do orçado ou fora dele.</span>
+            </div>
+          }
           @if (tentou() && !blocos().length) {
             <p class="ns-info ns-info--aviso" role="alert"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i><span>Escolha ao menos um tipo.</span></p>
           }
@@ -289,6 +297,64 @@ export class FechamentoCriarDrawerComponent {
   protected alterarBloco(indice: number, mudanca: Partial<Bloco>): void {
     this.envioPendente.set(null);
     this.blocos.update((bs) => bs.map((b, i) => (i === indice ? { ...b, ...mudanca } : b)));
+  }
+
+  protected readonly sugerindo = signal(false);
+
+  /**
+   * Adição pelo orçamento: o material que a obra planejou, executou ou mediu além do orçado (ou fora do orçamento)
+   * vira uma linha da 221 (ou da 921, se for de concreto), com o excedente. Linhas já lançadas para o mesmo material
+   * são mantidas.
+   */
+  protected sugerirPeloOrcamento(): void {
+    const idObra = this.idObra();
+    if (!idObra || this.sugerindo()) return;
+    this.sugerindo.set(true);
+    this.obrasService.buscarOrcamento(idObra).pipe(
+      switchMap((orcamento) => {
+        const itens = (orcamento?.itens ?? []).filter(
+          (i) => i.tipo === 'MATERIAL' && i.operacao === 'INSTALAR' && !!i.idMaterial && (i.excedente ?? 0) > 0
+        );
+        if (!itens.length) return of({ possui: (orcamento?.itens ?? []).some((i) => i.tipo === 'MATERIAL' && i.orcadoQuantidade != null), linhas: [] as { material: MaterialResponse; quantidade: number }[] });
+        return forkJoin(itens.map((i) => this.almoxarifado.buscarMaterialPorId(i.idMaterial!).pipe(
+          map((material) => ({ material, quantidade: i.excedente! })),
+          catchError(() => of(null))
+        ))).pipe(map((linhas) => ({ possui: true, linhas: linhas.filter((l): l is { material: MaterialResponse; quantidade: number } => !!l && l.material.ativo) })));
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: ({ possui, linhas }) => {
+        this.sugerindo.set(false);
+        if (!linhas.length) {
+          this.notificacoes.info(!possui
+            ? 'O orçamento desta obra não tem materiais: não há com o que comparar.'
+            : 'Nenhum material passou do orçado nem ficou fora do orçamento.');
+          return;
+        }
+        let chave = Date.now();
+        const porTipo = new Map<TipoFechamento, LinhaMaterial[]>();
+        for (const l of linhas) {
+          const tipo: TipoFechamento = l.material.classificacaoTecnica === 'CONCRETO' ? '921' : '221';
+          porTipo.set(tipo, [...(porTipo.get(tipo) ?? []), { chave: chave++, material: l.material, quantidade: l.quantidade }]);
+        }
+        let incluidas = 0;
+        porTipo.forEach((novas, tipo) => {
+          if (!this.tem(tipo)) this.alternarTipo(tipo);
+          const indice = this.blocos().findIndex((b) => b.tipo === tipo);
+          const atuais = this.blocos()[indice].linhas;
+          const faltam = novas.filter((n) => !atuais.some((a) => a.material.id === n.material.id));
+          incluidas += faltam.length;
+          this.alterarBloco(indice, { linhas: [...atuais, ...faltam] });
+        });
+        this.notificacoes.success(incluidas
+          ? `${incluidas} ${incluidas === 1 ? 'material sugerido' : 'materiais sugeridos'} pelo orçamento. Confira as quantidades antes de criar.`
+          : 'Os materiais orçados já estão nas solicitações.');
+      },
+      error: (e) => {
+        this.sugerindo.set(false);
+        this.notificacoes.error(getErrorMessage(e), { title: 'Não foi possível ler o orçamento' });
+      }
+    });
   }
 
   protected reservaInvalida(valor: string): boolean {

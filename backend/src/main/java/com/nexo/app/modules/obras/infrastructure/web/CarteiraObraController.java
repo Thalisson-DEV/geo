@@ -25,6 +25,7 @@ import java.util.UUID;
 public class CarteiraObraController implements CarteiraObraControllerDoc {
 
     private final CarteiraObraUseCases useCases;
+    private final com.nexo.app.modules.obras.application.usecases.OrcamentoObraUseCases orcamentos;
 
     @Override
     @GetMapping("/{id}/carteira")
@@ -75,6 +76,6 @@ public class CarteiraObraController implements CarteiraObraControllerDoc {
     @GetMapping("/indicadores")
     @PreAuthorize("hasAuthority('obras:obra:read')")
     public ResponseEntity<IndicadoresCarteiraResponse> indicadores(@ParameterObject ObraFilter filter) {
-        return ResponseEntity.ok(useCases.calcularIndicadores(filter));
+        return ResponseEntity.ok(useCases.calcularIndicadores(orcamentos.resolverFiltro(filter)));
     }
 }

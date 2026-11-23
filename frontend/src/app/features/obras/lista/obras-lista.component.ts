@@ -85,10 +85,12 @@ const PRINCIPAIS: GeoSelectOption<boolean | null>[] = [
   { label: 'Obras e subprojetos', value: null },
   { label: 'Só obras principais', value: true }
 ];
-const ORCAMENTO: GeoSelectOption<boolean | null>[] = [
+type FiltroOrcamento = 'com' | 'sem' | 'acima';
+const ORCAMENTO: GeoSelectOption<FiltroOrcamento | null>[] = [
   { label: 'Com e sem orçamento', value: null },
-  { label: 'Só com orçamento', value: true },
-  { label: 'Só sem orçamento', value: false }
+  { label: 'Só com orçamento', value: 'com' },
+  { label: 'Só sem orçamento', value: 'sem' },
+  { label: 'Acima do orçado', value: 'acima' }
 ];
 const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
   { label: 'Listagem resumida', value: 'resumo' },
@@ -220,6 +222,17 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
           <span class="geo-kpi__icon"><i class="pi pi-wrench" aria-hidden="true"></i></span>
           <span class="geo-kpi__body"><span class="geo-kpi__label">Serviço previsto</span><span class="geo-kpi__value">{{ indicador('valorServicoPrevisto') }}</span></span>
         </div>
+        @if (acimaDoOrcado() > 0) {
+          <button type="button" class="geo-kpi" data-tone="warning" (click)="verAcimaDoOrcado()"
+            [attr.aria-pressed]="lista.filters.orcamento() === 'acima'"
+            [attr.aria-label]="acimaDoOrcado() + (acimaDoOrcado() === 1 ? ' obra' : ' obras') + ' acima do orçado. ' + (lista.filters.orcamento() === 'acima' ? 'Filtro aplicado; clique para tirar.' : 'Clique para ver quais são.')">
+            <span class="geo-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+            <span class="geo-kpi__body"><span class="geo-kpi__label">Acima do orçado</span>
+              <span class="geo-kpi__value">{{ acimaDoOrcado() }} {{ acimaDoOrcado() === 1 ? 'obra' : 'obras' }}</span>
+              <span class="geo-kpi__detail">{{ lista.filters.orcamento() === 'acima' ? 'Filtro aplicado · clique para tirar' : 'Planejado ou executado além do orçado' }}</span></span>
+            <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
+          </button>
+        }
       </section>
 
       <geo-data-table
@@ -494,7 +507,7 @@ export class ObrasListComponent {
       coordenador: geoFilter.list<string>([], { label: 'Coordenador', itemLabel: (id) => this.nome('coordenadores', id) }),
       agente: geoFilter.value<string | null>(null, { label: 'Agente', format: (id): string | null => (id ? this.nome('agentes', id) : null) }),
       apenasPrincipais: geoFilter.value<boolean | null>(null, { label: 'Hierarquia', param: 'principais', options: () => PRINCIPAIS }),
-      orcamento: geoFilter.value<boolean | null>(null, { label: 'Orçamento', param: 'orcamento', options: () => ORCAMENTO }),
+      orcamento: geoFilter.value<FiltroOrcamento | null>(null, { label: 'Orçamento', param: 'orcamento', options: () => ORCAMENTO }),
       inicio: geoFilter.range({ from: null, to: null }, { label: 'Início' }),
       previsaoFim: geoFilter.range({ from: null, to: null }, { label: 'Previsão de fim' }),
       valorMin: geoFilter.value<number | null>(null, { label: 'Valor mínimo', type: 'number' }),
@@ -598,6 +611,26 @@ export class ObrasListComponent {
     ),
     { initialValue: null }
   );
+
+  // Obras do recorte com algum item acima do orçado (planejado, executado ou medido além do orçado). Só avisa.
+  protected readonly acimaDoOrcado = toSignal(
+    toObservable(computed(() => ({ recorte: JSON.stringify(this.filtro()), linhas: this.resultado.rows() }))).pipe(
+      debounceTime(400),
+      distinctUntilChanged((a, b) => a.recorte === b.recorte && a.linhas === b.linhas),
+      switchMap(({ recorte }) =>
+        this.service.listarObras({ ...(JSON.parse(recorte) as ObraFilter), comOrcamento: undefined, acimaDoOrcado: true, page: 0, size: 1 }).pipe(
+          map((p) => p.page?.totalElements ?? 0),
+          catchError(() => of(0))
+        )
+      )
+    ),
+    { initialValue: 0 }
+  );
+
+  protected verAcimaDoOrcado(): void {
+    this.lista.filters.orcamento.set(this.lista.filters.orcamento() === 'acima' ? null : 'acima');
+    this.lista.apply();
+  }
 
   // Importações: cadastro (CSV com pré-visualização), carteira e orçamento (processadas no servidor)
   protected readonly escolhaImportacaoAberta = signal(false);
@@ -749,7 +782,8 @@ export class ObrasListComponent {
       dataPrevisaoFimAte: ISO_PARA_BR(f.previsaoFim.to),
       valorProjetoMin: f.valorMin ?? undefined,
       valorProjetoMax: f.valorMax ?? undefined,
-      comOrcamento: f.orcamento ?? undefined,
+      comOrcamento: f.orcamento === 'com' ? true : f.orcamento === 'sem' ? false : undefined,
+      acimaDoOrcado: f.orcamento === 'acima' || undefined,
       ativo: true
     };
   }

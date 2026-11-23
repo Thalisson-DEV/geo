@@ -82,6 +82,23 @@ public class OrcamentoObraUseCases {
                 ComparativoOrcamento.totais(itens), ComparativoOrcamento.contagens(itens), itens);
     }
 
+    /**
+     * Obras com algum item acima do orçado (planejado, executado ou medido além do orçado), para o painel de obras.
+     * Percorre só as obras que têm orçamento.
+     */
+    @Transactional(readOnly = true)
+    public List<UUID> obrasAcimaDoOrcado() {
+        return revisaoRepository.obrasComOrcamento().stream()
+                .filter(id -> buscar(id).contagens().acima() > 0)
+                .toList();
+    }
+
+    /** Resolve no filtro da listagem de obras o recorte "acima do orçado". */
+    @Transactional(readOnly = true)
+    public com.nexo.app.modules.obras.application.dto.ObraFilter resolverFiltro(com.nexo.app.modules.obras.application.dto.ObraFilter filtro) {
+        return filtro != null && Boolean.TRUE.equals(filtro.acimaDoOrcado()) ? filtro.restritoA(obrasAcimaDoOrcado()) : filtro;
+    }
+
     @Transactional(readOnly = true)
     public List<OrcamentoObraResponse.Revisao> listarRevisoes(UUID idObra) {
         obraUseCases.buscarEntidade(idObra);

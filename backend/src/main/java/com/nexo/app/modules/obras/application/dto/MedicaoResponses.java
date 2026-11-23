@@ -121,7 +121,8 @@ public final class MedicaoResponses {
                                  int itensMaoDeObra, int itensMateriais, int lancamentosFaturados,
                                  BigDecimal orcadoMaoDeObra, BigDecimal orcadoMateriais, BigDecimal faturado,
                                  LocalDate ultimoFaturamento, int paraConferir, List<String> erros,
-                                 Integer revisaoOrcamento, BigDecimal orcamentoGravadoMaoDeObra) {
+                                 Integer revisaoOrcamento, BigDecimal orcamentoGravadoMaoDeObra,
+                                 BigDecimal orcamentoGravadoMateriais) {
     }
 
     /** Leitura da planilha: obras reconhecidas, números sem obra cadastrada e erros de linhas sem obra. */
