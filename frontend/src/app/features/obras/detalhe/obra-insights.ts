@@ -218,7 +218,7 @@ export function insightsDaObra(ctx: ContextoInsightsObra): InsightObra[] {
       tom: 'info',
       icone: 'pi pi-paperclip',
       titulo: 'Nenhum anexo na obra',
-      texto: 'O projeto em PDF é a base do planejamento dos pontos e kits.',
+      texto: 'O projeto em PDF, ou o DXF/DWG que gera a planta, é a base do planejamento dos pontos e kits.',
       acao: { tipo: 'anexo', rotulo: 'Adicionar anexo' }
     });
   }

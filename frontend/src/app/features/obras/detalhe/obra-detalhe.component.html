@@ -515,7 +515,7 @@
                     <span class="obra-anexo__icone" aria-hidden="true"><i class="pi" [class]="'pi ' + iconeArquivo(a.nomeArquivo)"></i></span>
                     <span class="obra-anexo__texto">
                       <span class="obra-anexo__nome" [title]="a.nomeArquivo">{{ a.nomeArquivo }}</span>
-                      <span class="obra-anexo__meta">{{ a.tipoAnexoNome }} · {{ bytes(a.tamanhoBytes) }}</span>
+                      <span class="obra-anexo__meta" [title]="rotuloAnexo(a) + ' · ' + bytes(a.tamanhoBytes)">{{ rotuloAnexo(a) }} · {{ bytes(a.tamanhoBytes) }}</span>
                     </span>
                   </button>
                   <span class="obra-anexo__acoes">
@@ -759,7 +759,7 @@
       <div class="geo-form-stack">
         <geo-select label="Tipo de documento" [required]="true" [options]="tiposAnexo()" [(value)]="anexoTipo" [filter]="true"></geo-select>
         <geo-file-input label="Arquivo" [required]="true" [(file)]="anexoArquivo" [maxBytes]="50 * 1024 * 1024"
-          description="PDF, CAD, imagens ou documentos técnicos, até 50 MB."></geo-file-input>
+          description="PDF, CAD, imagens ou documentos técnicos, até 50 MB. Numa obra sem projeto, o DXF ou DWG gera a planta em PDF, que passa a ser o projeto."></geo-file-input>
         <geo-textarea label="Observação" [(value)]="anexoObservacao" [rows]="3" [maxlength]="500"
           placeholder="Ex.: revisão aprovada pelo engenheiro responsável"></geo-textarea>
       </div>

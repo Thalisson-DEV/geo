@@ -15,6 +15,7 @@ import com.nexo.app.shared.infrastructure.storage.ObjectStorageService;
 import com.nexo.app.shared.infrastructure.storage.StorageObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,7 @@ public class AnexoObraUseCases {
     private final TipoAnexoObraUseCases tipoAnexoUseCases;
     private final ObjectStorageService objectStorage;
     private final ObraMapper mapper;
+    private final ApplicationEventPublisher eventos;
 
     @Transactional
     public AnexoObraResponse anexar(UUID idObra, UUID idTipoAnexo, String observacoes, MultipartFile arquivo) {
@@ -66,6 +68,9 @@ public class AnexoObraUseCases {
                 .filter(a -> chaveStorage.equals(a.getChaveStorage()))
                 .findFirst()
                 .orElse(anexo);
+        if (PlantaDoProjetoCad.ehCad(nomeOriginal)) {
+            eventos.publishEvent(new ProjetoMestreDoCad.ProjetoCadAnexado(idObra, salvo.getId()));
+        }
 
         return mapper.toAnexoResponse(salvo);
     }

@@ -954,7 +954,7 @@ a.obra-lista__titulo:hover,
 
 .obra-anexos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 25rem), 1fr));
   gap: 0.625rem;
   margin: 0;
   padding: 0;
@@ -1024,8 +1024,11 @@ a.obra-lista__titulo:hover,
 }
 
 .obra-anexo__meta {
+  overflow: hidden;
   color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .obra-anexo__acoes {
@@ -1037,7 +1040,7 @@ a.obra-lista__titulo:hover,
 
 .obra-subprojetos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 25rem), 1fr));
   gap: 0.625rem;
   margin: 0;
   padding: 0;

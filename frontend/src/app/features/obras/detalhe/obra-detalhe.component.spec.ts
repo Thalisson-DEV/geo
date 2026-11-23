@@ -4,7 +4,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { GeoConfirmationService } from '@geo/ui';
+import { GeoConfirmationService, NotificationService } from '@geo/ui';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Observable, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -14,6 +14,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.service';
 import { ContratoService } from '../../../core/services/contrato.service';
+import { ObrasPlanejamentoService } from '../../../core/services/obras-planejamento.service';
 import { ObrasService } from '../../../core/services/obras.service';
 import { RhService } from '../../../core/services/rh.service';
 import { SolicitacaoMaterialTecnicaService } from '../../../core/services/solicitacao-material-tecnica.service';
@@ -49,11 +50,13 @@ describe('ObraDetalheComponent', () => {
   let fixture: ComponentFixture<ObraDetalheComponent>;
   let tela: any;
   let servico: Record<string, ReturnType<typeof vi.fn>>;
+  let planejamento: { buscar: ReturnType<typeof vi.fn> };
   let permissoes: string[];
   let medicoes: Record<string, ReturnType<typeof vi.fn>>;
 
   async function abrir(obra: ObraResponse = mockObra, busca = vi.fn(() => of(obra) as Observable<ObraResponse>)): Promise<HTMLElement> {
     servico['buscarObraPorId'] = busca;
+    planejamento = { buscar: vi.fn(() => of({ projetoMestre: { nomeArquivo: 'projeto-planta.pdf' } })) };
     await TestBed.configureTestingModule({
       imports: [ObraDetalheComponent],
       providers: [
@@ -64,6 +67,7 @@ describe('ObraDetalheComponent', () => {
         MessageService,
         ConfirmationService,
         { provide: ObrasService, useValue: servico },
+        { provide: ObrasPlanejamentoService, useValue: planejamento },
         { provide: ContratoService, useValue: { listarContratosAtivos: () => of({ content: [{ id: 'c1', numeroContrato: 'CT-01', cliente: 'Cliente' }] }) } },
         { provide: RhService, useValue: { listarEquipes: vi.fn(() => of({ content: [{ id: 'eq-1', codigo: 'EQ-01', tipoEquipe: { nome: 'LINHA VIVA' }, baseOperacional: { nome: 'BASE JUAZEIRO' } }] })) } },
         { provide: AuthService, useValue: { currentUser: () => ({ permissoes }) } },
@@ -214,6 +218,21 @@ describe('ObraDetalheComponent', () => {
     expect(confirmar).toHaveBeenCalledTimes(2);
     expect(servico['removerAnexo']).not.toHaveBeenCalled();
     expect(servico['desvincularSubprojeto']).not.toHaveBeenCalled();
+  });
+
+  it('DXF anexado numa obra sem projeto avisa que a planta gerada virou o projeto e identifica os dois na lista', async () => {
+    await abrir();
+    const sucesso = vi.spyOn(TestBed.inject(NotificationService), 'success');
+    servico['anexarArquivo'].mockReturnValue(of({ ...anexo, nomeArquivo: 'projeto.dxf' }));
+    tela.anexoArquivo.set(new File(['0'], 'projeto.dxf'));
+    tela.anexoTipo.set('t1');
+    tela.salvarAnexo();
+    expect(planejamento.buscar).toHaveBeenCalled();
+    expect(sucesso).toHaveBeenCalledWith('projeto.dxf anexado. A planta projeto-planta.pdf foi gerada e é o projeto da obra.');
+    expect(tela.rotuloAnexo({ ...anexo, nomeArquivo: 'projeto.dxf' })).toBe('Arquivo CAD do projeto');
+    expect(tela.rotuloAnexo({ ...anexo, nomeArquivo: 'projeto-planta.pdf', observacoes: 'Planta gerada do arquivo CAD projeto.dxf' }))
+      .toBe('Planta gerada do CAD');
+    expect(tela.rotuloAnexo(anexo)).toBe('PROJETO');
   });
 
   it('pré-visualiza o anexo e libera a URL ao fechar', async () => {

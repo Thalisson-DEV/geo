@@ -42,6 +42,7 @@ import {
 import { Observable, filter, finalize, shareReplay, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AnexoObraResponse, OrcamentoObraResponse } from '../../../core/models/obras.models';
+import { ehArquivoCad, ehPdf, ehPlantaGerada, nomePlantaDoCad } from '../anexo-projeto';
 import {
   AceitarProposta,
   AnalisePlanejamento,
@@ -1252,7 +1253,7 @@ export class ObraPlanejamentoComponent {
    */
   private carregarPdfsAnexados(): void {
     this.obras.listarAnexos(this.idObra).pipe(take(1)).subscribe({
-      next: (anexos) => this.anexosProjeto.set(anexos.filter((a) => ehPdf(a) || ehCad(a))),
+      next: (anexos) => this.anexosProjeto.set(anexos.filter((a) => ehPdf(a) || ehArquivoCad(a.nomeArquivo))),
       error: () => this.anexosProjeto.set([])
     });
   }
@@ -1263,24 +1264,24 @@ export class ObraPlanejamentoComponent {
    */
   protected readonly projetoUnico = computed(() => {
     const pdfs = this.anexosProjeto().filter(ehPdf);
-    const cads = this.anexosProjeto().filter(ehCad);
+    const cads = this.anexosProjeto().filter((a) => ehArquivoCad(a.nomeArquivo));
     if (pdfs.length === 1) return pdfs[0];
     return pdfs.length === 0 && cads.length === 1 ? cads[0] : null;
   });
 
   protected ehCad(anexo: AnexoObraResponse): boolean {
-    return ehCad(anexo);
+    return ehArquivoCad(anexo.nomeArquivo);
   }
 
   /** Planta em PDF que o sistema gerou de um arquivo CAD da obra. */
   protected ehPlantaGerada(anexo: AnexoObraResponse): boolean {
-    return ehPdf(anexo) && (anexo.observacoes ?? '').startsWith('Planta gerada do arquivo CAD');
+    return ehPlantaGerada(anexo);
   }
 
   /** O CAD que deu origem à planta que hoje é o projeto: usá-lo de novo só geraria a mesma planta. */
   protected origemDaPlantaAtual(anexo: AnexoObraResponse): boolean {
     const atual = this.plano()?.projetoMestre?.nomeArquivo ?? '';
-    return ehCad(anexo) && atual === anexo.nomeArquivo.replace(/\.(dxf|dwg)$/i, '') + '-planta.pdf';
+    return ehArquivoCad(anexo.nomeArquivo) && atual === nomePlantaDoCad(anexo.nomeArquivo);
   }
   private pdfsConferidos = false;
 
@@ -1441,11 +1442,3 @@ export class ObraPlanejamentoComponent {
   }
 }
 
-function ehPdf(anexo: AnexoObraResponse): boolean {
-  return anexo.contentType === 'application/pdf' || anexo.nomeArquivo.toLowerCase().endsWith('.pdf');
-}
-
-/** Projeto em CAD: o planejamento gera a planta em PDF a partir dele. */
-function ehCad(anexo: AnexoObraResponse): boolean {
-  return /\.(dxf|dwg)$/i.test(anexo.nomeArquivo);
-}

@@ -38,7 +38,7 @@ import {
   GeoTone,
   NotificationService
 } from '@geo/ui';
-import { Subject, catchError, debounceTime, map, of, switchMap } from 'rxjs';
+import { Subject, catchError, debounceTime, map, of, switchMap, take } from 'rxjs';
 
 import { CLASSES_TENSAO, ClasseTensao } from '../../../core/models/obras-kit.models';
 import {
@@ -61,6 +61,8 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { MovimentacaoResumoObra, ProjecaoObraSolicitacoesResponse, SolicitacaoResumoObra } from '../../../core/models/solicitacao-material-tecnica.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { ContratoService } from '../../../core/services/contrato.service';
+import { ehArquivoCad, ehPlantaGerada, nomePlantaDoCad } from '../anexo-projeto';
+import { ObrasPlanejamentoService } from '../../../core/services/obras-planejamento.service';
 import { ObrasService } from '../../../core/services/obras.service';
 import { ObraDocumentacaoComponent } from '../documentacao/obra-documentacao.component';
 import { RhService } from '../../../core/services/rh.service';
@@ -205,6 +207,7 @@ export class ObraDetalheComponent {
   private readonly router = inject(Router);
   private readonly navegacao = inject(NavigationHistoryService);
   private readonly service = inject(ObrasService);
+  private readonly planejamentoApi = inject(ObrasPlanejamentoService);
   private readonly contratos = inject(ContratoService);
   private readonly rhService = inject(RhService);
   private readonly solicitacaoService = inject(SolicitacaoMaterialTecnicaService);
@@ -1118,10 +1121,14 @@ export class ObraDetalheComponent {
     if (!id || !arquivo || !tipo) return;
     this.enviandoAnexo.set(true);
     this.service.anexarArquivo(id, tipo, arquivo, this.anexoObservacao()).subscribe({
-      next: () => {
+      next: (anexo) => {
         this.enviandoAnexo.set(false);
         this.anexoAberto.set(false);
-        this.notificacoes.success(`${arquivo.name} anexado.`);
+        if (ehArquivoCad(anexo.nomeArquivo)) {
+          this.avisarArquivoCad(id, anexo.nomeArquivo);
+        } else {
+          this.notificacoes.success(`${anexo.nomeArquivo} anexado.`);
+        }
         this.recarregar();
       },
       error: (e) => {
@@ -1129,6 +1136,39 @@ export class ObraDetalheComponent {
         this.notificacoes.error(getErrorMessage(e));
       }
     });
+  }
+
+  /**
+   * Projeto em CAD: numa obra sem projeto, a planta em PDF é gerada no envio e vira o projeto. O aviso diz o que
+   * aconteceu de fato (planta gerada, obra que já tinha projeto, ou planta que não pôde ser gerada), conferindo o
+   * projeto da obra depois do envio.
+   */
+  private avisarArquivoCad(idObra: string, nomeCad: string): void {
+    this.planejamentoApi.buscar(idObra).pipe(take(1)).subscribe({
+      next: (plano) => {
+        const projeto = plano.projetoMestre?.nomeArquivo;
+        if (projeto && projeto === nomePlantaDoCad(nomeCad)) {
+          this.notificacoes.success(`${nomeCad} anexado. A planta ${projeto} foi gerada e é o projeto da obra.`);
+        } else if (projeto) {
+          this.notificacoes.success(`${nomeCad} anexado. A obra já tem projeto; no planejamento, a Bússola lê pontos, vãos e estruturas deste arquivo.`);
+        } else {
+          this.notificacoes.warning(`${nomeCad} anexado, mas a planta não pôde ser gerada. `
+            + (/\.dwg$/i.test(nomeCad) ? 'Exporte o projeto como DXF e anexe de novo.'
+              : 'Confira se é o DXF do projeto e use "Gerar a planta deste arquivo" no planejamento.'));
+        }
+      },
+      error: () => this.notificacoes.success(`${nomeCad} anexado.`)
+    });
+  }
+
+  /** Rótulo do anexo na lista: deixa claro o arquivo CAD e a planta que veio dele. */
+  protected rotuloAnexo(anexo: AnexoObraResponse): string {
+    if (ehPlantaGerada(anexo)) return 'Planta gerada do CAD';
+    if (ehArquivoCad(anexo.nomeArquivo)) {
+      // Anexado como projeto: é dele que a Bússola lê a obra. Com outro tipo (as built, por exemplo), só marca o formato.
+      return /PROJETO/i.test(anexo.tipoAnexoNome) ? 'Arquivo CAD do projeto' : `${anexo.tipoAnexoNome} · CAD`;
+    }
+    return anexo.tipoAnexoNome;
   }
 
   protected visualizarAnexo(anexo: AnexoObraResponse): void {
@@ -1254,3 +1294,4 @@ export class ObraDetalheComponent {
     this.leafletMap = null;
   }
 }
+

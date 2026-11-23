@@ -53,6 +53,20 @@
   align-items: center;
 }
 
+/* Origem dos dados (arquivo CAD): nome longo não empurra as ações; o nome inteiro fica no title. */
+.plan-topo__cad {
+  display: inline-flex;
+  max-width: 13rem;
+  min-width: 0;
+}
+
+.plan-topo__cad geo-status {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .plan-indicadores {
   display: flex;
   flex: 0 1 58rem;

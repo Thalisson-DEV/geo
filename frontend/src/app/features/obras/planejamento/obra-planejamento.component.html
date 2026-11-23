@@ -40,7 +40,16 @@
           @if (ultimaLeitura() && !revisando() && !analisando()) {
             <geo-button variant="ghost" size="sm" icon="pi pi-history" label="Ver última leitura" (pressed)="abrirRevisao(ultimaLeitura()!)"></geo-button>
           }
-          <span [title]="leituraDisponivel() ? 'A Bússola lê esta página e propõe pontos, vãos e kits para você revisar' : 'A leitura de projetos não está configurada neste ambiente'">
+          @if (arquivoCad(); as cad) {
+            <!-- De onde a obra vem: o arquivo CAD manda nos dados; a folha é a planta gerada dele ou o PDF. -->
+            <span class="plan-topo__cad" [title]="'A Bússola lê pontos, vãos, estruturas e metragens do arquivo ' + cad + '.'">
+              <geo-status icon="pi-map">CAD: {{ cad }}</geo-status>
+              <span class="geo-sr-only">A Bússola lê pontos, vãos, estruturas e metragens deste arquivo.</span>
+            </span>
+          }
+          <span [title]="!leituraDisponivel() ? 'A leitura de projetos não está configurada neste ambiente'
+            : arquivoCad() ? 'A Bússola lê o arquivo CAD da obra e propõe pontos, vãos e kits para você revisar'
+            : 'A Bússola lê esta página e propõe pontos, vãos e kits para você revisar'">
             <geo-button size="sm" icon="pi pi-compass" label="Planejar com Bússola"
               [loading]="analisando()" [disabled]="!leituraDisponivel() || revisando()" (pressed)="lerComCopiloto()"></geo-button>
           </span>

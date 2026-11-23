@@ -36,12 +36,30 @@ public class PlantaDoProjetoCad {
         return ProjetoCadDaObra.dxf(nomeArquivo) || ProjetoCadDaObra.dwg(nomeArquivo);
     }
 
-    /** Gera a planta do anexo CAD e devolve o anexo PDF criado. */
+    /** Observação que marca a planta gerada de um arquivo CAD (a tela usa para identificá-la). */
+    static String observacao(String nomeCad) {
+        return "Planta gerada do arquivo CAD " + nomeCad;
+    }
+
+    static String nomePlanta(String nomeCad) {
+        return nomeCad.replaceAll("(?i)\\.(dxf|dwg)$", "") + "-planta.pdf";
+    }
+
+    /** Planta do anexo CAD: a que já foi gerada dele (usar o mesmo arquivo de novo não duplica), ou uma nova. */
     public AnexoObraResponse gerar(UUID idObra, UUID idAnexoCad) {
-        AnexoObraResponse cad = anexos.listarPorObra(idObra).stream()
+        List<AnexoObraResponse> daObra = anexos.listarPorObra(idObra);
+        AnexoObraResponse cad = daObra.stream()
                 .filter(a -> a.id().equals(idAnexoCad))
                 .findFirst()
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Anexo não encontrado nesta obra."));
+        String nome = nomePlanta(cad.nomeArquivo());
+        var existente = daObra.stream()
+                .filter(a -> nome.equals(a.nomeArquivo()) && a.observacoes() != null
+                        && a.observacoes().startsWith(observacao(cad.nomeArquivo())))
+                .findFirst();
+        if (existente.isPresent()) {
+            return existente.get();
+        }
         byte[] conteudo;
         try (var stream = anexos.baixar(idObra, idAnexoCad).stream()) {
             conteudo = stream.readAllBytes();
@@ -63,9 +81,8 @@ public class PlantaDoProjetoCad {
                 .map(o -> "Obra " + o.getNumero() + (o.getTitulo() != null ? " — " + o.getTitulo() : ""))
                 .orElse("Planta do projeto");
         GeradorPlantaCad.Planta planta = gerador.gerar(desenho, janela, cad.nomeArquivo(), titulo);
-        String nome = cad.nomeArquivo().replaceAll("(?i)\\.(dxf|dwg)$", "") + "-planta.pdf";
         return anexos.anexarGerado(idObra, tiposAnexo.buscarEntidade(cad.idTipoAnexo()), nome, "application/pdf", planta.pdf(),
-                "Planta gerada do arquivo CAD " + cad.nomeArquivo() + " (escala 1:" + planta.escala() + ", folha " + planta.folha() + ")");
+                observacao(cad.nomeArquivo()) + " (escala 1:" + planta.escala() + ", folha " + planta.folha() + ")");
     }
 
     /** Postes da obra com folga em volta, e um tamanho mínimo para a folha não ficar só no poste. */
