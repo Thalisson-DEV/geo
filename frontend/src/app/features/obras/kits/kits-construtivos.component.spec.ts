@@ -44,6 +44,8 @@ type TelaKits = {
   idContrato: { set(v: string | null): void };
   novaReferencia: { set(v: string | null): void };
   novaQuantidade: { set(v: number | null): void };
+  novoValor: { set(v: number | null): void };
+  trocarTipo(t: 'SERVICO' | 'MATERIAL'): void;
   erroItem(): string | undefined;
   adicionarItem(): void;
   abrir(k: KitConstrutivoResponse): void;
@@ -57,7 +59,7 @@ describe('KitsConstrutivosComponent', () => {
     abrirListagem(KitsConstrutivosComponent, 'lista', url, [
       { provide: ObrasKitService, useValue: servico },
       { provide: ContratoService, useValue: { listarContratosAtivos: () => paginaTeste([{ id: 'c1', numeroContrato: 'CT-01', cliente: 'Cliente', ativo: true }]), listarAcoes: vi.fn(() => paginaTeste([{ id: 'a2', codigo: 'A2', nome: 'RETIRAR POSTE', ativo: true }])) } },
-      { provide: AlmoxarifadoService, useValue: { listarMateriais: vi.fn(() => paginaTeste([])) } },
+      { provide: AlmoxarifadoService, useValue: { listarMateriais: vi.fn(() => paginaTeste([{ id: 'm1', codigo: '300116', descricao: 'POSTE', unidadeMedida: 'UN', ativo: true }])) } },
       { provide: AuthService, useValue: { currentUser: () => ({ permissoes }) } }
     ]);
 
@@ -116,6 +118,33 @@ describe('KitsConstrutivosComponent', () => {
         idContrato: 'c1',
         codigo: 'KIT-NOVO',
         itens: [expect.objectContaining({ tipo: 'SERVICO', idReferencia: 'a2', operacao: 'INSTALAR', quantidade: 1.5 })]
+      })
+    );
+  });
+
+  it('orça o material do kit e envia o valor unitário só no material', async () => {
+    const { componente } = await abrir();
+    tecla('n');
+    const tela = componente as unknown as TelaKits;
+    tela.idContrato.set('c1');
+    tela.codigo.set('KIT-ORCADO');
+    tela.descricao.set('Poste com material');
+    tela.novaReferencia.set('a2');
+    tela.novoValor.set(999);
+    tela.adicionarItem();
+    tela.trocarTipo('MATERIAL');
+    tela.novaReferencia.set('m1');
+    tela.novaQuantidade.set(2);
+    tela.novoValor.set(850);
+    tela.adicionarItem();
+
+    tela.salvar();
+    expect(servico['criarKit']).toHaveBeenCalledWith(
+      expect.objectContaining({
+        itens: [
+          expect.objectContaining({ tipo: 'SERVICO', idReferencia: 'a2', valorUnitario: null }),
+          expect.objectContaining({ tipo: 'MATERIAL', idReferencia: 'm1', quantidade: 2, valorUnitario: 850 })
+        ]
       })
     );
   });

@@ -111,6 +111,9 @@
         <span class="geo-kpi__body"><span class="geo-kpi__label">Material previsto</span>
           @if (carteira()?.valorMaterialPrevisto) {
             <span class="geo-kpi__value">{{ moeda(carteira()!.valorMaterialPrevisto) }}</span>
+            @if (dados(orcamento())?.totais?.orcadoMateriais && dados(orcamento())?.revisao; as r) {
+              <span class="geo-kpi__detail">pelo orçamento (revisão {{ r.numero }})</span>
+            }
           } @else {
             <span class="geo-kpi__value">—</span><span class="geo-kpi__detail">Não informado na carteira</span>
           }
@@ -121,13 +124,13 @@
         <span class="geo-kpi__body"><span class="geo-kpi__label">Serviço previsto</span>
           @if (carteira()?.valorServicoPrevisto) {
             <span class="geo-kpi__value">{{ moeda(carteira()!.valorServicoPrevisto) }}</span>
+            @if (dados(orcamento())?.totais?.orcadoServicos && dados(orcamento())?.revisao; as r) {
+              <span class="geo-kpi__detail">pelo orçamento (revisão {{ r.numero }})</span>
+            }
           } @else if (resumoPlanejamento()?.valorTotal) {
             <span class="geo-kpi__value">{{ moeda(resumoPlanejamento()!.valorTotal) }}</span><span class="geo-kpi__detail">pelo planejamento</span>
           } @else {
             <span class="geo-kpi__value">—</span><span class="geo-kpi__detail">Não informado na carteira</span>
-          }
-          @if (dados(orcamento())?.importado) {
-            <span class="geo-kpi__detail">{{ moeda(dados(orcamento())!.totalServicosImportados) }} no orçamento importado</span>
           }
         </span>
       </div>
@@ -265,41 +268,10 @@
           </div>
         </section>
 
-        <!-- Orçamento previsto -->
+        <!-- Orçamento: orçado × planejado × executado × medido -->
         <section class="obra-card" aria-labelledby="orcamento-titulo">
-          <header class="obra-card__cabecalho">
-            <h2 id="orcamento-titulo"><i class="pi pi-list" aria-hidden="true"></i> Orçamento previsto</h2>
-            @if (dados(orcamento())?.importado) {
-              <span class="obra-card__meta">Importado em {{ dataHora(dados(orcamento())!.dataImportacao) }}</span>
-            }
-          </header>
-          @switch (orcamento().estado) {
-            @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Carregando o orçamento"></geo-async-state> }
-            @case ('error') {
-              <geo-async-state state="error" [compact]="true" title="Não foi possível carregar o orçamento" [description]="mensagem(orcamento())"
-                actionLabel="Tentar de novo" (action)="carregarOrcamento()"></geo-async-state>
-            }
-            @default {
-              @if (dados(orcamento()); as orc) {
-                @if (orc.importado) {
-                  <geo-data-table caption="Serviços previstos" [columns]="colunasOrcamento" [rows]="orc.itens" [rowKey]="chave"
-                    searchPlaceholder="Código ou descrição do serviço" [pageSizeOptions]="[10, 25, 50]">
-                    <ng-template geoCell="codigo" let-row>
-                      <span class="geo-cell-strong">{{ row.codigo }}</span>
-                      <span class="geo-cell-muted">{{ row.descricao }}</span>
-                      @if (!row.idAcao) {
-                        <geo-status tone="warning" icon="pi-exclamation-triangle">Sem ação no contrato</geo-status>
-                      }
-                    </ng-template>
-                  </geo-data-table>
-                  <p class="obra-card__rodape">Total dos serviços importados: <strong>{{ moeda(orc.totalServicosImportados) }}</strong></p>
-                } @else {
-                  <geo-async-state state="empty" [compact]="true" icon="pi pi-calculator" title="Não há orçamento importado"
-                    description="Importe os serviços previstos pela listagem de obras (Importar · Serviços e orçamento previstos)."></geo-async-state>
-                }
-              }
-            }
-          }
+          <app-obra-orcamento [idObra]="o.id" [carga]="orcamento()" [podeEditar]="podeEscrever"
+            [temContrato]="!!carteira()?.idContrato" (atualizado)="orcamentoAtualizado($event)" (recarregar)="carregarOrcamento()"></app-obra-orcamento>
         </section>
 
         <!-- Documentação técnica: visita prévia antes da execução; book e As Built ao longo dela -->

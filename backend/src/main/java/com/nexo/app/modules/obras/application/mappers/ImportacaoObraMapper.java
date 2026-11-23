@@ -1,9 +1,9 @@
 package com.nexo.app.modules.obras.application.mappers;
 
 import com.nexo.app.modules.obras.application.dto.HistoricoImportacaoResponse;
-import com.nexo.app.modules.obras.application.dto.ItemOrcamentoObraResponse;
+import com.nexo.app.modules.obras.application.dto.OrcamentoObraResponse;
 import com.nexo.app.modules.obras.domain.ImportacaoObra;
-import com.nexo.app.modules.obras.domain.ItemOrcamentoObra;
+import com.nexo.app.modules.obras.domain.RevisaoOrcamentoObra;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
@@ -14,5 +14,5 @@ public interface ImportacaoObraMapper {
 
     HistoricoImportacaoResponse toResponse(ImportacaoObra entity);
 
-    ItemOrcamentoObraResponse toItemOrcamento(ItemOrcamentoObra entity);
+    OrcamentoObraResponse.Revisao toRevisao(RevisaoOrcamentoObra entity);
 }

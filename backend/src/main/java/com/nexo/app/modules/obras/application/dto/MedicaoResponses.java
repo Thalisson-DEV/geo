@@ -120,7 +120,8 @@ public final class MedicaoResponses {
     public record ObraNaPlanilha(UUID idObra, String numero, String titulo, String municipio,
                                  int itensMaoDeObra, int itensMateriais, int lancamentosFaturados,
                                  BigDecimal orcadoMaoDeObra, BigDecimal orcadoMateriais, BigDecimal faturado,
-                                 LocalDate ultimoFaturamento, int paraConferir, List<String> erros) {
+                                 LocalDate ultimoFaturamento, int paraConferir, List<String> erros,
+                                 Integer revisaoOrcamento, BigDecimal orcamentoGravadoMaoDeObra) {
     }
 
     /** Leitura da planilha: obras reconhecidas, números sem obra cadastrada e erros de linhas sem obra. */

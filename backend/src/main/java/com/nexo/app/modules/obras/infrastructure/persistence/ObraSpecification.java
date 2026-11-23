@@ -6,6 +6,7 @@ import com.nexo.app.modules.obras.domain.ClasseTensao;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.PrioridadeObra;
 import com.nexo.app.modules.obras.domain.RelacionamentoProjeto;
+import com.nexo.app.modules.obras.domain.RevisaoOrcamentoObra;
 import com.nexo.app.modules.obras.domain.StatusObra;
 import com.nexo.app.modules.rh.domain.BaseOperacional;
 import com.nexo.app.modules.rh.domain.CentroFaturamento;
@@ -93,6 +94,13 @@ public class ObraSpecification {
                 }
                 if (filter.equipeId() != null) {
                     predicates.add(cb.isMember(filter.equipeId(), root.get("equipes")));
+                }
+                if (filter.comOrcamento() != null && query != null) {
+                    Subquery<UUID> orcamento = query.subquery(UUID.class);
+                    Root<RevisaoOrcamentoObra> revisao = orcamento.from(RevisaoOrcamentoObra.class);
+                    orcamento.select(revisao.get("id"))
+                            .where(cb.isTrue(revisao.get("ativo")), cb.equal(revisao.get("idObra"), root.get("id")));
+                    predicates.add(filter.comOrcamento() ? cb.exists(orcamento) : cb.not(cb.exists(orcamento)));
                 }
                 if (filter.projetoRelacionadoId() != null && query != null) {
                     Subquery<UUID> relacionamento = query.subquery(UUID.class);

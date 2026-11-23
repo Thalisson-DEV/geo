@@ -2,6 +2,7 @@ package com.nexo.app.modules.obras.application.usecases;
 
 import com.nexo.app.modules.contrato.AcaoResponse;
 import com.nexo.app.modules.contrato.ContratoApi;
+import com.nexo.app.modules.estoque.EstoqueApi;
 import com.nexo.app.modules.obras.application.dto.CarteiraImportacaoLinha;
 import com.nexo.app.modules.obras.application.dto.OrcamentoImportacaoLinha;
 import com.nexo.app.modules.obras.application.dto.PreviaImportacaoObraResponse;
@@ -42,6 +43,7 @@ class ImportarCarteiraUseCaseTest {
     @Mock private ObraRepository obraRepository;
     @Mock private StatusObraRepository statusRepository;
     @Mock private ContratoApi contratoApi;
+    @Mock private EstoqueApi estoqueApi;
     @Mock private ProcessoNegocioApi processoNegocioApi;
     @Mock private BaseOperacionalApi baseOperacionalApi;
     @Mock private MunicipioApi municipioApi;
@@ -57,7 +59,7 @@ class ImportarCarteiraUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new ImportarCarteiraUseCase(importacaoRepository, obraRepository, statusRepository, contratoApi,
+        useCase = new ImportarCarteiraUseCase(importacaoRepository, obraRepository, statusRepository, contratoApi, estoqueApi,
                 processoNegocioApi, baseOperacionalApi, municipioApi, centroFaturamentoApi, supervisorApi, coordenadorApi,
                 new NormalizadorObraService(), new LeitorPlanilhaImportacao(), processadorCarteira, processadorOrcamento, auditor);
         lenient().when(contratoApi.existeContrato(contrato)).thenReturn(true);

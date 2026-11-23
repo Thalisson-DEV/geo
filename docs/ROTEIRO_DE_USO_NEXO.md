@@ -275,7 +275,7 @@ O que só a obra usa fica em `Execução → Cadastros de Obras`. Confira estes 
 3. Em **Itens**, adicione serviços (**Ação do contrato**) e materiais (**Material**), com **Operação** (Instalar/Retirar) e **Quantidade por kit**.
 4. Salve.
 
-**Avisos:** o valor do kit soma só os serviços. Kit sem itens fica cadastrado, mas não pode ser aplicado. "Sem valor vigente" indica serviço sem valor em `Ações x Valores` na data.
+**Avisos:** o custo do kit soma os serviços (pelo valor vigente do contrato) e os materiais (pelo **Valor unitário do material** informado no item, opcional; na planilha, a coluna `VALOR_UNITARIO`). Esse preço entra no orçamento gerado pelo planejamento. Kit sem itens fica cadastrado, mas não pode ser aplicado. "Sem valor vigente" indica serviço sem valor em `Ações x Valores` na data.
 
 ### 5.2 Status, agentes responsáveis e tipos de anexo
 
@@ -315,7 +315,7 @@ Os modelos definem as perguntas da visita prévia e da ficha As Built, e as foto
 
 **Depois:** sem coordenadas, a ficha não mostra mapa, deslocamento nem obras próximas. Sem contrato na carteira (6.3), o planejamento mostra kits de todos os contratos.
 
-**Para muitas obras de uma vez:** `Painel de Obras` → **Importar** → escolha **Cadastro de obras**, **Carteira do contrato** ou **Serviços e orçamento previstos**. Obras existentes são atualizadas pelo número (célula vazia mantém o valor atual). A importação não altera planejamento, programação nem medições.
+**Para muitas obras de uma vez:** `Painel de Obras` → **Importar** → escolha **Cadastro de obras**, **Carteira do contrato** ou **Orçamento das obras** (serviços e materiais, cada obra ganha uma revisão nova do orçamento). Obras existentes são atualizadas pelo número (célula vazia mantém o valor atual). A importação não altera planejamento, programação nem medições.
 
 ### 6.2 Como encontrar e acompanhar obras
 
@@ -342,9 +342,10 @@ Barra de ações no rodapé da ficha:
 O que a ficha mostra:
 - **Prazo**: linha do tempo com início, previsão, prazo regulado, conclusão e hoje.
 - **Indicadores**: valor de projeto, material e serviço previstos, **Deslocamento da base**, solicitações de material, **Pontos de atenção**.
-- **Pontos de atenção**: avisos como **Visita prévia não realizada**, **Sem equipe alocada**, **Nenhum material solicitado**, **Obra sem contrato**, **Sem orçamento importado** e **Sem coordenadas**, além de alertas de prazo. Eles orientam, mas não bloqueiam nada.
+- **Pontos de atenção**: avisos como **Visita prévia não realizada**, **Sem equipe alocada**, **Nenhum material solicitado**, **Obra sem contrato**, **Sem orçamento**, **Itens acima do orçado**, **Itens fora do orçamento** e **Sem coordenadas**, além de alertas de prazo. Eles orientam, mas não bloqueiam nada.
 - **Materiais da obra**: saldo em campo, solicitações e movimentações.
-- **Programação**, **Orçamento previsto**, **Documentação técnica**, **Anexos**, **Subprojetos**, **Localização** (com **Obras próximas** num raio de 5 a 50 km), **Histórico do status** e **Equipes**.
+- **Orçamento**: orçado × planejado × executado × medido por serviço e material, com o saldo a medir e a situação de cada item (**Dentro do orçado**, **Acima do orçado**, **Fora do orçamento**, **Não planejado**, **Sem orçado**). Passar do orçado só avisa, não bloqueia. O orçamento entra por **Importar planilha**, **Gerar do planejamento** (serviços pelo valor do contrato, materiais pelo valor orçado no kit) ou **Lançar item**; cada importação ou geração vira uma revisão (**Revisões**), e o total vira o material e o serviço previstos da carteira.
+- **Programação**, **Documentação técnica**, **Anexos**, **Subprojetos**, **Localização** (com **Obras próximas** num raio de 5 a 50 km), **Histórico do status** e **Equipes**.
 
 **Como registrar a mudança de status:** **Registrar status** → **Novo status**, **Data de conclusão** (em branco vale hoje), **Observação** → **Registrar status**. A observação fica no histórico e pode ser registrada mesmo sem trocar o status.
 
@@ -386,7 +387,7 @@ O planejamento (levantamento) marca pontos, vãos e kits sobre o PDF do projeto.
 4. Ferramentas da folha: **Mão** (arrastar), **Ponto**, **Vão** (liga dois pontos), **Anotar**, **Selecionar**, **Área**, **Ler texto** (copia texto do PDF). Há troca de página, giro de 90°, zoom e **Esmaecer o desenho**.
 5. Clique num ponto para ajustar **Número**, **Tipo**, **Barramento**, execução (**Sem deslig.** / **Com deslig.**), **Tem poda**, **Tem aterramento**. Botões **Mover**, **Conectar**, **Detalhes**, **Excluir ponto**. No vão, ajuste a **Metragem** (os itens em metro dos kits acompanham).
 6. **Aplicar kit**: selecione pontos/vãos → **Aplicar kit** → busque o kit por código ou descrição, escolha **Instalar** ou **Retirar**, a **Quantidade** → **Aplicar**.
-7. O painel lateral mostra a árvore **Pontos, kits e vãos** e as abas **Kits construtivos** e **Orçamento**.
+7. O painel lateral mostra a árvore **Pontos, kits e vãos** e as abas **Kits construtivos** e **Orçamento** (orçado × planejado de cada serviço da obra, atualizado ao abrir).
 
 **Cores dos locais:** **Sem kit**, **Pendente**, **Programado**, **Atrasado**, **Em andamento**, **Concluído**.
 

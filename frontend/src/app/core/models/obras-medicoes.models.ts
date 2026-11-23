@@ -245,6 +245,9 @@ export interface ObraNaPlanilha {
   ultimoFaturamento: string | null;
   paraConferir: number;
   erros: string[];
+  /** Revisão do orçamento gravado na obra; com ela, o relatório usa o orçamento da obra e não o da planilha. */
+  revisaoOrcamento?: number | null;
+  orcamentoGravadoMaoDeObra?: number | null;
 }
 
 export interface AnaliseOrcadoFaturado {

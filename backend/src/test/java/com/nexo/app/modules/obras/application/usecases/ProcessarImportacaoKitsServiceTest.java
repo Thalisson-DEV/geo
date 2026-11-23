@@ -131,6 +131,27 @@ class ProcessarImportacaoKitsServiceTest {
     }
 
     @Test
+    void valorUnitarioOrcaOMaterialEVazioMantemOPreco() {
+        service.processar(UUID.randomUUID(), linhas("CODIGO_KIT;DESCRICAO_KIT;TIPO_ITEM;CODIGO_ITEM;QUANTIDADE;VALOR_UNITARIO\n"
+                + "K2;Kit 2;MATERIAL;MAT-1;2;850,00\nK2;Kit 2;SERVICO;ACAO-1;1;999\n"));
+
+        ImportacaoObra segunda = new ImportacaoObra(ImportacaoObra.Tipo.KITS, contrato, "kits.csv");
+        when(importacaoRepository.findById(any())).thenReturn(Optional.of(segunda));
+        service.processar(UUID.randomUUID(), linhas("CODIGO_KIT;TIPO_ITEM;CODIGO_ITEM;QUANTIDADE;VALOR_UNITARIO\nK2;MATERIAL;MAT-1;3;\n"));
+
+        assertThat(kitsGravados.get("K2").getItensAtivos()).anySatisfy(i -> {
+            assertThat(i.getIdMaterial()).isNotNull();
+            assertThat(i.getQuantidade()).isEqualByComparingTo("3");
+            assertThat(i.getValorUnitario()).isEqualByComparingTo("850");
+        });
+        // Serviço vale o que o contrato diz: o valor da planilha é ignorado.
+        assertThat(kitsGravados.get("K2").getItensAtivos()).anySatisfy(i -> {
+            assertThat(i.getIdAcao()).isNotNull();
+            assertThat(i.getValorUnitario()).isNull();
+        });
+    }
+
+    @Test
     void kitNovoSemDescricaoRejeitaTodasAsLinhasDoKit() {
         String csv = "CODIGO_KIT;TIPO_ITEM;CODIGO_ITEM;QUANTIDADE\nK9;SERVICO;ACAO-1;1\nK9;MATERIAL;MAT-1;1\n";
 

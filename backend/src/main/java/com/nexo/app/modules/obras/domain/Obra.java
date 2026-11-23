@@ -427,6 +427,20 @@ public class Obra extends BaseEntity {
     }
 
     /**
+     * Valores previstos da carteira vindos do orçamento da obra, para não digitar duas vezes. Material sem valor no
+     * orçamento (só quantidades) mantém o valor que a carteira já tinha.
+     */
+    public void informarValoresDoOrcamento(BigDecimal servicos, BigDecimal materiais) {
+        validarAtivo();
+        validarNaoNegativo(servicos, "O valor de serviço previsto");
+        validarNaoNegativo(materiais, "O valor de material previsto");
+        this.valorServicoPrevisto = servicos;
+        if (materiais != null && materiais.signum() > 0) {
+            this.valorMaterialPrevisto = materiais;
+        }
+    }
+
+    /**
      * Registra a classe de tensão com quem informou e quando. Informar a mesma classe não altera o registro.
      */
     public void informarClasseTensao(ClasseTensao classe, String usuario) {

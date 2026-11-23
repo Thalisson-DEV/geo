@@ -11,7 +11,7 @@ const DESLOCAMENTO_LONGO_MIN = 90;
 const DIVERGENCIA_RELEVANTE = 0.1;
 
 /** O que a tela faz ao acionar o insight. */
-export type AcaoInsightObra = 'carteira' | 'cadastro' | 'anexo' | 'solicitar' | 'status' | 'visita' | 'ocorrencias';
+export type AcaoInsightObra = 'carteira' | 'cadastro' | 'anexo' | 'solicitar' | 'status' | 'visita' | 'ocorrencias' | 'orcamento';
 
 /** Um ponto de atenção da obra: tom e ícone (nunca só cor) e, quando há, a ação que resolve. */
 export interface InsightObra {
@@ -60,33 +60,46 @@ export function insightsDaObra(ctx: ContextoInsightsObra): InsightObra[] {
   const informativos: InsightObra[] = [];
   const positivos: InsightObra[] = [];
 
-  // Orçamento e valores valem mesmo depois de concluída: explicam o resultado da obra.
-  const itensSemAcao = orcamento?.itens.filter((i) => !i.idAcao).length ?? 0;
-  if (itensSemAcao) {
-    avisos.push({
-      tom: 'warning',
-      icone: 'pi pi-link',
-      titulo: `${itensSemAcao} ${itensSemAcao === 1 ? 'serviço' : 'serviços'} fora do contrato`,
-      texto: 'Estão no orçamento importado, mas o código não bate com nenhuma Ação e não terão valor pelo contrato.'
-    });
-  }
+  // Orçamento e valores valem mesmo depois de concluída: explicam o resultado da obra. Só avisos, nada bloqueia.
   const servicoPrevisto = carteira?.valorServicoPrevisto ?? null;
-  if (orcamento?.importado && servicoPrevisto) {
-    const total = orcamento.totalServicosImportados;
-    if (Math.abs(total - servicoPrevisto) / servicoPrevisto >= DIVERGENCIA_RELEVANTE) {
-      const percentual = Math.round((total / servicoPrevisto) * 100);
+  if (orcamento?.possuiOrcamento) {
+    const c = orcamento.contagens;
+    if (c.acima) {
       avisos.push({
         tom: 'warning',
-        icone: 'pi pi-calculator',
-        titulo: `Orçamento cobre ${percentual}% do serviço previsto`,
-        texto: `Importado ${formatarMoeda(total)} para ${formatarMoeda(servicoPrevisto)} previstos na carteira. Confira se a planilha veio completa.`
+        icone: 'pi pi-arrow-up',
+        titulo: `${c.acima} ${c.acima === 1 ? 'item acima' : 'itens acima'} do orçado`,
+        texto: 'O planejado, o executado ou o medido passou da quantidade orçada. Confira se cabe uma revisão do orçamento.',
+        acao: { tipo: 'orcamento', rotulo: 'Ver no orçamento' }
       });
-    } else {
+    }
+    if (c.foraDoOrcamento) {
+      const valor = orcamento.totais.planejadoForaDoOrcamento;
+      avisos.push({
+        tom: 'warning',
+        icone: 'pi pi-exclamation-circle',
+        titulo: `${c.foraDoOrcamento} ${c.foraDoOrcamento === 1 ? 'item fora' : 'itens fora'} do orçamento`,
+        texto: valor > 0
+          ? `Há ${formatarMoeda(valor)} planejados em serviços que o orçamento não tem.`
+          : 'Estão no planejamento, na execução ou na medição, mas não no orçamento.',
+        acao: { tipo: 'orcamento', rotulo: 'Ver no orçamento' }
+      });
+    }
+    if (c.semReferencia) {
+      avisos.push({
+        tom: 'warning',
+        icone: 'pi pi-link',
+        titulo: `${c.semReferencia} ${c.semReferencia === 1 ? 'item' : 'itens'} do orçamento sem vínculo`,
+        texto: 'O código não bate com nenhuma Ação do contrato nem material do catálogo, então não é comparado pelo contrato.',
+        acao: { tipo: 'orcamento', rotulo: 'Ver no orçamento' }
+      });
+    }
+    if (!c.acima && !c.foraDoOrcamento && orcamento.totais.orcadoServicos > 0 && orcamento.totais.planejadoServicos > 0) {
       positivos.push({
         tom: 'success',
         icone: 'pi pi-check-circle',
-        titulo: 'Orçamento coerente com a carteira',
-        texto: `Os serviços importados somam ${formatarMoeda(total)}, próximo dos ${formatarMoeda(servicoPrevisto)} previstos.`
+        titulo: 'Planejamento dentro do orçamento',
+        texto: `${formatarMoeda(orcamento.totais.planejadoServicos)} planejados para ${formatarMoeda(orcamento.totais.orcadoServicos)} orçados em serviços.`
       });
     }
   }
@@ -222,12 +235,15 @@ export function insightsDaObra(ctx: ContextoInsightsObra): InsightObra[] {
       acao: { tipo: 'anexo', rotulo: 'Adicionar anexo' }
     });
   }
-  if (orcamento && !orcamento.importado) {
+  if (orcamento && !orcamento.possuiOrcamento) {
     informativos.push({
       tom: 'info',
       icone: 'pi pi-calculator',
-      titulo: 'Sem orçamento importado',
-      texto: 'Sem os serviços previstos, não há com o que comparar o planejamento.'
+      titulo: 'Sem orçamento',
+      texto: orcamento.itens.length
+        ? 'O planejamento já tem kits: gere o orçamento a partir dele para acompanhar o saldo de cada serviço.'
+        : 'Sem o orçamento, não há com o que comparar o planejamento, a execução e a medição.',
+      acao: { tipo: 'orcamento', rotulo: 'Ir para o orçamento' }
     });
   }
 

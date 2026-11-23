@@ -67,6 +67,12 @@ interface ItemEmEdicao {
   valorTotal?: number | null;
 }
 
+/** Valor do item na tabela: serviço pelo contrato (calculado no servidor), material pelo valor orçado. */
+function valorDoItem(i: ItemEmEdicao): number | null {
+  if (i.tipo === 'MATERIAL') return i.valorUnitario != null ? i.valorUnitario * i.quantidade : null;
+  return i.valorTotal ?? null;
+}
+
 const TIPOS_ITEM: GeoSelectOption<TipoItemKit>[] = [
   { label: 'Serviço', value: 'SERVICO' },
   { label: 'Material', value: 'MATERIAL' }
@@ -107,7 +113,7 @@ const OPERACOES: GeoSelectOption<OperacaoItemKit>[] = [
         title="Kits construtivos"
         icon="pi pi-box"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Cadastros' }, { label: 'Kits construtivos' }]"
-        description="Conjuntos de serviços e materiais por contrato, aplicados nos pontos do projeto. O valor do kit soma só os serviços, em R$."
+        description="Conjuntos de serviços e materiais por contrato, aplicados nos pontos do projeto. O custo do kit soma os serviços, pelo contrato, e os materiais, pelo valor orçado em cada item."
         helpLabel="Ajuda sobre kits construtivos"
         (help)="ajuda.show()"
       >
@@ -175,9 +181,9 @@ const OPERACOES: GeoSelectOption<OperacaoItemKit>[] = [
           }
         </ng-template>
         <ng-template geoCell="valor" let-row>
-          <span class="geo-cell-strong">{{ moeda(row.valor) }}</span>
-          @if (row.servicosSemValor) {
-            <span class="geo-cell-muted">{{ row.servicosSemValor }} sem valor vigente</span>
+          <span class="geo-cell-strong">{{ moeda(row.valorTotal ?? row.valor) }}</span>
+          @if (apoioCusto(row); as apoio) {
+            <span class="geo-cell-muted">{{ apoio }}</span>
           }
         </ng-template>
         <ng-template geoCell="ativo" let-row>
@@ -227,6 +233,10 @@ const OPERACOES: GeoSelectOption<OperacaoItemKit>[] = [
             }
             <geo-select label="Operação" [options]="operacoes" [(value)]="novaOperacao"></geo-select>
             <geo-number-input label="Quantidade por kit" [(value)]="novaQuantidade" [min]="0" [maxFractionDigits]="4"></geo-number-input>
+            @if (novoTipo() === 'MATERIAL') {
+              <geo-number-input label="Valor unitário do material" mode="currency" [(value)]="novoValor" [min]="0" [maxFractionDigits]="4"
+                description="Opcional: entra no custo do kit."></geo-number-input>
+            }
           </div>
           <div class="geo-actions-row">
             @if (itemEmEdicao()) {
@@ -256,7 +266,11 @@ const OPERACOES: GeoSelectOption<OperacaoItemKit>[] = [
           </ng-template>
           <ng-template geoCell="valorTotal" let-row>
             @if (row.tipo === 'MATERIAL') {
-              <span class="geo-cell-muted">Não compõe o valor</span>
+              @if (row.valorUnitario != null) {
+                {{ moeda(row.valorUnitario * row.quantidade) }}
+              } @else {
+                <span class="geo-cell-muted">Sem valor orçado</span>
+              }
             } @else if (row.valorTotal != null) {
               {{ moeda(row.valorTotal) }}
             } @else if (row.id) {
@@ -275,7 +289,8 @@ const OPERACOES: GeoSelectOption<OperacaoItemKit>[] = [
         </geo-data-table>
         @if (emEdicao(); as kit) {
           <p class="geo-cell-muted" aria-live="polite">
-            Valor do kit: <strong>{{ moeda(kit.valor) }}</strong> pelos valores vigentes em {{ dataReferencia(kit.dataReferenciaValor) }}.
+            Custo do kit: <strong>{{ moeda(kit.valorTotal ?? kit.valor) }}</strong> ({{ moeda(kit.valor) }} em serviços pelos valores vigentes em
+            {{ dataReferencia(kit.dataReferenciaValor) }} e {{ moeda(kit.valorMateriais ?? 0) }} em materiais orçados).
             @if (alterado()) { Salve para recalcular. }
           </p>
         }
@@ -356,7 +371,7 @@ export class KitsConstrutivosComponent {
     { key: 'numeroContrato', header: 'Contrato', width: '9rem', display: (k) => k.numeroContrato ?? '' },
     { key: 'classesTensao', header: 'Tensões', type: 'custom', width: '9rem', value: (k) => k.classesTensao.join(','), display: (k) => this.tensoes(k.classesTensao) || 'Todas' },
     { key: 'itens', header: 'Itens', type: 'custom', width: '9rem', value: (k) => k.quantidadeItens, display: (k) => `${k.quantidadeServicos} serviços, ${k.quantidadeMateriais} materiais` },
-    { key: 'valor', header: 'Valor (R$)', type: 'custom', priority: 1, width: '9rem', value: (k) => k.valor, display: (k) => formatarMoeda(k.valor) },
+    { key: 'valor', header: 'Custo', type: 'custom', align: 'end', priority: 1, width: '11rem', value: (k) => k.valorTotal ?? k.valor, display: (k) => formatarMoeda(k.valorTotal ?? k.valor) },
     { key: 'ativo', header: 'Status', type: 'custom', sortField: 'ativo', width: '7rem', value: (k) => k.ativo, display: (k) => (k.ativo ? 'Ativo' : 'Inativo') }
   ];
   protected readonly rotulo = (k: KitConstrutivoResponse) => k.codigo;
@@ -367,7 +382,7 @@ export class KitsConstrutivosComponent {
     { key: 'operacao', header: 'Operação', width: '7rem', display: (i) => (i.operacao === 'RETIRAR' ? 'Retirar' : 'Instalar') },
     { key: 'quantidade', header: 'Qtd.', priority: 1, width: '6rem', value: (i) => i.quantidade,
       display: (i) => `${i.quantidade.toLocaleString('pt-BR', { maximumFractionDigits: 4 })}${i.unidade ? ' ' + i.unidade : ''}` },
-    { key: 'valorTotal', header: 'Valor (R$)', type: 'custom', width: '9rem', value: (i) => i.valorTotal ?? null, display: (i) => (i.valorTotal != null ? formatarMoeda(i.valorTotal) : '') }
+    { key: 'valorTotal', header: 'Valor (R$)', type: 'custom', width: '9rem', value: (i) => valorDoItem(i), display: (i) => (valorDoItem(i) != null ? formatarMoeda(valorDoItem(i)) : '') }
   ];
   protected readonly chaveItem = (i: ItemEmEdicao) => i.chave;
   protected readonly rotuloItem = (i: ItemEmEdicao) => i.codigo;
@@ -400,6 +415,7 @@ export class KitsConstrutivosComponent {
   protected readonly novaReferencia = signal<string | null>(null);
   protected readonly novaOperacao = signal<OperacaoItemKit>('INSTALAR');
   protected readonly novaQuantidade = signal<number | null>(1);
+  protected readonly novoValor = signal<number | null>(null);
   protected readonly itemEmEdicao = signal<string | null>(null);
   protected readonly erroItem = signal<string | undefined>(undefined);
 
@@ -523,7 +539,7 @@ export class KitsConstrutivosComponent {
   }
 
   private assinaturaItens(itens: ItemEmEdicao[]): string {
-    return itens.map((i) => `${i.id ?? ''}|${i.tipo}|${i.idReferencia}|${i.operacao}|${i.quantidade}`).join(';');
+    return itens.map((i) => `${i.id ?? ''}|${i.tipo}|${i.idReferencia}|${i.operacao}|${i.quantidade}|${i.tipo === 'MATERIAL' ? (i.valorUnitario ?? '') : ''}`).join(';');
   }
 
   protected trocarTipo(tipo: TipoItemKit | null): void {
@@ -538,7 +554,25 @@ export class KitsConstrutivosComponent {
     this.novaReferencia.set(null);
     this.novaOperacao.set('INSTALAR');
     this.novaQuantidade.set(1);
+    this.novoValor.set(null);
     this.erroItem.set(undefined);
+  }
+
+  /** Linha de apoio do custo: divisão serviço/material e o que está sem valor, numa linha só. */
+  protected apoioCusto(k: KitConstrutivoResponse): string {
+    const partes: string[] = [];
+    if (k.valorMateriais) partes.push(`Serv. ${formatarMoeda(k.valor)} · mat. ${formatarMoeda(k.valorMateriais)}`);
+    const sem = this.semValor(k);
+    if (sem) partes.push(sem);
+    return partes.join(' · ');
+  }
+
+  /** Itens sem valor, para a listagem. */
+  protected semValor(k: KitConstrutivoResponse): string {
+    const partes: string[] = [];
+    if (k.servicosSemValor) partes.push(`${k.servicosSemValor} serv. sem valor`);
+    if (k.materiaisSemValor) partes.push(`${k.materiaisSemValor} mat. sem valor`);
+    return partes.join(' · ');
   }
 
   protected editarItem(item: ItemEmEdicao): void {
@@ -555,6 +589,7 @@ export class KitsConstrutivosComponent {
     this.novaReferencia.set(item.idReferencia);
     this.novaOperacao.set(item.operacao);
     this.novaQuantidade.set(item.quantidade);
+    this.novoValor.set(item.tipo === 'MATERIAL' ? (item.valorUnitario ?? null) : null);
     this.erroItem.set(undefined);
   }
 
@@ -591,8 +626,8 @@ export class KitsConstrutivosComponent {
       operacao: this.novaOperacao(),
       unidade: material?.unidadeMedida ?? anterior?.unidade ?? null,
       quantidade,
-      // Valor recalculado pelo servidor ao salvar.
-      valorUnitario: null,
+      // Serviço: valor recalculado pelo servidor ao salvar. Material: o valor orçado aqui.
+      valorUnitario: tipo === 'MATERIAL' ? this.novoValor() : null,
       valorTotal: null
     };
     this.itens.update((lista) => (anterior ? lista.map((i) => (i.chave === anterior.chave ? item : i)) : [...lista, item]));
@@ -620,7 +655,8 @@ export class KitsConstrutivosComponent {
         idReferencia: i.idReferencia,
         operacao: i.operacao,
         unidade: i.unidade,
-        quantidade: i.quantidade
+        quantidade: i.quantidade,
+        valorUnitario: i.tipo === 'MATERIAL' ? (i.valorUnitario ?? null) : null
       }))
     };
     this.salvando.set(true);

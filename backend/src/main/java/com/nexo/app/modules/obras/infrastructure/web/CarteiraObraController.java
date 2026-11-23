@@ -6,7 +6,6 @@ import com.nexo.app.modules.obras.application.dto.HistoricoStatusObraResponse;
 import com.nexo.app.modules.obras.application.dto.IndicadoresCarteiraResponse;
 import com.nexo.app.modules.obras.application.dto.ObraFilter;
 import com.nexo.app.modules.obras.application.dto.ObraProximaResponse;
-import com.nexo.app.modules.obras.application.dto.OrcamentoObraResponse;
 import com.nexo.app.modules.obras.application.dto.StatusOperacionalObraRequest;
 import com.nexo.app.modules.obras.application.usecases.CarteiraObraUseCases;
 import com.nexo.app.modules.obras.doc.CarteiraObraControllerDoc;
@@ -62,13 +61,6 @@ public class CarteiraObraController implements CarteiraObraControllerDoc {
     @PreAuthorize("hasAuthority('obras:obra:write')")
     public ResponseEntity<CarteiraObraResponse> recalcularDeslocamento(@PathVariable UUID id) {
         return ResponseEntity.ok(useCases.recalcularDeslocamento(id));
-    }
-
-    @Override
-    @GetMapping("/{id}/orcamento")
-    @PreAuthorize("hasAuthority('obras:obra:read')")
-    public ResponseEntity<OrcamentoObraResponse> buscarOrcamento(@PathVariable UUID id) {
-        return ResponseEntity.ok(useCases.buscarOrcamento(id));
     }
 
     @Override

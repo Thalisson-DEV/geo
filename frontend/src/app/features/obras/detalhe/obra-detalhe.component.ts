@@ -19,10 +19,7 @@ import { MenuModule } from 'primeng/menu';
 import {
   GeoAsyncStateComponent,
   GeoButtonComponent,
-  GeoCellDirective,
   GeoConfirmationService,
-  GeoDataTableColumn,
-  GeoDataTableComponent,
   GeoDatepickerComponent,
   GeoDialogShellComponent,
   GeoFileInputComponent,
@@ -45,7 +42,6 @@ import {
   AnexoObraResponse,
   CarteiraObraRequest,
   HistoricoStatusObraResponse,
-  ItemOrcamentoObraResponse,
   ObraProximaResponse,
   ObraResponse,
   ObraResumoResponse,
@@ -71,6 +67,7 @@ import { DevolucaoTecnicaFormComponent } from '../../almoxarifado/solicitacoes-m
 import { NovaSolicitacaoTecnicaDrawerComponent } from '../../almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-tecnica-drawer.component';
 import { ObraFormComponent } from '../form/obra-form.component';
 import { CargaSaldoObra, ObraMateriaisComponent } from './obra-materiais.component';
+import { ObraOrcamentoComponent } from './obra-orcamento.component';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AnalisarComCopilotoComponent } from '../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
 import {
@@ -179,13 +176,12 @@ interface MarcoPrazo {
     NovaSolicitacaoTecnicaDrawerComponent,
     DatePipe,
     ObraMateriaisComponent,
+    ObraOrcamentoComponent,
     ProgramacaoDetalheComponent,
     RouterLink,
     MenuModule,
     GeoAsyncStateComponent,
     GeoButtonComponent,
-    GeoCellDirective,
-    GeoDataTableComponent,
     GeoDatepickerComponent,
     GeoDialogShellComponent,
     GeoFileInputComponent,
@@ -420,8 +416,8 @@ export class ObraDetalheComponent {
       id: 'orcamento',
       rotulo: 'Orçamento',
       alvo: 'orcamento-titulo',
-      detalhe: carregandoOrcamento ? 'Carregando' : orc?.importado ? this.moeda(orc.totalServicosImportados) : 'Não importado',
-      estado: orc?.importado ? 'feito' : 'pendente'
+      detalhe: carregandoOrcamento ? 'Carregando' : orc?.possuiOrcamento ? this.moeda(orc.totais.orcadoServicos) : 'Sem orçamento',
+      estado: orc?.possuiOrcamento ? 'feito' : 'pendente'
     });
 
     if (this.podeVerDocumentacao) {
@@ -584,13 +580,6 @@ export class ObraDetalheComponent {
     return itens;
   });
 
-  protected readonly colunasOrcamento: GeoDataTableColumn<ItemOrcamentoObraResponse>[] = [
-    { key: 'codigo', header: 'Serviço', type: 'custom', priority: 1, value: (i) => i.codigo, display: (i) => `${i.codigo} ${i.descricao ?? ''}` },
-    { key: 'quantidade', header: 'Qtd.', width: '7rem', value: (i) => i.quantidade, display: (i) => `${i.quantidade.toLocaleString('pt-BR')} ${i.unidade ?? ''}` },
-    { key: 'valorUnitario', header: 'Unitário', type: 'currency', width: '8rem' },
-    { key: 'valorTotal', header: 'Total', type: 'currency', priority: 1, width: '9rem' }
-  ];
-  protected readonly chave = (r: { id: string }) => r.id;
 
   // ═══════════════════════════════════════════════════════════════════════
   // Drawers
@@ -784,6 +773,12 @@ export class ObraDetalheComponent {
     });
   }
 
+  /** O orçamento mudou na seção: os valores previstos da carteira vêm dele, então a obra é relida. */
+  protected orcamentoAtualizado(orcamento: OrcamentoObraResponse): void {
+    this.orcamento.set({ estado: 'ready', dados: orcamento });
+    this.service.buscarObraPorId(orcamento.idObra).pipe(take(1)).subscribe({ next: (dados) => this.obra.set(dados) });
+  }
+
   protected carregarOrcamento(id = this.obra()!.id): void {
     this.orcamento.set({ estado: 'loading' });
     this.service.buscarOrcamento(id).subscribe({
@@ -930,6 +925,8 @@ export class ObraDetalheComponent {
         return this.irParaDocumentacao();
       case 'ocorrencias':
         return this.irParaSecao('ocorrencias-titulo');
+      case 'orcamento':
+        return this.irParaSecao('orcamento-titulo');
     }
   }
 

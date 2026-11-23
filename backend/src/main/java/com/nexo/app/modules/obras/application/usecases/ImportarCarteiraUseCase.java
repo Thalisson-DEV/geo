@@ -2,6 +2,8 @@ package com.nexo.app.modules.obras.application.usecases;
 
 import com.nexo.app.modules.contrato.AcaoResponse;
 import com.nexo.app.modules.contrato.ContratoApi;
+import com.nexo.app.modules.estoque.EstoqueApi;
+import com.nexo.app.modules.obras.domain.TipoItemKit;
 import com.nexo.app.modules.obras.application.dto.CarteiraImportacaoLinha;
 import com.nexo.app.modules.obras.application.dto.ConfirmarImportacaoPlanilhaRequest;
 import com.nexo.app.modules.obras.application.dto.OrcamentoImportacaoLinha;
@@ -63,11 +65,12 @@ public class ImportarCarteiraUseCase {
     };
 
     static final String[] CABECALHO_ORCAMENTO = {
-            "NUMERO", "CODIGO_SERVICO", "DESCRICAO", "UNIDADE", "QUANTIDADE", "VALOR_UNITARIO", "VALOR_TOTAL",
-            "VALOR_MATERIAL_PREVISTO", "VALOR_SERVICO_PREVISTO"
+            "NUMERO", "TIPO", "OPERACAO", "CODIGO", "DESCRICAO", "UNIDADE", "QUANTIDADE", "VALOR_UNITARIO", "VALOR_TOTAL"
     };
 
-    private static final String[] COL_ORC_CODIGO = {"CODIGO_SERVICO", "CODIGO", "SERVICO", "COD_SERVICO"};
+    private static final String[] COL_ORC_CODIGO = ProcessarImportacaoOrcamentoService.COL_CODIGO;
+    private static final String[] COL_ORC_TIPO = ProcessarImportacaoOrcamentoService.COL_TIPO;
+    private static final String[] COL_ORC_OPERACAO = ProcessarImportacaoOrcamentoService.COL_OPERACAO;
     private static final String[] COL_ORC_DESCRICAO = {"DESCRICAO", "DESCRICAO_SERVICO"};
     private static final String[] COL_ORC_UNIDADE = {"UNIDADE", "UN", "UND"};
     private static final String[] COL_ORC_QUANTIDADE = {"QUANTIDADE", "QTD", "QTDE"};
@@ -78,6 +81,7 @@ public class ImportarCarteiraUseCase {
     private final ObraRepository obraRepository;
     private final StatusObraRepository statusRepository;
     private final ContratoApi contratoApi;
+    private final EstoqueApi estoqueApi;
     private final ProcessoNegocioApi processoNegocioApi;
     private final BaseOperacionalApi baseOperacionalApi;
     private final MunicipioApi municipioApi;
@@ -234,7 +238,7 @@ public class ImportarCarteiraUseCase {
 
     List<OrcamentoImportacaoLinha> validarOrcamento(List<OrcamentoImportacaoLinha> registros) {
         Map<String, Boolean> obras = new HashMap<>();
-        Map<String, Boolean> acoes = new HashMap<>();
+        Map<String, Boolean> referencias = new HashMap<>();
         List<OrcamentoImportacaoLinha> validadas = new ArrayList<>();
         for (OrcamentoImportacaoLinha r : registros) {
             List<String> erros = new ArrayList<>();
@@ -247,8 +251,11 @@ public class ImportarCarteiraUseCase {
             }
             String codigo = texto(r.codigoServico());
             if (codigo == null) {
-                erros.add("Código do serviço não informado.");
+                erros.add("Código do serviço ou material não informado.");
             }
+            TipoItemKit[] tipo = {TipoItemKit.SERVICO};
+            tentar(erros, () -> tipo[0] = ProcessarImportacaoOrcamentoService.tipo(r.tipo()));
+            tentar(erros, () -> ProcessarImportacaoOrcamentoService.operacao(r.operacao()));
             tentar(erros, () -> {
                 BigDecimal quantidade = LeitorPlanilhaImportacao.interpretarDecimal(r.quantidade());
                 if (quantidade == null || quantidade.signum() < 0) {
@@ -258,8 +265,8 @@ public class ImportarCarteiraUseCase {
             tentar(erros, () -> {
                 BigDecimal unitario = LeitorPlanilhaImportacao.interpretarDecimal(r.valorUnitario());
                 BigDecimal total = LeitorPlanilhaImportacao.interpretarDecimal(r.valorTotal());
-                if (unitario == null && total == null) {
-                    throw new InvarianteVioladaException("Informe o valor unitário ou o valor total.");
+                if (unitario == null && total == null && tipo[0] == TipoItemKit.SERVICO) {
+                    throw new InvarianteVioladaException("Informe o valor unitário ou o valor total do serviço.");
                 }
                 naoNegativo(unitario, "valor unitário");
                 naoNegativo(total, "valor total");
@@ -270,10 +277,13 @@ public class ImportarCarteiraUseCase {
                 validadas.add(r.withStatus(ImportacaoStatus.COM_ERRO, String.join(" ", erros)));
                 continue;
             }
-            boolean temAcao = acoes.computeIfAbsent(codigo.toUpperCase(Locale.ROOT),
-                    c -> contratoApi.buscarAcaoAtivaPorCodigo(c).map(AcaoResponse::id).isPresent());
-            validadas.add(r.withStatus(ImportacaoStatus.AGUARDANDO_PROCESSAMENTO,
-                    temAcao ? null : "Aviso: código sem Ação no contrato; entra no orçamento sem vínculo."));
+            boolean material = tipo[0] == TipoItemKit.MATERIAL;
+            boolean temReferencia = referencias.computeIfAbsent(tipo[0] + "|" + codigo.toUpperCase(Locale.ROOT),
+                    c -> material ? estoqueApi.buscarMaterialAtivoPorCodigo(codigo).isPresent()
+                            : contratoApi.buscarAcaoAtivaPorCodigo(codigo.toUpperCase(Locale.ROOT)).map(AcaoResponse::id).isPresent());
+            validadas.add(r.withStatus(ImportacaoStatus.AGUARDANDO_PROCESSAMENTO, temReferencia ? null
+                    : material ? "Aviso: material fora do catálogo; entra no orçamento sem vínculo."
+                    : "Aviso: código sem Ação no contrato; entra no orçamento sem vínculo."));
         }
         return validadas;
     }
@@ -292,13 +302,16 @@ public class ImportarCarteiraUseCase {
 
     public byte[] gerarModeloOrcamento() {
         return gerarModelo("Orçamento", CABECALHO_ORCAMENTO, new Object[]{
-                "1234567", "COD-ACAO", "Instalar estrutura BT", "UN", 2, "350,00", "", "60000,00", "90000,00"});
+                "1234567", "Serviço", "Instalar", "COD-ACAO", "Instalar estrutura BT", "UN", 2, "350,00", ""},
+                new Object[]{"1234567", "Material", "Instalar", "COD-MATERIAL", "Poste DT 11/300", "UN", 1, "", ""});
     }
 
-    private static byte[] gerarModelo(String aba, String[] cabecalho, Object[] exemplo) {
+    private static byte[] gerarModelo(String aba, String[] cabecalho, Object[]... exemplos) {
         try (PlanilhaXlsx planilha = new PlanilhaXlsx(aba, cabecalho);
              ByteArrayOutputStream saida = new ByteArrayOutputStream()) {
-            planilha.linha(exemplo);
+            for (Object[] exemplo : exemplos) {
+                planilha.linha(exemplo);
+            }
             planilha.escrever(saida);
             return saida.toByteArray();
         } catch (IOException e) {
@@ -346,7 +359,8 @@ public class ImportarCarteiraUseCase {
     }
 
     static OrcamentoImportacaoLinha orcamentoDe(Linha l) {
-        return new OrcamentoImportacaoLinha(l.numero(), l.valor(COL_NUMERO), l.valor(COL_ORC_CODIGO),
+        return new OrcamentoImportacaoLinha(l.numero(), l.valor(COL_NUMERO), l.valor(COL_ORC_TIPO), l.valor(COL_ORC_OPERACAO),
+                l.valor(COL_ORC_CODIGO),
                 l.valor(COL_ORC_DESCRICAO), l.valor(COL_ORC_UNIDADE), l.valor(COL_ORC_QUANTIDADE),
                 l.valor(COL_ORC_VALOR_UNITARIO), l.valor(COL_ORC_VALOR_TOTAL), l.valor(COL_VALOR_MATERIAL),
                 l.valor(COL_VALOR_SERVICO), null, null);
@@ -355,6 +369,8 @@ public class ImportarCarteiraUseCase {
     static Linha paraLinha(OrcamentoImportacaoLinha r) {
         Map<String, String> v = new HashMap<>();
         v.put(COL_NUMERO[0], r.numeroObra());
+        v.put(COL_ORC_TIPO[0], r.tipo());
+        v.put(COL_ORC_OPERACAO[0], r.operacao());
         v.put(COL_ORC_CODIGO[0], r.codigoServico());
         v.put(COL_ORC_DESCRICAO[0], r.descricao());
         v.put(COL_ORC_UNIDADE[0], r.unidade());

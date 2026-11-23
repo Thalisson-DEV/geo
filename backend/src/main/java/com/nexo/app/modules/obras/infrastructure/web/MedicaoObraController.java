@@ -187,6 +187,14 @@ public class MedicaoObraController implements MedicaoObraControllerDoc {
     }
 
     @Override
+    @PostMapping(value = "/medicoes/relatorio-detalhado/orcamento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('obras:obra:write')")
+    public ResponseEntity<MedicaoResponses.AnaliseOrcadoFaturado> gravarOrcadoRelatorioDetalhado(@RequestPart MultipartFile arquivo,
+                                                                                                @RequestParam List<UUID> idsObras) {
+        return ResponseEntity.ok(relatorioDetalhado.gravarOrcado(arquivo, idsObras));
+    }
+
+    @Override
     @PostMapping(value = "/medicoes/relatorio-detalhado", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize(LER)
     public ResponseEntity<byte[]> gerarRelatorioDetalhado(

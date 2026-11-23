@@ -48,7 +48,8 @@ export const COLUNAS_KITS: ColunaPlanilha[] = [
   { key: 'codigoItem', header: 'Código do item', priority: 1 },
   { key: 'operacao', header: 'Operação', opcoes: OPERACOES, exibir: rotulo(OPERACOES, 'operacao') },
   { key: 'quantidade', header: 'Qtd.' },
-  { key: 'unidade', header: 'Un.' }
+  { key: 'unidade', header: 'Un.' },
+  { key: 'valorUnitario', header: 'Valor unitário (material)' }
 ];
 
 export function fonteKits(servico: ObrasKitService): FonteImportacao {
@@ -101,19 +102,19 @@ export function fonteCarteira(servico: ObrasKitService): FonteImportacao {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// Serviços e orçamento previstos
+// Orçamento das obras (serviços e materiais)
 // ═══════════════════════════════════════════════════════════════════════
 
 export const COLUNAS_ORCAMENTO: ColunaPlanilha[] = [
   { key: 'numeroObra', header: 'Obra', priority: 1 },
-  { key: 'codigoServico', header: 'Código do serviço', priority: 1 },
+  { key: 'tipo', header: 'Tipo' },
+  { key: 'operacao', header: 'Operação' },
+  { key: 'codigoServico', header: 'Código', priority: 1 },
   { key: 'descricao', header: 'Descrição' },
   { key: 'unidade', header: 'Un.' },
   { key: 'quantidade', header: 'Qtd.' },
   { key: 'valorUnitario', header: 'Valor unitário' },
-  { key: 'valorTotal', header: 'Valor total' },
-  { key: 'valorMaterialPrevisto', header: 'Material previsto (obra)' },
-  { key: 'valorServicoPrevisto', header: 'Serviço previsto (obra)' }
+  { key: 'valorTotal', header: 'Valor total' }
 ];
 
 export function fonteOrcamento(servico: ObrasKitService): FonteImportacao {

@@ -53,6 +53,7 @@ public class ProcessarImportacaoKitsService {
     static final String[] COL_OPERACAO = {"OPERACAO", "ACAO", "INSTALAR_RETIRAR"};
     static final String[] COL_QUANTIDADE = {"QUANTIDADE", "QTD", "QTDE"};
     static final String[] COL_UNIDADE = {"UNIDADE", "UN", "UND", "UNIDADE_MEDIDA"};
+    static final String[] COL_VALOR_UNITARIO = {"VALOR_UNITARIO", "PRECO", "PRECO_UNITARIO", "VALOR"};
 
     private final ImportacaoObraRepository importacaoRepository;
     private final KitConstrutivoRepository kitRepository;
@@ -165,8 +166,10 @@ public class ProcessarImportacaoKitsService {
                 if (quantidade == null) {
                     throw new InvarianteVioladaException("Quantidade não informada.");
                 }
+                BigDecimal valorUnitario = tipo == TipoItemKit.MATERIAL
+                        ? LeitorPlanilhaImportacao.interpretarDecimal(linha.valor(COL_VALOR_UNITARIO)) : null;
                 boolean criado = kit.adicionarOuAtualizarItem(tipo, idReferencia, operacao,
-                        linha.valor(COL_UNIDADE), quantidade);
+                        linha.valor(COL_UNIDADE), quantidade, valorUnitario);
                 contagens.add(criado ? importacao::registrarInserido : importacao::registrarAtualizado);
             } catch (InvarianteVioladaException e) {
                 importacao.registrarErro(linha.numero(), codigo + " / " + codigoItem, e.getMessage());

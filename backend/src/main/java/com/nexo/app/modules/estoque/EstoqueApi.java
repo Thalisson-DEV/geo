@@ -10,6 +10,7 @@ import com.nexo.app.shared.application.dto.OperacaoMaterial;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -61,6 +62,7 @@ public class EstoqueApi {
     /**
      * Busca os dados de um material por ID para exibição.
      */
+    @Transactional(readOnly = true)
     public Optional<MaterialResponse> buscarMaterialPorIdResponse(UUID id) {
         return materialRepository.findById(id).map(materialMapper::toResponse);
     }
@@ -68,6 +70,7 @@ public class EstoqueApi {
     /**
      * Busca um material ativo pelo código, sem diferenciar maiúsculas (usado nas importações de planilha).
      */
+    @Transactional(readOnly = true)
     public Optional<MaterialResponse> buscarMaterialAtivoPorCodigo(String codigo) {
         if (codigo == null || codigo.isBlank()) {
             return Optional.empty();

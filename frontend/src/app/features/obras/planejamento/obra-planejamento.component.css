@@ -830,6 +830,25 @@
   font-weight: 600;
 }
 
+.plan-orcamento__resumo {
+  margin: 0 0 0.5rem;
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.plan-orcamento__resumo strong {
+  color: var(--geo-foreground);
+}
+
+.plan-orcamento__op {
+  margin-inline-start: 0.25rem;
+  color: var(--geo-foreground-muted);
+}
+
+.plan-orcamento {
+  margin-top: 0.5rem;
+}
+
 .plan-orcamento .numero {
   font-variant-numeric: tabular-nums;
   text-align: right;

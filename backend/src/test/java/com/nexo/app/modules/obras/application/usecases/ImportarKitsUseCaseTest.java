@@ -99,8 +99,8 @@ class ImportarKitsUseCaseTest {
             return imp;
         });
         List<KitImportacaoLinha> linhas = List.of(
-                new KitImportacaoLinha(2, "K1", "Kit um", null, "15 kV", "SERVICO", "ACAO-1", "INSTALAR", "1", "UN", null, null),
-                new KitImportacaoLinha(3, "K1", null, null, null, "MATERIAL", "NAO-EXISTE", null, "1", "UN", null, null));
+                new KitImportacaoLinha(2, "K1", "Kit um", null, "15 kV", "SERVICO", "ACAO-1", "INSTALAR", "1", "UN", null, null, null),
+                new KitImportacaoLinha(3, "K1", null, null, null, "MATERIAL", "NAO-EXISTE", null, "1", "UN", null, null, null));
 
         PreviaImportacaoObraResponse<KitImportacaoLinha> resposta =
                 useCase.confirmar(new ConfirmarImportacaoPlanilhaRequest<>(contrato, "kits.csv", linhas));

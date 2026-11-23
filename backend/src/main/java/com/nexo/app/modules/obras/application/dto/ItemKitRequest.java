@@ -28,6 +28,13 @@ public record ItemKitRequest(
 
         @NotNull(message = "A quantidade do item é obrigatória")
         @DecimalMin(value = "0.0001", message = "A quantidade do item deve ser maior que zero")
-        BigDecimal quantidade
+        BigDecimal quantidade,
+        /** Valor unitário do material (o serviço vale o que o contrato diz). */
+        @DecimalMin(value = "0", message = "O valor unitário não pode ser negativo")
+        BigDecimal valorUnitario
 ) {
+    /** Sem valor unitário (contrato anterior). */
+    public ItemKitRequest(UUID id, TipoItemKit tipo, UUID idReferencia, OperacaoItemKit operacao, String unidade, BigDecimal quantidade) {
+        this(id, tipo, idReferencia, operacao, unidade, quantidade, null);
+    }
 }

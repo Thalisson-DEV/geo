@@ -45,7 +45,7 @@ public class ImportarKitsUseCase {
 
     static final String[] CABECALHO_MODELO = {
             "CODIGO_KIT", "DESCRICAO_KIT", "GRUPO", "TENSOES",
-            "TIPO_ITEM", "CODIGO_ITEM", "OPERACAO", "QUANTIDADE", "UNIDADE"
+            "TIPO_ITEM", "CODIGO_ITEM", "OPERACAO", "QUANTIDADE", "UNIDADE", "VALOR_UNITARIO"
     };
 
     private final ImportacaoObraRepository importacaoRepository;
@@ -87,8 +87,8 @@ public class ImportarKitsUseCase {
         try (PlanilhaXlsx planilha = new PlanilhaXlsx("Kits", CABECALHO_MODELO);
              ByteArrayOutputStream saida = new ByteArrayOutputStream()) {
             planilha.linha("KIT-EXEMPLO-01", "Estrutura BT com poste 11m", "ESTRUTURA", "BT; 15 kV",
-                    "SERVICO", "COD-ACAO", "INSTALAR", 1, "UN");
-            planilha.linha("KIT-EXEMPLO-01", "", "", "", "MATERIAL", "COD-MATERIAL", "INSTALAR", 2, "UN");
+                    "SERVICO", "COD-ACAO", "INSTALAR", 1, "UN", "");
+            planilha.linha("KIT-EXEMPLO-01", "", "", "", "MATERIAL", "COD-MATERIAL", "INSTALAR", 2, "UN", "850,00");
             planilha.escrever(saida);
             return saida.toByteArray();
         } catch (IOException e) {
@@ -152,6 +152,12 @@ public class ImportarKitsUseCase {
                     throw new InvarianteVioladaException("Informe a quantidade maior que zero.");
                 }
             });
+            tentar(erros, () -> {
+                BigDecimal valor = LeitorPlanilhaImportacao.interpretarDecimal(r.valorUnitario());
+                if (valor != null && valor.signum() < 0) {
+                    throw new InvarianteVioladaException("O valor unitário não pode ser negativo.");
+                }
+            });
         }
         return erros.isEmpty()
                 ? r.withStatus(ImportacaoStatus.AGUARDANDO_PROCESSAMENTO, null)
@@ -166,7 +172,7 @@ public class ImportarKitsUseCase {
     static KitImportacaoLinha deLinha(Linha l) {
         return new KitImportacaoLinha(l.numero(), l.valor(COL_CODIGO_KIT), l.valor(COL_DESCRICAO_KIT), l.valor(COL_GRUPO),
                 l.valor(COL_TENSOES), l.valor(COL_TIPO), l.valor(COL_CODIGO_ITEM), l.valor(COL_OPERACAO),
-                l.valor(COL_QUANTIDADE), l.valor(COL_UNIDADE), null, null);
+                l.valor(COL_QUANTIDADE), l.valor(COL_UNIDADE), l.valor(ProcessarImportacaoKitsService.COL_VALOR_UNITARIO), null, null);
     }
 
     static Linha paraLinha(KitImportacaoLinha r) {
@@ -180,6 +186,7 @@ public class ImportarKitsUseCase {
         v.put(COL_OPERACAO[0], r.operacao());
         v.put(COL_QUANTIDADE[0], r.quantidade());
         v.put(COL_UNIDADE[0], r.unidade());
+        v.put(ProcessarImportacaoKitsService.COL_VALOR_UNITARIO[0], r.valorUnitario());
         return new Linha(r.linha() != null ? r.linha() : 0, v);
     }
 

@@ -1,12 +1,15 @@
 package com.nexo.app.modules.obras.application.usecases;
 
+import com.nexo.app.modules.obras.domain.ItemOrcamentoObra;
 import com.nexo.app.modules.obras.domain.ItemPlanejado;
 import com.nexo.app.modules.obras.domain.KitAplicado;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.OperacaoItemKit;
 import com.nexo.app.modules.obras.domain.TipoItemKit;
 import com.nexo.app.modules.obras.infrastructure.persistence.ApontamentoExecucaoRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.ItemOrcamentoObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.KitAplicadoRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.RevisaoOrcamentoObraRepository;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -33,8 +36,10 @@ class RelatorioMedicaoDetalhadoUseCasesTest {
     private final KitAplicadoRepository kits = mock(KitAplicadoRepository.class);
     private final ApontamentoExecucaoRepository apontamentos = mock(ApontamentoExecucaoRepository.class);
     private final MedicaoObraUseCases medicoes = mock(MedicaoObraUseCases.class);
+    private final ItemOrcamentoObraRepository orcamento = mock(ItemOrcamentoObraRepository.class);
     private final RelatorioMedicaoDetalhadoUseCases useCases = new RelatorioMedicaoDetalhadoUseCases(null, kits, null, null, apontamentos,
-            medicoes, null, new DocumentoTecnicoPdf());
+            medicoes, null, new DocumentoTecnicoPdf(), orcamento, mock(RevisaoOrcamentoObraRepository.class),
+            null, null, null);
 
     /**
      * Orçado e faturado da planilha encontram o planejado e o executado do sistema pelo código e pela operação, mesmo
@@ -92,6 +97,29 @@ class RelatorioMedicaoDetalhadoUseCasesTest {
                     "1.200,00", "Faturado para conferir", "* Executado acima do orçado");
         }
         assertThat(useCases.planilha(r)).isNotEmpty();
+    }
+
+    /** Obra com orçamento gravado: ele prevalece sobre o orçado da planilha; o faturado continua vindo da planilha. */
+    @Test
+    void orcamentoGravadoNaObraPrevaleceSobreAPlanilha() {
+        Obra obra = obra();
+        when(kits.listarComItens(ID_OBRA)).thenReturn(List.of());
+        when(apontamentos.somarPorItemDaObraAte(ID_OBRA, CORTE)).thenReturn(List.of());
+        when(medicoes.resumosDaObra(any())).thenReturn(List.of());
+        when(orcamento.findByIdObraAndAtivoTrueOrderByCodigoAsc(ID_OBRA)).thenReturn(List.of(new ItemOrcamentoObra(ID_OBRA, null, null,
+                new ItemOrcamentoObra.Dados(TipoItemKit.SERVICO, OperacaoItemKit.INSTALAR, "0103", "Instalar poste", "UN",
+                        new BigDecimal("5"), new BigDecimal("300"), null, null, null))));
+        PlanilhaOrcadoFaturado.Conteudo conteudo = new PlanilhaOrcadoFaturado.Conteudo(List.of(),
+                List.of(new PlanilhaOrcadoFaturado.LinhaOrcada(2, "7000001", OperacaoItemKit.INSTALAR, "103", "Instalar poste", null,
+                        new BigDecimal("10"), null, new BigDecimal("1000"), null, null)),
+                List.of(faturado(2, CORTE.minusDays(10), "500", "A", false)), List.of());
+
+        RelatorioMedicaoDetalhado r = useCases.montar(obra, "Cidade", conteudo, CORTE, null, null);
+
+        assertThat(r.maoDeObra()).singleElement().satisfies(l -> {
+            assertThat(l.orcadoValor()).isEqualByComparingTo("1500");
+            assertThat(l.faturadoValor()).isEqualByComparingTo("500");
+        });
     }
 
     private static PlanilhaOrcadoFaturado.LinhaFaturada faturado(int linha, LocalDate data, String valor, String situacao, boolean credito) {

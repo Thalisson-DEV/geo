@@ -1,4 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
+import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
+import { ObrasKitService } from '../../../core/services/obras-kit.service';
 import { ObrasTurnosService } from '../../../core/services/obras-turnos.service';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -72,6 +74,8 @@ describe('ObraDetalheComponent', () => {
         { provide: RhService, useValue: { listarEquipes: vi.fn(() => of({ content: [{ id: 'eq-1', codigo: 'EQ-01', tipoEquipe: { nome: 'LINHA VIVA' }, baseOperacional: { nome: 'BASE JUAZEIRO' } }] })) } },
         { provide: AuthService, useValue: { currentUser: () => ({ permissoes }) } },
         { provide: ObrasMedicoesService, useValue: medicoes },
+        { provide: AlmoxarifadoService, useValue: {} },
+        { provide: ObrasKitService, useValue: {} },
         { provide: ObrasTurnosService, useValue: { ocorrenciasDaObra: vi.fn(() => of([])) } },
         { provide: ObrasProgramacaoService, useValue: { resumos: vi.fn(() => of([])), listarDaObra: vi.fn(() => of([])) } },
         { provide: SolicitacaoMaterialTecnicaService, useValue: { obterProjecaoObra: vi.fn(() => of({ idObra: 'obra-1', tipoObra: 'OBRA', ocorrencias: [], solicitacoes: [] })), obterSaldoObra: vi.fn(() => of({ idEstoque: null, itens: [] })) } },
@@ -102,7 +106,14 @@ describe('ObraDetalheComponent', () => {
       informarCarteira: vi.fn(() => of({})),
       listarHistoricoStatus: vi.fn(() => of([{ id: 'h1', statusNovoId: 'st-1', statusNovoNome: 'EM EXECUÇÃO', observacao: 'Equipe mobilizada', usuario: 'ANA', data: new Date().toISOString() }])),
       listarObrasProximas: vi.fn(() => of([])),
-      buscarOrcamento: vi.fn(() => of({ idObra: 'obra-1', importado: false, totalServicosImportados: 0, itens: [] })),
+      buscarOrcamento: vi.fn(() => of({
+        idObra: 'obra-1',
+        possuiOrcamento: false,
+        revisao: null,
+        totais: { orcadoServicos: 0, orcadoMateriais: 0, planejadoServicos: 0, executadoServicos: 0, medidoServicos: 0, saldoServicos: 0, planejadoForaDoOrcamento: 0, planejadoMateriais: 0 },
+        contagens: { acima: 0, foraDoOrcamento: 0, naoPlanejados: 0, semReferencia: 0 },
+        itens: []
+      })),
       desvincularSubprojeto: vi.fn(() => of({})),
       removerAnexo: vi.fn(() => of(undefined)),
       anexarArquivo: vi.fn(() => of(anexo)),
@@ -128,7 +139,7 @@ describe('ObraDetalheComponent', () => {
     expect(texto).toContain('EQ-01');
     expect(texto).toContain('projeto.pdf');
     expect(texto).toContain('1228695');
-    expect(texto).toContain('Não há orçamento importado');
+    expect(texto).toContain('A obra ainda não tem orçamento');
   });
 
   it('entrega solicitações e movimentações ao bloco de materiais', async () => {
@@ -267,6 +278,6 @@ describe('ObraDetalheComponent', () => {
     permissoes = [...permissoes, 'obras:medicao:read'];
     const el = await abrir();
     const titulos = [...el.querySelectorAll('.obra-principal .obra-card h2')].map((h) => h.textContent!.trim().replace(/\s+\d+$/, ''));
-    expect(titulos).toEqual(['Dados da obra', 'Orçamento previsto', 'Materiais da obra', 'Execução e medição', 'Anexos', 'Subprojetos']);
+    expect(titulos).toEqual(['Dados da obra', 'Orçamento', 'Materiais da obra', 'Execução e medição', 'Anexos', 'Subprojetos']);
   });
 });

@@ -467,24 +467,50 @@
   </geo-dialog-shell>
 
   <geo-form-drawer [(visible)]="detalheAberto" [title]="tituloAtivo()" size="lg" [resizable]="true" description="Kits, previsto e executado por item e orçamento da obra">
-    <geo-tabs [tabs]="abasDetalhe" [value]="abaDetalhe()" (valueChange)="abaDetalhe.set($any($event))" ariaLabel="Detalhe do local">
+    <geo-tabs [tabs]="abasDetalhe" [value]="abaDetalhe()" (valueChange)="trocarAbaDetalhe($event)" ariaLabel="Detalhe do local">
       <ng-template geoTabPanel="kits">
         <app-planejamento-kits [kits]="kitsDoAtivo()" [emVao]="!!vaoAtivo()" [idContrato]="p.idContrato" [classeTensao]="p.classeTensao" [podeEditar]="podeEditar"
           (aplicar)="aplicarKit($event)" (remover)="removerKit($event)" (alterarQuantidade)="alterarQuantidadeKit($event)"
           (executadoAntes)="marcarExecutadoAntes($event)" (alterarItem)="alterarItem($event)" (removerItem)="removerItem($event)"></app-planejamento-kits>
       </ng-template>
       <ng-template geoTabPanel="orcamento">
-        @if (orcamento()?.itens?.length) {
-          <table class="plan-orcamento">
-            <thead><tr><th>Código</th><th>Serviço</th><th>Un.</th><th class="numero">Qtd.</th><th class="numero">Valor</th></tr></thead>
-            <tbody>
-              @for (item of orcamento()!.itens; track item.id) {
-                <tr><td><code>{{ item.codigo }}</code></td><td>{{ item.descricao }}</td><td>{{ item.unidade }}</td><td class="numero">{{ item.quantidade }}</td><td class="numero">{{ moeda(item.valorTotal) }}</td></tr>
-              }
-            </tbody>
-          </table>
+        @if (orcamento(); as orc) {
+          @if (orc.possuiOrcamento) {
+            <p class="plan-orcamento__resumo">
+              Na obra toda: <strong>{{ moeda(orc.totais.planejadoServicos) }}</strong> planejados de {{ moeda(orc.totais.orcadoServicos) }} orçados em serviços
+              ({{ percentualOrcado(orc.totais.planejadoServicos, orc.totais.orcadoServicos) }}%).
+            </p>
+            @if (orc.contagens.acima || orc.contagens.foraDoOrcamento) {
+              <geo-callout tone="warning" [dense]="true" icon="pi pi-exclamation-triangle">
+                {{ orc.contagens.acima ? orc.contagens.acima + ' acima do orçado' : '' }}{{ orc.contagens.acima && orc.contagens.foraDoOrcamento ? ' · ' : '' }}{{ orc.contagens.foraDoOrcamento ? orc.contagens.foraDoOrcamento + ' fora do orçamento' : '' }}.
+                É só um aviso: você pode seguir planejando.
+              </geo-callout>
+            }
+          } @else {
+            <geo-callout tone="info" [dense]="true" icon="pi pi-calculator">
+              A obra ainda não tem orçamento. Na ficha da obra dá para gerá-lo a partir deste planejamento, importar a planilha ou lançar item a item.
+            </geo-callout>
+          }
+          @if (servicosOrcamento().length) {
+            <table class="plan-orcamento">
+              <thead><tr><th>Serviço</th><th class="numero">Orçado</th><th class="numero">Planejado</th><th>Situação</th></tr></thead>
+              <tbody>
+                @for (item of servicosOrcamento(); track item.codigo + item.operacao) {
+                  <tr>
+                    <td><code>{{ item.codigo }}</code> {{ item.descricao }}@if (item.operacao === 'RETIRAR') { <geo-status class="plan-orcamento__op" tone="neutral">Retirar</geo-status> }</td>
+                    <td class="numero">{{ qtdOrcamento(item.orcadoQuantidade) }}</td>
+                    <td class="numero">{{ qtdOrcamento(item.planejadoQuantidade) }}</td>
+                    <td><geo-status [tone]="situacaoOrcamento(item.situacao).tom" [icon]="situacaoOrcamento(item.situacao).icone">{{ situacaoOrcamento(item.situacao).rotulo }}</geo-status></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        } @else if (orcamentoErro()) {
+          <geo-async-state state="error" [compact]="true" title="Não foi possível carregar o orçamento"
+            actionLabel="Tentar de novo" (action)="trocarAbaDetalhe('orcamento')"></geo-async-state>
         } @else {
-          <geo-async-state state="empty" [compact]="true" icon="pi pi-inbox" title="Nenhum orçamento importado para esta obra"></geo-async-state>
+          <geo-async-state state="loading" [compact]="true" title="Carregando o orçamento"></geo-async-state>
         }
       </ng-template>
     </geo-tabs>

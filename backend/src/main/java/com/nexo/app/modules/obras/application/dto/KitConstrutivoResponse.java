@@ -10,8 +10,9 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Kit com valor em R$ calculado na {@code dataReferenciaValor}: soma de quantidade × valor vigente das ações dos
- * itens de serviço. {@code servicosSemValor} conta os serviços sem valor vigente, que ficam fora da soma.
+ * Kit com valor em R$ calculado na {@code dataReferenciaValor}. {@code valor} soma os serviços (quantidade × valor vigente
+ * das ações); {@code valorMateriais} soma os materiais orçados no kit; {@code valorTotal} é o custo do kit (os dois).
+ * {@code servicosSemValor} e {@code materiaisSemValor} contam os itens sem valor, que ficam fora das somas.
  */
 public record KitConstrutivoResponse(
         UUID id,
@@ -31,6 +32,9 @@ public record KitConstrutivoResponse(
         boolean ativo,
         Long versao,
         OffsetDateTime dataCriacao,
-        OffsetDateTime dataUltimaAlteracao
+        OffsetDateTime dataUltimaAlteracao,
+        BigDecimal valorMateriais,
+        int materiaisSemValor,
+        BigDecimal valorTotal
 ) {
 }

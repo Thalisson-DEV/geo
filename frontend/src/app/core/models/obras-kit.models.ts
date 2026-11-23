@@ -43,8 +43,14 @@ export interface KitConstrutivoResponse {
   quantidadeItens: number;
   quantidadeServicos: number;
   quantidadeMateriais: number;
+  /** Serviços pelo valor vigente do contrato. */
   valor: number;
   servicosSemValor: number;
+  /** Materiais pelo valor orçado no kit. */
+  valorMateriais?: number;
+  materiaisSemValor?: number;
+  /** Custo do kit: serviços + materiais. */
+  valorTotal?: number;
   dataReferenciaValor?: string | null;
   /** Vem preenchido só no detalhe; a listagem traz só as contagens. */
   itens: ItemKitResponse[];
@@ -61,6 +67,8 @@ export interface ItemKitRequest {
   operacao: OperacaoItemKit;
   unidade?: string | null;
   quantidade: number;
+  /** Valor unitário do material (o serviço vale o que o contrato diz). */
+  valorUnitario?: number | null;
 }
 
 export interface KitConstrutivoRequest {
@@ -105,6 +113,7 @@ export interface KitImportacaoLinha extends LinhaImportacaoBase {
   operacao?: string | null;
   quantidade?: string | null;
   unidade?: string | null;
+  valorUnitario?: string | null;
 }
 
 /** Uma linha da carteira: uma obra (existente ou nova). */
@@ -134,9 +143,11 @@ export interface CarteiraImportacaoLinha extends LinhaImportacaoBase {
   obraNova?: boolean | null;
 }
 
-/** Uma linha do orçamento previsto: um serviço de uma obra. */
+/** Uma linha do orçamento: um serviço ou material de uma obra (tipo vazio é serviço; operação vazia é instalar). */
 export interface OrcamentoImportacaoLinha extends LinhaImportacaoBase {
   numeroObra?: string | null;
+  tipo?: string | null;
+  operacao?: string | null;
   codigoServico?: string | null;
   descricao?: string | null;
   unidade?: string | null;

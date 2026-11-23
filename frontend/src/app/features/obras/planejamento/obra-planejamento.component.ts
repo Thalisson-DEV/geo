@@ -41,7 +41,8 @@ import {
 } from '@geo/ui';
 import { Observable, filter, finalize, shareReplay, switchMap, take, takeWhile, tap, timer } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
-import { AnexoObraResponse, OrcamentoObraResponse } from '../../../core/models/obras.models';
+import { AnexoObraResponse, OrcamentoObraResponse, SituacaoItemOrcamento } from '../../../core/models/obras.models';
+import { SITUACAO_ORCAMENTO, percentual } from '../detalhe/obra-orcamento.logic';
 import { ehArquivoCad, ehPdf, ehPlantaGerada, nomePlantaDoCad } from '../anexo-projeto';
 import {
   AceitarProposta,
@@ -214,7 +215,7 @@ export class ObraPlanejamentoComponent {
   protected readonly abaDetalhe = signal<string>('kits');
   protected readonly abasDetalhe = [
     { value: 'kits', label: 'Kits construtivos', icon: 'pi pi-briefcase' },
-    { value: 'orcamento', label: 'Orçamento', icon: 'pi pi-file' }
+    { value: 'orcamento', label: 'Orçamento', icon: 'pi pi-calculator' }
   ];
   protected readonly orcamento = signal<OrcamentoObraResponse | null>(null);
   protected readonly avancoAberto = signal(false);
@@ -1128,12 +1129,33 @@ export class ObraPlanejamentoComponent {
   protected abrirDetalhe(): void {
     this.abaDetalhe.set('kits');
     this.detalheAberto.set(true);
-    if (!this.orcamento()) {
+  }
+
+  /** A aba Orçamento relê o comparativo: kits aplicados agora já mudam o planejado. */
+  protected trocarAbaDetalhe(aba: unknown): void {
+    this.abaDetalhe.set(String(aba));
+    if (aba === 'orcamento') {
+      this.orcamentoErro.set(false);
+      this.orcamento.set(null);
       this.obras.buscarOrcamento(this.idObra).pipe(take(1)).subscribe({
         next: (orcamento) => this.orcamento.set(orcamento),
-        error: () => this.orcamento.set(null)
+        error: () => this.orcamentoErro.set(true)
       });
     }
+  }
+
+  protected readonly orcamentoErro = signal(false);
+
+  protected qtdOrcamento(valor: number | null | undefined): string {
+    return valor == null ? '—' : valor.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
+  }
+
+  /** Serviços do orçamento e do planejamento, com o que pede atenção primeiro (o servidor já ordena). */
+  protected readonly servicosOrcamento = computed(() => (this.orcamento()?.itens ?? []).filter((i) => i.tipo === 'SERVICO'));
+  protected readonly percentualOrcado = percentual;
+
+  protected situacaoOrcamento(situacao: string) {
+    return SITUACAO_ORCAMENTO[situacao as SituacaoItemOrcamento] ?? SITUACAO_ORCAMENTO.DENTRO;
   }
 
   // ---- Seleção ----

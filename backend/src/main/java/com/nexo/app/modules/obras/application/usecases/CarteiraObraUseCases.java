@@ -8,16 +8,12 @@ import com.nexo.app.modules.obras.application.dto.IndicadoresCarteiraResponse;
 import com.nexo.app.modules.obras.application.dto.ProgramacaoResponses;
 import com.nexo.app.modules.obras.application.dto.ObraFilter;
 import com.nexo.app.modules.obras.application.dto.ObraProximaResponse;
-import com.nexo.app.modules.obras.application.dto.OrcamentoObraResponse;
 import com.nexo.app.modules.obras.application.dto.StatusOperacionalObraRequest;
-import com.nexo.app.modules.obras.application.mappers.ImportacaoObraMapper;
 import com.nexo.app.modules.obras.application.mappers.ObraMapper;
 import com.nexo.app.modules.obras.application.port.RotaRodoviariaPort.Coordenada;
 import com.nexo.app.modules.obras.domain.HistoricoStatusObra;
-import com.nexo.app.modules.obras.domain.ItemOrcamentoObra;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.StatusObra;
-import com.nexo.app.modules.obras.infrastructure.persistence.ItemOrcamentoObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraSpecification;
 import com.nexo.app.modules.rh.MunicipioApi;
@@ -41,7 +37,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -66,8 +61,6 @@ public class CarteiraObraUseCases {
     private final ContratoApi contratoApi;
     private final MunicipioApi municipioApi;
     private final ObraMapper mapper;
-    private final ItemOrcamentoObraRepository orcamentoRepository;
-    private final ImportacaoObraMapper importacaoMapper;
     private final AuditorAware<String> auditor;
     private final EntityManager entityManager;
     private final ResumoPlanejamentoObras resumosPlanejamento;
@@ -123,26 +116,6 @@ public class CarteiraObraUseCases {
         Obra obra = obraUseCases.buscarEntidade(idObra);
         deslocamentoService.recalcular(obra);
         return mapper.toCarteira(repository.save(obra));
-    }
-
-    /**
-     * Orçamento previsto da obra: totais de material/serviço e os serviços da última importação.
-     */
-    @Transactional(readOnly = true)
-    public OrcamentoObraResponse buscarOrcamento(UUID idObra) {
-        Obra obra = obraUseCases.buscarEntidade(idObra);
-        List<ItemOrcamentoObra> itens = orcamentoRepository.findByIdObraAndAtivoTrueOrderByCodigoAsc(idObra);
-        BigDecimal total = itens.stream().map(ItemOrcamentoObra::getValorTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
-        return new OrcamentoObraResponse(
-                obra.getId(),
-                !itens.isEmpty(),
-                itens.stream().map(ItemOrcamentoObra::getDataCriacao).filter(Objects::nonNull)
-                        .max(Comparator.naturalOrder()).orElse(null),
-                obra.getValorMaterialPrevisto(),
-                obra.getValorServicoPrevisto(),
-                total,
-                itens.stream().map(importacaoMapper::toItemOrcamento).toList());
     }
 
     /**

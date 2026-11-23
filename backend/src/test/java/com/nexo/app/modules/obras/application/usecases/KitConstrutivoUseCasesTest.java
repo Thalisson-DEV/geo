@@ -89,6 +89,26 @@ class KitConstrutivoUseCasesTest {
     }
 
     @Test
+    void materialOrcadoNoKitEntraNoCustoTotal() {
+        when(contratoApi.listarAcoesComValor(eq(contrato), any(LocalDate.class))).thenReturn(List.of(
+                new ContratoApi.AcaoValorItem(acao, "A-01", "Instalar estrutura BT", new BigDecimal("150.00"))));
+
+        KitConstrutivoResponse response = useCases.criar(new KitConstrutivoRequest(contrato, "K2", "Kit", null, null, List.of(
+                new ItemKitRequest(null, TipoItemKit.SERVICO, acao, OperacaoItemKit.INSTALAR, "UN", new BigDecimal("2"), new BigDecimal("999")),
+                new ItemKitRequest(null, TipoItemKit.MATERIAL, material, OperacaoItemKit.INSTALAR, "UN", new BigDecimal("4"), new BigDecimal("12.50")))));
+
+        assertThat(response.valor()).isEqualByComparingTo("300.00");
+        assertThat(response.valorMateriais()).isEqualByComparingTo("50.00");
+        assertThat(response.materiaisSemValor()).isZero();
+        assertThat(response.valorTotal()).isEqualByComparingTo("350.00");
+        // O valor informado no serviço é ignorado: serviço vale o que o contrato diz.
+        assertThat(response.itens()).filteredOn(i -> i.tipo() == TipoItemKit.SERVICO)
+                .singleElement().satisfies(i -> assertThat(i.valorUnitario()).isEqualByComparingTo("150.00"));
+        assertThat(response.itens()).filteredOn(i -> i.tipo() == TipoItemKit.MATERIAL)
+                .singleElement().satisfies(i -> assertThat(i.valorTotal()).isEqualByComparingTo("50.00"));
+    }
+
+    @Test
     void servicoSemValorVigenteFicaForaDaSomaESinalizado() {
         when(contratoApi.listarAcoesComValor(eq(contrato), any(LocalDate.class))).thenReturn(List.of());
 

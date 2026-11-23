@@ -39,6 +39,8 @@ public record ObraFilter(
         @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate dataPrevisaoFimAte,
         BigDecimal valorProjetoMin,
         BigDecimal valorProjetoMax,
+        /** true: só obras com orçamento; false: só obras sem orçamento. */
+        Boolean comOrcamento,
         Boolean ativo
 ) {
 }

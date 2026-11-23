@@ -16,11 +16,13 @@ public record KitImportacaoLinha(
         String operacao,
         String quantidade,
         String unidade,
+        /** Valor unitário do material; vazio mantém o preço que o item já tinha. */
+        String valorUnitario,
         ImportacaoStatus status,
         String mensagemErro
 ) {
     public KitImportacaoLinha withStatus(ImportacaoStatus novoStatus, String novaMensagem) {
         return new KitImportacaoLinha(linha, codigoKit, descricaoKit, grupo, tensoes, tipoItem, codigoItem, operacao,
-                quantidade, unidade, novoStatus, novaMensagem);
+                quantidade, unidade, valorUnitario, novoStatus, novaMensagem);
     }
 }

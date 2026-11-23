@@ -1,0 +1,268 @@
+<header class="orc-cabecalho">
+  <div class="orc-cabecalho__titulo">
+    <h2 id="orcamento-titulo"><i class="pi pi-calculator" aria-hidden="true"></i> Orçamento</h2>
+    @if (orcamento()?.revisao; as r) {
+      <p class="orc-cabecalho__meta">
+        <span>Revisão {{ r.numero }}</span>
+        <span aria-hidden="true">·</span>
+        <span><i [class]="origens[r.origem].icone" aria-hidden="true"></i> {{ origens[r.origem].rotulo }}</span>
+        <span aria-hidden="true">·</span>
+        <span>{{ dataHora(r.dataUltimaAlteracao || r.dataCriacao) }}{{ autor(r) ? ' por ' + autor(r) : '' }}</span>
+      </p>
+    }
+  </div>
+  <div class="orc-cabecalho__acoes">
+    @if (orcamento()?.possuiOrcamento) {
+      <geo-button variant="ghost" size="sm" icon="pi pi-history" label="Revisões" (pressed)="abrirRevisoes()"></geo-button>
+    }
+    @if (podeEditar()) {
+      <geo-button variant="ghost" size="sm" icon="pi pi-file-import" label="Importar planilha" (pressed)="importacaoAberta.set(true)"></geo-button>
+      @if (temPlanejado()) {
+        <geo-button variant="ghost" size="sm" icon="pi pi-sitemap" label="Gerar do planejamento" (pressed)="abrirGerar()"></geo-button>
+      }
+      <geo-button variant="outline" size="sm" icon="pi pi-plus" label="Lançar item" (pressed)="lancar()"></geo-button>
+    }
+  </div>
+</header>
+
+@switch (carga().estado) {
+  @case ('loading') {
+    <geo-async-state state="loading" [compact]="true" title="Carregando o orçamento"></geo-async-state>
+  }
+  @case ('error') {
+    <geo-async-state state="error" [compact]="true" title="Não foi possível carregar o orçamento" [description]="mensagem(carga())"
+      actionLabel="Tentar de novo" (action)="recarregar.emit()"></geo-async-state>
+  }
+  @default {
+    @if (orcamento(); as o) {
+      @if (o.possuiOrcamento) {
+        <!-- Resumo: quanto do orçado já foi planejado, executado e medido -->
+        <div class="orc-resumo" role="list" aria-label="Resumo do orçamento de serviços">
+          <div class="orc-resumo__item" role="listitem">
+            <span class="orc-resumo__rotulo">Orçado (serviços)</span>
+            <span class="orc-resumo__valor">{{ moeda(o.totais.orcadoServicos) }}</span>
+            <span class="orc-resumo__detalhe">{{ plural(o.revisao?.quantidadeItens, 'item', 'itens') }} na revisão</span>
+          </div>
+          <div class="orc-resumo__item" role="listitem">
+            <span class="orc-resumo__rotulo">Planejado</span>
+            <span class="orc-resumo__valor">{{ moeda(o.totais.planejadoServicos) }}</span>
+            <span class="orc-resumo__detalhe">{{ o.totais.orcadoServicos ? percentual(o.totais.planejadoServicos, o.totais.orcadoServicos) + '% do orçado' : 'Sem serviços orçados' }}</span>
+          </div>
+          <div class="orc-resumo__item" role="listitem">
+            <span class="orc-resumo__rotulo">Executado</span>
+            <span class="orc-resumo__valor">{{ moeda(o.totais.executadoServicos) }}</span>
+            <span class="orc-resumo__detalhe">{{ o.totais.orcadoServicos ? percentual(o.totais.executadoServicos, o.totais.orcadoServicos) + '% do orçado' : 'Sem serviços orçados' }}</span>
+          </div>
+          <div class="orc-resumo__item" role="listitem">
+            <span class="orc-resumo__rotulo">Medido</span>
+            <span class="orc-resumo__valor">{{ moeda(o.totais.medidoServicos) }}</span>
+            <span class="orc-resumo__detalhe">{{ o.totais.orcadoServicos ? percentual(o.totais.medidoServicos, o.totais.orcadoServicos) + '% do orçado' : 'Sem serviços orçados' }}</span>
+          </div>
+          <div class="orc-resumo__item" role="listitem" [attr.data-tone]="o.totais.saldoServicos < 0 ? 'warning' : null">
+            <span class="orc-resumo__rotulo">Saldo a medir</span>
+            <span class="orc-resumo__valor">{{ moeda(o.totais.saldoServicos) }}</span>
+            <span class="orc-resumo__detalhe">{{ o.totais.saldoServicos < 0 ? 'Medido acima do orçado' : 'Orçado ainda não medido' }}</span>
+          </div>
+          <div class="orc-resumo__item" role="listitem">
+            <span class="orc-resumo__rotulo">Materiais orçados</span>
+            <span class="orc-resumo__valor">{{ o.totais.orcadoMateriais ? moeda(o.totais.orcadoMateriais) : plural(materiaisOrcados(), 'orçado', 'orçados') }}</span>
+            <span class="orc-resumo__detalhe">{{ detalheMateriais() }}</span>
+            @if (o.totais.planejadoMateriais) {
+              <span class="orc-resumo__detalhe">{{ moeda(o.totais.planejadoMateriais) }} planejados pelos kits</span>
+            }
+          </div>
+        </div>
+
+        @if (atencao(); as texto) {
+          <geo-callout tone="warning" [dense]="true" icon="pi pi-exclamation-triangle" title="Confira o orçamento">
+            {{ texto }}.
+            @if (o.totais.planejadoForaDoOrcamento > 0) {
+              {{ moeda(o.totais.planejadoForaDoOrcamento) }} planejados em serviços que não estão no orçamento.
+            }
+            É só um aviso: o planejamento e a medição continuam liberados.
+          </geo-callout>
+        }
+
+        <geo-tabs [tabs]="abas()" [value]="aba()" (valueChange)="trocarAba($event)" ariaLabel="Serviços e materiais do orçamento">
+          <ng-template geoTabPanel="SERVICO">
+            <ng-container [ngTemplateOutlet]="tabela"></ng-container>
+          </ng-template>
+          <ng-template geoTabPanel="MATERIAL">
+            <ng-container [ngTemplateOutlet]="tabela"></ng-container>
+          </ng-template>
+        </geo-tabs>
+      } @else {
+        <div class="orc-vazio">
+          <geo-async-state state="empty" [compact]="true" icon="pi pi-calculator" title="A obra ainda não tem orçamento"
+            description="Com o orçamento, a ficha mostra o saldo de cada serviço e material e avisa quando o planejado, o executado ou a medição passam do orçado. Ele também vira o valor previsto da carteira e o orçado do relatório de medição."></geo-async-state>
+          @if (planejadoSemOrcamento(); as p) {
+            <p class="orc-vazio__planejado">
+              O planejamento já prevê {{ p.servicos }} {{ p.servicos === 1 ? 'serviço' : 'serviços' }}{{ p.materiais ? ' e ' + p.materiais + (p.materiais === 1 ? ' material' : ' materiais') : '' }}
+              ({{ moeda(p.valor) }} em serviços pelo contrato{{ p.materiaisValor ? ' e ' + moeda(p.materiaisValor) + ' em materiais pelos kits' : '' }}).
+            </p>
+          }
+          @if (podeEditar()) {
+            <div class="orc-vazio__acoes">
+              @if (planejadoSemOrcamento()) {
+                <geo-button icon="pi pi-sitemap" label="Gerar do planejamento" (pressed)="abrirGerar()"></geo-button>
+              }
+              <geo-button [variant]="planejadoSemOrcamento() ? 'outline' : 'primary'" icon="pi pi-file-import" label="Importar planilha" (pressed)="importacaoAberta.set(true)"></geo-button>
+              <geo-button variant="outline" icon="pi pi-plus" label="Lançar item a item" (pressed)="lancar()"></geo-button>
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+}
+
+<ng-template #tabela>
+  @if (contagem().TODOS) {
+    @if (filtros().length > 2) {
+    <div class="orc-filtros" role="group" aria-label="Filtrar pela situação">
+      @for (f of filtros(); track f.valor) {
+        <button type="button" class="orc-filtro" [class.orc-filtro--ativo]="filtro() === f.valor" [attr.aria-pressed]="filtro() === f.valor"
+          [attr.data-tone]="f.valor === 'TODOS' ? null : sit(f.valor).tom" (click)="filtro.set(f.valor)">
+          {{ f.rotulo }} <span class="orc-filtro__total">{{ f.total }}</span>
+        </button>
+      }
+    </div>
+    }
+    <geo-data-table [caption]="aba() === 'SERVICO' ? 'Serviços do orçamento' : 'Materiais do orçamento'" [columns]="colunas" [rows]="linhas()"
+      [rowKey]="chave" searchPlaceholder="Código ou descrição" [pageSizeOptions]="[10, 25, 50]"
+      [hiddenColumns]="['saldo']" [columnPicker]="true" storageKey="obra-orcamento-colunas">
+      <ng-template geoCell="codigo" let-row>
+        <span class="geo-cell-strong">{{ row.codigo }}</span>
+        <span class="geo-cell-muted orc-descricao" [title]="row.descricao || ''">{{ row.descricao || 'Sem descrição' }}</span>
+        <span class="orc-marcas">
+          @if (row.operacao === 'RETIRAR') {
+            <geo-status tone="neutral" icon="pi pi-arrow-up-right">Retirar</geo-status>
+          }
+          @if (row.semReferencia) {
+            <geo-status tone="warning" icon="pi pi-link" [title]="row.tipo === 'SERVICO' ? 'O código não bate com nenhuma Ação do contrato.' : 'O código não bate com nenhum material do catálogo.'">
+              {{ row.tipo === 'SERVICO' ? 'Sem Ação no contrato' : 'Fora do catálogo' }}
+            </geo-status>
+          }
+        </span>
+      </ng-template>
+      <ng-template geoCell="orcado" let-row>
+        <span class="orc-num">{{ qtd(row.orcadoQuantidade, row.unidade) }}</span>
+        @if (row.orcadoValor != null) {
+          <span class="orc-num orc-num--sub">{{ moeda(row.orcadoValor) }}</span>
+        }
+      </ng-template>
+      <ng-template geoCell="planejado" let-row>
+        <span class="orc-num">{{ qtd(row.planejadoQuantidade, row.unidade) }}</span>
+      </ng-template>
+      <ng-template geoCell="executado" let-row>
+        <span class="orc-num">{{ qtd(row.executadoQuantidade, row.unidade) }}</span>
+      </ng-template>
+      <ng-template geoCell="medido" let-row>
+        <span class="orc-num">{{ qtd(row.medidoQuantidade, row.unidade) }}</span>
+        @if (row.medidoValor != null) {
+          <span class="orc-num orc-num--sub">{{ moeda(row.medidoValor) }}</span>
+        }
+      </ng-template>
+      <ng-template geoCell="saldo" let-row>
+        <span class="orc-num" [class.orc-num--alerta]="(saldo(row) ?? 0) < 0">{{ qtd(saldo(row)) }}</span>
+      </ng-template>
+      <ng-template geoCell="situacao" let-row>
+        <geo-status [tone]="sit(row.situacao).tom" [icon]="sit(row.situacao).icone" [title]="sit(row.situacao).ajuda">
+          {{ sit(row.situacao).rotulo }}
+        </geo-status>
+        @if (row.excedente) {
+          <span class="orc-num orc-num--sub orc-num--alerta">+{{ qtd(row.excedente, row.unidade) }}</span>
+        }
+      </ng-template>
+      @if (podeEditar()) {
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            @if (row.id) {
+              <geo-icon-button icon="pi pi-pencil" [label]="'Ajustar ' + row.codigo" size="icon-sm" (pressed)="ajustar(row)"></geo-icon-button>
+              <geo-icon-button icon="pi pi-trash" [label]="'Tirar ' + row.codigo + ' do orçamento'" size="icon-sm" (pressed)="remover(row)"></geo-icon-button>
+            } @else {
+              <geo-icon-button icon="pi pi-plus-circle" [label]="'Incluir ' + row.codigo + ' no orçamento'" size="icon-sm" (pressed)="incluir(row)"></geo-icon-button>
+            }
+          </span>
+        </ng-template>
+      }
+    </geo-data-table>
+  } @else {
+    <geo-async-state state="empty" [compact]="true" [icon]="aba() === 'SERVICO' ? 'pi pi-wrench' : 'pi pi-box'"
+      [title]="aba() === 'SERVICO' ? 'Nenhum serviço no orçamento' : 'Nenhum material no orçamento'"
+      [description]="podeEditar() ? 'Use Lançar item ou importe a planilha com a coluna Tipo.' : undefined"></geo-async-state>
+  }
+</ng-template>
+
+<!-- Lançar ou ajustar item -->
+<geo-form-drawer [(visible)]="itemAberto" [title]="tituloItem()" size="sm" [dirty]="alterado()"
+  [description]="emEdicao() ? (emEdicao()!.descricao ?? undefined) : 'Entra na revisão atual do orçamento.'">
+  <geo-form-section title="Item" icon="pi pi-list">
+    @if (!emEdicao()) {
+      <geo-select label="Tipo" [options]="tiposItem" [value]="tipo()" (valueChange)="trocarTipo($event)"></geo-select>
+      <geo-select [label]="tipo() === 'SERVICO' ? 'Serviço do contrato' : 'Material'" [required]="true" [options]="opcoesReferencia()"
+        [(value)]="referencia" [filter]="true" [placeholder]="tipo() === 'SERVICO' ? 'Busque por código ou nome' : 'Busque por código ou descrição'"
+        [loading]="tipo() === 'SERVICO' ? acoes.loading() : materiais.loading()"
+        (opened)="tipo() === 'SERVICO' ? acoes.open() : materiais.open()"
+        (search)="tipo() === 'SERVICO' ? acoes.search($event) : materiais.search($event)" [error]="erro('referencia')"></geo-select>
+    }
+    <geo-select label="Operação" [options]="operacoes" [(value)]="operacao"></geo-select>
+    <geo-number-input label="Quantidade orçada" [required]="true" [(value)]="quantidade" [min]="0" [maxFractionDigits]="4" [error]="erro('quantidade')"></geo-number-input>
+    <geo-number-input label="Valor unitário" mode="currency" [(value)]="valorUnitario" [min]="0" [maxFractionDigits]="4"
+      [required]="valorObrigatorio()" [description]="ajudaValor()" [error]="erro('valorUnitario')"></geo-number-input>
+    @if (totalPrevisto() != null) {
+      <p class="orc-total">Total do item: <strong>{{ moeda(totalPrevisto()) }}</strong></p>
+    }
+  </geo-form-section>
+  <div drawer-footer class="geo-actions-row">
+    <geo-button variant="ghost" label="Cancelar" (pressed)="itemAberto.set(false)"></geo-button>
+    <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar ajuste' : 'Lançar no orçamento'" [loading]="salvando()" (pressed)="salvarItem()"></geo-button>
+  </div>
+</geo-form-drawer>
+
+<!-- Gerar do planejamento -->
+<geo-form-drawer [(visible)]="gerarAberto" title="Gerar orçamento do planejamento" size="sm"
+  description="Monta o orçamento com os serviços e materiais dos kits aplicados nos pontos.">
+  <geo-form-section title="Nova revisão" icon="pi pi-sitemap">
+    <ul class="orc-explica">
+      <li>Serviços entram com o valor vigente do contrato; materiais, com o valor orçado no kit (sem ele, só a quantidade).</li>
+      @if (orcamento()?.revisao; as r) {
+        <li>A revisão {{ r.numero }} atual fica no histórico e a nova passa a valer.</li>
+      }
+      <li>O total vira o valor de serviço previsto da carteira.</li>
+    </ul>
+    <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" placeholder="Ex.: Revisão do projeto após visita prévia" [showOptional]="true"></geo-textarea>
+  </geo-form-section>
+  <div drawer-footer class="geo-actions-row">
+    <geo-button variant="ghost" label="Cancelar" (pressed)="gerarAberto.set(false)"></geo-button>
+    <geo-button icon="pi pi-check" label="Gerar revisão" [loading]="gerando()" (pressed)="gerar()"></geo-button>
+  </div>
+</geo-form-drawer>
+
+<!-- Revisões -->
+<geo-form-drawer [(visible)]="revisoesAberto" title="Revisões do orçamento" size="sm" description="A mais recente é a que vale.">
+  @switch (revisoes().estado) {
+    @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Carregando as revisões"></geo-async-state> }
+    @case ('error') { <geo-async-state state="error" [compact]="true" title="Não foi possível carregar as revisões" [description]="mensagem(revisoes())"></geo-async-state> }
+    @default {
+      <ol class="orc-revisoes">
+        @for (r of listaRevisoes(); track r.id; let primeira = $first) {
+          <li class="orc-revisao">
+            <div class="orc-revisao__topo">
+              <strong>Revisão {{ r.numero }}</strong>
+              @if (primeira) { <geo-status tone="success" icon="pi pi-check">Vigente</geo-status> }
+            </div>
+            <span class="orc-revisao__origem"><i [class]="origens[r.origem].icone" aria-hidden="true"></i> {{ origens[r.origem].rotulo }}</span>
+            @if (r.observacao) { <span class="orc-revisao__obs">{{ r.observacao }}</span> }
+            <span class="orc-revisao__valores">{{ moeda(r.valorServicos) }} em serviços{{ r.valorMateriais ? ' · ' + moeda(r.valorMateriais) + ' em materiais' : '' }} · {{ plural(r.quantidadeItens, 'item', 'itens') }}</span>
+            <span class="orc-revisao__quando">{{ dataHora(r.dataCriacao) }}{{ autor(r) ? ' por ' + autor(r) : '' }}</span>
+          </li>
+        }
+      </ol>
+    }
+  }
+</geo-form-drawer>
+
+<app-importacao-planilha-obras [(visible)]="importacaoAberta" tipo="ORCAMENTO" titulo="Importar orçamento"
+  descricao="Uma linha por serviço ou material, com o número da obra. Cada obra da planilha ganha uma revisão nova do orçamento; a anterior fica no histórico."
+  [colunas]="colunasImportacao" [fonte]="fonteImportacao" (processada)="importacaoEnviada()"></app-importacao-planilha-obras>

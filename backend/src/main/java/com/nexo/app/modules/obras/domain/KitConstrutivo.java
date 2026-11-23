@@ -93,11 +93,16 @@ public class KitConstrutivo extends BaseEntity {
 
     public ItemKit adicionarItem(TipoItemKit tipo, UUID idReferencia, OperacaoItemKit operacao,
                                  String unidade, BigDecimal quantidade) {
+        return adicionarItem(tipo, idReferencia, operacao, unidade, quantidade, null);
+    }
+
+    public ItemKit adicionarItem(TipoItemKit tipo, UUID idReferencia, OperacaoItemKit operacao,
+                                 String unidade, BigDecimal quantidade, BigDecimal valorUnitario) {
         validarAtivo();
         if (buscarItemAtivo(tipo, idReferencia, operacao).isPresent()) {
             throw new InvarianteVioladaException("O kit " + codigo + " já possui esse item com a mesma operação.");
         }
-        ItemKit item = new ItemKit(this, tipo, idReferencia, operacao, unidade, quantidade);
+        ItemKit item = new ItemKit(this, tipo, idReferencia, operacao, unidade, quantidade, valorUnitario);
         itens.add(item);
         return item;
     }
@@ -109,19 +114,36 @@ public class KitConstrutivo extends BaseEntity {
      */
     public boolean adicionarOuAtualizarItem(TipoItemKit tipo, UUID idReferencia, OperacaoItemKit operacao,
                                             String unidade, BigDecimal quantidade) {
+        return adicionarOuAtualizarItem(tipo, idReferencia, operacao, unidade, quantidade, null);
+    }
+
+    /** Valor unitário vazio mantém o que o item já tinha (a planilha pode não trazer preço). */
+    public boolean adicionarOuAtualizarItem(TipoItemKit tipo, UUID idReferencia, OperacaoItemKit operacao,
+                                            String unidade, BigDecimal quantidade, BigDecimal valorUnitario) {
         validarAtivo();
         Optional<ItemKit> existente = buscarItemAtivo(tipo, idReferencia, operacao);
         if (existente.isPresent()) {
             existente.get().alterar(operacao, unidade, quantidade);
+            if (valorUnitario != null) {
+                existente.get().orcar(valorUnitario);
+            }
             return false;
         }
-        itens.add(new ItemKit(this, tipo, idReferencia, operacao, unidade, quantidade));
+        itens.add(new ItemKit(this, tipo, idReferencia, operacao, unidade, quantidade, valorUnitario));
         return true;
     }
 
     public void alterarItem(UUID idItem, OperacaoItemKit operacao, String unidade, BigDecimal quantidade) {
         validarAtivo();
         buscarItem(idItem).alterar(operacao, unidade, quantidade);
+    }
+
+    /** Ajuste pelo cadastro do kit: o valor do material é o informado (vazio tira o preço). */
+    public void alterarItem(UUID idItem, OperacaoItemKit operacao, String unidade, BigDecimal quantidade, BigDecimal valorUnitario) {
+        validarAtivo();
+        ItemKit item = buscarItem(idItem);
+        item.alterar(operacao, unidade, quantidade);
+        item.orcar(valorUnitario);
     }
 
     public void removerItem(UUID idItem) {

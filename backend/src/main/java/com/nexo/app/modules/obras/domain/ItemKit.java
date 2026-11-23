@@ -19,7 +19,8 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * Item de um kit construtivo: um serviço (Ação do contrato) ou um material, com quantidade por kit.
+ * Item de um kit construtivo: um serviço (Ação do contrato) ou um material, com quantidade por kit. O serviço vale o
+ * que o contrato diz; o material tem o valor unitário orçado no próprio item (vazio enquanto não foi orçado).
  */
 @Entity
 @Table(name = "itens_kits_construtivos")
@@ -51,8 +52,11 @@ public class ItemKit extends BaseEntity {
     @Column(name = "quantidade", nullable = false, precision = 14, scale = 4)
     private BigDecimal quantidade;
 
+    @Column(name = "valor_unitario", precision = 15, scale = 4)
+    private BigDecimal valorUnitario;
+
     ItemKit(KitConstrutivo kit, TipoItemKit tipo, UUID idReferencia, OperacaoItemKit operacao,
-            String unidade, BigDecimal quantidade) {
+            String unidade, BigDecimal quantidade, BigDecimal valorUnitario) {
         if (tipo == null) {
             throw new InvarianteVioladaException("O tipo do item do kit é obrigatório.");
         }
@@ -66,6 +70,15 @@ public class ItemKit extends BaseEntity {
         this.idAcao = tipo == TipoItemKit.SERVICO ? idReferencia : null;
         this.idMaterial = tipo == TipoItemKit.MATERIAL ? idReferencia : null;
         alterar(operacao, unidade, quantidade);
+        orcar(valorUnitario);
+    }
+
+    /** Valor unitário do material; no serviço é ignorado, porque o valor vem do contrato. */
+    void orcar(BigDecimal valorUnitario) {
+        if (valorUnitario != null && valorUnitario.signum() < 0) {
+            throw new InvarianteVioladaException("O valor unitário do material não pode ser negativo.");
+        }
+        this.valorUnitario = tipo == TipoItemKit.MATERIAL ? valorUnitario : null;
     }
 
     void alterar(OperacaoItemKit operacao, String unidade, BigDecimal quantidade) {

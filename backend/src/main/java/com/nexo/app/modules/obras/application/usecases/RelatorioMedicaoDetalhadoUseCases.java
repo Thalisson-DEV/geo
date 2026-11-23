@@ -1,6 +1,15 @@
 package com.nexo.app.modules.obras.application.usecases;
 
+import com.nexo.app.modules.contrato.AcaoResponse;
+import com.nexo.app.modules.contrato.ContratoApi;
+import com.nexo.app.modules.estoque.EstoqueApi;
+import com.nexo.app.modules.estoque.MaterialResponse;
 import com.nexo.app.modules.obras.application.dto.MedicaoResponses;
+import com.nexo.app.modules.obras.domain.ItemOrcamentoObra;
+import com.nexo.app.modules.obras.domain.OrigemOrcamento;
+import com.nexo.app.modules.obras.domain.RevisaoOrcamentoObra;
+import com.nexo.app.modules.obras.infrastructure.persistence.ItemOrcamentoObraRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.RevisaoOrcamentoObraRepository;
 import com.nexo.app.modules.obras.domain.ItemPlanejado;
 import com.nexo.app.modules.obras.domain.KitAplicado;
 import com.nexo.app.modules.obras.domain.Obra;
@@ -44,8 +53,9 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Relatório de medição detalhado: lê a planilha orçado × faturado, reconhece as obras pelo número e gera, para as
- * escolhidas, um pacote ZIP com Excel, PDF e as fotos do book de cada obra. Nada da planilha é gravado; a tela guarda
- * o arquivo entre a análise e a geração.
+ * escolhidas, um pacote ZIP com Excel, PDF e as fotos do book de cada obra. O orçado vem do orçamento gravado na obra;
+ * só obra sem orçamento usa o orçado da planilha, que pode ser gravado nela com {@link #gravarOrcado}. O faturado vem
+ * sempre da planilha, que a tela guarda entre a análise e a geração.
  */
 @Service
 @RequiredArgsConstructor
@@ -62,6 +72,11 @@ public class RelatorioMedicaoDetalhadoUseCases {
     private final MedicaoObraUseCases medicoes;
     private final GeracaoAsBuiltService asBuilt;
     private final DocumentoTecnicoPdf pdf;
+    private final ItemOrcamentoObraRepository orcamentoRepository;
+    private final RevisaoOrcamentoObraRepository revisaoRepository;
+    private final OrcamentoObraUseCases orcamentos;
+    private final ContratoApi contratoApi;
+    private final EstoqueApi estoqueApi;
 
     public byte[] modelo() {
         return PlanilhaOrcadoFaturado.modelo();
@@ -107,11 +122,70 @@ public class RelatorioMedicaoDetalhadoUseCases {
                     somar(fat, PlanilhaOrcadoFaturado.LinhaFaturada::valorConsiderado),
                     fat.stream().map(PlanilhaOrcadoFaturado.LinhaFaturada::data).max(Comparator.naturalOrder()).orElse(null),
                     (int) fat.stream().filter(PlanilhaOrcadoFaturado.LinhaFaturada::paraConferir).count(),
-                    erros.getOrDefault(numero, List.of())));
+                    erros.getOrDefault(numero, List.of()),
+                    revisaoRepository.findFirstByIdObraAndAtivoTrueOrderByNumeroDesc(obra.getId()).map(RevisaoOrcamentoObra::getNumero).orElse(null),
+                    revisaoRepository.findFirstByIdObraAndAtivoTrueOrderByNumeroDesc(obra.getId()).map(RevisaoOrcamentoObra::getValorServicos).orElse(null)));
         }
         reconhecidas.sort(Comparator.comparing(MedicaoResponses.ObraNaPlanilha::numero));
         return new MedicaoResponses.AnaliseOrcadoFaturado(reconhecidas, naoIdentificadas, errosSemObra,
                 conteudo.maoDeObra().size(), conteudo.materiais().size(), conteudo.faturado().size());
+    }
+
+    /**
+     * Grava o orçado da planilha (mão de obra e materiais) como revisão nova do orçamento das obras escolhidas. A partir
+     * daí o relatório, a ficha e o planejamento usam esse orçamento, e a planilha só precisa trazer o faturado.
+     */
+    @Transactional
+    public MedicaoResponses.AnaliseOrcadoFaturado gravarOrcado(MultipartFile arquivo, List<UUID> idsObras) {
+        if (idsObras == null || idsObras.isEmpty()) {
+            throw new InvarianteVioladaException("Escolha ao menos uma obra.");
+        }
+        PlanilhaOrcadoFaturado.Conteudo conteudo = PlanilhaOrcadoFaturado.ler(ArquivoImportacao.bytes(arquivo));
+        Map<String, UUID> acoes = new HashMap<>();
+        Map<String, UUID> materiais = new HashMap<>();
+        for (Obra obra : obraRepository.findAllById(new LinkedHashSet<>(idsObras))) {
+            if (!obra.isAtivo()) {
+                continue;
+            }
+            String numero = obra.getNumero();
+            if (conteudo.erros().stream().anyMatch(e -> e.obra() != null && e.obra().equalsIgnoreCase(numero))) {
+                throw new InvarianteVioladaException("A obra " + numero + " tem linhas com erro na planilha. Corrija e envie de novo.");
+            }
+            Map<String, ItemOrcamentoObra.Dados> itens = new LinkedHashMap<>();
+            conteudo.maoDeObra().stream().filter(l -> l.obra().equalsIgnoreCase(numero))
+                    .forEach(l -> juntar(itens, TipoItemKit.SERVICO, l, acoes, materiais));
+            conteudo.materiais().stream().filter(l -> l.obra().equalsIgnoreCase(numero))
+                    .forEach(l -> juntar(itens, TipoItemKit.MATERIAL, l, acoes, materiais));
+            if (!itens.isEmpty()) {
+                orcamentos.substituir(obra, OrigemOrcamento.PLANILHA_MEDICAO, null,
+                        "Orçado da planilha " + (arquivo.getOriginalFilename() != null ? arquivo.getOriginalFilename() : "orçado × faturado"),
+                        new ArrayList<>(itens.values()));
+            }
+        }
+        return analisar(arquivo);
+    }
+
+    private void juntar(Map<String, ItemOrcamentoObra.Dados> itens, TipoItemKit tipo, PlanilhaOrcadoFaturado.LinhaOrcada l,
+                        Map<String, UUID> acoes, Map<String, UUID> materiais) {
+        OperacaoItemKit operacao = l.operacao() != null ? l.operacao() : OperacaoItemKit.INSTALAR;
+        String codigo = l.codigo().trim();
+        UUID referencia = tipo == TipoItemKit.SERVICO
+                ? acoes.computeIfAbsent(codigo.toUpperCase(Locale.ROOT), c -> contratoApi.buscarAcaoAtivaPorCodigo(c).map(AcaoResponse::id).orElse(null))
+                : materiais.computeIfAbsent(codigo.toUpperCase(Locale.ROOT), c -> estoqueApi.buscarMaterialAtivoPorCodigo(codigo).map(MaterialResponse::id).orElse(null));
+        BigDecimal unitario = l.valorUnitarioAtualizado() != null ? l.valorUnitarioAtualizado() : l.valorUnitario();
+        ItemOrcamentoObra.Dados novo = new ItemOrcamentoObra.Dados(tipo, operacao, codigo, l.descricao(), l.unidade(), l.quantidade(),
+                unitario, l.valorVigente(), tipo == TipoItemKit.SERVICO ? referencia : null, tipo == TipoItemKit.MATERIAL ? referencia : null);
+        // Linhas do mesmo item, obra e operação são somadas, como no relatório.
+        itens.merge(ItemOrcamentoObra.chave(tipo, codigo, operacao), novo, (a, b) -> new ItemOrcamentoObra.Dados(a.tipo(), a.operacao(),
+                a.codigo(), a.descricao(), a.unidade(), soma(a.quantidade(), b.quantidade()), a.valorUnitario(),
+                soma(a.valorTotal(), b.valorTotal()), a.idAcao(), a.idMaterial()));
+    }
+
+    private static BigDecimal soma(BigDecimal a, BigDecimal b) {
+        if (a == null) {
+            return b;
+        }
+        return b == null ? a : a.add(b);
     }
 
     /** Pacote ZIP com uma pasta por obra: Excel, PDF e, se pedido, as fotos do book. */
@@ -181,10 +255,20 @@ public class RelatorioMedicaoDetalhadoUseCases {
         String numero = obra.getNumero();
         Map<String, Acumulado> maoDeObra = new LinkedHashMap<>();
         Map<String, Acumulado> materiais = new LinkedHashMap<>();
-        conteudo.maoDeObra().stream().filter(l -> l.obra().equalsIgnoreCase(numero))
-                .forEach(l -> acumulado(maoDeObra, l.codigo(), l.operacao(), l.descricao(), l.unidade()).orcar(l));
-        conteudo.materiais().stream().filter(l -> l.obra().equalsIgnoreCase(numero))
-                .forEach(l -> acumulado(materiais, l.codigo(), l.operacao(), l.descricao(), l.unidade()).orcar(l));
+        List<ItemOrcamentoObra> gravado = orcamentoRepository.findByIdObraAndAtivoTrueOrderByCodigoAsc(obra.getId());
+        if (!gravado.isEmpty()) {
+            // O orçamento gravado na obra prevalece sobre o orçado da planilha.
+            for (ItemOrcamentoObra item : gravado) {
+                Map<String, Acumulado> destino = item.getTipo() == TipoItemKit.MATERIAL ? materiais : maoDeObra;
+                acumulado(destino, item.getCodigo(), item.getOperacao(), item.getDescricao(), item.getUnidade())
+                        .orcar(item.getQuantidade(), item.getValorTotal());
+            }
+        } else {
+            conteudo.maoDeObra().stream().filter(l -> l.obra().equalsIgnoreCase(numero))
+                    .forEach(l -> acumulado(maoDeObra, l.codigo(), l.operacao(), l.descricao(), l.unidade()).orcar(l));
+            conteudo.materiais().stream().filter(l -> l.obra().equalsIgnoreCase(numero))
+                    .forEach(l -> acumulado(materiais, l.codigo(), l.operacao(), l.descricao(), l.unidade()).orcar(l));
+        }
         List<PlanilhaOrcadoFaturado.LinhaFaturada> faturado = conteudo.faturado().stream()
                 .filter(l -> l.obra().equalsIgnoreCase(numero) && !l.data().isAfter(corte))
                 .sorted(Comparator.comparing(PlanilhaOrcadoFaturado.LinhaFaturada::data).thenComparing(PlanilhaOrcadoFaturado.LinhaFaturada::linha))
@@ -251,8 +335,12 @@ public class RelatorioMedicaoDetalhadoUseCases {
         }
 
         void orcar(PlanilhaOrcadoFaturado.LinhaOrcada linha) {
-            orcadoQuantidade = mais(orcadoQuantidade, linha.quantidade());
-            orcadoValor = mais(orcadoValor, linha.valorVigente());
+            orcar(linha.quantidade(), linha.valorVigente());
+        }
+
+        void orcar(BigDecimal quantidade, BigDecimal valor) {
+            orcadoQuantidade = mais(orcadoQuantidade, quantidade);
+            orcadoValor = mais(orcadoValor, valor);
         }
 
         void faturar(PlanilhaOrcadoFaturado.LinhaFaturada linha) {

@@ -6,7 +6,6 @@ import com.nexo.app.modules.obras.application.dto.HistoricoStatusObraResponse;
 import com.nexo.app.modules.obras.application.dto.IndicadoresCarteiraResponse;
 import com.nexo.app.modules.obras.application.dto.ObraFilter;
 import com.nexo.app.modules.obras.application.dto.ObraProximaResponse;
-import com.nexo.app.modules.obras.application.dto.OrcamentoObraResponse;
 import com.nexo.app.modules.obras.application.dto.StatusOperacionalObraRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,9 +36,6 @@ public interface CarteiraObraControllerDoc {
 
     @Operation(summary = "Recalcular agora o deslocamento da base até a obra")
     ResponseEntity<CarteiraObraResponse> recalcularDeslocamento(UUID id);
-
-    @Operation(summary = "Consultar o orçamento previsto importado da obra (serviços e totais)")
-    ResponseEntity<OrcamentoObraResponse> buscarOrcamento(UUID id);
 
     @Operation(summary = "Listar obras ativas no raio da obra (linha reta)")
     ResponseEntity<List<ObraProximaResponse>> listarObrasProximas(UUID id,

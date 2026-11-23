@@ -8,6 +8,7 @@ import {
   GeoButtonComponent,
   GeoCalloutComponent,
   GeoCellDirective,
+  GeoConfirmationService,
   GeoDataTableColumn,
   GeoDataTableComponent,
   GeoDatepickerComponent,
@@ -20,6 +21,7 @@ import {
 } from '@geo/ui';
 import { AnaliseOrcadoFaturado, ObraNaPlanilha } from '../../../core/models/obras-medicoes.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
+import { AuthService } from '../../../core/services/auth.service';
 import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.service';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { formatarDataParaApi, formatarMoeda } from '../obras-ui';
@@ -28,9 +30,9 @@ import { LIMITE_RELATORIO_DETALHADO, bloqueioDoRelatorio, situacaoNaPlanilha } f
 const LIMITE_ARQUIVO = 15 * 1024 * 1024;
 
 /**
- * Relatório de medição detalhado: a planilha orçado × faturado do contrato encontra a execução das obras e vira um
- * pacote com Excel, PDF e fotos do book. A planilha é analisada ao ser escolhida e fica só na tela; vai de novo na
- * geração.
+ * Relatório de medição detalhado: o orçamento gravado de cada obra (ou o orçado da planilha, se ela não tiver) e o
+ * faturado da planilha encontram a execução das obras e viram um pacote com Excel, PDF e fotos do book. A planilha é
+ * analisada ao ser escolhida e fica só na tela; vai de novo na geração.
  */
 @Component({
   selector: 'app-relatorio-medicao-detalhado',
@@ -56,13 +58,13 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
     <div class="geo-page">
       <geo-page-header title="Relatório de medição detalhado" icon="pi pi-file-export"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Medições' }, { label: 'Relatório detalhado' }]"
-        description="Orçado e faturado do contrato lado a lado com a execução de cada obra, em Excel, PDF e fotos do book num único pacote."
+        description="Orçamento e faturado do contrato lado a lado com a execução de cada obra, em Excel, PDF e fotos do book num único pacote."
         helpLabel="Ajuda sobre o relatório detalhado" (help)="ajuda.show()">
         <geo-button actions label="Baixar modelo" icon="pi pi-download" variant="outline" [loading]="baixandoModelo()" (pressed)="baixarModelo()"></geo-button>
       </geo-page-header>
 
       <geo-form-section title="1. Planilha orçado × faturado" icon="pi pi-file-excel"
-        description="Abas Materiais orçados, Mão de obra orçada e Faturado. Quem já usa a planilha nesse layout pode enviá-la como está.">
+        description="Aba Faturado e, para obras ainda sem orçamento gravado, as abas Materiais orçados e Mão de obra orçada. Quem já usa a planilha nesse layout pode enviá-la como está.">
         <geo-file-input label="Planilha" accept=".xlsx" [maxBytes]="limiteArquivo" buttonLabel="Escolher a planilha (XLSX)"
           emptyLabel="Até 15 MB. A análise começa ao escolher o arquivo." [file]="arquivo()" (fileChange)="escolher($event)"></geo-file-input>
       </geo-form-section>
@@ -84,7 +86,7 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
               <span class="geo-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
               <span class="geo-kpi__body"><span class="geo-kpi__label">Orçado de mão de obra</span>
                 <span class="geo-kpi__value">{{ moeda(totalOrcado()) }}</span>
-                <span class="geo-kpi__detail">Valor atualizado quando houver</span></span>
+                <span class="geo-kpi__detail">{{ obrasComOrcamento() ? obrasComOrcamento() + ' com orçamento gravado na obra' : 'Da planilha; valor atualizado quando houver' }}</span></span>
             </div>
             <div class="geo-kpi" data-tone="brand">
               <span class="geo-kpi__icon"><i class="pi pi-receipt" aria-hidden="true"></i></span>
@@ -122,8 +124,25 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
               <ng-template geoCell="situacao" let-row>
                 <geo-status [tone]="situacaoDe(row).tom" [icon]="situacaoDe(row).icone">{{ situacaoDe(row).rotulo }}</geo-status>
               </ng-template>
+              <ng-template geoCell="orcamento" let-row>
+                @if (row.revisaoOrcamento) {
+                  <geo-status tone="success" icon="pi pi-check" [title]="'O relatório usa a revisão ' + row.revisaoOrcamento + ' do orçamento da obra.'">Revisão {{ row.revisaoOrcamento }} da obra</geo-status>
+                } @else {
+                  <geo-status tone="neutral" icon="pi pi-file-excel" title="A obra não tem orçamento gravado: o relatório usa o orçado da planilha.">Da planilha</geo-status>
+                }
+              </ng-template>
               <ng-template geoCell="ultimoFaturamento" let-row>{{ row.ultimoFaturamento ? (row.ultimoFaturamento | date: 'dd/MM/yyyy') : '—' }}</ng-template>
             </geo-data-table>
+
+            @if (podeGravarOrcamento && escolhidasSemOrcamento().length) {
+              <geo-callout tone="info" [dense]="true" icon="pi pi-calculator"
+                [title]="escolhidasSemOrcamento().length === 1 ? '1 obra escolhida sem orçamento gravado' : escolhidasSemOrcamento().length + ' obras escolhidas sem orçamento gravado'">
+                Grave o orçado desta planilha nelas: a ficha passa a mostrar o saldo de cada serviço e material, e nos próximos relatórios a planilha só precisa do faturado.
+                <div class="relatorio__gravar">
+                  <geo-button variant="outline" size="sm" icon="pi pi-save" label="Gravar o orçado nas obras" [loading]="gravandoOrcamento()" (pressed)="gravarOrcado()"></geo-button>
+                </div>
+              </geo-callout>
+            }
 
             @for (o of escolhidasComErro(); track o.idObra) {
               <geo-callout tone="danger" [dense]="true" [title]="'Obra ' + o.numero + ': ' + situacaoDe(o).rotulo">{{ primeiros(o.erros) }}</geo-callout>
@@ -158,7 +177,7 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
     <app-ajuda-listagem #ajuda titulo="Relatório de medição detalhado" entidadePlural="obras" busca="obra, título ou município" [podeCriar]="false">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-file-excel"></i> Planilha</h4>
-        <p class="help-text-desc">Baixe o modelo, preencha as abas de materiais orçados, mão de obra orçada e faturado e envie. A planilha não fica gravada: ela é lida na hora e enviada de novo ao gerar o pacote. Linhas do mesmo item, obra e operação no orçamento são somadas.</p>
+        <p class="help-text-desc">Baixe o modelo, preencha o faturado e envie. O orçado vem do orçamento gravado em cada obra; para obra sem orçamento, o relatório usa as abas de materiais e mão de obra orçados da planilha, que podem ser gravadas na obra com "Gravar o orçado nas obras". O faturado não fica gravado: a planilha é lida na hora e enviada de novo ao gerar o pacote. Linhas do mesmo item, obra e operação no orçamento são somadas.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-exclamation-triangle"></i> Erros e conferência</h4>
@@ -178,12 +197,14 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
     .relatorio__analise { display: grid; gap: 1rem; margin-top: 1.25rem; }
     .relatorio__campos { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); margin-bottom: 0.75rem; }
     .relatorio__acoes { justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem; }
+    .relatorio__gravar { margin-top: 0.5rem; }
     .relatorio__motivo { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
   `
 })
 export class RelatorioMedicaoDetalhadoComponent {
   private readonly api = inject(ObrasMedicoesService);
   private readonly notificacoes = inject(NotificationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly limite = LIMITE_RELATORIO_DETALHADO;
@@ -203,7 +224,12 @@ export class RelatorioMedicaoDetalhadoComponent {
   protected readonly responsavel = signal('');
   protected readonly incluirFotos = signal(true);
 
-  protected readonly totalOrcado = computed(() => (this.analise()?.obras ?? []).reduce((t, o) => t + o.orcadoMaoDeObra, 0));
+  protected readonly podeGravarOrcamento = (inject(AuthService).currentUser()?.permissoes ?? []).includes('obras:obra:write');
+  protected readonly gravandoOrcamento = signal(false);
+  protected readonly obrasComOrcamento = computed(() => (this.analise()?.obras ?? []).filter((o) => o.revisaoOrcamento).length);
+  protected readonly escolhidasSemOrcamento = computed(() => this.escolhidas().filter((o) => !o.revisaoOrcamento && !o.erros.length
+    && (o.itensMaoDeObra || o.itensMateriais)));
+  protected readonly totalOrcado = computed(() => (this.analise()?.obras ?? []).reduce((t, o) => t + orcadoUsado(o), 0));
   protected readonly totalFaturado = computed(() => (this.analise()?.obras ?? []).reduce((t, o) => t + o.faturado, 0));
   protected readonly obrasComPendencia = computed(() => (this.analise()?.obras ?? []).filter((o) => o.erros.length || o.paraConferir).length);
   protected readonly escolhidasComErro = computed(() => this.escolhidas().filter((o) => o.erros.length));
@@ -216,8 +242,9 @@ export class RelatorioMedicaoDetalhadoComponent {
   protected readonly colunas: GeoDataTableColumn<ObraNaPlanilha>[] = [
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (o) => o.numero, display: (o) => `${o.numero} ${o.titulo}` },
     { key: 'municipio', header: 'Município', value: (o) => o.municipio },
-    { key: 'orcadoMaoDeObra', header: 'Orçado mão de obra', type: 'currency', priority: 1, value: (o) => o.orcadoMaoDeObra },
+    { key: 'orcadoMaoDeObra', header: 'Orçado mão de obra', type: 'currency', priority: 1, value: (o) => orcadoUsado(o) },
     { key: 'orcadoMateriais', header: 'Orçado materiais', type: 'currency', value: (o) => o.orcadoMateriais },
+    { key: 'orcamento', header: 'Orçamento usado', type: 'custom', value: (o) => (o.revisaoOrcamento ? 'Revisão da obra' : 'Planilha') },
     { key: 'faturado', header: 'Faturado', type: 'currency', priority: 1, value: (o) => o.faturado },
     { key: 'ultimoFaturamento', header: 'Último faturamento', type: 'custom', value: (o) => o.ultimoFaturamento, display: (o) => o.ultimoFaturamento ?? '' },
     { key: 'situacao', header: 'Situação', type: 'custom', value: (o) => situacaoNaPlanilha(o).rotulo, display: (o) => situacaoNaPlanilha(o).rotulo }
@@ -271,6 +298,33 @@ export class RelatorioMedicaoDetalhadoComponent {
     });
   }
 
+  /** Grava o orçado da planilha nas obras escolhidas que ainda não têm orçamento. */
+  protected async gravarOrcado(): Promise<void> {
+    const arquivo = this.arquivo();
+    const obras = this.escolhidasSemOrcamento();
+    if (!arquivo || !obras.length) return;
+    const ok = await this.confirmacao.confirm({
+      title: obras.length === 1 ? `Gravar o orçado na obra ${obras[0].numero}?` : `Gravar o orçado em ${obras.length} obras?`,
+      message: 'A mão de obra e os materiais orçados da planilha viram a revisão nova do orçamento de cada obra e o valor previsto da carteira.',
+      confirmLabel: 'Gravar orçamento'
+    });
+    if (!ok) return;
+    const escolhidas = new Set(this.escolhidas().map((o) => o.idObra));
+    this.gravandoOrcamento.set(true);
+    this.api.gravarOrcadoDaPlanilha(arquivo, obras.map((o) => o.idObra)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (analise) => {
+        this.gravandoOrcamento.set(false);
+        this.analise.set(analise);
+        this.escolhidas.set(analise.obras.filter((o) => escolhidas.has(o.idObra)));
+        this.notificacoes.success(obras.length === 1 ? `Orçamento gravado na obra ${obras[0].numero}.` : `Orçamento gravado em ${obras.length} obras.`);
+      },
+      error: (e) => {
+        this.gravandoOrcamento.set(false);
+        this.notificacoes.error(getErrorMessage(e));
+      }
+    });
+  }
+
   protected baixarModelo(): void {
     this.baixandoModelo.set(true);
     this.api.modeloOrcadoFaturado().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -294,6 +348,11 @@ export class RelatorioMedicaoDetalhadoComponent {
     const resto = mensagens.length - 5;
     return mensagens.slice(0, 5).join(' · ') + (resto > 0 ? ` · e mais ${resto}` : '');
   }
+}
+
+/** O relatório usa o orçamento gravado na obra; sem ele, o orçado da planilha. */
+function orcadoUsado(o: ObraNaPlanilha): number {
+  return o.revisaoOrcamento ? (o.orcamentoGravadoMaoDeObra ?? 0) : o.orcadoMaoDeObra;
 }
 
 function baixar(arquivo: Blob, nome: string): void {

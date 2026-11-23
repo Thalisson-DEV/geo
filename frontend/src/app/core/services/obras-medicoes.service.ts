@@ -101,7 +101,15 @@ export class ObrasMedicoesService extends BaseService {
     return this.http.post<AnaliseOrcadoFaturado>(`${this.base}/medicoes/relatorio-detalhado/analise`, corpo);
   }
 
-  /** A planilha vai de novo: nada dela fica gravado entre a análise e a geração. */
+  /** Grava o orçado da planilha como revisão nova do orçamento das obras escolhidas; devolve a análise refeita. */
+  gravarOrcadoDaPlanilha(arquivo: File, idsObras: readonly string[]): Observable<AnaliseOrcadoFaturado> {
+    const corpo = new FormData();
+    corpo.append('arquivo', arquivo);
+    for (const id of idsObras) corpo.append('idsObras', id);
+    return this.http.post<AnaliseOrcadoFaturado>(`${this.base}/medicoes/relatorio-detalhado/orcamento`, corpo);
+  }
+
+  /** A planilha vai de novo: o faturado não fica gravado entre a análise e a geração. */
   gerarRelatorioDetalhado(arquivo: File, pedido: PedidoRelatorioDetalhado): Observable<Blob> {
     const corpo = new FormData();
     corpo.append('arquivo', arquivo);

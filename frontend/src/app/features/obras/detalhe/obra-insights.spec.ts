@@ -22,17 +22,32 @@ const obra = (parcial: Partial<ObraResponse> = {}): ObraResponse =>
     ...parcial
   }) as ObraResponse;
 
-const orcamento = (total: number, semAcao = 0): OrcamentoObraResponse => ({
+const orcamento = (
+  contagens: Partial<OrcamentoObraResponse['contagens']> = {},
+  totais: Partial<OrcamentoObraResponse['totais']> = {}
+): OrcamentoObraResponse => ({
   idObra: 'o1',
-  importado: true,
-  totalServicosImportados: total,
-  itens: Array.from({ length: 2 }, (_, i) => ({ id: `i${i}`, codigo: `C${i}`, quantidade: 1, valorTotal: 1, idAcao: i < semAcao ? null : 'a' }))
+  possuiOrcamento: true,
+  revisao: { id: 'r1', numero: 1, origem: 'IMPORTACAO', valorServicos: 1000, valorMateriais: 0, quantidadeItens: 2 },
+  totais: {
+    orcadoServicos: 1000,
+    orcadoMateriais: 0,
+    planejadoServicos: 0,
+    executadoServicos: 0,
+    medidoServicos: 0,
+    saldoServicos: 1000,
+    planejadoForaDoOrcamento: 0,
+    planejadoMateriais: 0,
+    ...totais
+  },
+  contagens: { acima: 0, foraDoOrcamento: 0, naoPlanejados: 0, semReferencia: 0, ...contagens },
+  itens: []
 });
 
 const contexto = (parcial: Partial<ContextoInsightsObra> = {}): ContextoInsightsObra => ({
   obra: obra(),
   hoje: new Date(2026, 9, 30),
-  orcamento: orcamento(0),
+  orcamento: orcamento(),
   totalSolicitacoes: 1,
   totalProximas: 0,
   raioKm: 10,
@@ -98,11 +113,14 @@ describe('insightsDaObra', () => {
     expect(lista).not.toContain('Nenhum material solicitado');
   });
 
-  it('compara o orçamento importado com a carteira e aponta serviços fora do contrato', () => {
-    const o = obra({ carteira: { idContrato: 'c1', classeTensao: 'MT_15', valorServicoPrevisto: 90000 } });
-    expect(titulos({ obra: o, orcamento: orcamento(4271) })).toContain('Orçamento cobre 5% do serviço previsto');
-    expect(titulos({ obra: o, orcamento: orcamento(89000) })).toContain('Orçamento coerente com a carteira');
-    expect(titulos({ orcamento: orcamento(10, 1) })).toContain('1 serviço fora do contrato');
+  it('avisa o que passou do orçamento sem bloquear e elogia o planejamento dentro dele', () => {
+    const lista = titulos({ orcamento: orcamento({ acima: 2, foraDoOrcamento: 1, semReferencia: 1 }, { planejadoForaDoOrcamento: 80 }) });
+    expect(lista).toContain('2 itens acima do orçado');
+    expect(lista).toContain('1 item fora do orçamento');
+    expect(lista).toContain('1 item do orçamento sem vínculo');
+    expect(titulos({ orcamento: orcamento({}, { planejadoServicos: 900 }) })).toContain('Planejamento dentro do orçamento');
+    const sem = { ...orcamento(), possuiOrcamento: false, revisao: null };
+    expect(titulos({ orcamento: sem })).toContain('Sem orçamento');
   });
 
   it('confere material e serviço contra o valor de projeto', () => {

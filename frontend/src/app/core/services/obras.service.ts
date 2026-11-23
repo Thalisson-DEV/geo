@@ -20,6 +20,9 @@ import {
   ObraResponse,
   ObraResumoResponse,
   OrcamentoObraResponse,
+  RevisaoOrcamentoResponse,
+  ItemOrcamentoObraRequest,
+  AlterarItemOrcamentoObraRequest,
   StatusObraFilter,
   StatusOperacionalObraRequest,
   StatusObraRequest,
@@ -111,6 +114,27 @@ export class ObrasService extends BaseService {
 
   buscarOrcamento(id: string): Observable<OrcamentoObraResponse> {
     return this.http.get<OrcamentoObraResponse>(`${this.baseUrl}/${id}/orcamento`);
+  }
+
+  listarRevisoesOrcamento(id: string): Observable<RevisaoOrcamentoResponse[]> {
+    return this.http.get<RevisaoOrcamentoResponse[]>(`${this.baseUrl}/${id}/orcamento/revisoes`);
+  }
+
+  adicionarItemOrcamento(id: string, request: ItemOrcamentoObraRequest): Observable<OrcamentoObraResponse> {
+    return this.http.post<OrcamentoObraResponse>(`${this.baseUrl}/${id}/orcamento/itens`, request);
+  }
+
+  alterarItemOrcamento(id: string, idItem: string, request: AlterarItemOrcamentoObraRequest): Observable<OrcamentoObraResponse> {
+    return this.http.put<OrcamentoObraResponse>(`${this.baseUrl}/${id}/orcamento/itens/${idItem}`, request);
+  }
+
+  removerItemOrcamento(id: string, idItem: string): Observable<OrcamentoObraResponse> {
+    return this.http.delete<OrcamentoObraResponse>(`${this.baseUrl}/${id}/orcamento/itens/${idItem}`);
+  }
+
+  /** Revisão nova do orçamento com o que o planejamento dos pontos prevê. */
+  gerarOrcamentoDoPlanejamento(id: string, observacao?: string | null): Observable<OrcamentoObraResponse> {
+    return this.http.post<OrcamentoObraResponse>(`${this.baseUrl}/${id}/orcamento/gerar-do-planejamento`, { observacao: observacao || null });
   }
 
   /** Totais do mesmo recorte da listagem (mesmos filtros). */

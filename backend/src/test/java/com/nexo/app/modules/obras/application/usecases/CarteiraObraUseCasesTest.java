@@ -2,12 +2,8 @@ package com.nexo.app.modules.obras.application.usecases;
 
 import com.nexo.app.modules.contrato.ContratoApi;
 import com.nexo.app.modules.obras.application.dto.ObraProximaResponse;
-import com.nexo.app.modules.obras.application.dto.OrcamentoObraResponse;
-import com.nexo.app.modules.obras.application.mappers.ImportacaoObraMapperImpl;
 import com.nexo.app.modules.obras.application.mappers.ObraMapper;
-import com.nexo.app.modules.obras.domain.ItemOrcamentoObra;
 import com.nexo.app.modules.obras.domain.Obra;
-import com.nexo.app.modules.obras.infrastructure.persistence.ItemOrcamentoObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraRepository;
 import com.nexo.app.modules.rh.MunicipioApi;
 import jakarta.persistence.EntityManager;
@@ -51,8 +47,6 @@ class CarteiraObraUseCasesTest {
     @Mock
     private ObraMapper mapper;
     @Mock
-    private ItemOrcamentoObraRepository orcamentoRepository;
-    @Mock
     private AuditorAware<String> auditor;
     @Mock
     private EntityManager entityManager;
@@ -65,7 +59,7 @@ class CarteiraObraUseCasesTest {
     @BeforeEach
     void setUp() {
         useCases = new CarteiraObraUseCases(repository, obraUseCases, statusUseCases, deslocamentoService,
-                contratoApi, municipioApi, mapper, orcamentoRepository, new ImportacaoObraMapperImpl(), auditor,
+                contratoApi, municipioApi, mapper, auditor,
                 entityManager, resumosPlanejamento);
         obra = obra("100", null, null);
         when(obraUseCases.buscarEntidade(obra.getId())).thenReturn(obra);
@@ -104,32 +98,6 @@ class CarteiraObraUseCasesTest {
     void obraSemCoordenadasNaoTemObrasProximas() {
         assertThat(useCases.listarObrasProximas(obra.getId(), 5.0)).isEmpty();
         verifyNoInteractions(repository);
-    }
-
-    @Test
-    void orcamentoSemImportacaoVemVazio() {
-        when(orcamentoRepository.findByIdObraAndAtivoTrueOrderByCodigoAsc(obra.getId())).thenReturn(List.of());
-
-        OrcamentoObraResponse orcamento = useCases.buscarOrcamento(obra.getId());
-
-        assertThat(orcamento.importado()).isFalse();
-        assertThat(orcamento.itens()).isEmpty();
-        assertThat(orcamento.totalServicosImportados()).isEqualByComparingTo("0");
-    }
-
-    @Test
-    void orcamentoSomaOsServicosImportados() {
-        obra.informarCarteira(null, null, null, null, null, new BigDecimal("500.00"), new BigDecimal("700.00"));
-        when(orcamentoRepository.findByIdObraAndAtivoTrueOrderByCodigoAsc(obra.getId())).thenReturn(List.of(
-                new ItemOrcamentoObra(obra.getId(), null, "A1", null, "UN", new BigDecimal("2"), new BigDecimal("150"), null, null),
-                new ItemOrcamentoObra(obra.getId(), null, "B2", null, "M", BigDecimal.ONE, null, new BigDecimal("99.90"), null)));
-
-        OrcamentoObraResponse orcamento = useCases.buscarOrcamento(obra.getId());
-
-        assertThat(orcamento.importado()).isTrue();
-        assertThat(orcamento.totalServicosImportados()).isEqualByComparingTo("399.90");
-        assertThat(orcamento.valorServicoPrevisto()).isEqualByComparingTo("700.00");
-        assertThat(orcamento.itens()).extracting(i -> i.codigo()).containsExactly("A1", "B2");
     }
 
     private static Obra obra(String numero, Double latitude, Double longitude) {

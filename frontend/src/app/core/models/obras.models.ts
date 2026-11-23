@@ -329,6 +329,8 @@ export interface ObraFilter {
   dataPrevisaoFimAte?: string;
   valorProjetoMin?: number;
   valorProjetoMax?: number;
+  /** true: só obras com orçamento; false: só sem. */
+  comOrcamento?: boolean;
   ativo?: boolean;
   page?: number;
   size?: number;
@@ -498,23 +500,80 @@ export interface IndicadoresCarteiraResponse {
   municipios: number;
 }
 
-export interface ItemOrcamentoObraResponse {
+export type OrigemOrcamento = 'IMPORTACAO' | 'PLANEJAMENTO' | 'MANUAL' | 'PLANILHA_MEDICAO';
+export type SituacaoItemOrcamento = 'DENTRO' | 'ACIMA' | 'FORA_DO_ORCAMENTO' | 'NAO_PLANEJADO' | 'SEM_ORCADO';
+
+/** Uma versão do orçamento: importar, gerar pelo planejamento ou gravar a planilha de medição cria uma nova. */
+export interface RevisaoOrcamentoResponse {
   id: string;
+  numero: number;
+  origem: OrigemOrcamento;
+  observacao?: string | null;
+  valorServicos: number;
+  valorMateriais: number;
+  quantidadeItens: number;
+  dataCriacao?: string | null;
+  usuarioCriacao?: string | null;
+  dataUltimaAlteracao?: string | null;
+  usuarioUltimaAlteracao?: string | null;
+}
+
+/**
+ * Uma linha do comparativo: orçado × planejado × executado × medido, por código, tipo e operação. `id` é o item do
+ * orçamento (nulo quando está fora dele). `excedente` é quanto passou do orçado.
+ */
+export interface ItemOrcamentoObraResponse {
+  id?: string | null;
+  tipo: 'SERVICO' | 'MATERIAL';
+  operacao: 'INSTALAR' | 'RETIRAR';
   codigo: string;
   descricao?: string | null;
   unidade?: string | null;
-  quantidade: number;
-  valorUnitario?: number | null;
-  valorTotal: number;
   idAcao?: string | null;
+  idMaterial?: string | null;
+  orcadoQuantidade?: number | null;
+  valorUnitario?: number | null;
+  orcadoValor?: number | null;
+  planejadoQuantidade?: number | null;
+  planejadoValor?: number | null;
+  executadoQuantidade?: number | null;
+  executadoValor?: number | null;
+  medidoQuantidade?: number | null;
+  medidoValor?: number | null;
+  situacao: SituacaoItemOrcamento;
+  excedente?: number | null;
+  semReferencia: boolean;
 }
 
 export interface OrcamentoObraResponse {
   idObra: string;
-  importado: boolean;
-  dataImportacao?: string | null;
-  valorMaterialPrevisto?: number | null;
-  valorServicoPrevisto?: number | null;
-  totalServicosImportados: number;
+  possuiOrcamento: boolean;
+  revisao?: RevisaoOrcamentoResponse | null;
+  totais: {
+    orcadoServicos: number;
+    orcadoMateriais: number;
+    planejadoServicos: number;
+    executadoServicos: number;
+    medidoServicos: number;
+    saldoServicos: number;
+    planejadoForaDoOrcamento: number;
+    /** Materiais dos kits aplicados, pelo preço orçado no kit. */
+    planejadoMateriais: number;
+  };
+  contagens: { acima: number; foraDoOrcamento: number; naoPlanejados: number; semReferencia: number };
   itens: ItemOrcamentoObraResponse[];
+}
+
+export interface ItemOrcamentoObraRequest {
+  tipo: 'SERVICO' | 'MATERIAL';
+  idReferencia: string;
+  operacao?: 'INSTALAR' | 'RETIRAR' | null;
+  quantidade: number;
+  valorUnitario?: number | null;
+}
+
+export interface AlterarItemOrcamentoObraRequest {
+  operacao?: 'INSTALAR' | 'RETIRAR' | null;
+  quantidade: number;
+  valorUnitario?: number | null;
 }

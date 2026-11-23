@@ -70,7 +70,11 @@ public interface MedicaoObraControllerDoc {
     @Operation(summary = "Analisar a planilha orçado × faturado", description = "Reconhece as obras pelo número e devolve totais, lançamentos para conferir, erros por obra e números sem obra cadastrada. Nada é gravado.")
     ResponseEntity<MedicaoResponses.AnaliseOrcadoFaturado> analisarRelatorioDetalhado(MultipartFile arquivo);
 
-    @Operation(summary = "Gerar o relatório de medição detalhado", description = "Até 10 obras por pacote. ZIP com uma pasta por obra: Excel, PDF e as fotos do book. Orçado e faturado vêm da planilha; executado e medições, do sistema, até a data de corte (hoje quando vazia). Obra com linha errada na planilha é recusada.")
+    @Operation(summary = "Gravar o orçado da planilha como orçamento das obras",
+            description = "Cria uma revisão nova do orçamento de cada obra escolhida com a mão de obra e os materiais orçados da planilha. A revisão anterior fica no histórico.")
+    ResponseEntity<MedicaoResponses.AnaliseOrcadoFaturado> gravarOrcadoRelatorioDetalhado(MultipartFile arquivo, List<UUID> idsObras);
+
+    @Operation(summary = "Gerar o relatório de medição detalhado", description = "Até 10 obras por pacote. ZIP com uma pasta por obra: Excel, PDF e as fotos do book. O orçado vem do orçamento gravado na obra (sem orçamento, da planilha); o faturado, da planilha; executado e medições, do sistema, até a data de corte (hoje quando vazia). Obra com linha errada na planilha é recusada.")
     ResponseEntity<byte[]> gerarRelatorioDetalhado(MultipartFile arquivo, List<UUID> idsObras, LocalDate dataCorte, String fiscal,
                                                    String responsavel, boolean incluirFotos);
 }

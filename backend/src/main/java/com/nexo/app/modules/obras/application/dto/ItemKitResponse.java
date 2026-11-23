@@ -8,7 +8,8 @@ import java.util.UUID;
 
 /**
  * Item do kit com os dados da referência (Ação ou Material) já resolvidos para exibição.
- * {@code valorUnitario} e {@code valorTotal} só existem para serviço com valor vigente no contrato.
+ * {@code valorUnitario} e {@code valorTotal}: no serviço, o valor vigente do contrato; no material, o valor orçado no kit.
+ * Ficam vazios quando não há valor.
  */
 public record ItemKitResponse(
         UUID id,

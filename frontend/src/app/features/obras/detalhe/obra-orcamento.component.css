@@ -1,0 +1,279 @@
+:host {
+  display: grid;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+/* ── Cabeçalho ─────────────────────────────────────────────────── */
+
+.orc-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.orc-cabecalho__titulo {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.orc-cabecalho h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--geo-foreground);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.orc-cabecalho h2 > .pi {
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.orc-cabecalho__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0;
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.orc-cabecalho__meta .pi {
+  font-size: 0.75em;
+}
+
+.orc-cabecalho__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+/* ── Resumo ────────────────────────────────────────────────────── */
+
+.orc-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
+  overflow: hidden;
+}
+
+.orc-resumo__item {
+  display: grid;
+  align-content: start;
+  gap: 0.125rem;
+  padding: 0.625rem 0.875rem;
+  border-inline-end: 1px solid var(--geo-border);
+  min-width: 0;
+}
+
+.orc-resumo__item:last-child {
+  border-inline-end: 0;
+}
+
+.orc-resumo__item[data-tone='warning'] .orc-resumo__valor {
+  color: var(--geo-warning-text);
+}
+
+.orc-resumo__rotulo {
+  overflow: hidden;
+  color: var(--geo-foreground-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--geo-font-caption);
+}
+
+.orc-resumo__valor {
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.orc-resumo__detalhe {
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
+}
+
+/* ── Filtros por situação ──────────────────────────────────────── */
+
+.orc-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-block: 0.75rem 0.5rem;
+}
+
+.orc-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 1.75rem;
+  padding: 0 0.625rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-full);
+  background: var(--geo-surface);
+  color: var(--geo-foreground-muted);
+  font: inherit;
+  font-size: var(--geo-font-caption);
+  cursor: pointer;
+}
+
+.orc-filtro:hover {
+  border-color: var(--geo-border-strong);
+  color: var(--geo-foreground);
+}
+
+.orc-filtro:focus-visible {
+  outline: 2px solid var(--geo-border-focus);
+  outline-offset: 1px;
+}
+
+.orc-filtro--ativo {
+  border-color: var(--geo-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand-text);
+  font-weight: 600;
+}
+
+.orc-filtro__total {
+  font-variant-numeric: tabular-nums;
+}
+
+.orc-filtro[data-tone='warning'] .orc-filtro__total {
+  color: var(--geo-warning-text);
+}
+
+.orc-filtro[data-tone='danger'] .orc-filtro__total {
+  color: var(--geo-danger-text);
+}
+
+/* ── Tabela ────────────────────────────────────────────────────── */
+
+/* Descrição longa em caixa alta: duas linhas, o texto inteiro no title. */
+.orc-descricao {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.orc-marcas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.orc-marcas:empty {
+  display: none;
+}
+
+.orc-num {
+  display: block;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+  white-space: nowrap;
+}
+
+.orc-num--sub {
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-table-meta);
+}
+
+.orc-num--alerta {
+  color: var(--geo-warning-text);
+}
+
+/* ── Sem orçamento ─────────────────────────────────────────────── */
+
+.orc-vazio {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.orc-vazio__planejado {
+  margin: 0;
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.orc-vazio__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* ── Drawers ───────────────────────────────────────────────────── */
+
+.orc-total {
+  margin: 0;
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.orc-total strong {
+  color: var(--geo-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.orc-explica {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-inline-start: 1.125rem;
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.orc-revisoes {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orc-revisao {
+  display: grid;
+  gap: 0.125rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  font-size: var(--geo-font-caption);
+}
+
+.orc-revisao__topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
+}
+
+.orc-revisao__origem,
+.orc-revisao__quando {
+  color: var(--geo-foreground-muted);
+}
+
+.orc-revisao__obs {
+  color: var(--geo-foreground);
+}
+
+.orc-revisao__valores {
+  color: var(--geo-foreground);
+  font-variant-numeric: tabular-nums;
+}

@@ -85,6 +85,11 @@ const PRINCIPAIS: GeoSelectOption<boolean | null>[] = [
   { label: 'Obras e subprojetos', value: null },
   { label: 'Só obras principais', value: true }
 ];
+const ORCAMENTO: GeoSelectOption<boolean | null>[] = [
+  { label: 'Com e sem orçamento', value: null },
+  { label: 'Só com orçamento', value: true },
+  { label: 'Só sem orçamento', value: false }
+];
 const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
   { label: 'Listagem resumida', value: 'resumo' },
   { label: 'Relatório completo', value: 'detalhado' }
@@ -185,6 +190,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
           <geo-multiselect label="Coordenador" [options]="opcoes('coordenadores')" [(value)]="lista.filters.coordenador" placeholder="Todos"></geo-multiselect>
           <geo-select label="Agente responsável" [options]="opcoes('agentes')" [(value)]="lista.filters.agente" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
           <geo-select label="Hierarquia" [options]="principais" [(value)]="lista.filters.apenasPrincipais"></geo-select>
+          <geo-select label="Orçamento" [options]="opcoesOrcamento" [(value)]="lista.filters.orcamento"></geo-select>
           <geo-datepicker label="Início a partir de" [value]="dataLocal(lista.filters.inicio().from)" [clearable]="true" (valueChange)="periodo('inicio', 'from', $event)"></geo-datepicker>
           <geo-datepicker label="Início até" [value]="dataLocal(lista.filters.inicio().to)" [clearable]="true" (valueChange)="periodo('inicio', 'to', $event)"></geo-datepicker>
           <geo-datepicker label="Previsão de fim a partir de" [value]="dataLocal(lista.filters.previsaoFim().from)" [clearable]="true" (valueChange)="periodo('previsaoFim', 'from', $event)"></geo-datepicker>
@@ -390,8 +396,8 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         </button>
         <button type="button" class="geo-kpi" (click)="abrirImportacao('orcamento')">
           <span class="geo-kpi__icon"><i class="pi pi-calculator" aria-hidden="true"></i></span>
-          <span class="geo-kpi__body"><span class="geo-kpi__label">Serviços e orçamento previstos</span>
-            <span class="geo-kpi__detail">Serviços com preço por obra, para comparar com o planejamento.</span></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Orçamento das obras</span>
+            <span class="geo-kpi__detail">Serviços e materiais orçados por obra: viram o saldo da ficha e o valor previsto da carteira.</span></span>
           <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
         </button>
       </div>
@@ -404,8 +410,8 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
       descricao="Obras existentes são atualizadas pelo número (célula vazia mantém o valor atual); obras novas são criadas. Planejamento, programação e medições não são alterados."
       [colunas]="colunasCarteira" [fonte]="fonteCarteira" [exigeContrato]="true" [contratos]="contratoOpcoes()"
       (processada)="lista.reload()"></app-importacao-planilha-obras>
-    <app-importacao-planilha-obras [(visible)]="importacaoOrcamentoAberta" tipo="ORCAMENTO" titulo="Importar serviços e orçamento previstos"
-      descricao="Uma linha por serviço, identificada pelo número da obra. Os serviços previstos anteriores de cada obra da planilha são substituídos."
+    <app-importacao-planilha-obras [(visible)]="importacaoOrcamentoAberta" tipo="ORCAMENTO" titulo="Importar orçamento das obras"
+      descricao="Uma linha por serviço ou material, com o número da obra. Cada obra da planilha ganha uma revisão nova do orçamento; a anterior fica no histórico."
       [colunas]="colunasOrcamento" [fonte]="fonteOrcamento" (processada)="lista.reload()"></app-importacao-planilha-obras>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
@@ -463,6 +469,7 @@ export class ObrasListComponent {
   protected readonly rotuloStatus = rotuloStatus;
   protected readonly dataLocal = dataLocal;
   protected readonly principais = PRINCIPAIS;
+  protected readonly opcoesOrcamento = ORCAMENTO;
   protected readonly formatos = FORMATOS;
   protected readonly hoje = new Date();
 
@@ -487,6 +494,7 @@ export class ObrasListComponent {
       coordenador: geoFilter.list<string>([], { label: 'Coordenador', itemLabel: (id) => this.nome('coordenadores', id) }),
       agente: geoFilter.value<string | null>(null, { label: 'Agente', format: (id): string | null => (id ? this.nome('agentes', id) : null) }),
       apenasPrincipais: geoFilter.value<boolean | null>(null, { label: 'Hierarquia', param: 'principais', options: () => PRINCIPAIS }),
+      orcamento: geoFilter.value<boolean | null>(null, { label: 'Orçamento', param: 'orcamento', options: () => ORCAMENTO }),
       inicio: geoFilter.range({ from: null, to: null }, { label: 'Início' }),
       previsaoFim: geoFilter.range({ from: null, to: null }, { label: 'Previsão de fim' }),
       valorMin: geoFilter.value<number | null>(null, { label: 'Valor mínimo', type: 'number' }),
@@ -741,6 +749,7 @@ export class ObrasListComponent {
       dataPrevisaoFimAte: ISO_PARA_BR(f.previsaoFim.to),
       valorProjetoMin: f.valorMin ?? undefined,
       valorProjetoMax: f.valorMax ?? undefined,
+      comOrcamento: f.orcamento ?? undefined,
       ativo: true
     };
   }

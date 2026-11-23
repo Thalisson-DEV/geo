@@ -144,9 +144,9 @@ public class KitConstrutivoUseCases {
         }
         for (ItemKitRequest item : solicitados) {
             if (item.id() != null) {
-                kit.alterarItem(item.id(), item.operacao(), item.unidade(), item.quantidade());
+                kit.alterarItem(item.id(), item.operacao(), item.unidade(), item.quantidade(), item.valorUnitario());
             } else {
-                kit.adicionarItem(item.tipo(), item.idReferencia(), item.operacao(), item.unidade(), item.quantidade());
+                kit.adicionarItem(item.tipo(), item.idReferencia(), item.operacao(), item.unidade(), item.quantidade(), item.valorUnitario());
             }
         }
     }
@@ -191,9 +191,11 @@ public class KitConstrutivoUseCases {
                         .map(ContratoApi.ContratoResumo::numeroContrato).orElse(null));
 
         BigDecimal total = BigDecimal.ZERO;
+        BigDecimal totalMateriais = BigDecimal.ZERO;
         int servicos = 0;
         int materiaisQtd = 0;
         int semValor = 0;
+        int materiaisSemValor = 0;
         List<ItemKitResponse> itensResponse = new ArrayList<>();
         for (ItemKit item : kit.getItensAtivos()) {
             BigDecimal valorUnitario = null;
@@ -209,6 +211,13 @@ public class KitConstrutivoUseCases {
                 }
             } else {
                 materiaisQtd++;
+                valorUnitario = item.getValorUnitario();
+                if (valorUnitario == null) {
+                    materiaisSemValor++;
+                } else {
+                    valorTotal = valorUnitario.multiply(item.getQuantidade()).setScale(2, RoundingMode.HALF_UP);
+                    totalMateriais = totalMateriais.add(valorTotal);
+                }
             }
             if (comItens) {
                 itensResponse.add(montarItem(item, valorUnitario, valorTotal, acoes, materiais));
@@ -233,8 +242,10 @@ public class KitConstrutivoUseCases {
                 kit.isAtivo(),
                 kit.getVersao(),
                 kit.getDataCriacao(),
-                kit.getDataUltimaAlteracao()
-        );
+                kit.getDataUltimaAlteracao(),
+                totalMateriais.setScale(2, RoundingMode.HALF_UP),
+                materiaisSemValor,
+                total.add(totalMateriais).setScale(2, RoundingMode.HALF_UP));
     }
 
     private ItemKitResponse montarItem(ItemKit item, BigDecimal valorUnitario, BigDecimal valorTotal,
