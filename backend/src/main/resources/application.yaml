@@ -98,6 +98,13 @@ spring:
 
 # CONFIGURACOES DE SEGURANCA E NEGOCIO
 geo:
+  projeto:
+    cad:
+      # DWG e formato fechado: e convertido para DXF por um programa instalado no servidor, com {entrada} e {saida}
+      # no lugar dos arquivos. Ex.: LibreDWG "dwg2dxf -y -o {saida} {entrada}". Vazio: DWG nao e lido (DXF sim).
+      conversor-dwg:
+        comando: ${GEO_PROJETO_CONVERSOR_DWG:}
+        limite: ${GEO_PROJETO_CONVERSOR_DWG_LIMITE:PT60S}
   turno:
     # Turno esquecido aberto no horario de corte e encerrado pelo servidor; o fim vira o do ultimo lancamento.
     encerramento-automatico:

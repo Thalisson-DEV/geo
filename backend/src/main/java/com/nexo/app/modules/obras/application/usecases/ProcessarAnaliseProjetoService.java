@@ -1,6 +1,7 @@
 package com.nexo.app.modules.obras.application.usecases;
 
 import com.nexo.app.modules.assistente.CopilotoApi;
+import com.nexo.app.modules.obras.application.dto.AnexoObraResponse;
 import com.nexo.app.modules.obras.domain.AnalisePlanejamento;
 import com.nexo.app.modules.obras.domain.PontoPlanejamento;
 import com.nexo.app.modules.obras.domain.PropostaPlanejamento;
@@ -11,6 +12,7 @@ import com.nexo.app.modules.obras.infrastructure.persistence.PlanejamentoObraRep
 import com.nexo.app.modules.obras.infrastructure.persistence.PontoPlanejamentoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.VaoPlanejamentoRepository;
 import com.nexo.app.modules.obras.domain.VaoPlanejamento;
+import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -86,6 +89,9 @@ public class ProcessarAnaliseProjetoService {
     private final AnexoObraUseCases anexoUseCases;
     private final RenderizadorPaginaProjeto renderizador;
     private final LeitorCamadaProjeto leitorCamada;
+    private final LeitorVetorialProjeto leitorVetorial;
+    private final LeitorCadProjeto leitorCad;
+    private final ProjetoCadDaObra projetoCad;
     private final CopilotoApi copiloto;
     private final ObraRepository obraRepository;
     private final PontoPlanejamentoRepository pontoRepository;
@@ -125,6 +131,13 @@ public class ProcessarAnaliseProjetoService {
         LeitorCamadaProjeto.CamadaPagina camada = leitorCamada.ler(pdf, analise.getPagina());
         interpretador.adicionarCamada(camada);
         interpretador.usarProporcaoDaObra(proporcaoDaObra(analise.getIdObra(), existentes, camada));
+        if (lerCad(analise, pdf, camada, interpretador)) {
+            return interpretador.concluir();
+        }
+        Optional<LeitorVetorialProjeto.Leitura> vetorial = leitorVetorial.ler(pdf, analise.getPagina());
+        if (vetorial.isPresent() && lerVetorial(vetorial.get(), interpretador)) {
+            return interpretador.concluir();
+        }
         int rotacao = rotacao(analise, pdf, orientacaoConferida, interpretador);
         if (camada.candidatos().isEmpty()) {
             lerPorBlocos(analise.getId(), pdf, analise.getPagina(), rotacao, interpretador);
@@ -132,6 +145,75 @@ public class ProcessarAnaliseProjetoService {
             lerComCandidatos(pdf, analise.getPagina(), rotacao, interpretador);
         }
         return interpretador.concluir();
+    }
+
+    /**
+     * Com o DXF/DWG do projeto entre os anexos, a obra vem dele: camadas dizem o que é novo e o que sai, sem nada a
+     * adivinhar. A folha do PDF só dá a posição (pela georreferência dos rótulos, ou pelos códigos de poste no texto).
+     * Qualquer problema com o arquivo CAD não trava a leitura: avisa e segue pelo PDF.
+     */
+    private boolean lerCad(AnalisePlanejamento analise, byte[] pdf, LeitorCamadaProjeto.CamadaPagina camada,
+                           InterpretadorPropostaProjeto interpretador) {
+        Optional<AnexoObraResponse> anexo = projetoCad.anexo(analise.getIdObra());
+        if (anexo.isEmpty()) {
+            return false;
+        }
+        String nome = anexo.get().nomeArquivo();
+        try {
+            progresso(analise.getId(), "lendo o arquivo CAD " + nome);
+            Optional<LeitorCadProjeto.ProjetoCad> projeto = leitorCad.interpretar(projetoCad.conteudoDxf(analise.getIdObra(), anexo.get()));
+            if (projeto.isEmpty()) {
+                interpretador.avisar("O arquivo CAD " + nome + " não segue um padrão de camadas conhecido: a folha foi lida pelo PDF.");
+                return false;
+            }
+            // Planta gerada do próprio CAD traz a georreferência exata; senão, vem dos rótulos ou dos códigos do PDF.
+            Optional<LeitorVetorialProjeto.Georreferencia> geo = GeradorPlantaCad.georreferenciaGravada(pdf, analise.getPagina())
+                    .or(() -> leitorVetorial.georreferenciar(pdf, analise.getPagina()))
+                    .or(() -> leitorCad.georreferenciarPorCodigos(projeto.get(), camada));
+            if (geo.isEmpty()) {
+                interpretador.avisar("Não foi possível posicionar o arquivo CAD " + nome + " nesta folha (sem coordenadas nem"
+                        + " códigos de poste legíveis no PDF): a folha foi lida pelo PDF.");
+                return false;
+            }
+            LeitorCadProjeto.Leitura leitura = leitorCad.naFolha(projeto.get(), geo.get());
+            if (leitura.pontos() == 0) {
+                interpretador.avisar("Nenhum ponto da obra do arquivo CAD " + nome + " cai nesta folha.");
+                return false;
+            }
+            interpretador.usarEscalaMedida(leitura.escala());
+            if (!interpretador.tentarBloco(leitura.json(), new RenderizadorPaginaProjeto.Bloco(0, 0, 1, 1, null, 0))) {
+                log.warn("Leitura do CAD fora do formato; seguindo pelo PDF");
+                return false;
+            }
+            interpretador.avisar("A Bússola leu esta folha pelo arquivo CAD " + nome + " (" + leitura.perfil() + "), sem IA: "
+                    + leitura.pontos() + " pontos e " + leitura.vaos() + " vãos da obra, com códigos, estruturas e metragens do projeto."
+                    + (leitura.foraDaFolha() > 0 ? " " + leitura.foraDaFolha() + " pontos da obra ficam fora desta folha: confira"
+                    + " as outras folhas do projeto." : ""));
+            return true;
+        } catch (RuntimeException e) {
+            log.warn("Falha ao ler o arquivo CAD {} da obra {}", nome, analise.getIdObra(), e);
+            String motivo = e instanceof InvarianteVioladaException ? e.getMessage() + " " : "";
+            interpretador.avisar("O arquivo CAD " + nome + " não pôde ser lido. " + motivo + "A folha foi lida pelo PDF.");
+            return false;
+        }
+    }
+
+    /**
+     * Folha vetorial (rótulos desenhados como letras): tudo sai do próprio PDF, sem IA. Posições já vêm na página como
+     * ela aparece, então não há rotação a descobrir.
+     */
+    private boolean lerVetorial(LeitorVetorialProjeto.Leitura leitura, InterpretadorPropostaProjeto interpretador) {
+        if (leitura.escala() != null) {
+            interpretador.usarEscalaMedida(leitura.escala());
+        }
+        if (!interpretador.tentarBloco(leitura.json(), new RenderizadorPaginaProjeto.Bloco(0, 0, 1, 1, null, 0))) {
+            log.warn("Leitura vetorial fora do formato; seguindo com o modelo de visão");
+            return false;
+        }
+        interpretador.avisar("A Bússola leu esta folha direto do desenho do PDF, sem IA: " + leitura.pontos() + " pontos e "
+                + leitura.vaos() + " vãos da obra. Postes existentes sem mudança ficaram de fora; os que recebem rede nova"
+                + " entram como referência. Confira os itens com confiança baixa.");
+        return true;
     }
 
     /**

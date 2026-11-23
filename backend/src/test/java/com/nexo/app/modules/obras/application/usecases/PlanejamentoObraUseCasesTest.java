@@ -1,7 +1,10 @@
 package com.nexo.app.modules.obras.application.usecases;
 
+import com.nexo.app.modules.obras.application.dto.AnexoObraResponse;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraResponse;
+import com.nexo.app.modules.obras.domain.PlanejamentoObra;
+import com.nexo.app.modules.obras.domain.AnexoObra;
 import com.nexo.app.modules.obras.domain.ItemPlanejado;
 import com.nexo.app.modules.obras.domain.KitAplicado;
 import com.nexo.app.modules.obras.domain.KitConstrutivo;
@@ -66,6 +69,7 @@ class PlanejamentoObraUseCasesTest {
     @Mock private KitConstrutivoUseCases kitUseCases;
     @Mock private ProgramacaoRepository programacaoRepository;
     @Mock private EquipeApi equipeApi;
+    @Mock private PlantaDoProjetoCad plantaCad;
 
     @InjectMocks private PlanejamentoObraUseCases useCases;
 
@@ -224,6 +228,29 @@ class PlanejamentoObraUseCasesTest {
 
         assertThat(indicadores.valorTotal()).isEqualByComparingTo("0");
         assertThat(indicadores.servicosSemValor()).isEqualTo(1);
+    }
+
+    @Test
+    void anexoCadComoProjetoMestreGeraAPlantaEUsaElaNoLugar() {
+        AnexoObra cad = mock(AnexoObra.class);
+        UUID idCad = UUID.randomUUID();
+        UUID idPlanta = UUID.randomUUID();
+        when(cad.getId()).thenReturn(idCad);
+        when(cad.getNomeArquivo()).thenReturn("projeto.DXF");
+        when(anexoRepository.findByIdAndObraIdAndAtivoTrue(idCad, OBRA)).thenReturn(Optional.of(cad));
+        when(plantaCad.gerar(OBRA, idCad)).thenReturn(new AnexoObraResponse(idPlanta, OBRA, UUID.randomUUID(), "PROJETO CAD",
+                "projeto-planta.pdf", "application/pdf", 10, null, null, null));
+        PlanejamentoObra planejamento = new PlanejamentoObra(OBRA);
+        when(planejamentoRepository.findByIdObraAndAtivoTrue(OBRA)).thenReturn(Optional.of(planejamento));
+
+        try {
+            useCases.definirProjetoMestre(OBRA, idCad);
+        } catch (RuntimeException montarComMocks) {
+            // A montagem da resposta não interessa aqui; o que vale é o mestre escolhido.
+        }
+
+        verify(plantaCad).gerar(OBRA, idCad);
+        assertThat(planejamento.getIdAnexoMestre()).isEqualTo(idPlanta);
     }
 
     @Test

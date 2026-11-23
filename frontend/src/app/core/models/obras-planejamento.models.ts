@@ -175,6 +175,10 @@ export interface AnalisePlanejamento {
 
 export interface DisponibilidadeAnalise {
   disponivel: boolean;
+  /** A folha é lida sem modelo de visão (desenho do PDF ou arquivo CAD): não depende de estar de pé. */
+  folhaVetorial?: boolean;
+  /** Nome do DXF/DWG da obra que a leitura vai usar. */
+  arquivoCad?: string | null;
   ultima?: AnalisePlanejamento | null;
 }
 

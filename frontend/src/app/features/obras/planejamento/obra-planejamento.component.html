@@ -50,13 +50,19 @@
     </header>
 
     @if (!p.projetoMestre) {
-      @if (podeEditar && pdfUnico(); as pdf) {
-        <geo-async-state class="plan-estado" state="empty" icon="pi pi-file-pdf" title="Esta obra ainda não tem projeto"
-          [description]="'O PDF ' + pdf.nomeArquivo + ' já está anexado à obra. Use-o como projeto para marcar pontos, vãos e kits sobre a folha.'"
-          actionLabel="Usar este PDF como projeto" actionIcon="pi pi-check" (action)="usarAnexo(pdf)"></geo-async-state>
+      @if (podeEditar && projetoUnico(); as pdf) {
+        @if (ehCad(pdf)) {
+          <geo-async-state class="plan-estado" state="empty" icon="pi pi-map" title="Esta obra ainda não tem projeto"
+            [description]="'O arquivo CAD ' + pdf.nomeArquivo + ' já está anexado. Gere a planta em PDF para marcar pontos, vãos e kits.'"
+            actionLabel="Gerar a planta deste arquivo" actionIcon="pi pi-file-pdf" (action)="usarAnexo(pdf)"></geo-async-state>
+        } @else {
+          <geo-async-state class="plan-estado" state="empty" icon="pi pi-file-pdf" title="Esta obra ainda não tem projeto"
+            [description]="'O PDF ' + pdf.nomeArquivo + ' já está anexado à obra. Use-o como projeto para marcar pontos, vãos e kits sobre a folha.'"
+            actionLabel="Usar este PDF como projeto" actionIcon="pi pi-check" (action)="usarAnexo(pdf)"></geo-async-state>
+        }
       } @else {
         <geo-async-state class="plan-estado" state="empty" icon="pi pi-file-pdf" title="Esta obra ainda não tem projeto"
-          description="Anexe o PDF do projeto para marcar pontos, vãos e kits sobre a folha."
+          description="Anexe o projeto em PDF, DXF ou DWG para marcar pontos, vãos e kits sobre a folha."
           [actionLabel]="podeEditar ? 'Anexar projeto' : undefined" actionIcon="pi pi-upload" (action)="abrirProjeto()"></geo-async-state>
       }
     } @else {
@@ -357,11 +363,14 @@
             } @else if (!p.pontos.length && podeEditar) {
               <div class="plan-inicio">
                 <h2>Como quer começar?</h2>
-                <button type="button" class="plan-inicio__opcao plan-inicio__opcao--destaque" [disabled]="!leituraDisponivel() || analisando()" (click)="lerComCopiloto()">
+                <button type="button" class="plan-inicio__opcao plan-inicio__opcao--destaque" [disabled]="!leituraDisponivel() || analisando()" (click)="lerComCopiloto()"
+                  [attr.title]="arquivoCad() ? 'Arquivo CAD: ' + arquivoCad() : null">
                   <i class="pi pi-compass" aria-hidden="true"></i>
                   <span>
                     <strong>{{ analisando() ? 'Lendo a folha…' : 'Planejar com Bússola' }}</strong>
-                    <small>{{ leituraDisponivel() ? 'Ele lê a folha e propõe pontos, vãos e kits. Você revisa antes de gravar.' : 'A leitura de projetos não está configurada neste ambiente.' }}</small>
+                    <small>{{ !leituraDisponivel() ? 'A leitura de projetos não está configurada neste ambiente.'
+                      : arquivoCad() ? 'Lê o arquivo CAD da obra e propõe pontos, vãos e kits. Você revisa antes de gravar.'
+                      : 'Lê a folha e propõe pontos, vãos e kits. Você revisa antes de gravar.' }}</small>
                   </span>
                 </button>
                 <button type="button" class="plan-inicio__opcao" (click)="escolherFerramenta('ponto')">
@@ -473,15 +482,17 @@
   </geo-form-drawer>
 
   <geo-form-drawer [(visible)]="projetoAberto" [title]="p.projetoMestre ? 'Substituir projeto' : 'Anexar projeto'" size="md" [dirty]="!!projetoArquivo()"
-    [description]="p.projetoMestre ? 'Pontos, vãos e anotações continuam nas mesmas posições. O PDF anterior fica nos anexos da obra.' : 'O PDF será a base do planejamento desta obra.'">
-    @if (anexosPdf().length) {
-      <geo-form-section title="Usar um PDF já anexado" icon="pi pi-paperclip">
+    [description]="p.projetoMestre ? 'Pontos, vãos e anotações continuam nas mesmas posições. O projeto anterior fica nos anexos da obra.' : 'O projeto será a base do planejamento desta obra.'">
+    @if (anexosProjeto().length) {
+      <geo-form-section title="Usar um arquivo já anexado" icon="pi pi-paperclip">
         <ul class="plan-anexos">
-          @for (anexo of anexosPdf(); track anexo.id) {
+          @for (anexo of anexosProjeto(); track anexo.id) {
             <li>
-              <span><strong>{{ anexo.nomeArquivo }}</strong><small>{{ anexo.tipoAnexoNome }}</small></span>
+              <span><strong>{{ anexo.nomeArquivo }}</strong><small>{{ ehPlantaGerada(anexo) ? 'Planta gerada do CAD' : anexo.tipoAnexoNome + (ehCad(anexo) ? ' · gera a planta em PDF' : '') }}</small></span>
               @if (anexo.id === p.projetoMestre?.idAnexo) {
                 <geo-status tone="success">Atual</geo-status>
+              } @else if (origemDaPlantaAtual(anexo)) {
+                <geo-status tone="neutral">Origem da planta atual</geo-status>
               } @else {
                 <geo-button variant="outline" size="sm" label="Usar este" (pressed)="usarAnexo(anexo)"></geo-button>
               }
@@ -490,10 +501,11 @@
         </ul>
       </geo-form-section>
     }
-    <geo-form-section title="Enviar novo PDF" icon="pi pi-upload">
+    <geo-form-section title="Enviar novo arquivo" icon="pi pi-upload">
       <div class="geo-form-stack">
         <geo-select label="Tipo de documento" [required]="true" [options]="tiposAnexo()" [(value)]="projetoTipo" [filter]="true"></geo-select>
-        <geo-file-input label="Arquivo PDF" [required]="true" accept="application/pdf,.pdf" [(file)]="projetoArquivo" [maxBytes]="50 * 1024 * 1024" description="Até 50 MB."></geo-file-input>
+        <geo-file-input label="Arquivo do projeto" [required]="true" accept="application/pdf,.pdf,.dxf,.dwg" [(file)]="projetoArquivo" [maxBytes]="50 * 1024 * 1024"
+          description="PDF, DXF ou DWG, até 50 MB. DXF e DWG viram planta em PDF."></geo-file-input>
       </div>
     </geo-form-section>
     <div drawer-footer class="geo-actions-row">

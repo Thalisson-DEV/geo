@@ -849,6 +849,8 @@ export class ObraDetalheComponent {
     if (/\.(png|jpe?g|webp|gif|svg)$/.test(n)) return 'pi-image';
     if (/\.(xlsx?|csv)$/.test(n)) return 'pi-file-excel';
     if (/\.(docx?)$/.test(n)) return 'pi-file-word';
+    // Projeto em CAD.
+    if (/\.(dxf|dwg)$/.test(n)) return 'pi-map';
     return 'pi-file';
   }
 

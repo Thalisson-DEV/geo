@@ -11,9 +11,33 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 COPY src src
 RUN ./mvnw clean package -Dmaven.test.skip=true -B
 
+# ---- Conversor de DWG (LibreDWG) ----
+# O DWG e formato fechado: a Bussola le o projeto em DXF, e o dwg2dxf da LibreDWG (GNU, GPLv3, chamado como programa
+# a parte) converte o DWG anexado na obra. O Alpine nao empacota a LibreDWG, entao ela e compilada aqui, na mesma
+# versao de Alpine da imagem final. Versao e checksum fixos; codigo-fonte em https://ftp.gnu.org/gnu/libredwg/.
+FROM alpine:3.24 AS libredwg
+ARG LIBREDWG_VERSION=0.14
+ARG LIBREDWG_SHA256=62ebb73b984f865960f20ed26619ea5f8789d5e3fd088fa40a2598384da81275
+RUN apk add --no-cache build-base curl xz pkgconf python3 \
+ && curl -fsSL -o /tmp/libredwg.tar.xz https://ftp.gnu.org/gnu/libredwg/libredwg-${LIBREDWG_VERSION}.tar.xz \
+ && echo "${LIBREDWG_SHA256}  /tmp/libredwg.tar.xz" | sha256sum -c - \
+ && tar -xJf /tmp/libredwg.tar.xz -C /tmp \
+ && cd /tmp/libredwg-${LIBREDWG_VERSION} \
+ && ./configure --prefix=/opt/libredwg --disable-bindings --disable-static \
+ && make -j"$(nproc)" \
+ && make install \
+ && strip --strip-unneeded /opt/libredwg/bin/dwg2dxf /opt/libredwg/lib/libredwg.so.* \
+ && /opt/libredwg/bin/dwg2dxf --version
+
 # ---- Runtime ----
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+
+# Conversor de DWG: so o programa e a biblioteca dele.
+COPY --from=libredwg /opt/libredwg/bin/dwg2dxf /opt/libredwg/bin/dwg2dxf
+COPY --from=libredwg /opt/libredwg/lib/libredwg.so.0* /opt/libredwg/lib/
+ENV LD_LIBRARY_PATH=/opt/libredwg/lib
+ENV GEO_PROJETO_CONVERSOR_DWG="/opt/libredwg/bin/dwg2dxf -y -o {saida} {entrada}"
 
 # Usuario nao-root
 RUN addgroup -S spring && adduser -S spring -G spring

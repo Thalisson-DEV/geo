@@ -84,6 +84,7 @@ public class PlanejamentoObraUseCases {
     private final KitConstrutivoUseCases kitUseCases;
     private final ProgramacaoRepository programacaoRepository;
     private final EquipeApi equipeApi;
+    private final PlantaDoProjetoCad plantaCad;
 
     @Transactional(readOnly = true)
     public PlanejamentoObraResponse buscar(UUID idObra) {
@@ -97,18 +98,29 @@ public class PlanejamentoObraUseCases {
         Obra obra = buscarObra(idObra);
         AnexoObra anexo = anexoRepository.findByIdAndObraIdAndAtivoTrue(idAnexo, idObra)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Anexo não encontrado nesta obra."));
-        validarPdf(anexo.getContentType(), anexo.getNomeArquivo());
-        obterPlanejamento(idObra).definirProjetoMestre(anexo.getId());
+        UUID idMestre = anexo.getId();
+        if (PlantaDoProjetoCad.ehCad(anexo.getNomeArquivo())) {
+            // Só o CAD: a planta em PDF gerada dele é o mestre; o CAD fica anexado e a Bússola lê a obra dele.
+            idMestre = plantaCad.gerar(idObra, anexo.getId()).id();
+        } else {
+            validarPdf(anexo.getContentType(), anexo.getNomeArquivo());
+        }
+        obterPlanejamento(idObra).definirProjetoMestre(idMestre);
         return montar(obra);
     }
 
     /**
-     * Anexa o PDF e o torna o projeto mestre. O anterior continua nos anexos da obra e os pontos não mudam.
+     * Anexa o projeto e o torna o projeto mestre. PDF vale como está; DXF ou DWG ficam anexados e geram a planta em PDF
+     * que vira o mestre. O anterior continua nos anexos da obra e os pontos não mudam.
      */
     @Transactional
     public PlanejamentoObraResponse enviarProjetoMestre(UUID idObra, UUID idTipoAnexo, MultipartFile arquivo) {
-        validarPdf(arquivo != null ? arquivo.getContentType() : null, arquivo != null ? arquivo.getOriginalFilename() : null);
-        AnexoObraResponse anexo = anexoUseCases.anexar(idObra, idTipoAnexo, "Projeto mestre do planejamento", arquivo);
+        String nome = arquivo != null ? arquivo.getOriginalFilename() : null;
+        if (!PlantaDoProjetoCad.ehCad(nome)) {
+            validarPdf(arquivo != null ? arquivo.getContentType() : null, nome);
+        }
+        AnexoObraResponse anexo = anexoUseCases.anexar(idObra, idTipoAnexo, PlantaDoProjetoCad.ehCad(nome)
+                ? "Projeto em CAD: a planta em PDF gerada dele é o projeto mestre" : "Projeto mestre do planejamento", arquivo);
         return definirProjetoMestre(idObra, anexo.id());
     }
 
@@ -453,7 +465,7 @@ public class PlanejamentoObraUseCases {
         boolean pdf = "application/pdf".equalsIgnoreCase(contentType)
                 || (nomeArquivo != null && nomeArquivo.toLowerCase(Locale.ROOT).endsWith(".pdf"));
         if (!pdf) {
-            throw new InvarianteVioladaException("O projeto mestre precisa ser um arquivo PDF.");
+            throw new InvarianteVioladaException("O projeto mestre precisa ser um arquivo PDF, DXF ou DWG.");
         }
     }
 

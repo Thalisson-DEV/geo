@@ -220,7 +220,7 @@ export class ObraPlanejamentoComponent {
 
   // ---- Projeto mestre ----
   protected readonly projetoAberto = signal(false);
-  protected readonly anexosPdf = signal<AnexoObraResponse[]>([]);
+  protected readonly anexosProjeto = signal<AnexoObraResponse[]>([]);
   protected readonly tiposAnexo = signal<GeoSelectOption<string>[]>([]);
   protected readonly projetoTipo = signal<string | null>(null);
   protected readonly projetoArquivo = signal<File | null>(null);
@@ -228,6 +228,8 @@ export class ObraPlanejamentoComponent {
 
   // ---- Bússola ----
   protected readonly leituraDisponivel = signal(false);
+  /** DXF/DWG da obra que a Bússola usa no lugar do desenho do PDF; nulo sem arquivo CAD. */
+  protected readonly arquivoCad = signal<string | null>(null);
   protected readonly analisando = signal(false);
   /** Andamento da leitura informado pelo servidor ("3 de 12 partes da folha lidas"). */
   protected readonly progressoLeitura = signal<string | null>(null);
@@ -1244,16 +1246,42 @@ export class ObraPlanejamentoComponent {
     });
   }
 
-  /** PDFs já anexados à obra: o projeto pode ser um deles, sem enviar de novo. */
+  /**
+   * PDFs e arquivos CAD (DXF/DWG) já anexados à obra: o projeto pode ser um deles, sem enviar de novo. Do CAD o sistema
+   * gera a planta em PDF, que vira o projeto, e a Bússola lê a obra direto do arquivo.
+   */
   private carregarPdfsAnexados(): void {
     this.obras.listarAnexos(this.idObra).pipe(take(1)).subscribe({
-      next: (anexos) => this.anexosPdf.set(anexos.filter((a) => a.contentType === 'application/pdf' || a.nomeArquivo.toLowerCase().endsWith('.pdf'))),
-      error: () => this.anexosPdf.set([])
+      next: (anexos) => this.anexosProjeto.set(anexos.filter((a) => ehPdf(a) || ehCad(a))),
+      error: () => this.anexosProjeto.set([])
     });
   }
 
-  /** Sem projeto e com um único PDF anexado (ex.: anexado como "Projeto CAD"): a tela vazia oferece usar esse PDF direto. */
-  protected readonly pdfUnico = computed(() => (this.anexosPdf().length === 1 ? this.anexosPdf()[0] : null));
+  /**
+   * Sem projeto e com um único arquivo de projeto anexado (ex.: anexado como "Projeto CAD"): a tela vazia oferece usar
+   * esse arquivo direto. Com um PDF e um CAD, vale o PDF (o CAD continua sendo lido pela Bússola).
+   */
+  protected readonly projetoUnico = computed(() => {
+    const pdfs = this.anexosProjeto().filter(ehPdf);
+    const cads = this.anexosProjeto().filter(ehCad);
+    if (pdfs.length === 1) return pdfs[0];
+    return pdfs.length === 0 && cads.length === 1 ? cads[0] : null;
+  });
+
+  protected ehCad(anexo: AnexoObraResponse): boolean {
+    return ehCad(anexo);
+  }
+
+  /** Planta em PDF que o sistema gerou de um arquivo CAD da obra. */
+  protected ehPlantaGerada(anexo: AnexoObraResponse): boolean {
+    return ehPdf(anexo) && (anexo.observacoes ?? '').startsWith('Planta gerada do arquivo CAD');
+  }
+
+  /** O CAD que deu origem à planta que hoje é o projeto: usá-lo de novo só geraria a mesma planta. */
+  protected origemDaPlantaAtual(anexo: AnexoObraResponse): boolean {
+    const atual = this.plano()?.projetoMestre?.nomeArquivo ?? '';
+    return ehCad(anexo) && atual === anexo.nomeArquivo.replace(/\.(dxf|dwg)$/i, '') + '-planta.pdf';
+  }
   private pdfsConferidos = false;
 
   protected usarAnexo(anexo: AnexoObraResponse): void {
@@ -1284,6 +1312,8 @@ export class ObraPlanejamentoComponent {
     this.api.disponibilidadeAnalise(this.idObra, pagina).pipe(take(1)).subscribe({
       next: (resposta) => {
         this.leituraDisponivel.set(resposta.disponivel);
+        if (resposta.folhaVetorial) this.folhasVetoriais.add(pagina);
+        this.arquivoCad.set(resposta.arquivoCad ?? null);
         this.ultimaLeitura.set(resposta.ultima?.status === 'CONCLUIDA' ? resposta.ultima : null);
       },
       error: () => this.leituraDisponivel.set(false)
@@ -1292,15 +1322,18 @@ export class ObraPlanejamentoComponent {
 
   /** Folhas que a pessoa já confirmou de pé nesta tela: não pergunta de novo a cada leitura. */
   private readonly folhasConferidas = new Set<number>();
+  /** Folhas lidas direto do desenho do PDF: a orientação não importa, então não há o que perguntar. */
+  private readonly folhasVetoriais = new Set<number>();
 
   /**
    * Projeto plotado deitado é comum, e com o texto de lado ou de ponta-cabeça a leitura inventa pontos. Antes da
-   * primeira leitura de uma folha que ninguém girou, a pessoa confirma que o texto está de pé.
+   * primeira leitura de uma folha que ninguém girou, a pessoa confirma que o texto está de pé. Folha vetorial é lida
+   * direto do desenho e não passa por essa pergunta.
    */
   protected async lerComCopiloto(): Promise<void> {
     const pagina = this.pagina();
     const girada = this.rotacao() !== 0;
-    if (!girada && !this.folhasConferidas.has(pagina)) {
+    if (!girada && !this.folhasConferidas.has(pagina) && !this.folhasVetoriais.has(pagina)) {
       const dePe = await this.confirmacao.confirm({
         title: 'O texto da folha está de pé?',
         message: 'A Bússola lê melhor com os balões e o carimbo de pé. Se estiverem de lado ou de cabeça para baixo, '
@@ -1406,4 +1439,13 @@ export class ObraPlanejamentoComponent {
   protected aoSoltarSugestao(): void {
     this.arrastandoSugestao.set(null);
   }
+}
+
+function ehPdf(anexo: AnexoObraResponse): boolean {
+  return anexo.contentType === 'application/pdf' || anexo.nomeArquivo.toLowerCase().endsWith('.pdf');
+}
+
+/** Projeto em CAD: o planejamento gera a planta em PDF a partir dele. */
+function ehCad(anexo: AnexoObraResponse): boolean {
+  return /\.(dxf|dwg)$/i.test(anexo.nomeArquivo);
 }

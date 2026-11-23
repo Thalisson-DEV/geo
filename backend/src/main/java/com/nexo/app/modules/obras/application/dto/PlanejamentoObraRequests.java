@@ -133,6 +133,11 @@ public final class PlanejamentoObraRequests {
                                   PropostaPlanejamento proposta) {
     }
 
-    public record DisponibilidadeAnalise(boolean disponivel, AnaliseResponse ultima) {
+    /**
+     * @param folhaVetorial a folha é lida sem modelo de visão (pelo desenho do PDF ou pelo arquivo CAD): não depende da
+     *                      folha estar de pé, então a tela não pergunta a orientação
+     * @param arquivoCad    nome do DXF/DWG da obra que a leitura vai usar, ou nulo sem arquivo CAD
+     */
+    public record DisponibilidadeAnalise(boolean disponivel, boolean folhaVetorial, String arquivoCad, AnaliseResponse ultima) {
     }
 }

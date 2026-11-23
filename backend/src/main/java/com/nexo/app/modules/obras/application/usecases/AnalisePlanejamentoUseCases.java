@@ -1,6 +1,7 @@
 package com.nexo.app.modules.obras.application.usecases;
 
 import com.nexo.app.modules.assistente.CopilotoApi;
+import com.nexo.app.modules.obras.application.dto.AnexoObraResponse;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.AceitarProposta;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.AnaliseResponse;
 import com.nexo.app.modules.obras.application.dto.PlanejamentoObraRequests.DisponibilidadeAnalise;
@@ -21,11 +22,13 @@ import com.nexo.app.modules.obras.infrastructure.persistence.PontoPlanejamentoRe
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
@@ -38,16 +41,24 @@ import java.util.UUID;
  * mesmos comandos e invariantes do planejamento manual. O aceite é tudo ou nada.
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AnalisePlanejamentoUseCases {
 
     /** Folha densa com modelo forte leva alguns minutos; passado isso sem resposta, a leitura foi interrompida. */
     static final Duration PRAZO_LEITURA = Duration.ofMinutes(30);
+    /** Registrado no lugar do modelo de visão quando a folha é lida direto do desenho do PDF. */
+    static final String MODELO_VETORIAL = "leitura-vetorial";
+    /** Registrado no lugar do modelo de visão quando a leitura vem do DXF/DWG da obra. */
+    static final String MODELO_CAD = "leitura-cad";
 
     private final AnalisePlanejamentoRepository analiseRepository;
     private final PontoPlanejamentoRepository pontoRepository;
     private final PlanejamentoObraUseCases planejamento;
     private final ProcessarAnaliseProjetoService processador;
+    private final AnexoObraUseCases anexos;
+    private final LeitorVetorialProjeto leitorVetorial;
+    private final ProjetoCadDaObra projetoCad;
     private final CopilotoApi copiloto;
 
     @Transactional(readOnly = true)
@@ -57,21 +68,40 @@ public class AnalisePlanejamentoUseCases {
                 .filter(AnalisePlanejamento::isAtivo)
                 .map(AnalisePlanejamentoUseCases::paraResponse)
                 .orElse(null);
-        return new DisponibilidadeAnalise(copiloto.visaoProjetoDisponivel(), ultima);
+        String arquivoCad = projetoCad.anexo(idObra).map(AnexoObraResponse::nomeArquivo).orElse(null);
+        boolean semVisao = arquivoCad != null || folhaVetorial(idObra, pagina);
+        return new DisponibilidadeAnalise(semVisao || copiloto.visaoProjetoDisponivel(), semVisao, arquivoCad, ultima);
+    }
+
+    /** Projeto mestre com a folha desenhada em vetor (rótulos como letras desenhadas): a leitura é feita sem IA. */
+    private boolean folhaVetorial(UUID idObra, int pagina) {
+        UUID idAnexo = planejamento.obterPlanejamento(idObra).getIdAnexoMestre();
+        if (idAnexo == null) {
+            return false;
+        }
+        try (var stream = anexos.baixar(idObra, idAnexo).stream()) {
+            return leitorVetorial.folhaVetorial(stream.readAllBytes(), pagina);
+        } catch (IOException | RuntimeException e) {
+            log.debug("Não foi possível conferir se a folha {} da obra {} é vetorial", pagina, idObra, e);
+            return false;
+        }
     }
 
     @Transactional
     public AnaliseResponse iniciar(UUID idObra, int pagina, boolean orientacaoConferida) {
-        if (!copiloto.visaoProjetoDisponivel()) {
+        planejamento.buscarObra(idObra);
+        boolean cad = projetoCad.anexo(idObra).isPresent();
+        boolean vetorial = cad || folhaVetorial(idObra, pagina);
+        if (!vetorial && !copiloto.visaoProjetoDisponivel()) {
             throw new InvarianteVioladaException("A leitura de projetos pela Bússola não está configurada neste ambiente.");
         }
-        planejamento.buscarObra(idObra);
         PlanejamentoObra dados = planejamento.obterPlanejamento(idObra);
         if (dados.getIdAnexoMestre() == null) {
             throw new InvarianteVioladaException("Anexe o projeto mestre antes de pedir a leitura.");
         }
         AnalisePlanejamento analise = analiseRepository.save(
-                new AnalisePlanejamento(idObra, dados.getIdAnexoMestre(), pagina, copiloto.modeloVisaoProjeto()));
+                new AnalisePlanejamento(idObra, dados.getIdAnexoMestre(), pagina,
+                        cad ? MODELO_CAD : vetorial ? MODELO_VETORIAL : copiloto.modeloVisaoProjeto()));
         UUID id = analise.getId();
         // Só processa depois do commit: o processamento roda em outra thread e precisa enxergar o registro.
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

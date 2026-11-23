@@ -47,6 +47,12 @@ final class InterpretadorPropostaProjeto {
     private static final Pattern FASES = Pattern.compile("(\\d)\\s*#\\s*(\\d+)");
     /** Balão riscado com X na folha: estrutura existente que sai. */
     static final String A_RETIRAR = "A retirar";
+    /** Estrutura riscada na folha: sai do poste, não recebe kit de instalação. */
+    static final String PREFIXO_RETIRAR = "Retirar: ";
+    /** O que o poste existente já tem: só informação, não recebe kit. */
+    static final String PREFIXO_EXISTENTE = "Existente: ";
+    /** Identificação provisória do ponto no projeto (ex.: 00000003): só informação, não recebe kit. */
+    static final String PREFIXO_PROJETO = "Projeto: ";
     /** Balão riscado e balão novo para o mesmo ponto. */
     static final String TROCA = "Troca de estrutura: a existente sai";
     private static final double CONFIANCA_CAMADA = 0.95;
@@ -73,6 +79,13 @@ final class InterpretadorPropostaProjeto {
     private final Map<String, VaoLido> vaos = new LinkedHashMap<>();
     private final Map<String, String> caixasUnidas = new LinkedHashMap<>();
     private final Set<String> avisos = new LinkedHashSet<>();
+    /** Ordem da rede informada pela leitura (vetorial): a numeração segue ela em vez de partir da ponta mais ao topo. */
+    private final Map<String, Integer> ordemDaRede = new LinkedHashMap<>();
+    /** Vãos cuja metragem a leitura mediu no desenho georreferenciado, por falta de cota legível ou cota divergente. */
+    private final Set<String> metragensMedidas = new LinkedHashSet<>();
+    static final String METRAGEM_MEDIDA = "metragem medida no desenho georreferenciado";
+    private final Set<String> condutoresHerdados = new LinkedHashSet<>();
+    static final String CONDUTOR_HERDADO = "cabo igual ao vão vizinho do ramal: confira";
 
     /** Metros por ponto de PDF tirados das cotas já planejadas em outras folhas da obra; nulo quando não há. */
     private Double proporcaoDaObra;
@@ -150,6 +163,11 @@ final class InterpretadorPropostaProjeto {
         this.proporcaoDaObra = metrosPorPonto != null && metrosPorPonto > 0 ? metrosPorPonto : null;
     }
 
+    /** Escala medida pela georreferência do desenho: vale mais que a do carimbo, que não muda quando a prancha é reduzida. */
+    void usarEscalaMedida(int escala) {
+        this.escala = escala;
+    }
+
     void avisar(String aviso) {
         avisos.add(aviso);
     }
@@ -205,6 +223,9 @@ final class InterpretadorPropostaProjeto {
             Lido novo = new Lido(id, numero != null ? referencia(numero) : null, tipo(texto(no, "tipo")), x, y, texto(no, "barramento"), textos,
                     limitar(no.path("confianca").asDouble(0.5)), false);
             pontos.merge(id, novo, InterpretadorPropostaProjeto::unir);
+            if (no.path("ordem").isInt()) {
+                ordemDaRede.putIfAbsent(id, no.path("ordem").asInt());
+            }
         }
         if (semIdentificacao > 0) {
             avisos.add("Há pontos na folha sem número legível: confira e marque manualmente.");
@@ -253,6 +274,12 @@ final class InterpretadorPropostaProjeto {
             VaoLido novo = new VaoLido(a, b, metragem(no.path("metragem")), texto(no, "condutor"),
                     limitar(no.path("confianca").asDouble(0.5)));
             vaos.merge(chave, novo, InterpretadorPropostaProjeto::unirVao);
+            if (no.path("metragemMedida").asBoolean(false)) {
+                metragensMedidas.add(chave);
+            }
+            if (no.path("condutorHerdado").asBoolean(false)) {
+                condutoresHerdados.add(chave);
+            }
         }
     }
 
@@ -289,6 +316,13 @@ final class InterpretadorPropostaProjeto {
             }
             List<String> textos = new ArrayList<>();
             adicionar(textos, vao.condutor());
+            String chave = vao.a().compareTo(vao.b()) < 0 ? vao.a() + "|" + vao.b() : vao.b() + "|" + vao.a();
+            if (metragensMedidas.contains(chave)) {
+                textos.add(METRAGEM_MEDIDA);
+            }
+            if (condutoresHerdados.contains(chave)) {
+                textos.add(CONDUTOR_HERDADO);
+            }
             BigDecimal metragem = vao.metragem();
             double confianca = vao.confianca();
             Double pelaFolha = metrosPorPonto != null ? distanciaPt(a, b) : null;
@@ -347,6 +381,14 @@ final class InterpretadorPropostaProjeto {
                         .thenComparingDouble(Lido::x))
                 .toList();
         Set<String> visitados = new LinkedHashSet<>();
+        if (!ordemDaRede.isEmpty()) {
+            // A leitura já percorreu a rede a partir de onde a obra sai da rede existente.
+            pontos.values().stream()
+                    .sorted(Comparator.<Lido>comparingInt(p -> ordemDaRede.getOrDefault(p.referencia(), Integer.MAX_VALUE))
+                            .thenComparingDouble(Lido::y)
+                            .thenComparingDouble(Lido::x))
+                    .forEach(p -> visitados.add(p.referencia()));
+        }
         for (Lido inicio : ordem) {
             percorrer(inicio.referencia(), ligacoes, visitados);
         }
@@ -423,7 +465,11 @@ final class InterpretadorPropostaProjeto {
             return referencia(numero);
         }
         String barramento = texto(no, "barramento");
-        return barramento != null && barramento.length() <= 20 ? referencia(barramento) : null;
+        if (barramento != null && barramento.length() <= 20) {
+            return referencia(barramento);
+        }
+        // Ponto sem número nem código definitivo (poste novo do projeto): vale a identificação da leitura.
+        return id != null && id.length() <= 20 ? referencia(id) : null;
     }
 
     private void juntarCaixa(String caixa, String dono, String numero) {
@@ -474,7 +520,8 @@ final class InterpretadorPropostaProjeto {
     private List<KitSugerido> kits(List<String> textos, boolean paraVao) {
         Map<UUID, KitSugerido> achados = new LinkedHashMap<>();
         for (String texto : textos) {
-            if (TROCA.equals(texto) || A_RETIRAR.equals(texto)) {
+            if (TROCA.equals(texto) || A_RETIRAR.equals(texto) || texto.startsWith(PREFIXO_RETIRAR)
+                    || texto.startsWith(PREFIXO_EXISTENTE) || texto.startsWith(PREFIXO_PROJETO)) {
                 continue;
             }
             for (String termo : termos(texto, paraVao)) {
