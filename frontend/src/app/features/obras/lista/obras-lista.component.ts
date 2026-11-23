@@ -107,6 +107,13 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
       margin-bottom: 1rem;
     }
 
+    /* Com "Acima do orçado": os quatro valores dividem a linha e o aviso fica compacto no fim. */
+    @media (min-width: 1200px) {
+      .geo-kpis--com-aviso {
+        grid-template-columns: minmax(0, 0.8fr) repeat(3, minmax(0, 1.15fr)) 13rem;
+      }
+    }
+
     /* O título é a coluna de leitura da carteira: não deixa a tabela larga espremer em várias linhas. */
     .obra-planejado,
     .obra-sub {
@@ -202,7 +209,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         </div>
       </geo-filter-panel>
 
-      <section class="geo-kpis" aria-label="Indicadores do recorte" aria-live="polite">
+      <section class="geo-kpis" [class.geo-kpis--com-aviso]="acimaDoOrcado() > 0" aria-label="Indicadores do recorte" aria-live="polite">
         <div class="geo-kpi" data-tone="info">
           <span class="geo-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
           <span class="geo-kpi__body"><span class="geo-kpi__label">Obras no recorte</span>
@@ -229,7 +236,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
             <span class="geo-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
             <span class="geo-kpi__body"><span class="geo-kpi__label">Acima do orçado</span>
               <span class="geo-kpi__value">{{ acimaDoOrcado() }} {{ acimaDoOrcado() === 1 ? 'obra' : 'obras' }}</span>
-              <span class="geo-kpi__detail">{{ lista.filters.orcamento() === 'acima' ? 'Filtro aplicado · clique para tirar' : 'Planejado ou executado além do orçado' }}</span></span>
+              <span class="geo-kpi__detail">{{ lista.filters.orcamento() === 'acima' ? 'Filtro aplicado · tirar' : 'Ver quais são' }}</span></span>
             <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
           </button>
         }
