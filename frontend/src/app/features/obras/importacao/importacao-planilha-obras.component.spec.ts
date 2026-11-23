@@ -25,9 +25,15 @@ type Tela = {
 
 describe('ImportacaoPlanilhaObrasComponent', () => {
   let fonte: { [K in keyof FonteImportacao]: ReturnType<typeof vi.fn> };
+  let servico: { baixarModelo: ReturnType<typeof vi.fn>; buscarImportacao: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     TestBed.resetTestingModule();
+    servico = {
+      baixarModelo: vi.fn(() => of(undefined)),
+      buscarImportacao: vi.fn(() => of({ id: 'i1', status: 'CONCLUIDA', totalLinhas: 2, inseridos: 1, atualizados: 0, erros: 1,
+        detalheErros: [{ linha: 3, motivo: 'Kit sem itens válidos.' }] }))
+    };
     fonte = {
       validar: vi.fn(() => of({ registros: linhas.map((l) => ({ ...l })), totalProcessados: 2, totalSucesso: 1, totalFalha: 1 })),
       revalidar: vi.fn((registros: LinhaPlanilha[]) =>
@@ -36,7 +42,7 @@ describe('ImportacaoPlanilhaObrasComponent', () => {
         of({ registros: registros.map((r) => ({ ...r, status: 'EM_PROCESSAMENTO' })), totalProcessados: 2, totalSucesso: 2, totalFalha: 0, idImportacao: 'i1' }))
     };
     TestBed.configureTestingModule({
-      providers: [provideNoopAnimations(), MessageService, ConfirmationService, { provide: ObrasKitService, useValue: { baixarModelo: vi.fn(() => of(undefined)) } }]
+      providers: [provideNoopAnimations(), MessageService, ConfirmationService, { provide: ObrasKitService, useValue: servico }]
     });
   });
 
@@ -78,7 +84,8 @@ describe('ImportacaoPlanilhaObrasComponent', () => {
     expect(tela.importacao.linhas().every((l) => l.status === 'AGUARDANDO_PROCESSAMENTO')).toBe(true);
   });
 
-  it('confirma com o contrato e o nome do arquivo', async () => {
+  it('confirma com o contrato e acompanha até o servidor concluir', async () => {
+    vi.useFakeTimers();
     const { fixture, tela } = criar();
     const processada = vi.fn();
     fixture.componentInstance.processada.subscribe(processada);
@@ -89,6 +96,14 @@ describe('ImportacaoPlanilhaObrasComponent', () => {
     await tela.importacao.processar();
 
     expect(fonte.confirmar).toHaveBeenCalledWith(expect.any(Array), 'c1', 'kits.csv');
+    expect(processada).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(servico.buscarImportacao).toHaveBeenCalledWith('i1');
     expect(processada).toHaveBeenCalledOnce();
+    expect(tela.importacao.linhas().map((l) => l.status)).toEqual(['CONCLUIDO', 'COM_ERRO']);
+    expect(tela.importacao.linhas()[1].mensagemErro).toBe('Kit sem itens válidos.');
+    vi.useRealTimers();
   });
 });

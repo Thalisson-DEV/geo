@@ -11,6 +11,7 @@ import {
   KitConstrutivoResponse,
   KitImportacaoLinha,
   OrcamentoImportacaoLinha,
+  HistoricoImportacaoObra,
   PreviaImportacaoObraResponse,
   TipoImportacaoObra
 } from '../models/obras-kit.models';
@@ -95,6 +96,11 @@ export class ObrasKitService extends BaseService {
   }
 
   /** Baixa o modelo XLSX e entrega o arquivo ao navegador. */
+  /** Acompanha uma importação processada em segundo plano. */
+  buscarImportacao(id: string): Observable<HistoricoImportacaoObra> {
+    return this.http.get<HistoricoImportacaoObra>(`${this.baseUrl}/importacoes/${id}`);
+  }
+
   baixarModelo(tipo: TipoImportacaoObra): Observable<void> {
     const url = tipo === 'KITS' ? `${this.kitsUrl}/importacoes/modelo` : `${this.baseUrl}/importacoes/${tipo.toLowerCase()}/modelo`;
     const nome = `modelo-importacao-${tipo === 'ORCAMENTO' ? 'orcamento' : tipo.toLowerCase()}.xlsx`;

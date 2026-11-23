@@ -158,6 +158,18 @@ export interface OrcamentoImportacaoLinha extends LinhaImportacaoBase {
   valorServicoPrevisto?: string | null;
 }
 
+/** Situação de uma importação processada em segundo plano (histórico). */
+export interface HistoricoImportacaoObra {
+  id: string;
+  status: 'PROCESSANDO' | 'CONCLUIDA' | 'FALHOU';
+  totalLinhas: number;
+  inseridos: number;
+  atualizados: number;
+  erros: number;
+  detalheErros?: { linha: number; referencia?: string | null; motivo: string }[] | null;
+  mensagem?: string | null;
+}
+
 export interface PreviaImportacaoObraResponse<T> {
   registros: T[];
   totalProcessados: number;

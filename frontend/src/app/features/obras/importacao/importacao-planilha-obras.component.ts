@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   GeoBlockingProgressDialogComponent,
   GeoCellDirective,
@@ -14,9 +15,9 @@ import {
   NotificationService,
   geoImportStatus
 } from '@geo/ui';
-import { Observable } from 'rxjs';
+import { Observable, filter, switchMap, take, tap, timeout, timer } from 'rxjs';
 
-import { PreviaImportacaoObraResponse, SituacaoLinhaImportacao, TipoImportacaoObra } from '../../../core/models/obras-kit.models';
+import { HistoricoImportacaoObra, PreviaImportacaoObraResponse, SituacaoLinhaImportacao, TipoImportacaoObra } from '../../../core/models/obras-kit.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ObrasKitService } from '../../../core/services/obras-kit.service';
 import { CHAVE_LINHA_IMPORTACAO, importacaoListagem } from '../../../shared/listagem/importacao-listagem';
@@ -71,7 +72,7 @@ export interface FonteImportacao {
   ],
   template: `
     <geo-import-drawer [(visible)]="visible" [title]="titulo()" [description]="descricao()" accept=".xlsx,.csv"
-      [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
+      [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando() || acompanhando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="enviar($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (exigeContrato()) {
@@ -126,14 +127,18 @@ export interface FonteImportacao {
       }
     </geo-import-drawer>
 
-    <geo-blocking-progress-dialog [visible]="importacao.processando()" [title]="'Processando ' + titulo().toLowerCase()"
-      statusTitle="Enviando as linhas conferidas" [statusMessages]="['Revalidando as linhas…', 'Registrando a importação…', 'Iniciando o processamento…']">
+    <geo-blocking-progress-dialog [visible]="importacao.processando() || acompanhando()" [title]="'Processando ' + titulo().toLowerCase()"
+      statusTitle="Enviando as linhas conferidas" [statusMessages]="['Revalidando as linhas…', 'Registrando a importação…', 'Gravando no sistema…', 'Conferindo o resultado…']">
     </geo-blocking-progress-dialog>
   `
 })
 export class ImportacaoPlanilhaObrasComponent {
   private readonly servico = inject(ObrasKitService);
   private readonly notificacoes = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
+  /** Importação enviada por último: a gaveta acompanha até o servidor terminar. */
+  private idImportacao: string | null = null;
+  protected readonly acompanhando = signal(false);
 
   readonly visible = model(false);
   readonly tipo = input.required<TipoImportacaoObra>();
@@ -158,10 +163,69 @@ export class ImportacaoPlanilhaObrasComponent {
 
   protected readonly importacao = importacaoListagem<LinhaPlanilha>({
     enviar: (arquivo) => this.fonte().validar(arquivo, this.idContrato()),
-    confirmar: (registros) => this.fonte().confirmar(registros, this.idContrato(), this.nomeArquivo()),
+    confirmar: (registros) =>
+      this.fonte()
+        .confirmar(registros, this.idContrato(), this.nomeArquivo())
+        .pipe(tap((r) => (this.idImportacao = r.totalFalha === 0 ? (r.idImportacao ?? null) : null))),
     modelo: () => this.servico.baixarModelo(this.tipo()).subscribe({ error: (e) => this.notificacoes.error(getErrorMessage(e)) }),
-    aoProcessar: () => this.processada.emit()
+    aoProcessar: () => this.acompanhar()
   });
+
+  /**
+   * As linhas válidas são processadas em segundo plano: consulta a importação até terminar, marca cada linha com o
+   * resultado, avisa quantas entraram e fecha a gaveta quando tudo deu certo.
+   */
+  private acompanhar(): void {
+    const id = this.idImportacao;
+    this.idImportacao = null;
+    if (!id) {
+      this.processada.emit();
+      return;
+    }
+    this.acompanhando.set(true);
+    timer(800, 1500)
+      .pipe(
+        switchMap(() => this.servico.buscarImportacao(id)),
+        filter((i) => i.status !== 'PROCESSANDO'),
+        take(1),
+        timeout(120_000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (i) => this.concluir(i),
+        error: () => {
+          this.acompanhando.set(false);
+          this.notificacoes.warning('A importação continua em processamento. Confira o resultado na listagem em instantes.');
+          this.processada.emit();
+        }
+      });
+  }
+
+  private concluir(i: HistoricoImportacaoObra): void {
+    this.acompanhando.set(false);
+    this.processada.emit();
+    const erros = new Map((i.detalheErros ?? []).map((e) => [e.linha, e.motivo]));
+    this.importacao.linhas.set(
+      this.importacao.linhas().map((l) => {
+        const motivo = l.linha != null ? erros.get(l.linha) : undefined;
+        return { ...l, status: motivo || i.status === 'FALHOU' ? 'COM_ERRO' : 'CONCLUIDO', mensagemErro: motivo ?? (i.status === 'FALHOU' ? i.mensagem : null) };
+      })
+    );
+    if (i.status === 'FALHOU') {
+      this.notificacoes.error(i.mensagem ?? 'O processamento falhou.', { title: 'Importação não concluída' });
+      return;
+    }
+    const partes = [i.inseridos ? `${i.inseridos} ${i.inseridos === 1 ? 'incluído' : 'incluídos'}` : null,
+      i.atualizados ? `${i.atualizados} ${i.atualizados === 1 ? 'atualizado' : 'atualizados'}` : null].filter(Boolean);
+    const resumo = partes.length ? partes.join(', ') : 'nada mudou: os dados já estavam iguais';
+    if (i.erros) {
+      this.notificacoes.warning(`Importação concluída: ${resumo}. ${i.erros} ${i.erros === 1 ? 'linha com erro' : 'linhas com erro'}, marcadas na tabela.`);
+      return;
+    }
+    this.notificacoes.success(`Importação concluída: ${resumo}.`);
+    this.importacao.limpar();
+    this.visible.set(false);
+  }
 
   protected readonly comErro = computed(() => this.importacao.linhas().filter((l) => l.status === 'COM_ERRO').length);
   protected readonly exibidas = computed(() =>
