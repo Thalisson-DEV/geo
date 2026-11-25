@@ -1,5 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.frota.domain.AlertaVencimento;
 import com.nexo.app.modules.frota.domain.Apolice;
 import com.nexo.app.modules.frota.domain.Condutor;
@@ -7,7 +10,6 @@ import com.nexo.app.modules.frota.domain.DocumentoFrota;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
 import com.nexo.app.modules.frota.domain.Implemento;
 import com.nexo.app.modules.frota.domain.TipoAlvoAlerta;
-import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 import com.nexo.app.modules.frota.infrastructure.persistence.AlertaVencimentoRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.ApoliceRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.CondutorRepository;
@@ -54,6 +56,7 @@ public class AlertaVencimentoFrotaUseCases {
     private final ReferenciasFrota referencias;
     private final FinanceiroApi financeiro;
     private final ApplicationEventPublisher eventPublisher;
+    private final ListasApi listasApi;
 
     /** @return quantidade de avisos publicados */
     @Transactional
@@ -93,8 +96,8 @@ public class AlertaVencimentoFrotaUseCases {
                 referencia = implemento.getIdentificacao();
                 link = "/frota/implementos";
             }
-            String descricao = documento.getTipo() == TipoDocumentoFrota.OUTRO && documento.getDescricao() != null
-                    ? documento.getDescricao() : documento.getTipo().getRotulo();
+            String descricao = "OUTRO".equals(documento.getTipo()) && documento.getDescricao() != null
+                    ? documento.getDescricao() : listasApi.rotulo(ListaConfiguravel.TIPO_DOCUMENTO_VEICULO, documento.getTipo());
             if (avisar(TipoAlvoAlerta.DOCUMENTO, documento.getId(), documento.getDataVencimento(), faixas, hoje,
                     descricao, referencia, link)) {
                 avisos++;

@@ -1,6 +1,5 @@
 package com.nexo.app.modules.frota.application.dto;
 
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import com.nexo.app.modules.frota.domain.TipoOficina;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -28,6 +27,6 @@ public record ConcluirOrdemServicoRequest(
         @Size(max = 150) String oficinaNome,
         @Size(max = 30) List<@NotNull UUID> idsItem,
         /** Obrigatória, exceto na importação. */
-        CausaManutencao causa
+        String causa
 ) {
 }

@@ -103,4 +103,10 @@ public interface ColaboradorApi {
      * tudo", que é pior do que uma consulta grande.</p>
      */
     List<UUID> buscarIdsPorTrechoDoNome(String trecho);
+
+    /** Matrículas dos colaboradores informados (só quem tem matrícula aparece). */
+    Map<UUID, String> buscarMatriculasPorIds(Collection<UUID> ids);
+
+    /** Colaborador ativo com a matrícula informada (sem diferença de maiúsculas e espaços nas pontas). */
+    Optional<UUID> buscarIdPorMatricula(String matricula);
 }

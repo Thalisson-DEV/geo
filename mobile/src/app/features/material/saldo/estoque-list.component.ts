@@ -8,7 +8,7 @@ import { DbService } from '../../../core/db/db.service';
 import { TokenService } from '../../../core/auth/token.service';
 import { SyncService } from '../../../core/sync/sync.service';
 import { SessaoService } from '../../../core/sessao/sessao.service';
-import { SaldoSerieLocal } from '../../../core/db/models';
+import { SaldoObraLocal, SaldoSerieLocal } from '../../../core/db/models';
 import { DIAS_PARADO, diasDesde, haDias, rotuloMaterialParado, rotuloSerieNoSaldo, tomTempoSaldo } from '../../../core/saldo/tempo-saldo';
 import { BarraTopoComponent, ChipsComponent, FolhaComponent, IconeComponent, OpcaoChip, VazioComponent, dataCurta, hora, numeroBr } from '../../../ui';
 
@@ -102,6 +102,15 @@ interface EstadoTela { filtro?: Filtro; busca?: string; series?: string | null; 
         @if (m.dias != null) {
           <span class="tempo" [attr.data-tom]="tom(m.dias)"><geo-icone nome="relogio" [tamanho]="14" />{{ rotuloTempo(m) }}</span>
         }
+        @if (obrasDe(m); as obras) {
+          @if (obras.length) {
+            <span class="obras"><span class="geo-sr-only">De qual obra é:</span>
+              @for (o of obras; track o.chave) {
+                <span class="obra" [class.obra--livre]="!o.idObra">{{ o.idObra ? (o.numeroObra ? 'Obra ' + o.numeroObra : 'Obra sem número') : 'Livre' }} · {{ num(o.quantidade) }}</span>
+              }
+            </span>
+          }
+        }
       </span>
       <span class="geo-qtd">{{ num(m.quantidade) }}<small>{{ m.unidadeMedida }}</small></span>
     </ng-template>
@@ -139,6 +148,10 @@ interface EstadoTela { filtro?: Filtro; busca?: string; series?: string | null; 
     .parados__texto { flex: 1; min-width: 0; display: grid; gap: 2px; }
     .parados__texto strong { font: 600 .9375rem/1.3 var(--geo-fonte); color: var(--geo-texto); }
     .parados__texto span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .obras { display: flex; flex-wrap: wrap; gap: var(--geo-e1); margin-top: var(--geo-e1); }
+    .obra { padding: 0 var(--geo-e2); border-radius: var(--geo-r-pilula); background: var(--geo-destaque-suave); color: var(--geo-destaque-texto);
+      font: var(--geo-t-apoio); font-weight: 600; }
+    .obra--livre { background: var(--geo-superficie-2); color: var(--geo-texto-2); }
   `],
 })
 export class EstoqueListComponent {
@@ -153,6 +166,28 @@ export class EstoqueListComponent {
     const idEstoque = this.tokenService.estoqueId();
     return idEstoque ? this.dbService.getSaldosComMateriais(idEstoque) : Promise.resolve([]);
   })), { initialValue: undefined }) as () => SaldoLinha[] | undefined;
+
+  /** De qual obra é cada material do caminhão (vem da sincronização; muda na hora ao deixar/pegar no canteiro). */
+  private readonly saldosObra = toSignal(from(liveQuery(() => {
+    const idEstoque = this.tokenService.estoqueId();
+    return idEstoque ? this.dbService.getSaldosObra(idEstoque) : Promise.resolve([]);
+  })), { initialValue: [] as SaldoObraLocal[] });
+
+  private readonly obrasPorMaterial = computed(() => {
+    const mapa = new Map<string, SaldoObraLocal[]>();
+    for (const s of this.saldosObra()) {
+      if (s.quantidade <= 0) continue;
+      const chave = `${s.idMaterial}|${s.condicao}`;
+      mapa.set(chave, [...(mapa.get(chave) ?? []), s]);
+    }
+    // A obra primeiro, o livre por último.
+    mapa.forEach(lista => lista.sort((a, b) => (a.idObra ? 0 : 1) - (b.idObra ? 0 : 1) || b.quantidade - a.quantidade));
+    return mapa;
+  });
+
+  obrasDe(m: SaldoLinha): SaldoObraLocal[] {
+    return this.obrasPorMaterial().get(`${m.idMaterial}|${m.condicao}`) ?? [];
+  }
 
   readonly materiais = computed<Linha[] | undefined>(() => this.saldos()?.map(m => ({
     ...m,

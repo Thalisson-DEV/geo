@@ -201,6 +201,7 @@ export function formatarCpf(valor: string | null | undefined): string {
               [error]="erro('cpf')"></geo-text-input>
             <geo-datepicker label="Data de contratação" [required]="true" [(value)]="dataContratacao" [readonly]="!!emEdicao()" [error]="erro('dataContratacao')"></geo-datepicker>
           </div>
+          <geo-text-input label="Matrícula" [(value)]="matricula" [maxlength]="30" placeholder="Ex.: 104523" [error]="erro('matricula')"></geo-text-input>
           @if (emEdicao()) {
             <geo-boolean-control label="Colaborador ativo" kind="toggle" [(value)]="ativo"></geo-boolean-control>
           }
@@ -381,6 +382,7 @@ export class ColaboradoresComponent {
   protected readonly colunas: GeoDataTableColumn<ColaboradorResponse>[] = [
     { key: 'nome', header: 'Nome', type: 'custom', priority: 1, sortField: 'nomeCompleto', value: (c) => c.nomeCompleto, display: (c) => c.nomeCompleto },
     { key: 'cpf', header: 'CPF', sortField: 'cpf', value: (c) => c.cpf, display: (c) => formatarCpf(c.cpf) },
+    { key: 'matricula', header: 'Matrícula', value: (c) => c.matricula ?? '', display: (c) => c.matricula ?? '—' },
     { key: 'base', header: 'Base', sortField: 'baseOperacional.nome', value: (c) => c.baseOperacional?.nome, display: (c) => c.baseOperacional?.nome ?? '—' },
     { key: 'processo', header: 'Processo', sortField: 'processo.nome', value: (c) => c.processo?.nome, display: (c) => c.processo?.nome ?? '—' },
     { key: 'funcao', header: 'Função', priority: 1, sortField: 'funcao.nome', value: (c) => c.funcao?.nome, display: (c) => c.funcao?.nome ?? '—' },
@@ -402,6 +404,7 @@ export class ColaboradoresComponent {
   protected readonly ultimoNome = signal('');
   protected readonly nomeCompleto = signal('');
   protected readonly cpf = signal('');
+  protected readonly matricula = signal('');
   protected readonly dataContratacao = signal<Date | null>(null);
   protected readonly idBase = signal<string | null>(null);
   protected readonly idProcesso = signal<string | null>(null);
@@ -463,6 +466,7 @@ export class ColaboradoresComponent {
       this.primeiroNome() !== c.primeiroNome ||
       this.ultimoNome() !== c.ultimoNome ||
       this.nomeCompleto() !== c.nomeCompleto ||
+      this.matricula().trim() !== (c.matricula ?? '') ||
       this.idBase() !== (c.baseOperacional?.id ?? null) ||
       this.idProcesso() !== (c.processo?.id ?? null) ||
       this.idFuncao() !== (c.funcao?.id ?? null) ||
@@ -517,7 +521,8 @@ export class ColaboradoresComponent {
   private filtro() {
     const { filters, query } = this.lista.request();
     return {
-      nomeCompleto: query || undefined,
+      // Busca parcial por nome (o nome completo exato compara pelo índice cifrado e não acha trechos).
+      buscaGlobal: query || undefined,
       cpf: filters.cpf?.replace(/\D/g, '') || undefined,
       idBaseOperacional: filters.idBaseOperacional,
       idProcesso: filters.idProcesso,
@@ -574,6 +579,7 @@ export class ColaboradoresComponent {
     this.ultimoNome.set(c?.ultimoNome ?? '');
     this.nomeCompleto.set(c?.nomeCompleto ?? '');
     this.cpf.set(formatarCpf(c?.cpf));
+    this.matricula.set(c?.matricula ?? '');
     this.dataContratacao.set(dataLocal(c?.dataContratacao));
     this.idBase.set(c?.baseOperacional?.id ?? null);
     this.idProcesso.set(c?.processo?.id ?? null);
@@ -625,7 +631,8 @@ export class ColaboradoresComponent {
       dataContratacao: dataIso(this.dataContratacao())!,
       idProcesso: this.idProcesso()!,
       idBaseOperacional: this.idBase()!,
-      idFuncao: this.idFuncao()!
+      idFuncao: this.idFuncao()!,
+      matricula: this.matricula().trim() || null
     };
     this.salvando.set(true);
     const salvar$: Observable<ColaboradorResponse | null> = atual

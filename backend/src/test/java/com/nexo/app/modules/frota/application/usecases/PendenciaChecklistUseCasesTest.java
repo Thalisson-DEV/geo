@@ -9,7 +9,6 @@ import com.nexo.app.modules.frota.application.dto.OrdemServicoDetalheResponse;
 import com.nexo.app.modules.frota.application.dto.OrdemServicoResponse;
 import com.nexo.app.modules.frota.application.dto.ResolverPendenciasRequest;
 import com.nexo.app.modules.frota.application.dto.ServicoOrdemServicoRequest;
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import com.nexo.app.modules.frota.domain.Checklist;
 import com.nexo.app.modules.frota.domain.Criticidade;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
@@ -69,6 +68,15 @@ class PendenciaChecklistUseCasesTest {
     private ReferenciasFrota referencias;
     @Mock
     private HistoricoChecklist historico;
+    @Mock
+    private com.nexo.app.modules.listas.ListasApi listasApi;
+
+    @org.junit.jupiter.api.BeforeEach
+    void listasDevolvemOCodigo() {
+        org.mockito.Mockito.lenient().when(listasApi.rotulo(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArgument(1));
+        org.mockito.Mockito.lenient().when(listasApi.exigirAtiva(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArgument(1));
+    }
+
     @InjectMocks
     private PendenciaChecklistUseCases useCases;
 
@@ -148,7 +156,7 @@ class PendenciaChecklistUseCasesTest {
         var conclusao = ArgumentCaptor.forClass(ConcluirOrdemServicoRequest.class);
         verify(ordens).concluir(eq(idOs), conclusao.capture());
         assertThat(conclusao.getValue().descricaoServico()).isEqualTo("Lâmpada trocada pelo condutor (feito na base JUAZEIRO)");
-        assertThat(conclusao.getValue().causa()).isEqualTo(CausaManutencao.SERVICO_CORRETIVO);
+        assertThat(conclusao.getValue().causa()).isEqualTo("SERVICO_CORRETIVO");
         assertThat(pendencia.getSituacao()).isEqualTo(SituacaoPendenciaChecklist.RESOLVIDA_NA_HORA);
     }
 
@@ -158,7 +166,7 @@ class PendenciaChecklistUseCasesTest {
         when(ordens.abrir(any())).thenReturn(os);
 
         useCases.resolverNaHora(new ResolverPendenciasRequest(List.of(pendencia.getId()), List.of(idItem),
-                "Pneu remendado", null, "Borracharia do posto", null, CausaManutencao.AVARIA));
+                "Pneu remendado", null, "Borracharia do posto", null, "AVARIA"));
 
         var conclusao = ArgumentCaptor.forClass(ConcluirOrdemServicoRequest.class);
         verify(ordens).concluir(eq(idOs), conclusao.capture());

@@ -6,7 +6,6 @@ import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.SituacaoAprovacaoOrcamento;
 import com.nexo.app.modules.frota.domain.SituacaoOrdemServico;
 import com.nexo.app.modules.frota.domain.TipoManutencao;
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import com.nexo.app.modules.frota.domain.TipoOficina;
 import com.nexo.app.modules.frota.domain.UnidadeMedicao;
 
@@ -65,7 +64,7 @@ public record OrdemServicoResponse(
         String itensSubstituidos,
         BigDecimal valorTotal,
         Long kmEncerramento,
-        CausaManutencao causa,
+        String causa,
         OffsetDateTime canceladaEm,
         String motivoCancelamento,
         SituacaoAprovacaoOrcamento situacaoAprovacao,

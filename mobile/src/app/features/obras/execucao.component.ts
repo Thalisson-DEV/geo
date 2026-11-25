@@ -14,7 +14,7 @@ import { TurnoService } from '../../core/turno/turno.service';
 import { ArquivosCampoService } from '../../core/obras/arquivos-campo.service';
 import { LocalizacaoService, Posicao } from '../../core/obras/localizacao.service';
 import {
-  PontoDaExecucao, VagaFoto, aprQueLibera, etapaDaFoto, fotoAtrasada, nomeLocais, pendenciasDeFoto, proximaFoto, rotuloEtapaFoto, vagasDeFoto,
+  PontoDaExecucao, VagaFoto, aprQueLibera, etapaDaFoto, fotoAtrasada, fotosQueTravam, textoFotosQueFaltam, nomeLocais, pendenciasDeFoto, proximaFoto, rotuloEtapaFoto, vagasDeFoto,
 } from '../../core/obras/obras-regras';
 import { EtapaFoto, ItemFoto } from '../../core/obras/obras.models';
 import { Carimbo, montarCarimbo } from '../../core/fotos/carimbo';
@@ -29,7 +29,8 @@ type Vista = 'pontos' | 'projeto';
  * Execução sobre o projeto. Cada ponto mostra os itens programados; "Tudo feito" aponta o ponto inteiro com um toque e
  * "Parcial" abre as quantidades. As fotos do modelo aparecem na ordem do trabalho (antes, durante, depois), cada uma com
  * o seu momento (do modelo ou da situação do ponto), e o botão "Próxima foto" leva à que falta agora; a reprovada pelo
- * escritório vem primeiro, com o motivo. Foto faltando avisa e vira pendência, sem bloquear. No tablet deitado: projeto
+ * escritório vem primeiro, com o motivo. Foto faltando vira pendência; se o modelo trava (configurado no web), o "Tudo
+ * feito" exige todas as obrigatórias e o "Parcial", as de antes. No tablet deitado: projeto
  * à esquerda e o ponto à direita; no celular, o ponto abre numa folha.
  */
 @Component({
@@ -167,6 +168,12 @@ type Vista = 'pontos' | 'projeto';
           } @else if (ponto.situacao !== 'FEITO') {
             @if (ponto.situacao === 'A_FAZER' && antesQueFalta(); as v) {
               <p class="lembrete" role="status"><geo-icone nome="camera" [tamanho]="18" />Antes de começar, tire a foto “{{ v.item.titulo }}”: depois do serviço ela não dá mais para ser feita.</p>
+            }
+            @if (travaDeFoto(); as t) {
+              <div class="faixa faixa--detalhe trava" role="alert" data-testid="trava-foto">
+                <geo-icone nome="camera" />
+                <span>{{ t }}</span>
+              </div>
             }
             <div class="acoes">
               @if (!parcial()) {
@@ -372,6 +379,19 @@ export class ExecucaoComponent implements OnDestroy {
     const ponto = this.pontoSelecionado();
     return ponto ? proximaFoto(this.vagas(), ponto.situacao) : null;
   });
+  /** O modelo de fotos da obra trava o lançamento sem as obrigatórias (configurado no web, no modelo As Built). */
+  readonly fotosTravam = computed(() => this.ctx.modeloFoto(this.obra())?.travaExecucao === true);
+  /** Último "Tudo feito"/"Parcial" barrado pela trava; a mensagem some quando as fotos são tiradas ou o ponto muda. */
+  private readonly barrado = signal<{ idPonto: string; lancamento: 'TUDO' | 'PARCIAL' } | null>(null);
+  readonly travaDeFoto = computed(() => {
+    const b = this.barrado();
+    if (!b || b.idPonto !== this.selecionado() || !this.fotosTravam()) return null;
+    const faltam = fotosQueTravam(this.vagas(), b.lancamento);
+    if (!faltam.length) return null;
+    return b.lancamento === 'TUDO'
+      ? `Para marcar "Tudo feito", tire antes ${textoFotosQueFaltam(faltam)}.`
+      : `Para salvar o parcial, tire antes ${textoFotosQueFaltam(faltam)}.`;
+  });
   readonly faltaAlguma = computed(() => this.vagas().some(v => v.situacao === 'FALTA' || v.situacao === 'REFAZER'));
   /** "2 de 3 obrigatórias" no título da seção. */
   readonly resumoFotos = computed(() => {
@@ -486,9 +506,24 @@ export class ExecucaoComponent implements OnDestroy {
       .filter(Boolean).join(' · ');
   }
 
+  /** Com a trava ligada, barra o lançamento sem as fotos obrigatórias e abre o ponto na foto que falta. */
+  private barradoPorFoto(ponto: PontoDaExecucao, lancamento: 'TUDO' | 'PARCIAL'): boolean {
+    if (!this.fotosTravam() || ponto.vao) return false;
+    const vagas = vagasDeFoto(ponto, this.itensFoto(), this.obra(), this.ctx.registros.registros(), this.pendencias());
+    const faltam = fotosQueTravam(vagas, lancamento);
+    if (!faltam.length) {
+      this.barrado.set(null);
+      return false;
+    }
+    if (this.selecionado() !== ponto.id) this.escolher(ponto.id);
+    this.barrado.set({ idPonto: ponto.id, lancamento });
+    return true;
+  }
+
   async tudoFeito(ponto: PontoDaExecucao): Promise<void> {
     const p = this.programacao();
     if (!p || !this.podeApontar()) return;
+    if (this.barradoPorFoto(ponto, 'TUDO')) return;
     const apr = aprQueLibera(p, this.ctx.hoje(), this.ctx.registros.registros());
     const r = await this.ctx.registros.registrar({
       tipo: 'APONTAMENTO', idObra: p.idObra, idProgramacao: p.id, idPonto: ponto.id, dependeDe: apr?.id ?? null,
@@ -525,6 +560,7 @@ export class ExecucaoComponent implements OnDestroy {
       return { idItem, quantidade, justificativa: excede ? 'Executado além do previsto em campo.' : null };
     });
     if (!itens.length) return;
+    if (this.barradoPorFoto(ponto, 'PARCIAL')) return;
     const apr = aprQueLibera(p, this.ctx.hoje(), this.ctx.registros.registros());
     const r = await this.ctx.registros.registrar({
       tipo: 'APONTAMENTO', idObra: p.idObra, idProgramacao: p.id, idPonto: ponto.id, dependeDe: apr?.id ?? null,

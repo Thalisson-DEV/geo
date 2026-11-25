@@ -1,3 +1,5 @@
+import { ListasService } from '../../../core/services/listas.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { iconeCondicao } from '../../../shared/utils/movimentacao.utils';
 import { DevolucaoComercialDrawerComponent } from './devolucao-comercial/devolucao-comercial-drawer.component';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -51,7 +53,6 @@ import { SaldoEstoqueDialogComponent } from '../../../shared/components/saldo-es
 import { SeriesGradeComponent, SerieGradeItem } from '../../../shared/components/series-grade/series-grade.component';
 import {
   ItemMovimentacaoAgrupado,
-  MOTIVOS_MOVIMENTACAO,
   agruparItensPorMaterial,
   iconeTipoMovimentacao,
   rotuloCondicao,
@@ -143,7 +144,7 @@ const OPERACOES: OperacaoCardOption[] = [
     tipo: 'DEVOLUCAO_COMERCIAL',
     titulo: 'Devolução comercial',
     subtitulo: 'Processo comercial',
-    tag: '222 — Comercial',
+    tag: 'Comercial',
     descricao: 'Devolução do estoque de campo de uma equipe comercial para o almoxarifado físico (novo ou sucata).',
     rota: 'DEVOLUCAO_COMERCIAL',
     icone: 'pi pi-undo',
@@ -154,7 +155,7 @@ const OPERACOES: OperacaoCardOption[] = [
     tipo: 'DEVOLUCAO_TECNICA',
     titulo: 'Devolução técnica',
     subtitulo: 'Processo de obras',
-    tag: '222 / 922',
+    tag: 'Devolução',
     descricao: 'Devolução de material da obra para o almoxarifado físico (novo ou sucata), mesmo que não esteja no saldo da obra.',
     rota: '/almoxarifado/solicitacoes-tecnicas/devolucao',
     icone: 'pi pi-undo',
@@ -235,7 +236,7 @@ const OPERACOES: OperacaoCardOption[] = [
           <geo-select label="Base de destino" [options]="baseOptions()" [(value)]="lista.filters.idBaseDestino" [clearable]="true" [filter]="true" placeholder="Todas"
             [loading]="bases.loading()" (opened)="bases.open()" (search)="bases.search($event)"></geo-select>
           <geo-select label="Tipo" [options]="tipos" [(value)]="lista.filters.tipo"></geo-select>
-          <geo-select label="Motivo" [options]="motivos" [(value)]="lista.filters.motivo" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Motivo" [options]="motivos()" [(value)]="lista.filters.motivo" [clearable]="true" placeholder="Todos"></geo-select>
           <geo-select label="Referência" [options]="referencias" [(value)]="lista.filters.referencia" [clearable]="true" [filter]="true" placeholder="Mês/ano"></geo-select>
           <geo-text-input label="Número de série" [(value)]="lista.filters.numSerie" hint="Não fica salvo no endereço da página."></geo-text-input>
           <geo-datepicker label="A partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></geo-datepicker>
@@ -332,7 +333,7 @@ const OPERACOES: OperacaoCardOption[] = [
             <div><dt>Nota</dt><dd class="geo-cell-strong">{{ op.numeroNota }}</dd></div>
           }
           @if (op.motivo) {
-            <div><dt>Motivo</dt><dd>{{ rotuloMotivo(op.motivo) }}</dd></div>
+            <div><dt>Motivo</dt><dd>{{ rotuloMotivo(op.motivo, op.motivoRotulo) }}</dd></div>
           }
           <div><dt>Operador</dt><dd>{{ op.operadorNome || 'Não identificado' }}</dd></div>
           <div>
@@ -494,7 +495,8 @@ export class MovimentacoesEstoqueComponent {
   protected readonly tipos = TIPOS;
   protected readonly atalhosTipo = TIPOS.filter((t) => t.value);
   protected readonly processos = PROCESSOS;
-  protected readonly motivos = MOTIVOS_MOVIMENTACAO;
+  private readonly opcoesMotivo = toSignal(inject(ListasService).ativas('MOTIVO_MOVIMENTACAO_ESTOQUE').pipe(catchError(() => of([]))), { initialValue: [] });
+  protected readonly motivos: () => { label: string; value: string }[] = () => this.opcoesMotivo().map((o) => ({ label: o.rotulo, value: o.codigo }));
   protected readonly rotuloMotivo = rotuloMotivo;
   protected readonly referencias: GeoSelectOption<string>[] = generateReferenceOptions(24);
   protected readonly dataLocal = dataLocal;
@@ -539,7 +541,7 @@ export class MovimentacoesEstoqueComponent {
       idBaseDestino: geoFilter.value<string | null>(null, { label: 'Base de destino', param: 'baseDestino', format: (id): string | null => (id ? this.nomeBase(id) : null) }),
       tipo: geoFilter.value<TipoMovimentacao | null>(null, { label: 'Tipo', options: () => TIPOS }),
       processo: geoFilter.value<ProcessoMovimentacao | null>(null, { label: 'Processo', options: () => PROCESSOS }),
-      motivo: geoFilter.value<MotivoMovimentacao | null>(null, { label: 'Motivo', options: () => MOTIVOS_MOVIMENTACAO }),
+      motivo: geoFilter.value<MotivoMovimentacao | null>(null, { label: 'Motivo', options: () => this.motivos() }),
       referencia: geoFilter.value<string | null>(null, { label: 'Referência', param: 'ref', type: 'string' }),
       // Nº de série é dado sensível: fica fora da URL.
       numSerie: geoFilter.value<string>('', { label: 'Nº de série', url: false }),
@@ -576,7 +578,7 @@ export class MovimentacoesEstoqueComponent {
       filtros: [
         filtroPainel('tipo', 'Tipo', f.tipo ? this.tipoLabel(f.tipo) : null, f.tipo),
         filtroPainel('processo', 'Processo', f.processo ? PROCESSOS.find((p) => p.value === f.processo)?.label : null, f.processo),
-        filtroPainel('motivo', 'Motivo', f.motivo ? rotuloMotivo(f.motivo) : null, f.motivo),
+        filtroPainel('motivo', 'Motivo', f.motivo ? (this.motivos().find((m) => m.value === f.motivo)?.label ?? rotuloMotivo(f.motivo)) : null, f.motivo),
         filtroPainel('estoque', 'Estoque', f.idEstoque ? this.estoques().find((e) => e.id === f.idEstoque)?.nomeIdentificador : null, f.idEstoque),
         filtroPainel('baseOrigem', 'Base de origem', f.idBaseOrigem ? this.nomeBase(f.idBaseOrigem) : null, f.idBaseOrigem),
         filtroPainel('baseDestino', 'Base de destino', f.idBaseDestino ? this.nomeBase(f.idBaseDestino) : null, f.idBaseDestino),

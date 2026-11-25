@@ -21,8 +21,8 @@ export interface Rotulo {
 }
 
 export const TIPOS_FECHAMENTO: { value: TipoFechamento; nome: string; descricao: string; adicao: boolean }[] = [
-  { value: '221', nome: 'Adição comum', descricao: 'Material que entrou na obra e não estava no orçamento', adicao: true },
-  { value: '921', nome: 'Adição concreto', descricao: 'Concreto que entrou na obra e não estava no orçamento', adicao: true },
+  { value: '221', nome: 'Retirada', descricao: 'Material que entrou na obra e não estava no orçamento', adicao: true },
+  { value: '921', nome: 'Retirada · concreto', descricao: 'Concreto que entrou na obra e não estava no orçamento', adicao: true },
   { value: '222', nome: 'Devolução comum', descricao: 'Sobra da obra que volta para o almoxarifado', adicao: false },
   { value: '922', nome: 'Devolução concreto', descricao: 'Sobra de concreto que volta para o almoxarifado', adicao: false }
 ];

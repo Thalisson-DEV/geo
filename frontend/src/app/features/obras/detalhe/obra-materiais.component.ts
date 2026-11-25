@@ -54,6 +54,39 @@ export function agruparMateriais(itens: readonly ItemMovimentacaoResumoObra[]): 
   return [...grupos.values()];
 }
 
+/** Movimentações do mesmo dia, tipo e caminho (origem → destino) viram uma linha só. */
+export interface GrupoMovimentacao {
+  chave: string;
+  tipo: string;
+  tipoTecnico: string | null;
+  dataHora: string;
+  origemNome: string | null;
+  destinoNome: string | null;
+  referencias: string[];
+  materiais: MaterialMovimentado[];
+  foraDoSaldo: boolean;
+}
+
+export function agruparMovimentacoes(movimentacoes: readonly MovimentacaoResumoObra[]): GrupoMovimentacao[] {
+  const grupos = new Map<string, GrupoMovimentacao & { itens: ItemMovimentacaoResumoObra[] }>();
+  for (const m of movimentacoes) {
+    const dia = (m.dataHora ?? '').slice(0, 10);
+    const chave = [dia, m.tipo, m.tipoTecnico ?? '', m.origemNome ?? '', m.destinoNome ?? ''].join('|');
+    const g = grupos.get(chave) ?? {
+      chave, tipo: m.tipo, tipoTecnico: m.tipoTecnico ?? null, dataHora: m.dataHora, origemNome: m.origemNome ?? null,
+      destinoNome: m.destinoNome ?? null, referencias: [], materiais: [], itens: [], foraDoSaldo: false,
+    };
+    g.referencias.push(m.idReferencia);
+    g.itens.push(...m.itens);
+    if (m.dataHora > g.dataHora) g.dataHora = m.dataHora;
+    if (m.tipo === 'ENTRADA_AVULSA' && m.tipoTecnico) g.foraDoSaldo = true;
+    grupos.set(chave, g);
+  }
+  return [...grupos.values()]
+    .map(({ itens, ...g }) => ({ ...g, materiais: agruparMateriais(itens) }))
+    .sort((a, b) => b.dataHora.localeCompare(a.dataHora));
+}
+
 /**
  * Saldo, solicitações e movimentações de material da obra. O saldo já vem aberto e pode ser recolhido;
  * solicitações e movimentações são linhas com o resumo, e os materiais só aparecem ao abrir, como no
@@ -85,6 +118,7 @@ export class ObraMateriaisComponent {
   protected readonly materiaisPorOperacao = computed(
     () => new Map(this.movimentacoes().map((m) => [m.idReferencia, agruparMateriais(m.itens)])),
   );
+  protected readonly gruposMovimentacao = computed(() => agruparMovimentacoes(this.movimentacoes()));
 
   protected aberto(id: string): boolean {
     return this.abertos().has(id);
@@ -107,11 +141,11 @@ export class ObraMateriaisComponent {
   }
 
   protected expandirMovimentacoes(): void {
-    this.definir(this.movimentacoes().map((m) => m.idReferencia), true);
+    this.definir(this.gruposMovimentacao().map((g) => g.chave), true);
   }
 
   protected recolherMovimentacoes(): void {
-    this.definir(this.movimentacoes().map((m) => m.idReferencia), false);
+    this.definir(this.gruposMovimentacao().map((g) => g.chave), false);
   }
 
   protected condicaoLabel(condicao: string): string {
@@ -126,7 +160,7 @@ export class ObraMateriaisComponent {
     return (s.itens ?? []).filter((i) => i.quantidadePendente > 0).length;
   }
 
-  protected movimentacao(m: MovimentacaoResumoObra) {
+  protected movimentacao(m: { tipo: string }) {
     return MOVIMENTACOES[m.tipo] ?? { titulo: m.tipo, icone: 'pi pi-arrow-right-arrow-left', tom: 'neutral' };
   }
 

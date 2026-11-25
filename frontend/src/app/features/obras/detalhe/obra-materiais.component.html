@@ -121,8 +121,8 @@
 }
 
 <div class="mat-secao mat-secao--segunda">
-  <h3 class="mat-secao__titulo">Movimentações <span class="mat-contagem">{{ movimentacoes().length }}</span></h3>
-  @if (movimentacoes().length > 1) {
+  <h3 class="mat-secao__titulo">Movimentações <span class="mat-contagem">{{ gruposMovimentacao().length }}</span></h3>
+  @if (gruposMovimentacao().length > 1) {
     <span class="mat-secao__acoes">
       <button type="button" (click)="expandirMovimentacoes()">Expandir todas</button>
       <span aria-hidden="true">·</span>
@@ -130,25 +130,25 @@
     </span>
   }
 </div>
-@if (movimentacoes().length) {
+@if (gruposMovimentacao().length) {
   <ul class="mat-lista">
-    @for (m of movimentacoes(); track m.idReferencia) {
-      @let materiais = materiaisPorOperacao().get(m.idReferencia) ?? [];
+    @for (g of gruposMovimentacao(); track g.chave) {
       <li class="mat-bloco">
-        <button type="button" class="mat-linha" [attr.aria-expanded]="aberto(m.idReferencia)" [attr.aria-controls]="'mat-' + m.idReferencia" (click)="alternar(m.idReferencia)">
-          <span class="mat-icone" [attr.data-tom]="movimentacao(m).tom" aria-hidden="true"><i [class]="movimentacao(m).icone"></i></span>
+        <button type="button" class="mat-linha" [attr.aria-expanded]="aberto(g.chave)" [attr.aria-controls]="'mat-' + g.chave" (click)="alternar(g.chave)">
+          <span class="mat-icone" [attr.data-tom]="movimentacao(g).tom" aria-hidden="true"><i [class]="movimentacao(g).icone"></i></span>
           <span class="mat-linha__corpo">
-            <span class="mat-linha__titulo">{{ movimentacao(m).titulo }}@if (m.tipoTecnico) { · {{ tipoLabel(m.tipoTecnico) }}} <span class="mat-id">#{{ m.idReferencia.slice(0, 8) }}</span></span>
+            <span class="mat-linha__titulo">{{ movimentacao(g).titulo }}@if (g.tipoTecnico?.includes('CONCRETO')) { · concreto }</span>
             <span class="mat-meta">
-              <span>{{ m.dataHora | date: 'dd/MM/yyyy HH:mm' }}</span>
-              <span>{{ m.origemNome || 'Sem origem' }} → {{ m.destinoNome || 'Sem destino' }}</span>
-              @if (m.tipo === 'ENTRADA_AVULSA' && m.tipoTecnico) { <span>Material fora do saldo da obra</span> }
+              <span>{{ g.dataHora | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span>{{ g.origemNome || 'Sem origem' }} → {{ g.destinoNome || 'Sem destino' }}</span>
+              @if (g.referencias.length > 1) { <span>{{ g.referencias.length }} lançamentos no dia</span> }
+              @if (g.foraDoSaldo) { <span>Material fora do saldo da obra</span> }
             </span>
           </span>
-          <span class="mat-contagem">{{ materiais.length }} {{ materiais.length === 1 ? 'material' : 'materiais' }}</span>
-          <i class="pi mat-seta" [class.pi-chevron-up]="aberto(m.idReferencia)" [class.pi-chevron-down]="!aberto(m.idReferencia)" aria-hidden="true"></i>
+          <span class="mat-contagem">{{ g.materiais.length }} {{ g.materiais.length === 1 ? 'material' : 'materiais' }}</span>
+          <i class="pi mat-seta" [class.pi-chevron-up]="aberto(g.chave)" [class.pi-chevron-down]="!aberto(g.chave)" aria-hidden="true"></i>
         </button>
-        <div class="mat-detalhe" [id]="'mat-' + m.idReferencia" [attr.data-aberto]="aberto(m.idReferencia)">
+        <div class="mat-detalhe" [id]="'mat-' + g.chave" [attr.data-aberto]="aberto(g.chave)">
           <div class="mat-rolagem">
             <table class="mat-tabela">
               <thead>
@@ -161,19 +161,21 @@
                 </tr>
               </thead>
               <tbody>
-                @for (g of materiais; track g.chave) {
+                @for (m of g.materiais; track m.chave) {
                   <tr>
-                    <td class="mat-codigo">{{ g.codigo }}</td>
-                    <td>{{ g.descricao }}</td>
-                    <td><geo-status [tone]="g.condicao === 'Sucata' ? 'warning' : 'neutral'">{{ g.condicao }}</geo-status></td>
-                    <td class="mat-num">{{ g.quantidade | number: '1.0-3' }} {{ g.unidade }}</td>
-                    <td>{{ g.series.length ? g.series.join(', ') : 'Sem série' }}</td>
+                    <td class="mat-codigo">{{ m.codigo }}</td>
+                    <td>{{ m.descricao }}</td>
+                    <td><geo-status [tone]="m.condicao === 'Sucata' ? 'warning' : 'neutral'">{{ m.condicao }}</geo-status></td>
+                    <td class="mat-num">{{ m.quantidade | number: '1.0-3' }} {{ m.unidade }}</td>
+                    <td>{{ m.series.length ? m.series.join(', ') : 'Sem série' }}</td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
-          <a class="mat-abrir" [routerLink]="['/almoxarifado/movimentacoes', m.idReferencia]">Abrir movimentação</a>
+          @if (g.referencias.length === 1) {
+            <a class="mat-abrir" [routerLink]="['/almoxarifado/movimentacoes', g.referencias[0]]">Abrir movimentação</a>
+          }
         </div>
       </li>
     }

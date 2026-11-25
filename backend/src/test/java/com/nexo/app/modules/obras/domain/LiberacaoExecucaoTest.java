@@ -55,7 +55,7 @@ class LiberacaoExecucaoTest {
     void semCondicaoDeExecutarDispensaAAprEPrevaleceSobreAAprAnterior() {
         AprTurno concluida = apr(formulario(FormularioApr.Resposta.SIM));
         concluida.concluir();
-        OcorrenciaTurno impedimento = new OcorrenciaTurno(TURNO, OBRA, TipoOcorrenciaTurno.CLIMA, "Chuva forte", true);
+        OcorrenciaTurno impedimento = new OcorrenciaTurno(TURNO, OBRA, "CLIMA", "Chuva forte", true);
         ReflectionTestUtils.setField(impedimento, "dataCriacao", OffsetDateTime.now().plusSeconds(5));
 
         assertThat(avaliar(OBRA, List.of(), List.of(impedimento))).isEqualTo(SituacaoLiberacao.IMPEDIDA);
@@ -77,7 +77,7 @@ class LiberacaoExecucaoTest {
     @Test
     void impedimentoSoSaiComAprDaPropriaObraConcluidaDepois() {
         UUID outraObra = UUID.randomUUID();
-        OcorrenciaTurno chuva = new OcorrenciaTurno(TURNO, OBRA, TipoOcorrenciaTurno.CLIMA, "Chuva forte", true);
+        OcorrenciaTurno chuva = new OcorrenciaTurno(TURNO, OBRA, "CLIMA", "Chuva forte", true);
         ReflectionTestUtils.setField(chuva, "dataCriacao", OffsetDateTime.now().minusSeconds(5));
         AprTurno deOutraObra = new AprTurno(TURNO, outraObra, UUID.randomUUID(), "Lançar cabo", RESPONSAVEL, formulario(FormularioApr.Resposta.SIM));
         deOutraObra.concluir();
@@ -96,7 +96,7 @@ class LiberacaoExecucaoTest {
 
     @Test
     void aprConcluidaDepoisDoImpedimentoLiberaATarde() {
-        OcorrenciaTurno daManha = new OcorrenciaTurno(TURNO, OBRA, TipoOcorrenciaTurno.CLIMA, "Chuva forte", true);
+        OcorrenciaTurno daManha = new OcorrenciaTurno(TURNO, OBRA, "CLIMA", "Chuva forte", true);
         ReflectionTestUtils.setField(daManha, "dataCriacao", OffsetDateTime.now().minusSeconds(5));
         AprTurno daTarde = apr(formulario(FormularioApr.Resposta.SIM));
         daTarde.concluir();
@@ -106,10 +106,10 @@ class LiberacaoExecucaoTest {
 
     @Test
     void ocorrenciaComumNaoBloqueiaEImpedimentoExigeObra() {
-        OcorrenciaTurno comum = new OcorrenciaTurno(TURNO, OBRA, TipoOcorrenciaTurno.CLIMA, "Garoa rápida", false);
+        OcorrenciaTurno comum = new OcorrenciaTurno(TURNO, OBRA, "CLIMA", "Garoa rápida", false);
 
         assertThat(avaliar(OBRA, List.of(), List.of(comum))).isEqualTo(SituacaoLiberacao.PENDENTE);
-        assertThatThrownBy(() -> new OcorrenciaTurno(TURNO, null, TipoOcorrenciaTurno.CLIMA, "Chuva", true))
+        assertThatThrownBy(() -> new OcorrenciaTurno(TURNO, null, "CLIMA", "Chuva", true))
                 .isInstanceOf(InvarianteVioladaException.class);
     }
 

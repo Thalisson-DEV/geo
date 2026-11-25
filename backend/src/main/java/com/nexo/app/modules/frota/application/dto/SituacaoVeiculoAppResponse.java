@@ -6,7 +6,6 @@ import com.nexo.app.modules.frota.domain.SituacaoOrdemServico;
 import com.nexo.app.modules.frota.domain.SituacaoPendenciaChecklist;
 import com.nexo.app.modules.frota.domain.SituacaoPreventiva;
 import com.nexo.app.modules.frota.domain.SituacaoVencimento;
-import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 import com.nexo.app.modules.frota.domain.TipoManutencao;
 import com.nexo.app.modules.frota.domain.UnidadeMedicao;
 
@@ -50,9 +49,10 @@ public record SituacaoVeiculoAppResponse(
      * {@code arquivoNome} e {@code versao} vêm nulos; {@code versao} muda quando o arquivo é trocado,
      * e o app só baixa de novo nesse caso.
      */
-    public record DocumentoConjunto(UUID id, TipoDocumentoFrota tipo, String descricao, String titular, boolean doImplemento,
+    public record DocumentoConjunto(UUID id, String tipo, String descricao, String titular, boolean doImplemento,
                                     LocalDate vencimento, SituacaoVencimento situacao, String arquivoNome,
-                                    String arquivoContentType, Long arquivoTamanhoBytes, String versao) {
+                                    String arquivoContentType, Long arquivoTamanhoBytes, String versao,
+                                    /** Nome do tipo no cadastro do cliente. */ String tipoRotulo) {
     }
 
     /** Ex.: "Revisão 10 mil km" · "faltam 800 km"; {@code numeroOrdem} quando a OS já foi aberta. */
@@ -83,6 +83,6 @@ public record SituacaoVeiculoAppResponse(
     public record Pendencia(UUID id, String item, SituacaoPendenciaChecklist situacao, Long numeroOrdem, OffsetDateTime desde) {
     }
 
-    public record Documento(TipoDocumentoFrota tipo, String descricao, LocalDate vencimento, SituacaoVencimento situacao) {
+    public record Documento(String tipo, String descricao, LocalDate vencimento, SituacaoVencimento situacao, String tipoRotulo) {
     }
 }

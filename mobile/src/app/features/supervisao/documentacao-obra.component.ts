@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, Injector, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BarraTopoComponent, FotoExibida, FotosComponent, IconeComponent, SegmentadoComponent, VazioComponent } from '../../ui';
+import { BarraTopoComponent, FolhaComponent, FotoExibida, FotosComponent, IconeComponent, SegmentadoComponent, VazioComponent } from '../../ui';
+import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { ConnectivityService } from '../../core/sync/connectivity.service';
-import { DocumentacaoObra, FotoVisitaFila, ModeloChecklist, PerguntaChecklist, SupervisaoService } from '../../core/obras/supervisao.service';
+import { ConclusaoObra, DocumentacaoObra, FotoVisitaFila, ModeloChecklist, PerguntaChecklist, SupervisaoService } from '../../core/obras/supervisao.service';
 import {
   NAO_SE_APLICA, RespostaVisita, RespostasVisita, alternar, faltando, marcarRestantesComoConforme, montarRespostas, naoConformidades,
   opcoesDe, restantesConformes, situacao, temOpcoes,
@@ -35,10 +36,15 @@ interface RascunhoVisita {
  * não conformidade no relatório, e qualquer pergunta aceita foto. Tudo fica no rascunho do aparelho e a visita, com as
  * fotos, entra na fila: sem sinal, sai depois.
  */
+const SUGESTOES_DECISAO: Record<string, string[]> = {
+  ALTERACAO_DE_PROJETO: ['Projeto revisado e planejamento atualizado', 'Mantido o projeto original', 'Executado conforme o campo, aceito pelo cliente'],
+  OBRA_EXECUTADA_POR_TERCEIROS: ['Obra sai da carteira', 'Parte executada por terceiros, resto segue', 'Não procede: a equipe executa'],
+};
+
 @Component({
   selector: 'app-documentacao-obra',
   standalone: true,
-  imports: [BarraTopoComponent, IconeComponent, VazioComponent, SegmentadoComponent, FotosComponent],
+  imports: [BarraTopoComponent, FolhaComponent, IconeComponent, VazioComponent, SegmentadoComponent, FotosComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (modelo(); as m) {
@@ -138,6 +144,31 @@ interface RascunhoVisita {
       </div>
     } @else {
       <geo-barra-topo [titulo]="'Obra ' + numero" [subtitulo]="subtitulo" (voltar)="voltar()" />
+      @if (pendenciasConclusao(); as c) {
+        <section class="conclusao" aria-labelledby="conclusao-titulo">
+          <h2 id="conclusao-titulo" class="conclusao__titulo"><geo-icone nome="alerta" [tamanho]="18" />Para concluir a obra</h2>
+          <p class="conclusao__resumo">{{ resumoConclusao(c) }}</p>
+          <ul class="geo-grupo conclusao__lista">
+            @for (o of c.ocorrencias; track o.id) {
+              <li class="geo-linha">
+                <span class="geo-selo geo-selo--atencao"><geo-icone nome="alerta" /></span>
+                <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ o.rotulo }}</span>
+                  <span class="geo-linha__apoio">{{ o.descricao }}</span>
+                  <span class="geo-linha__apoio">{{ podeResolver ? 'Espera a sua decisão' : 'Espera decisão do escritório' }}</span></span>
+                @if (podeResolver) { <button type="button" class="geo-btn geo-btn--tonal geo-btn--compacto" (click)="abrirResolucao(o)">Resolver</button> }
+              </li>
+            }
+            @for (f of fotosPorPonto(); track f.ponto) {
+              <li class="geo-linha">
+                <span class="geo-selo"><geo-icone nome="camera" /></span>
+                <span class="geo-linha__texto"><span class="geo-linha__titulo">Fotos do ponto {{ f.ponto }}</span>
+                  <span class="geo-linha__apoio">{{ f.titulos }}</span></span>
+              </li>
+            }
+          </ul>
+          @if (c.fotos.length) { <p class="conclusao__nota">Fotos tiradas sem sinal chegam quando o aparelho da equipe conectar. A obra conclui quando a última chegar.</p> }
+        </section>
+      }
       @if (doc(); as d) {
         <h2 class="geo-secao">Situação</h2>
         <ul class="geo-grupo">
@@ -173,8 +204,32 @@ interface RascunhoVisita {
         <div class="geo-esqueletos" role="status" aria-label="Carregando a documentação"></div>
       }
     }
+    <geo-folha [aberta]="!!emResolucao()" (fechar)="emResolucao.set(null)" [titulo]="emResolucao()?.rotulo ?? null" [descricao]="emResolucao()?.descricao ?? null">
+      <div class="resolucao">
+        <div class="resolucao__sugestoes" role="group" aria-label="Sugestões">
+          @for (t of sugestoes(); track t) {
+            <button type="button" class="geo-chip" [attr.aria-pressed]="resolucao() === t" (click)="resolucao.set(t)">{{ t }}</button>
+          }
+        </div>
+        <label class="geo-campo">
+          <span class="geo-campo__rotulo">O que foi decidido</span>
+          <textarea class="geo-input" rows="3" maxlength="500" [value]="resolucao()" (input)="resolucao.set($any($event.target).value)"></textarea>
+        </label>
+      </div>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="emResolucao.set(null)">Cancelar</button>
+        <button type="button" class="geo-btn geo-btn--principal" [disabled]="!resolucao().trim() || resolvendo()" (click)="resolver()">{{ resolvendo() ? 'Registrando…' : 'Registrar decisão' }}</button>
+      </div>
+    </geo-folha>
   `,
   styles: [`
+    .conclusao { margin: var(--geo-e4) var(--geo-margem) 0; padding: var(--geo-e4); border: 1px solid var(--geo-atencao); border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); }
+    .conclusao__titulo { display: flex; align-items: center; gap: var(--geo-e2); margin: 0; color: var(--geo-atencao); font: 600 1rem/1.3 var(--geo-fonte); }
+    .conclusao__resumo, .conclusao__nota { margin: var(--geo-e1) 0 0; color: var(--geo-texto-2); font: var(--geo-t-apoio); }
+    .conclusao__lista { margin: var(--geo-e3) 0 0; }
+    .conclusao__nota { margin-top: var(--geo-e3); }
+    .resolucao { display: grid; gap: var(--geo-e4); padding: 0 var(--geo-margem) var(--geo-e4); }
+    .resolucao__sugestoes { display: flex; flex-wrap: wrap; gap: var(--geo-e2); }
     :host { display: flex; flex-direction: column; min-height: 100%; }
     .corpo { flex: 1; padding-bottom: var(--geo-e6); }
     .progresso { display: flex; flex-wrap: wrap; gap: var(--geo-e3); align-items: center; justify-content: space-between;
@@ -234,6 +289,24 @@ export class DocumentacaoObraComponent implements OnInit {
   readonly subtitulo = [this.rota.snapshot.queryParamMap.get('titulo'), this.rota.snapshot.queryParamMap.get('municipio')]
     .filter(Boolean).join(' · ') || 'Documentação técnica';
   readonly doc = signal<DocumentacaoObra | null>(null);
+  readonly conclusao = signal<ConclusaoObra | null>(null);
+  readonly emResolucao = signal<ConclusaoObra['ocorrencias'][number] | null>(null);
+  readonly resolucao = signal('');
+  readonly resolvendo = signal(false);
+  readonly podeResolver = inject(AuthService).podeResolverConclusaoObra();
+  readonly pendenciasConclusao = computed(() => {
+    const c = this.conclusao();
+    return c && !c.concluida && (c.fotos.length || c.ocorrencias.length) ? c : null;
+  });
+  readonly fotosPorPonto = computed(() => {
+    const mapa = new Map<string, string[]>();
+    for (const f of this.conclusao()?.fotos ?? []) {
+      const p = f.numeroPonto ?? '?';
+      mapa.set(p, [...(mapa.get(p) ?? []), f.motivoReprovacao ? `${f.titulo} (refazer)` : f.titulo]);
+    }
+    return [...mapa.entries()].map(([ponto, t]) => ({ ponto, titulos: t.join(', ') }));
+  });
+  readonly sugestoes = computed(() => SUGESTOES_DECISAO[this.emResolucao()?.tipo ?? ''] ?? []);
   readonly erro = signal(false);
   readonly modelos = signal<ModeloChecklist[]>([]);
   readonly modelo = signal<ModeloChecklist | null>(null);
@@ -271,13 +344,45 @@ export class DocumentacaoObraComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      const [doc, modelos] = await Promise.all([this.servico.documentacao(this.id), this.servico.modelos('VISITA_PREVIA')]);
+      const [doc, modelos, conclusao] = await Promise.all([
+        this.servico.documentacao(this.id), this.servico.modelos('VISITA_PREVIA'), this.servico.conclusao(this.id)]);
       this.doc.set(doc);
+      this.conclusao.set(conclusao);
       this.modelos.set(modelos);
     } catch {
       this.erro.set(true);
     }
     await this.vincularRascunho();
+  }
+
+  resumoConclusao(c: ConclusaoObra): string {
+    const partes: string[] = [];
+    if (c.ocorrencias.length) partes.push(`${c.ocorrencias.length} ${c.ocorrencias.length === 1 ? 'ocorrência espera' : 'ocorrências esperam'} decisão`);
+    if (c.fotos.length) partes.push(`${c.fotos.length} ${c.fotos.length === 1 ? 'foto obrigatória falta' : 'fotos obrigatórias faltam'}`);
+    const servicos = c.servicosAbertos ? `${c.servicosAbertos} ${c.servicosAbertos === 1 ? 'serviço em aberto' : 'serviços em aberto'}. ` : 'Serviços executados. ';
+    return servicos + partes.join(' e ') + '.';
+  }
+
+  abrirResolucao(o: ConclusaoObra['ocorrencias'][number]): void {
+    this.resolucao.set('');
+    this.emResolucao.set(o);
+  }
+
+  async resolver(): Promise<void> {
+    const o = this.emResolucao();
+    const texto = this.resolucao().trim();
+    if (!o || !texto) return;
+    this.resolvendo.set(true);
+    try {
+      const c = await this.servico.resolverOcorrencia(this.id, o.id, texto);
+      this.conclusao.set(c);
+      this.emResolucao.set(null);
+      this.toast.success(c.concluida ? 'Decisão registrada. A obra foi concluída.' : 'Decisão registrada.');
+    } catch {
+      this.toast.error('Não foi possível registrar a decisão. Confira a internet e tente de novo.');
+    } finally {
+      this.resolvendo.set(false);
+    }
   }
 
   rotuloDoc = (d: { tipo: string; numeroVersao: number; status: string }): string =>

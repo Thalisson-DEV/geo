@@ -7,6 +7,8 @@ import com.nexo.app.modules.obras.application.dto.TurnoObraRequests;
 import com.nexo.app.modules.obras.domain.ApontamentoExecucao;
 import com.nexo.app.modules.obras.domain.AtividadeTurno;
 import com.nexo.app.modules.obras.domain.ItemPlanejado;
+import com.nexo.app.modules.obras.domain.OperacaoItemKit;
+import com.nexo.app.modules.obras.domain.TipoItemKit;
 import com.nexo.app.modules.obras.domain.KitAplicado;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.Programacao;
@@ -21,6 +23,7 @@ import com.nexo.app.modules.obras.infrastructure.persistence.ObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.OcorrenciaTurnoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ProgramacaoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.StatusObraRepository;
+import com.nexo.app.shared.domain.events.ApontamentoEstornadoEvent;
 import com.nexo.app.shared.domain.events.ItemExecutadoEvent;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
@@ -65,6 +68,7 @@ public class ApontamentoExecucaoUseCases {
     private final ItemPlanejadoRepository itemRepository;
     private final TurnoApi turnoApi;
     private final ApplicationEventPublisher eventPublisher;
+    private final ConclusaoObraUseCases conclusao;
 
     @Transactional
     @CacheEvict(cacheNames = CacheNames.OBRAS, allEntries = true)
@@ -81,7 +85,8 @@ public class ApontamentoExecucaoUseCases {
             ApontamentoExecucao apontamento = repository.save(programacao.apontar(linha.idItem(), linha.quantidade(),
                     request.data(), idTurno, linha.justificativa()));
             eventPublisher.publishEvent(new ItemExecutadoEvent(apontamento.getId(), linha.idItem(), programacao.getIdObra(),
-                    programacao.getId(), programacao.getIdEquipe(), idTurno, request.data(), linha.quantidade(), apontamento.getValorTotal()));
+                    programacao.getId(), programacao.getIdEquipe(), idTurno, request.data(), linha.quantidade(), apontamento.getValorTotal(),
+                    idMaterial(apontamento.getItemPlanejado()), retirada(apontamento.getItemPlanejado())));
         }
         if (idTurno != null && !atividadeRepository.existsByIdTurnoAndIdProgramacaoAndAtivoTrue(idTurno, programacao.getId())) {
             atividadeRepository.save(new AtividadeTurno(idTurno, programacao.getIdObra(), programacao.getId(), null));
@@ -160,7 +165,8 @@ public class ApontamentoExecucaoUseCases {
             apontamento.registrarOrigemCampo(campo, idLocal, pontoInteiro);
             ApontamentoExecucao salvo = repository.save(apontamento);
             eventPublisher.publishEvent(new ItemExecutadoEvent(salvo.getId(), salvo.getItemPlanejado().getId(), programacao.getIdObra(),
-                    programacao.getId(), programacao.getIdEquipe(), turno, data, salvo.getQuantidade(), salvo.getValorTotal()));
+                    programacao.getId(), programacao.getIdEquipe(), turno, data, salvo.getQuantidade(), salvo.getValorTotal(),
+                    idMaterial(salvo.getItemPlanejado()), retirada(salvo.getItemPlanejado())));
         }
         if (!atividadeRepository.existsByIdTurnoAndIdProgramacaoAndAtivoTrue(turno, programacao.getId())) {
             atividadeRepository.save(new AtividadeTurno(turno, programacao.getIdObra(), programacao.getId(), null));
@@ -178,8 +184,19 @@ public class ApontamentoExecucaoUseCases {
     public void estornar(UUID idApontamento) {
         ApontamentoExecucao apontamento = repository.findByIdAndAtivoTrue(idApontamento)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Apontamento não encontrado."));
-        buscarProgramacao(apontamento.getIdProgramacao()).estornar(apontamento);
+        Programacao programacao = buscarProgramacao(apontamento.getIdProgramacao());
+        programacao.estornar(apontamento);
         repository.save(apontamento);
+        eventPublisher.publishEvent(new ApontamentoEstornadoEvent(apontamento.getId(), programacao.getIdObra(), programacao.getIdEquipe()));
+    }
+
+    /** Só item de material mexe no estoque; serviço não leva material. */
+    private static UUID idMaterial(ItemPlanejado item) {
+        return item != null && item.getTipo() == TipoItemKit.MATERIAL ? item.getIdMaterial() : null;
+    }
+
+    private static boolean retirada(ItemPlanejado item) {
+        return item != null && item.getOperacao() == OperacaoItemKit.RETIRAR;
     }
 
     private UUID turnoDoApontamento(Programacao programacao, UUID informado, LocalDate data) {
@@ -233,21 +250,7 @@ public class ApontamentoExecucaoUseCases {
      * A data de fim é a do apontamento, e a troca fica no histórico com o motivo. Obra já concluída (ou cancelada) não muda.
      */
     void concluirObraSeTudoExecutado(UUID idObra, LocalDate dataDoApontamento) {
-        Obra obra = obraRepository.findById(idObra).orElse(null);
-        if (obra == null || obra.getStatusObra() == null || obra.getStatusObra().isConcluida()) {
-            return;
-        }
-        List<Object[]> contagem = itemRepository.contarServicosEAbertos(idObra);
-        Object[] linha = contagem.isEmpty() ? null : contagem.get(0);
-        long servicos = linha != null && linha[0] instanceof Number n ? n.longValue() : 0;
-        long abertos = linha != null && linha[1] instanceof Number n ? n.longValue() : 0;
-        if (servicos == 0 || abertos > 0) {
-            return;
-        }
-        statusObraRepository.findByNomeIgnoreCase(STATUS_CONCLUIDA)
-                .filter(status -> status.isAtivo() && status.isConcluida())
-                .ifPresent(status -> obra.informarStatusOperacional(status,
-                        "Concluída automaticamente: todos os serviços planejados foram executados.", dataDoApontamento));
+        conclusao.tentarConcluir(idObra, dataDoApontamento);
     }
 
     private Programacao buscarProgramacao(UUID id) {

@@ -63,10 +63,11 @@ import { ObrasService } from '../../../core/services/obras.service';
 import { ObraDocumentacaoComponent } from '../documentacao/obra-documentacao.component';
 import { RhService } from '../../../core/services/rh.service';
 import { SolicitacaoMaterialTecnicaService } from '../../../core/services/solicitacao-material-tecnica.service';
-import { DevolucaoTecnicaFormComponent } from '../../almoxarifado/solicitacoes-material/devolucao-tecnica-form/devolucao-tecnica-form.component';
 import { NovaSolicitacaoTecnicaDrawerComponent } from '../../almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-tecnica-drawer.component';
 import { ObraFormComponent } from '../form/obra-form.component';
 import { CargaSaldoObra, ObraMateriaisComponent } from './obra-materiais.component';
+import { ObraMaterialResumoComponent } from '../material/obra-material-resumo.component';
+import { ObraConclusaoComponent } from './obra-conclusao.component';
 import { ObraOrcamentoComponent } from './obra-orcamento.component';
 import { ThemeService } from '../../../core/services/theme.service';
 import { AnalisarComCopilotoComponent } from '../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
@@ -91,7 +92,7 @@ import {
 import { AcaoInsightObra, insightsDaObra } from './obra-insights';
 import { OcorrenciaDaObra } from '../../../core/models/obras-turnos.models';
 import { ObrasTurnosService } from '../../../core/services/obras-turnos.service';
-import { TIPO_OCORRENCIA } from '../turnos/turnos-obra.logic';
+import { iconeOcorrencia } from '../turnos/turnos-obra.logic';
 import { ProgramacaoDetalhe, ResumoPlanejamentoObra } from '../../../core/models/obras-programacao.models';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { ProgramacaoDetalheComponent } from '../programacao/programacao-detalhe.component';
@@ -171,11 +172,12 @@ interface MarcoPrazo {
     ObraDocumentacaoComponent,
     ObraFechamentosComponent,
     MedirObraDrawerComponent,
-    DevolucaoTecnicaFormComponent,
     ObraFormComponent,
     NovaSolicitacaoTecnicaDrawerComponent,
     DatePipe,
     ObraMateriaisComponent,
+    ObraMaterialResumoComponent,
+    ObraConclusaoComponent,
     ObraOrcamentoComponent,
     ProgramacaoDetalheComponent,
     RouterLink,
@@ -216,11 +218,10 @@ export class ObraDetalheComponent {
 
   protected readonly editando = signal(false);
   protected readonly solicitando = signal(false);
-  protected readonly devolvendo = signal(false);
   private readonly permissoes = inject(AuthService).currentUser()?.permissoes ?? [];
   protected readonly podeEscrever = this.permissoes.includes('obras:obra:write');
   protected readonly podeDevolver = this.permissoes.includes('estoque:movimentacao:write');
-  private readonly podeVerSaldo = this.permissoes.includes('estoque:saldo:read');
+  protected readonly podeVerSaldo = this.permissoes.includes('estoque:saldo:read');
   protected readonly podePlanejar = this.permissoes.includes('obras:planejamento:read');
   protected readonly podeVerProgramacao = this.permissoes.includes('obras:programacao:read');
   protected readonly podeVerDocumentacao = this.permissoes.includes('obras:documentacao:read');
@@ -241,7 +242,7 @@ export class ObraDetalheComponent {
   protected readonly podeVerOcorrencias = this.permissoes.includes('obras:turno:read');
   private readonly apiTurnos = inject(ObrasTurnosService);
   protected readonly ocorrencias = signal<Carga<OcorrenciaDaObra[]>>({ estado: 'loading' });
-  protected readonly tipoOcorrencia = TIPO_OCORRENCIA;
+  protected readonly iconeOcorrencia = iconeOcorrencia;
   protected readonly todasOcorrencias = signal(false);
   protected readonly ocorrenciasExibidas = computed(() => {
     const lista = this.dados(this.ocorrencias()) ?? [];
@@ -252,7 +253,7 @@ export class ObraDetalheComponent {
     const limite = Date.now() - IMPEDIMENTO_RECENTE_DIAS * 86_400_000;
     const ultimo = (this.dados(this.ocorrencias()) ?? []).find((o) => o.impedeExecucao && new Date(o.momento).getTime() >= limite);
     return ultimo
-      ? { data: new Date(ultimo.momento), equipe: ultimo.codigoEquipe, tipo: TIPO_OCORRENCIA[ultimo.tipo].rotulo, descricao: ultimo.descricao }
+      ? { data: new Date(ultimo.momento), equipe: ultimo.codigoEquipe, tipo: ultimo.tipoRotulo ?? ultimo.tipo, descricao: ultimo.descricao }
       : null;
   });
   private readonly apiMedicoes = inject(ObrasMedicoesService);
@@ -346,6 +347,10 @@ export class ObraDetalheComponent {
     const carga = this.solicitacoes();
     return carga.estado === 'ready' ? (carga.dados?.movimentacoes ?? []) : [];
   });
+  /** Retiradas ainda com material a sair (para o resumo do material na ficha). */
+  protected readonly retiradasAbertas = computed(
+    () => this.listaSolicitacoes().filter((s) => String(s.tipo).startsWith('ADICAO') && s.quantidadePendente > 0 && !['REJEITADO', 'CANCELADO', 'ESTORNADO'].includes(String(s.status))).length,
+  );
   protected readonly movimentacoesTruncadas = computed(() => {
     const carga = this.solicitacoes();
     return carga.estado === 'ready' && !!carga.dados?.movimentacoesTruncadas;
@@ -753,7 +758,6 @@ export class ObraDetalheComponent {
       next: (dados) => this.solicitacoes.set({ estado: 'ready', dados }),
       error: (e) => this.solicitacoes.set({ estado: 'error', mensagem: getErrorMessage(e) })
     });
-    this.carregarSaldo(id);
   }
 
   protected carregarSaldo(id = this.obra()!.id): void {

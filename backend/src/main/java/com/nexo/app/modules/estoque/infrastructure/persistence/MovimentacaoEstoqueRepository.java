@@ -327,4 +327,83 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
             ORDER BY m.dataHora ASC, m.id ASC
             """)
     List<MovimentacaoEstoque> daObra(@Param("idObra") UUID idObra);
+
+    /** Totais do material da obra por material, a partir do histórico (ver EstoqueObraResponses.LinhaMaterial). */
+    interface TotaisMaterialObra {
+        UUID getIdMaterial();
+        java.math.BigDecimal getEntregue();
+        java.math.BigDecimal getAplicado();
+        java.math.BigDecimal getDevolvido();
+        java.math.BigDecimal getRetirado();
+        java.math.BigDecimal getRecebido();
+        java.math.BigDecimal getCedido();
+        java.math.BigDecimal getSemMaterialDaObra();
+        java.math.BigDecimal getAplicadoSemSaldo();
+    }
+
+    @Query(value = """
+            SELECT m.id_material AS idMaterial,
+              SUM(CASE WHEN m.id_obra = :idObra AND m.id_solicitacao IS NOT NULL AND m.tipo_movimentacao = 'ENTREGA' THEN m.quantidade
+                       WHEN m.id_obra = :idObra AND m.id_solicitacao IS NOT NULL AND m.tipo_movimentacao = 'ESTORNO'
+                            AND tor.nome = 'CAMPO' AND tde.nome = 'FISICO' THEN -m.quantidade ELSE 0 END) AS entregue,
+              SUM(CASE WHEN m.id_obra = :idObra AND m.tipo_movimentacao = 'APLICACAO' THEN m.quantidade
+                       WHEN m.id_obra = :idObra AND m.tipo_movimentacao = 'ESTORNO' AND m.id_solicitacao IS NULL
+                            AND tor.nome = 'OBRA' THEN -m.quantidade ELSE 0 END) AS aplicado,
+              SUM(CASE WHEN m.id_obra = :idObra AND m.tipo_movimentacao = 'DEVOLUCAO'
+                            AND tor.nome IN ('CAMPO', 'CANTEIRO') AND tde.nome = 'FISICO' THEN m.quantidade
+                       WHEN m.id_obra = :idObra AND m.id_solicitacao IS NOT NULL AND m.tipo_movimentacao = 'ESTORNO'
+                            AND tor.nome = 'FISICO' AND tde.nome = 'CAMPO' THEN -m.quantidade ELSE 0 END) AS devolvido,
+              SUM(CASE WHEN m.id_obra = :idObra AND m.tipo_movimentacao = 'RETIRADA' AND m.id_solicitacao IS NULL THEN m.quantidade
+                       WHEN m.id_obra = :idObra AND m.tipo_movimentacao = 'ESTORNO' AND m.id_solicitacao IS NULL
+                            AND tor.nome = 'CAMPO' AND m.id_estoque_destino IS NULL THEN -m.quantidade ELSE 0 END) AS retirado,
+              SUM(CASE WHEN m.id_obra = :idObra AND m.id_obra_origem IS NOT NULL AND m.id_obra_origem <> :idObra
+                            AND m.tipo_movimentacao IN ('APLICACAO', 'REMANEJAMENTO') THEN m.quantidade
+                       WHEN m.id_obra = :idObra AND m.id_obra_origem IS NOT NULL AND m.id_obra_origem <> :idObra
+                            AND m.tipo_movimentacao = 'ESTORNO' THEN -m.quantidade ELSE 0 END) AS recebido,
+              SUM(CASE WHEN m.id_obra_origem = :idObra AND (m.id_obra IS NULL OR m.id_obra <> :idObra)
+                            AND m.tipo_movimentacao IN ('APLICACAO', 'REMANEJAMENTO') THEN m.quantidade
+                       WHEN m.id_obra_origem = :idObra AND (m.id_obra IS NULL OR m.id_obra <> :idObra)
+                            AND m.tipo_movimentacao = 'ESTORNO' THEN -m.quantidade ELSE 0 END) AS cedido,
+              SUM(CASE WHEN m.id_obra = :idObra AND m.id_obra_origem IS NULL AND m.tipo_movimentacao = 'APLICACAO' THEN m.quantidade
+                       WHEN m.id_obra = :idObra AND m.id_obra_origem IS NULL AND m.id_solicitacao IS NULL
+                            AND m.tipo_movimentacao = 'ESTORNO' AND tor.nome = 'OBRA' THEN -m.quantidade ELSE 0 END) AS semMaterialDaObra,
+              SUM(CASE WHEN m.id_obra = :idObra AND m.tipo_movimentacao = 'APLICACAO'
+                            AND m.observacao = 'Aplicado sem saldo no caminhão da equipe.' THEN m.quantidade
+                       WHEN m.id_obra = :idObra AND m.tipo_movimentacao = 'ESTORNO'
+                            AND m.observacao LIKE 'Aplicado sem saldo%' THEN -m.quantidade ELSE 0 END) AS aplicadoSemSaldo
+            FROM movimentacoes_estoque m
+            LEFT JOIN estoques eor ON eor.id = m.id_estoque_origem
+            LEFT JOIN tipos_estoque tor ON tor.id = eor.id_tipo_estoque
+            LEFT JOIN estoques ede ON ede.id = m.id_estoque_destino
+            LEFT JOIN tipos_estoque tde ON tde.id = ede.id_tipo_estoque
+            WHERE m.ativo = true AND (m.id_obra = :idObra OR m.id_obra_origem = :idObra)
+            GROUP BY m.id_material
+            """, nativeQuery = true)
+    List<TotaisMaterialObra> totaisDaObra(@Param("idObra") UUID idObra);
+
+    /** Rastro da obra: material que passou entre obras e aplicação com material livre ou sem saldo no caminhão. */
+    @Query("""
+            SELECT m FROM MovimentacaoEstoque m
+            JOIN FETCH m.material
+            LEFT JOIN FETCH m.estoqueOrigem
+            WHERE m.ativo = true
+              AND ((m.idObraOrigem IS NOT NULL AND (m.idObra IS NULL OR m.idObra <> m.idObraOrigem)
+                    AND (m.idObra = :idObra OR m.idObraOrigem = :idObra))
+                OR (m.idObra = :idObra AND m.idObraOrigem IS NULL AND m.idEquipe IS NOT NULL
+                    AND m.tipo = com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao.APLICACAO))
+              AND m.tipo IN (com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao.APLICACAO,
+                             com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao.REMANEJAMENTO,
+                             com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao.ESTORNO)
+            ORDER BY m.dataHora DESC
+            """)
+    List<MovimentacaoEstoque> rastrosEntreObras(@Param("idObra") UUID idObra, Pageable pageable);
+
+    /** Equipes que receberam material deste almoxarifado desde a data: são as que voltam para devolver. */
+    @Query("""
+            select distinct d.idEquipe from MovimentacaoEstoque m join m.estoqueDestino d
+            where m.estoqueOrigem.id = :idAlmoxarifado
+              and m.tipo = com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao.ENTREGA
+              and m.dataHora >= :desde and d.idEquipe is not null
+            """)
+    List<UUID> equipesAtendidasDesde(@Param("idAlmoxarifado") UUID idAlmoxarifado, @Param("desde") OffsetDateTime desde);
 }

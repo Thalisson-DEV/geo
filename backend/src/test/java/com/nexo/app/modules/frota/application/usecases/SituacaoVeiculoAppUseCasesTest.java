@@ -10,7 +10,6 @@ import com.nexo.app.modules.frota.domain.SituacaoOperacional;
 import com.nexo.app.modules.frota.domain.SituacaoOrdemServico;
 import com.nexo.app.modules.frota.domain.SituacaoPendenciaChecklist;
 import com.nexo.app.modules.frota.domain.SituacaoVencimento;
-import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 import com.nexo.app.modules.frota.domain.TipoManutencao;
 import com.nexo.app.modules.frota.domain.UnidadeMedicao;
 import com.nexo.app.modules.frota.infrastructure.persistence.DocumentoFrotaRepository;
@@ -55,6 +54,14 @@ class SituacaoVeiculoAppUseCasesTest {
     private com.nexo.app.modules.frota.infrastructure.persistence.AcoplamentoImplementoRepository acoplamentos;
     @Mock
     private com.nexo.app.shared.infrastructure.storage.ObjectStorageService objectStorage;
+    @Mock
+    private com.nexo.app.modules.listas.ListasApi listasApi;
+
+    @org.junit.jupiter.api.BeforeEach
+    void listasDevolvemNome() {
+        org.mockito.Mockito.lenient().when(listasApi.rotulo(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArgument(1));
+    }
+
     @InjectMocks
     private SituacaoVeiculoAppUseCases useCases;
 
@@ -78,8 +85,8 @@ class SituacaoVeiculoAppUseCasesTest {
                 .thenReturn(List.of(comOs, semDecisao));
         when(ordens.findAllById(anyIterable())).thenReturn(List.of(os));
 
-        var vencido = documento(TipoDocumentoFrota.CRLV, LocalDate.now().minusDays(3));
-        var semData = documento(TipoDocumentoFrota.OUTRO, null);
+        var vencido = documento("CRLV", LocalDate.now().minusDays(3));
+        var semData = documento("OUTRO", null);
         when(documentos.findAllByIdVeiculoAndAtivoTrueOrderByDataVencimentoAsc(idVeiculo)).thenReturn(List.of(vencido, semData));
         when(parametros.diasAviso()).thenReturn(30);
 
@@ -132,7 +139,7 @@ class SituacaoVeiculoAppUseCasesTest {
         return p;
     }
 
-    private static DocumentoFrota documento(TipoDocumentoFrota tipo, LocalDate vencimento) {
+    private static DocumentoFrota documento(String tipo, LocalDate vencimento) {
         var d = mock(DocumentoFrota.class);
         when(d.getDataVencimento()).thenReturn(vencimento);
         if (vencimento != null) when(d.getTipo()).thenReturn(tipo);

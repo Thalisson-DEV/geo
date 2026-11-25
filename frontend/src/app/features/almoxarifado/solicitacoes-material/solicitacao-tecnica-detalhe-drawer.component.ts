@@ -197,7 +197,7 @@ interface ItemEstorno {
                 <geo-status tone="info" [icon]="tipoTecnicoIcon(tipo)">{{ tipoTecnicoLabel(tipo) }}</geo-status>
               }
               @if (det.tecnico?.atrasada) {
-                <geo-status tone="danger" icon="pi pi-exclamation-triangle">Saque atrasado</geo-status>
+                <geo-status tone="danger" icon="pi pi-exclamation-triangle">Retirada atrasada</geo-status>
               }
               @if (det.possuiPendencia) {
                 <geo-status tone="warning" icon="pi pi-flag">Com pendência</geo-status>
@@ -231,7 +231,7 @@ interface ItemEstorno {
 
             <section class="dd-fatos" aria-label="Prazo e atendimento">
               <div class="dd-fato">
-                <span class="dd-label">Saque previsto</span>
+                <span class="dd-label">Retirada prevista</span>
                 @if (det.tecnico?.dataPrevista) {
                   <strong [class.dd-texto-alerta]="det.tecnico?.atrasada">{{ det.tecnico!.dataPrevista | date: 'dd/MM/yyyy' : 'UTC' }}</strong>
                   <span class="dd-muted">{{ relativo() }}</span>
@@ -241,7 +241,7 @@ interface ItemEstorno {
                 }
               </div>
               <div class="dd-fato">
-                <span class="dd-label">Responsável pelo saque</span>
+                <span class="dd-label">Quem retira</span>
                 <strong>{{ det.tecnico?.idColaboradorSaque ? colaboradorNome() : 'Definido na entrega' }}</strong>
                 @if (det.tecnico?.saqueForaEquipe) { <span class="dd-muted">Fora da equipe</span> }
               </div>
@@ -296,12 +296,12 @@ interface ItemEstorno {
                   <div class="dd-entrega__quem">
                     <div class="dd-grid-2">
                       <geo-datepicker
-                        label="Saque previsto"
+                        label="Retirada prevista"
                         [value]="planData()"
                         (valueChange)="planData.set($any($event))"
                         [required]="true"
                         [clearable]="!det.tecnico?.dataPrevista"
-                        [error]="tentouPlanejar() && !planData() ? 'Defina a data do saque.' : undefined"
+                        [error]="tentouPlanejar() && !planData() ? 'Defina a data da retirada.' : undefined"
                         description="Com a data, a solicitação vai para a separação."
                       />
                       <geo-select
@@ -1209,7 +1209,7 @@ export class SolicitacaoTecnicaDetalheDrawerComponent {
     if (!d || !d.tecnico || this.salvando()) return;
     this.tentouPlanejar.set(true);
     const itens = this.planItens();
-    if (!this.planData()) return this.notificacoes.warning('Defina a data prevista do saque.');
+    if (!this.planData()) return this.notificacoes.warning('Defina a data prevista da retirada.');
     if (!this.planAlmox()) return this.notificacoes.warning('Escolha o almoxarifado que atende.');
     if (this.exigeOcorrencia() && !this.planOcorrencia().trim()) return this.notificacoes.warning(`Informe o número da ${this.rotuloExecucao()}.`);
     if (!itens.length || itens.some((i) => !((i.quantidade ?? 0) > 0) || (i.quantidade ?? 0) < i.minimo))

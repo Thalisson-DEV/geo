@@ -1,5 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.frota.application.dto.AbrirOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.AbrirOsPendenciasRequest;
 import com.nexo.app.modules.frota.application.dto.ConcluirOrdemServicoRequest;
@@ -10,7 +13,6 @@ import com.nexo.app.modules.frota.application.dto.PendenciaChecklistFilter;
 import com.nexo.app.modules.frota.application.dto.PendenciaChecklistResponse;
 import com.nexo.app.modules.frota.application.dto.ResolverPendenciasRequest;
 import com.nexo.app.modules.frota.application.dto.ServicoOrdemServicoRequest;
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import com.nexo.app.modules.frota.domain.Checklist;
 import com.nexo.app.modules.frota.domain.Criticidade;
 import com.nexo.app.modules.frota.domain.FotoChecklist;
@@ -63,6 +65,7 @@ public class PendenciaChecklistUseCases {
     private final ExecucaoOrdemServicoUseCases execucao;
     private final ReferenciasFrota referencias;
     private final HistoricoChecklist historico;
+    private final ListasApi listasApi;
 
     @Transactional(readOnly = true)
     public PageResponse<PendenciaChecklistResponse> listar(PendenciaChecklistFilter filtro, Pageable pageable) {
@@ -114,7 +117,8 @@ public class PendenciaChecklistUseCases {
         var servico = request.descricaoServico().trim() + baseDoServico(request.idBaseOperacional());
         var concluida = ordens.concluir(idOs, new ConcluirOrdemServicoRequest(agora, agora, servico, null,
                 BigDecimal.ZERO, null, tipoOficina, null, oficinaNome, null,
-                request.causa() == null ? CausaManutencao.SERVICO_CORRETIVO : request.causa()));
+                request.causa() == null || request.causa().isBlank() ? "SERVICO_CORRETIVO"
+                        : listasApi.exigirAtiva(ListaConfiguravel.CAUSA_MANUTENCAO, request.causa())));
 
         var usuario = SecurityUtils.getUsuarioLogadoId();
         pendencias.forEach(p -> p.resolverNaHora(idOs, usuario, agora));

@@ -58,8 +58,8 @@ const ehTipo = (e: EstoqueResponse, ...tipos: string[]) => tipos.includes(e.tipo
     <geo-form-drawer
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
-      title="Nova solicitação técnica (221/921)"
-      description="Material do almoxarifado para a obra. Data do saque e equipe podem ficar para o planejamento."
+      title="Nova solicitação de retirada"
+      description="Material do almoxarifado para a obra. Data da retirada e equipe podem ficar para o planejamento."
       size="lg"
       [resizable]="true"
     >
@@ -116,7 +116,7 @@ const ehTipo = (e: EstoqueResponse, ...tipos: string[]) => tipos.includes(e.tipo
               [loading]="carregando()"
               [required]="true"
               [error]="tentou() && !idAlmoxarifado() ? 'Escolha o almoxarifado.' : undefined"
-              [description]="sugerido() ? 'Sugerido pela base de saque da obra.' : undefined"
+              [description]="sugerido() ? 'Sugerido pela base de retirada da obra.' : undefined"
             />
           </div>
         </section>
@@ -138,20 +138,20 @@ const ehTipo = (e: EstoqueResponse, ...tipos: string[]) => tipos.includes(e.tipo
           />
           @if (tiposJuntos()) {
             <geo-callout tone="info" title="Vão ser criadas duas solicitações">
-              Os materiais 221 e 921 seguem separados: uma solicitação para cada tipo, com o mesmo planejamento.
+              Material comum e concreto seguem separados: uma solicitação para cada, com o mesmo planejamento.
             </geo-callout>
           }
         </section>
 
         <section class="ns-secao" aria-labelledby="nst-saque">
           <div class="ns-secao__topo">
-            <h3 id="nst-saque" class="ns-secao__titulo"><i class="pi pi-calendar" aria-hidden="true"></i>Planejamento do saque</h3>
+            <h3 id="nst-saque" class="ns-secao__titulo"><i class="pi pi-calendar" aria-hidden="true"></i>Planejamento da retirada</h3>
             <span class="ns-secao__dica">Opcional agora</span>
           </div>
           <div class="ns-cartao">
             <div class="ns-grade">
               <geo-datepicker
-                label="Saque previsto"
+                label="Retirada prevista"
                 [value]="dataPrevista()"
                 (valueChange)="dataPrevista.set($any($event))"
                 [minDate]="hoje"
@@ -197,7 +197,7 @@ const ehTipo = (e: EstoqueResponse, ...tipos: string[]) => tipos.includes(e.tipo
             @if (prazoCurto()) {
               <p class="ns-info ns-info--aviso" aria-live="polite">
                 <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
-                <span>Saque em menos de 48 horas: a solicitação fica marcada como <strong>fora do prazo</strong>.</span>
+                <span>Retirada em menos de 48 horas: a solicitação fica marcada como <strong>fora do prazo</strong>.</span>
               </p>
             }
             <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" placeholder="Informação para o almoxarifado e a equipe" />
@@ -344,7 +344,7 @@ export class NovaSolicitacaoTecnicaDrawerComponent {
       next: (o) => {
         if (this.idObra() !== id) return;
         this.obraDetalhe.set(o);
-        // A base de saque padrão da obra sugere o almoxarifado; dá para trocar.
+        // A base de retirada padrão da obra sugere o almoxarifado; dá para trocar.
         if (!this.idAlmoxarifado() && o.baseOperacionalId) {
           const daBase = this.almoxarifados().find((e) => ehTipo(e, 'FISICO') && e.idBaseOperacional === o.baseOperacionalId);
           if (daBase) {

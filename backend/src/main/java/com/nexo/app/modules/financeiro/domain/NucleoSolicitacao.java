@@ -128,9 +128,9 @@ public class NucleoSolicitacao {
     @Column(name = "regime_veiculo", length = 20)
     private RegimeVeiculo regimeVeiculo;
 
-    @Enumerated(EnumType.STRING)
+    /** Código da natureza no cadastro de naturezas de serviço da frota (lista configurável). */
     @Column(name = "natureza_servico", length = 40)
-    private NaturezaServicoFrota naturezaServico;
+    private String naturezaServico;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "motivo_servico", length = 30)
@@ -200,7 +200,7 @@ public class NucleoSolicitacao {
 
         nucleo.veiculoId = valores.referencia(CampoCanonico.VEICULO);
         nucleo.regimeVeiculo = valores.enumerado(CampoCanonico.REGIME_VEICULO, RegimeVeiculo.class);
-        nucleo.naturezaServico = valores.enumerado(CampoCanonico.NATUREZA_SERVICO, NaturezaServicoFrota.class);
+        nucleo.naturezaServico = valores.texto(CampoCanonico.NATUREZA_SERVICO);
         nucleo.motivoServico = valores.enumerado(CampoCanonico.MOTIVO_SERVICO, MotivoServicoFrota.class);
 
         nucleo.possuiCompraPrevia = valores.logico(CampoCanonico.POSSUI_COMPRA_PREVIA);

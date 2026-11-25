@@ -69,8 +69,8 @@ export interface ItemDevolucao {
 }
 
 const TIPOS: GeoSelectOption<TipoDevolucao>[] = [
-  { value: 'DEVOLUCAO_COMUM', label: '222 · Comum' },
-  { value: 'DEVOLUCAO_CONCRETO', label: '922 · Concreto' },
+  { value: 'DEVOLUCAO_COMUM', label: 'Comum' },
+  { value: 'DEVOLUCAO_CONCRETO', label: 'Concreto' },
 ];
 
 const CONDICOES: GeoSelectOption<CondicaoDevolucao>[] = [

@@ -14,10 +14,7 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, TituloGrandeCom
 import { FolhaEnviosComponent } from './folha-envios.component';
 import { HojeObrasComponent } from './hoje-obras.component';
 import { AvaliacaoConviteComponent } from '../avaliacao/avaliacao-convite.component';
-import { catchError, forkJoin, map, of } from 'rxjs';
-import { AlmoxService } from '../../core/almox/almox.service';
-import { FiltroSolicitacoes, StatusSolicitacao } from '../../core/almox/almox.models';
-import { isoCivil } from '../../core/almox/almox-status';
+import { BalcaoService } from '../../core/almox/balcao.service';
 import { ChecklistVeiculoService } from '../../core/frota/checklist-veiculo.service';
 import { diaLocal, formatarPlaca } from '../../core/frota/checklist-veiculo.models';
 import { emAndamento, ordenarParaEquipe, podeRegistrarRealizado, situacaoParaEquipe } from '../../core/frota/abastecimento.models';
@@ -131,26 +128,34 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
         }
       </ul>
       }
+      @if (!auth.isCampo() && auth.podeOperarBalcao()) {
+        <h2 class="geo-secao"><span>Balcão hoje</span>
+          @if (!rede.isOnline()) { <span>precisa de internet</span> } @else if (balcao().almoxarifado) { <span>{{ balcao().almoxarifado }}</span> }</h2>
+        <ul class="geo-grupo" aria-label="Balcão hoje">
+          <li><button type="button" class="geo-linha geo-linha--acao" (click)="abrirBalcao('retirar')">
+            <span class="geo-selo" [class.geo-selo--atencao]="(balcao().atrasadas ?? 0) > 0" [class.geo-selo--destaque]="!balcao().atrasadas && (balcao().retirar ?? 0) > 0"><geo-icone nome="saida" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Para retirar</span>
+              <span class="geo-linha__apoio">
+                @if (balcao().atrasadas) { <span class="atraso">{{ balcao().atrasadas }} {{ balcao().atrasadas === 1 ? 'equipe atrasada' : 'equipes atrasadas' }}</span> }
+                @else { Equipes com material separado para levar }
+              </span></span>
+            <span class="geo-qtd">{{ balcao().retirar ?? '–' }}</span></button></li>
+          <li><button type="button" class="geo-linha geo-linha--acao" (click)="abrirBalcao('devolver')">
+            <span class="geo-selo" [class.geo-selo--erro]="(balcao().negativos ?? 0) > 0"><geo-icone nome="entrada" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Para devolver</span>
+              <span class="geo-linha__apoio">
+                @if (balcao().negativos) { <span class="atraso">{{ balcao().negativos }} com saldo negativo</span> }
+                @else { Equipes com material no caminhão }
+              </span></span>
+            <span class="geo-qtd">{{ balcao().devolver ?? '–' }}</span></button></li>
+          <li><button type="button" class="geo-linha geo-linha--acao" (click)="abrirBalcao('atendidos')">
+            <span class="geo-selo geo-selo--ok"><geo-icone nome="check" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Atendidos hoje</span>
+              <span class="geo-linha__apoio">Quem retirou, o que levou e o comprovante</span></span>
+            <span class="geo-qtd">{{ balcao().feitos ?? '–' }}</span></button></li>
+        </ul>
+      }
       @if (!auth.isCampo() && auth.podeAcessarAlmoxarifado()) {
-        @if (auth.podeVerSolicitacoesAlmox()) {
-          <h2 class="geo-secao"><span>Almoxarifado</span>
-            @if (!rede.isOnline()) { <span>precisa de internet</span> }</h2>
-          <ul class="geo-grupo" aria-label="Solicitações comerciais">
-            <li><button type="button" class="geo-linha geo-linha--acao" (click)="abrirSolicitacoes(['PENDENTE'])">
-              <span class="geo-selo" [class.geo-selo--atencao]="(almox().aprovar ?? 0) > 0"><geo-icone nome="relogio" /></span>
-              <span class="geo-linha__texto"><span class="geo-linha__titulo">Aguardando aprovação</span><span class="geo-linha__apoio">Solicitações comerciais para decidir</span></span>
-              <span class="geo-qtd">{{ almox().aprovar ?? '–' }}</span></button></li>
-            <li><button type="button" class="geo-linha geo-linha--acao" (click)="abrirSolicitacoes(['APROVADO', 'ENTREGUE_PARCIAL'])">
-              <span class="geo-selo" [class.geo-selo--destaque]="(almox().entregar ?? 0) > 0"><geo-icone nome="caminhao" /></span>
-              <span class="geo-linha__texto"><span class="geo-linha__titulo">Aguardando retirada</span>
-                <span class="geo-linha__apoio">
-                  @if (almox().atrasadas) { <span class="atraso">{{ almox().atrasadas }} com saque atrasado</span> }
-                  @else if (almox().hoje) { {{ almox().hoje }} com saque hoje }
-                  @else { Aprovadas e entregues em parte }
-                </span></span>
-              <span class="geo-qtd">{{ almox().entregar ?? '–' }}</span></button></li>
-          </ul>
-        }
         @if (auth.podeMovimentarEstoque() || auth.podeAcessarInspecoes()) {
           <div class="atalhos" role="group" aria-label="Atalhos">
             @if (auth.podeMovimentarEstoque()) {
@@ -274,7 +279,7 @@ export class HojeComponent implements OnInit {
   private readonly sessao = inject(SessaoService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
-  private readonly almoxService = inject(AlmoxService);
+  private readonly balcaoService = inject(BalcaoService);
   private readonly checklistVeiculo = inject(ChecklistVeiculoService);
   /** "Feito hoje às 07:12 · ABC1D23", ou nulo se ainda não houve checklist hoje neste aparelho. */
   readonly checklistHoje = signal<string | null>(null);
@@ -285,9 +290,9 @@ export class HojeComponent implements OnInit {
   private readonly aprovacoes = inject(AprovacaoAbastecimentoService);
   /** Abastecimentos esperando o administrativo aprovar (o campo só pede). */
   readonly paraAprovar = signal<number | null>(null);
+  readonly balcao = signal<{ almoxarifado?: string | null; retirar?: number; devolver?: number; atrasadas?: number; negativos?: number; feitos?: number }>({});
 
   /** Fila do almoxarifado para o administrativo: o que aprovar e o que entregar. */
-  readonly almox = signal<{ aprovar?: number; entregar?: number; atrasadas?: number; hoje?: number }>({});
 
   readonly rascunho = signal<ResumoRascunho | null>(null);
   readonly carregado = signal(false);
@@ -323,29 +328,31 @@ export class HojeComponent implements OnInit {
       this.equipe.set((await this.dbService.getEquipe())?.codigo ?? '');
     }
     this.carregado.set(true);
-    if (!this.auth.isCampo() && this.auth.podeVerSolicitacoesAlmox() && this.rede.isOnline()) this.carregarAlmox();
+    if (!this.auth.isCampo() && this.auth.podeOperarBalcao() && this.rede.isOnline()) this.carregarBalcao();
     if (this.auth.podeAprovarAbastecimento() && this.rede.isOnline()) {
       void this.aprovacoes.fila().then((f) => this.paraAprovar.set(f.length)).catch(() => undefined);
     }
   }
 
-  abrirSolicitacoes(statuses: StatusSolicitacao[]): void {
-    // A lista abre já no recorte tocado (o estado de tela é lido ao entrar).
-    this.sessao.definirEstadoTela({ statuses, visao: 'lista' }, '/almox/solicitacoes');
-    void this.router.navigate(['/almox/solicitacoes']);
+  abrirBalcao(filtro: 'retirar' | 'devolver' | 'atendidos'): void {
+    void this.router.navigate(['/almox/balcao'], { queryParams: { filtro } });
   }
 
-  private carregarAlmox(): void {
-    const hoje = new Date();
-    const ontem = isoCivil(new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 1));
-    const total = (f: FiltroSolicitacoes) =>
-      this.almoxService.listarSolicitacoes({ ...f, page: 0, size: 1 }).pipe(map(r => r.page?.totalElements ?? 0), catchError(() => of(undefined)));
-    forkJoin({
-      aprovar: total({ statuses: ['PENDENTE'] }),
-      entregar: total({ statuses: ['APROVADO', 'ENTREGUE_PARCIAL'] }),
-      atrasadas: total({ statuses: ['APROVADO', 'ENTREGUE_PARCIAL'], previstaAte: ontem }),
-      hoje: total({ statuses: ['APROVADO', 'ENTREGUE_PARCIAL'], previstaDe: isoCivil(hoje), previstaAte: isoCivil(hoje) }),
-    }).subscribe(r => this.almox.set(r));
+  private carregarBalcao(): void {
+    this.balcaoService.painel(localStorage.getItem('geo_balcao_almoxarifado')).subscribe({
+      next: p => {
+        const eq = p.equipes;
+        this.balcao.set({
+          almoxarifado: p.almoxarifado,
+          retirar: eq.filter(e => e.itensRetirada > 0).length,
+          devolver: eq.filter(e => e.itensNoCaminhao > 0 || e.negativosNoCaminhao > 0).length,
+          atrasadas: eq.filter(e => e.retiradaAtrasada).length,
+          negativos: eq.filter(e => e.negativosNoCaminhao > 0).length,
+          feitos: p.atendimentosHoje.length,
+        });
+      },
+      error: () => this.balcao.set({}),
+    });
   }
 
   hora(iso: string): string {

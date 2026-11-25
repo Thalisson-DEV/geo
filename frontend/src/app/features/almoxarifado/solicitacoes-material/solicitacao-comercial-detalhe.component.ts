@@ -132,7 +132,7 @@ interface EtapaFluxo {
             <div class="dd-hero__topo">
               <geo-status [tone]="status().tone" [icon]="'pi ' + status().icon" emphasis="solid">{{ status().label }}</geo-status>
               @if (atrasada()) {
-                <geo-status tone="danger" icon="pi pi-exclamation-triangle">Saque atrasado</geo-status>
+                <geo-status tone="danger" icon="pi pi-exclamation-triangle">Retirada atrasada</geo-status>
               }
               @if (det.foraPrazoSaque) {
                 <geo-status tone="warning" icon="pi pi-clock">Fora do prazo de 48h</geo-status>
@@ -169,7 +169,7 @@ interface EtapaFluxo {
 
           <section class="dd-fatos" aria-label="Prazo e atendimento">
             <div class="dd-fato">
-              <span class="dd-label">Saque previsto</span>
+              <span class="dd-label">Retirada prevista</span>
               @if (det.dataPrevista) {
                 <strong [class.dd-texto-alerta]="atrasada()">{{ det.dataPrevista | date: 'dd/MM/yyyy' }}</strong>
                 <span class="dd-muted">{{ relativo() }}</span>
@@ -178,7 +178,7 @@ interface EtapaFluxo {
               }
             </div>
             <div class="dd-fato">
-              <span class="dd-label">Responsável pelo saque</span>
+              <span class="dd-label">Quem retira</span>
               <strong>{{ det.idColaboradorSaque ? nome(det.idColaboradorSaque) : 'Definido na entrega' }}</strong>
               @if (det.saqueForaEquipe) { <span class="dd-muted">Fora da equipe de destino</span> }
             </div>
@@ -698,7 +698,7 @@ export class SolicitacaoComercialDetalheComponent {
     if (ajustadas) partes.push(`${ajustadas} ${ajustadas === 1 ? 'quantidade ajustada' : 'quantidades ajustadas'}`);
     if (incluidas) partes.push(`${incluidas} ${incluidas === 1 ? 'material incluído' : 'materiais incluídos'}`);
     if (retiradas) partes.push(`${retiradas} ${retiradas === 1 ? 'material retirado' : 'materiais retirados'}`);
-    if (this.dataAlterada()) partes.push('data do saque alterada');
+    if (this.dataAlterada()) partes.push('data da retirada alterada');
     const resumo = partes.join(' · ');
     return resumo ? resumo.charAt(0).toUpperCase() + resumo.slice(1) : 'Antes de aprovar, mude a data ou a quantidade, tire um material pela lixeira ou inclua outro abaixo.';
   });

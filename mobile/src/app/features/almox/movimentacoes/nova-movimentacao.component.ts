@@ -59,12 +59,12 @@ const TIPOS: Record<Tipo, DefTipo> = {
   entrada: { titulo: 'Entrada de material', verbo: 'entrada', icone: 'entrada', passos: ['Estoque', 'Materiais', 'Conferir'], botao: 'Confirmar entrada', sucesso: 'Entrada registrada. O saldo do estoque já foi atualizado.', intro: 'Escolha o estoque que recebe o material. Depois você busca os materiais no catálogo.' },
   saida: { titulo: 'Saída de material', verbo: 'saída', icone: 'saida', passos: ['Estoque', 'Materiais', 'Conferir'], botao: 'Confirmar baixa', sucesso: 'Saída registrada. O saldo foi debitado.', intro: 'Escolha o estoque de onde o material sai. Só aparece o que tem saldo nele.' },
   transferencia: { titulo: 'Transferência', verbo: 'transferência', icone: 'transferencia', passos: ['Estoques', 'Materiais', 'Conferir', 'Assinaturas'], botao: 'Confirmar transferência', sucesso: 'Transferência registrada. O material já está no destino.', intro: 'Escolha de onde sai e para onde vai. Quem entrega e quem recebe assinam no fim.' },
-  devolucao: { titulo: 'Devolução de material', verbo: 'devolução', icone: 'desfazer', passos: ['Quem devolve', 'Materiais', 'Conferir'], botao: 'Confirmar devolução', sucesso: 'Devolução registrada. O almoxarifado já recebeu o material.', intro: 'A equipe devolve e o almoxarifado recebe na hora. Na devolução técnica (222/922), informe também a obra.' },
+  devolucao: { titulo: 'Devolução de material', verbo: 'devolução', icone: 'desfazer', passos: ['Quem devolve', 'Materiais', 'Conferir'], botao: 'Confirmar devolução', sucesso: 'Devolução registrada. O almoxarifado já recebeu o material.', intro: 'A equipe devolve e o almoxarifado recebe na hora. Na devolução de obra, informe também a obra.' },
 };
 
 const PROCESSOS: OpcaoSegmento<Processo>[] = [
   { valor: 'comercial', rotulo: 'Comercial' },
-  { valor: 'tecnico', rotulo: 'Técnica · 222/922' },
+  { valor: 'tecnico', rotulo: 'De obra' },
 ];
 const FONTES: OpcaoSegmento<Fonte>[] = [
   { valor: 'saldo', rotulo: 'Com a equipe' },
@@ -270,7 +270,7 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
                 <li class="geo-linha conferir">
                   <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ it.descricao }}</span>
                     <span class="geo-linha__apoio geo-num">Cód. {{ it.codigo }} · {{ rotuloCondicao(it.condicao) }}@if (tipo === 'devolucao') {
-                      @if (processo() === 'tecnico') { · {{ it.concreto ? '922' : '222' }} }@if (it.guardar === false) { · baixa na hora }@if (it.saldo === null) { · pelo catálogo } }</span>
+                      @if (processo() === 'tecnico' && it.concreto) { · concreto }@if (it.guardar === false) { · baixa na hora }@if (it.saldo === null) { · pelo catálogo } }</span>
                     @if (it.series.length) { <span class="lista-series">@for (s of it.series.slice(0, 12); track s) { <span>{{ s }}</span> }@if (it.series.length > 12) { <span>+{{ it.series.length - 12 }}</span> }</span> }
                   </span>
                   <span class="geo-qtd">{{ num(qtd(it)) }}<small>{{ it.unidade }}</small>@if (it.unidadeInformada && !it.detalhaSerie) {<small class="informado">{{ num(it.quantidadeInformada ?? 0) }} {{ it.unidadeInformada }} informados</small>}</span>

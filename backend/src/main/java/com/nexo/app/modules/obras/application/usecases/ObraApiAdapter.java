@@ -27,6 +27,38 @@ public class ObraApiAdapter implements ObraApi {
     private final OcorrenciaObraRepository ocorrenciaRepository;
     private final RelacionamentoProjetoUseCases relacionamentoProjetoUseCases;
     private final ProcessoNegocioApi processoNegocioApi;
+    private final com.nexo.app.modules.obras.infrastructure.persistence.ItemPlanejadoRepository itemPlanejadoRepository;
+    private final com.nexo.app.modules.obras.infrastructure.persistence.ApontamentoExecucaoRepository apontamentoRepository;
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<MaterialPrevistoPublico> materiaisPrevistos(UUID idObra) {
+        return itemPlanejadoRepository.somarMateriais(idObra).stream()
+                .map(m -> new MaterialPrevistoPublico(m.idMaterial(), m.previsto(), m.executado()))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.List<com.nexo.app.shared.domain.events.ItemExecutadoEvent> apontamentosDeMaterialAtivos() {
+        return apontamentoRepository.listarDeMaterialAtivos().stream()
+                .map(a -> new com.nexo.app.shared.domain.events.ItemExecutadoEvent(a.getId(), a.getItemPlanejado().getId(),
+                        a.getIdObra(), a.getIdProgramacao(), a.getIdEquipe(), a.getIdTurno(), a.getData(), a.getQuantidade(),
+                        a.getValorTotal(), a.getItemPlanejado().getIdMaterial(),
+                        a.getItemPlanejado().getOperacao() == com.nexo.app.modules.obras.domain.OperacaoItemKit.RETIRAR))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.Map<UUID, String> numerosPorIds(java.util.Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return java.util.Map.of();
+        }
+        java.util.Map<UUID, String> numeros = new java.util.HashMap<>();
+        repository.findAllById(ids).forEach(obra -> numeros.put(obra.getId(), obra.getNumero()));
+        return numeros;
+    }
 
     @Override
     @Transactional(readOnly = true)

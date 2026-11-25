@@ -16,10 +16,10 @@ class OrdemServicoTest {
 
     private final OffsetDateTime agora = OffsetDateTime.now().minusMinutes(1);
     private final FichaVeiculo ficha = FichaVeiculo.provisionar(UUID.randomUUID(), "ABC1D23", UUID.randomUUID());
-    private final ItemManutencao pastilha = item("PASTILHA", NaturezaServico.SUSPENSAO_FREIOS);
-    private final ItemManutencao bateria = item("BATERIA", NaturezaServico.BATERIA);
+    private final ItemManutencao pastilha = item("PASTILHA", "SUSPENSAO_FREIOS");
+    private final ItemManutencao bateria = item("BATERIA", "BATERIA");
 
-    private static ItemManutencao item(String nome, NaturezaServico natureza) {
+    private static ItemManutencao item(String nome, String natureza) {
         var item = new ItemManutencao(nome, natureza, null, null);
         ReflectionTestUtils.setField(item, "id", UUID.randomUUID());
         return item;
@@ -33,7 +33,7 @@ class OrdemServicoTest {
 
     private static OrdemServico.Encerramento encerramento(OffsetDateTime inicio, OffsetDateTime fim) {
         return new OrdemServico.Encerramento(inicio, fim, "Troca das pastilhas", "2 pastilhas",
-                new BigDecimal("350.00"), 12_050L, TipoOficina.INTERNA, null, "Oficina da base", CausaManutencao.DESGASTE_NATURAL);
+                new BigDecimal("350.00"), 12_050L, TipoOficina.INTERNA, null, "Oficina da base", "DESGASTE_NATURAL");
     }
 
     @Test
@@ -58,7 +58,7 @@ class OrdemServicoTest {
 
         assertThat(os.getUnidadeMedicao()).isEqualTo(UnidadeMedicao.HORAS);
         assertThatThrownBy(() -> os.concluir(new OrdemServico.Encerramento(agora.minusHours(2), agora, "x", null,
-                null, -1L, TipoOficina.INTERNA, null, "Oficina", CausaManutencao.AVARIA)))
+                null, -1L, TipoOficina.INTERNA, null, "Oficina", "AVARIA")))
                 .isInstanceOf(InvarianteVioladaException.class)
                 .hasMessage("Horímetro não pode ser negativo.");
     }
@@ -128,7 +128,7 @@ class OrdemServicoTest {
     void oficinaExternaPrecisaDeFornecedorOuNome() {
         var os = abrir(Criticidade.MEDIA, null);
         var semOficina = new OrdemServico.Encerramento(agora.minusHours(2), agora.minusHours(1), "Serviço", null,
-                null, null, TipoOficina.EXTERNA, null, null, CausaManutencao.AVARIA);
+                null, null, TipoOficina.EXTERNA, null, null, "AVARIA");
 
         assertThatThrownBy(() -> os.concluir(semOficina)).isInstanceOf(InvarianteVioladaException.class);
     }
@@ -273,7 +273,7 @@ class OrdemServicoTest {
         var filtro = os.lancarPeca(new OrdemServico.DadosPeca("Filtro de óleo", null, OrigemPeca.COMPRA, BigDecimal.ONE, "UN", BigDecimal.ZERO));
 
         os.concluir(new OrdemServico.Encerramento(null, agora.minusHours(1), "Troca do filtro", null, null, null,
-                TipoOficina.EXTERNA, null, "Auto Center", CausaManutencao.DESGASTE_NATURAL));
+                TipoOficina.EXTERNA, null, "Auto Center", "DESGASTE_NATURAL"));
 
         assertThat(os.getSituacao()).isEqualTo(SituacaoOrdemServico.CONCLUIDA);
         assertThat(os.isBaixaPendente()).isTrue();
@@ -322,7 +322,7 @@ class OrdemServicoTest {
         os.lancarServico(new OrdemServico.DadosServico("Troca da lâmpada", null, null, null, BigDecimal.ONE, BigDecimal.ZERO));
 
         os.concluir(new OrdemServico.Encerramento(agora.minusHours(3), agora.minusHours(1), "Troca da lâmpada", null, null,
-                null, TipoOficina.EXTERNA, null, "Auto Elétrica", CausaManutencao.DESGASTE_NATURAL));
+                null, TipoOficina.EXTERNA, null, "Auto Elétrica", "DESGASTE_NATURAL"));
 
         assertThat(os.pendencias()).containsExactly("Serviço: Troca da lâmpada");
     }
@@ -331,12 +331,12 @@ class OrdemServicoTest {
     void semLancamentosEValorEmBrancoFicaPendenteAteCompletar() {
         var os = abrir(Criticidade.MEDIA, null);
         os.concluir(new OrdemServico.Encerramento(agora.minusHours(3), agora.minusHours(1), "Troca da lâmpada", null, null,
-                null, TipoOficina.INTERNA, null, "Oficina da base", CausaManutencao.DESGASTE_NATURAL));
+                null, TipoOficina.INTERNA, null, "Oficina da base", "DESGASTE_NATURAL"));
 
         assertThat(os.pendencias()).containsExactly("Valor da OS");
 
         boolean finalizada = os.completarConclusao(new OrdemServico.Baixa("Troca da lâmpada", null, new BigDecimal("25"),
-                TipoOficina.INTERNA, null, "Oficina da base", CausaManutencao.DESGASTE_NATURAL), UUID.randomUUID());
+                TipoOficina.INTERNA, null, "Oficina da base", "DESGASTE_NATURAL"), UUID.randomUUID());
 
         assertThat(finalizada).isTrue();
         assertThat(os.getValorTotal()).isEqualByComparingTo("25");
@@ -390,7 +390,7 @@ class OrdemServicoTest {
 
     @Test
     void osDoPlanoNasceComPecasEMaoDeObraComValorZero() {
-        var oleo = item("ÓLEO DO MOTOR", NaturezaServico.SUSPENSAO_FREIOS);
+        var oleo = item("ÓLEO DO MOTOR", "SUSPENSAO_FREIOS");
         oleo.definirTipo(TipoItemManutencao.PECA);
         var os = abrir(Criticidade.MEDIA, null);
 

@@ -24,7 +24,7 @@ class PreventivaTest {
 
     @BeforeEach
     void setUp() {
-        oleo = new ItemManutencao("TROCA DE ÓLEO", NaturezaServico.SUSPENSAO_FREIOS, null, null);
+        oleo = new ItemManutencao("TROCA DE ÓLEO", "SUSPENSAO_FREIOS", null, null);
         ReflectionTestUtils.setField(oleo, "id", UUID.randomUUID());
     }
 

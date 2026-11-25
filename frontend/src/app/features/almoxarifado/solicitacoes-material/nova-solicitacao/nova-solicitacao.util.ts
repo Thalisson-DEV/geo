@@ -14,7 +14,7 @@ export function dataCivil(data: Date): string {
   return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}-${String(data.getDate()).padStart(2, '0')}`;
 }
 
-/** Saque em menos de 48 horas: o backend marca a solicitação como fora do prazo. */
+/** Retirada em menos de 48 horas: o backend marca a solicitação como fora do prazo. */
 export function foraDoPrazo(data: Date | null): boolean {
   if (!data) return false;
   const limite = new Date();

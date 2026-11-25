@@ -16,7 +16,9 @@ import {
   OutboxItem,
   InspecaoLocal,
   FormularioLocal,
-  TipoInspecaoLocal
+  TipoInspecaoLocal,
+  SaldoObraLocal,
+  CanteiroLocal
 } from './models';
 import { ChecklistVeiculoLocal } from '../frota/checklist-veiculo.models';
 import { AbastecimentoLocal } from '../frota/abastecimento.models';
@@ -32,6 +34,9 @@ export class AppDatabase extends Dexie {
   estoque!: Table<EstoqueLocal>;
   saldos!: Table<SaldoLocal>;
   saldosSeriais!: Table<SaldoSerieLocal>;
+  /** v15: saldo do caminhão e dos canteiros separado por obra. */
+  saldosObra!: Table<SaldoObraLocal>;
+  canteiros!: Table<CanteiroLocal>;
   processos!: Table<ProcessoLocal>;
   
   // Tabelas de operação offline
@@ -88,7 +93,10 @@ export class AppDatabase extends Dexie {
       obrasObras: 'id, numero',
       obrasRegistros: 'id, tipo, idObra, idProgramacao, envio, dia, criadoEm',
       obrasAprRascunhos: 'chave',
-      obrasArquivos: 'chave'
+      obrasArquivos: 'chave',
+      // v15: estoque por obra (caminhão e canteiros separados por obra).
+      saldosObra: 'chave, idEstoque, idMaterial',
+      canteiros: 'id, nome'
     });
   }
 }

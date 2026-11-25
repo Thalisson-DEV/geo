@@ -554,16 +554,8 @@ export interface ItemMovimentacaoRequest {
   unidade?: string;
 }
 
-export type MotivoMovimentacao =
-  | 'AJUSTE_INVENTARIO'
-  | 'DEVOLUCAO_CAMPO'
-  | 'AQUISICAO_EXTRA'
-  | 'DOACAO_BONIFICACAO'
-  | 'PERDA_AVARIA'
-  | 'DANIFICACAO'
-  | 'SUCATEAMENTO'
-  | 'OBSOLESCENCIA'
-  | 'OUTROS';
+/** Código do motivo no cadastro de motivos de entrada e baixa avulsa (lista configurável do cliente). */
+export type MotivoMovimentacao = string;
 
 export interface MovimentacaoBulkRequest {
   idEstoqueOrigem?: string;
@@ -633,6 +625,8 @@ export interface MovimentacaoOperacaoSummaryResponse extends MetadadosSolicitaca
   /** Nota que gerou a aplicação, a retirada ou o estorno. */
   numeroNota?: string | null;
   motivo?: MotivoMovimentacao | null;
+  /** Nome do motivo no cadastro. */
+  motivoRotulo?: string | null;
 }
 
 export type ProcessoMovimentacao = 'COMERCIAL' | 'TECNICO' | 'FECHAMENTO';
@@ -668,6 +662,8 @@ export interface MovimentacaoOperacaoResponse extends MetadadosSolicitacaoMovime
   assinaturaRecebedor?: string;
   numeroNota?: string | null;
   motivo?: MotivoMovimentacao | null;
+  /** Nome do motivo no cadastro. */
+  motivoRotulo?: string | null;
   observacao?: string | null;
   _links?: Links;
 }
@@ -720,6 +716,8 @@ export interface MovimentacaoEstoqueFilter {
   statusSeparacao?: string | null;
   processo?: ProcessoMovimentacao | null;
   motivo?: MotivoMovimentacao | null;
+  /** Nome do motivo no cadastro. */
+  motivoRotulo?: string | null;
   buscaGlobal?: string | null;
   page?: number;
   size?: number;

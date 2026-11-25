@@ -68,7 +68,7 @@ const MINIMO = 5;
         </ol>
 
         <dl class="geo-dados">
-          <div><dt>Saque previsto</dt>
+          <div><dt>Retirada prevista</dt>
             <dd>@if (d.dataPrevista) { <span [class.alerta]="atrasada()">{{ dataCurta(d.dataPrevista.substring(0, 10)) }}</span><span class="apoio"> · {{ relativo() }}</span> } @else { Não agendado }</dd></div>
           <div><dt>Quem retira</dt><dd>{{ d.idColaboradorSaque ? nome(d.idColaboradorSaque) : 'Definido na entrega' }}@if (d.saqueForaEquipe) { <span class="apoio"> · de fora da equipe</span> }</dd></div>
           <div><dt>Atendimento</dt>

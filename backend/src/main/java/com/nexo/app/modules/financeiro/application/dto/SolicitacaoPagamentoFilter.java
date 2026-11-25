@@ -5,7 +5,6 @@ import com.nexo.app.modules.financeiro.domain.GrauPrioridade;
 import com.nexo.app.modules.financeiro.domain.LocalAquisicao;
 import com.nexo.app.modules.financeiro.domain.MotivoSemCompra;
 import com.nexo.app.modules.financeiro.domain.MotivoServicoFrota;
-import com.nexo.app.modules.financeiro.domain.NaturezaServicoFrota;
 import com.nexo.app.modules.financeiro.domain.RegimeVeiculo;
 import com.nexo.app.modules.financeiro.domain.StatusSolicitacao;
 import com.nexo.app.modules.financeiro.domain.TipoDespesa;
@@ -50,7 +49,7 @@ public record SolicitacaoPagamentoFilter(
 
         RegimeVeiculo regimeVeiculo,
 
-        NaturezaServicoFrota naturezaServico,
+        String naturezaServico,
 
         MotivoServicoFrota motivoServico,
 

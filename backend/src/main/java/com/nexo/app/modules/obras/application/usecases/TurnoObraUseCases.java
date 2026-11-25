@@ -1,5 +1,8 @@
 package com.nexo.app.modules.obras.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.execucao.TurnoApi;
 import com.nexo.app.modules.execucao.application.dto.TurnoResponse;
 import com.nexo.app.modules.obras.application.dto.DownloadAnexoObraDTO;
@@ -54,6 +57,7 @@ public class TurnoObraUseCases {
     private final ProgramacaoRepository programacaoRepository;
     private final AnexoTurnoRepository anexoRepository;
     private final ObjectStorageService objectStorage;
+    private final ListasApi listasApi;
 
     @Transactional
     public void registrarAtividade(UUID id, TurnoObraRequests.Atividade request) {
@@ -91,13 +95,18 @@ public class TurnoObraUseCases {
     @Transactional
     public void registrarOcorrencia(UUID id, TurnoObraRequests.Ocorrencia request) {
         buscarTurnoDeObras(id);
-        ocorrenciaRepository.save(new OcorrenciaTurno(id, request.idObra(), request.tipo(), request.descricao(), request.impedeExecucao()));
+        ocorrenciaRepository.save(new OcorrenciaTurno(id, request.idObra(), listasApi.exigirAtiva(ListaConfiguravel.OCORRENCIA_TURNO, request.tipo()), request.descricao(), request.impedeExecucao()));
+    }
+
+    /** Manter o motivo já gravado vale mesmo se ele foi desativado depois; trocar exige um motivo ativo. */
+    private String tipoAlterado(OcorrenciaTurno ocorrencia, String tipo) {
+        return tipo != null && tipo.equals(ocorrencia.getTipo()) ? tipo : listasApi.exigirAtiva(ListaConfiguravel.OCORRENCIA_TURNO, tipo);
     }
 
     @Transactional
     public void alterarOcorrencia(UUID id, UUID idOcorrencia, TurnoObraRequests.Ocorrencia request) {
         OcorrenciaTurno ocorrencia = buscarOcorrencia(id, idOcorrencia);
-        ocorrencia.informar(request.idObra(), request.tipo(), request.descricao(), request.impedeExecucao());
+        ocorrencia.informar(request.idObra(), tipoAlterado(ocorrencia, request.tipo()), request.descricao(), request.impedeExecucao());
         ocorrenciaRepository.save(ocorrencia);
     }
 

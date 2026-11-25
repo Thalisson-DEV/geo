@@ -1,6 +1,5 @@
 package com.nexo.app.modules.frota.application.dto;
 
-import com.nexo.app.modules.frota.domain.NaturezaServico;
 
 import java.util.UUID;
 
@@ -8,7 +7,7 @@ import java.util.UUID;
 public record ItemOrdemServicoResponse(
         UUID idItem,
         String nome,
-        NaturezaServico natureza,
+        String natureza,
         String naturezaRotulo,
         RepeticaoManutencaoResponse repeticao
 ) {

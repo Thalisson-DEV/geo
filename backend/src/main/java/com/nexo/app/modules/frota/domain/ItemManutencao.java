@@ -31,9 +31,8 @@ public class ItemManutencao extends BaseEntity {
     @Column(name = "nome", nullable = false, length = 120)
     private String nome;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "natureza", nullable = false, length = 40)
-    private NaturezaServico natureza;
+    private String natureza;
 
     @Column(name = "descricao", length = 255)
     private String descricao;
@@ -51,11 +50,11 @@ public class ItemManutencao extends BaseEntity {
     @Embedded
     private ReferenciaExterna referenciaExterna;
 
-    public ItemManutencao(String nome, NaturezaServico natureza, String descricao, Integer diasRepeticao) {
+    public ItemManutencao(String nome, String natureza, String descricao, Integer diasRepeticao) {
         preencher(nome, natureza, descricao, diasRepeticao);
     }
 
-    public void atualizar(String nome, NaturezaServico natureza, String descricao, Integer diasRepeticao) {
+    public void atualizar(String nome, String natureza, String descricao, Integer diasRepeticao) {
         if (!isAtivo()) {
             throw new InvarianteVioladaException("Não é possível alterar um item de manutenção desativado.");
         }
@@ -81,7 +80,7 @@ public class ItemManutencao extends BaseEntity {
         this.referenciaExterna = referencia;
     }
 
-    private void preencher(String nome, NaturezaServico natureza, String descricao, Integer diasRepeticao) {
+    private void preencher(String nome, String natureza, String descricao, Integer diasRepeticao) {
         if (diasRepeticao != null && (diasRepeticao < 1 || diasRepeticao > DIAS_REPETICAO_MAXIMO)) {
             throw new InvarianteVioladaException(
                     "A janela de repetição deve estar entre 1 e " + DIAS_REPETICAO_MAXIMO + " dias.");

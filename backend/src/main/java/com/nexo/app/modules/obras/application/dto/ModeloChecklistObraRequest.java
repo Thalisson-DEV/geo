@@ -10,6 +10,11 @@ public record ModeloChecklistObraRequest(
         @NotNull(message = "Informe a finalidade") ModeloChecklistObra.Finalidade finalidade,
         @NotBlank(message = "Informe o título") @Size(max = 150) String titulo,
         @Size(max = 500) String descricao,
-        @NotNull(message = "Inclua ao menos um grupo") EstruturaChecklist estrutura
+        @NotNull(message = "Inclua ao menos um grupo") EstruturaChecklist estrutura,
+        /** Nulo mantém como está (novo modelo: trava). */
+        Boolean fotosTravamExecucao
 ) {
+    public ModeloChecklistObraRequest(ModeloChecklistObra.Finalidade finalidade, String titulo, String descricao, EstruturaChecklist estrutura) {
+        this(finalidade, titulo, descricao, estrutura, null);
+    }
 }

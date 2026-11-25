@@ -92,11 +92,20 @@ export interface ObraCampo {
 export interface ObraResumo { id: string; numero: string; titulo?: string | null; municipio?: string | null }
 
 export interface Sugestao { riscos: string[]; medidas: string[] }
-export interface ModeloApr { riscos: string[]; medidas: string[]; verificacoes: string[]; sugestoes: Record<string, Sugestao> }
+/**
+ * Opções da APR vindas do cadastro do web. {@code medidasDoRisco}: medidas que vêm marcadas junto com o risco;
+ * {@code condicoesDasVerificacoes}: só para as verificações que não valem em todo serviço. Os dois faltam em pacote
+ * guardado antes do cadastro existir.
+ */
+export interface ModeloApr {
+  riscos: string[]; medidas: string[]; verificacoes: string[]; sugestoes: Record<string, Sugestao>;
+  medidasDoRisco?: Record<string, string[]>; condicoesDasVerificacoes?: Record<string, string[]>;
+}
 export type EtapaFoto = 'ANTES' | 'DURANTE' | 'DEPOIS';
 /** {@code etapa}: o momento da foto definido no modelo; sem ele, vale a situação do ponto na hora da foto. */
 export interface ItemFoto { id: string; titulo: string; obrigatoria: boolean; etapa?: EtapaFoto | null }
-export interface ModeloFoto { id: string; titulo: string; itens: ItemFoto[] }
+/** {@code travaExecucao}: fotos obrigatórias travam o "Tudo feito" (e as de antes, o "Parcial"). */
+export interface ModeloFoto { id: string; titulo: string; itens: ItemFoto[]; travaExecucao?: boolean }
 export interface AvisoProgramacao {
   id: string; tipo: 'CRIADA' | 'EDITADA' | 'REPROGRAMADA' | 'CANCELADA' | 'EXCLUIDA'; idProgramacao: string;
   numeroProgramacao?: number | null; idObra?: string | null; numeroObra?: string | null; texto: string; em: string;
@@ -115,6 +124,8 @@ export interface PacoteObras {
   modeloApr: ModeloApr;
   modelosFoto: ModeloFoto[];
   avisos: AvisoProgramacao[];
+  /** Motivos de ocorrência do cadastro do cliente, na ordem; falta em pacote antigo. */
+  motivosOcorrencia?: { codigo: string; rotulo: string }[];
   /** APRs concluídas e "sem condição" da equipe hoje, de qualquer aparelho. */
   liberacaoDoDia?: LiberacaoDia[];
   obrasAbertas?: ObraResumo[];
@@ -181,9 +192,11 @@ export interface FormularioApr {
   idsParticipantes: string[];
 }
 
-export type TipoOcorrencia = 'SEGURANCA' | 'CLIMA' | 'MATERIAL' | 'EQUIPAMENTO' | 'ACESSO' | 'DESLIGAMENTO' | 'TERCEIROS' | 'OUTROS';
+/** Código do motivo no cadastro do cliente (vem no pacote em {@code motivosOcorrencia}). */
+export type TipoOcorrencia = string;
 
-export const TIPOS_OCORRENCIA: { valor: TipoOcorrencia; rotulo: string }[] = [
+/** Motivos usados enquanto o aparelho tem um pacote anterior ao cadastro de motivos. */
+export const TIPOS_OCORRENCIA_ANTIGOS: { valor: TipoOcorrencia; rotulo: string }[] = [
   { valor: 'CLIMA', rotulo: 'Clima' },
   { valor: 'MATERIAL', rotulo: 'Falta de material' },
   { valor: 'ACESSO', rotulo: 'Acesso' },

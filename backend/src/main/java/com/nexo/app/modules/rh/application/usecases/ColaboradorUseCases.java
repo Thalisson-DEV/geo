@@ -82,6 +82,7 @@ public class ColaboradorUseCases implements ColaboradorApi {
             funcao,
             request.dataContratacao()
         );
+        definirMatricula(colaborador, request.matricula());
 
         return mapper.toResponse(repository.save(colaborador));
     }
@@ -122,6 +123,7 @@ public class ColaboradorUseCases implements ColaboradorApi {
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Base Operacional não encontrada"));
             colaborador.atualizarBaseOperacional(base);
         }
+        definirMatricula(colaborador, request.matricula());
 
         return mapper.toResponse(repository.save(colaborador));
     }
@@ -368,6 +370,40 @@ public class ColaboradorUseCases implements ColaboradorApi {
                 colaborador.getFuncao().getNome(),
                 colaborador.getBaseOperacional().getId(),
                 colaborador.getBaseOperacional().getNome());
+    }
+
+    /** Matrícula única entre os colaboradores ativos: é ela que diz quem retirou o material. */
+    private void definirMatricula(Colaborador colaborador, String matricula) {
+        colaborador.definirMatricula(matricula);
+        String limpa = colaborador.getMatricula();
+        if (limpa != null && repository.existsByMatriculaAndAtivoTrueAndIdNot(limpa,
+                colaborador.getId() == null ? new UUID(0, 0) : colaborador.getId())) {
+            throw new InvarianteVioladaException("A matrícula " + limpa + " já é de outro colaborador.");
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<UUID> buscarIdPorMatricula(String matricula) {
+        if (matricula == null || matricula.isBlank()) {
+            return Optional.empty();
+        }
+        return repository.findFirstByMatriculaAndAtivoTrue(matricula.trim().toUpperCase()).map(Colaborador::getId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<UUID, String> buscarMatriculasPorIds(Collection<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Map.of();
+        }
+        Map<UUID, String> mapa = new java.util.HashMap<>();
+        repository.findAllById(ids).forEach(c -> {
+            if (c.getMatricula() != null) {
+                mapa.put(c.getId(), c.getMatricula());
+            }
+        });
+        return mapa;
     }
 
     private void validarUnicidadeCpf(String cpf) {

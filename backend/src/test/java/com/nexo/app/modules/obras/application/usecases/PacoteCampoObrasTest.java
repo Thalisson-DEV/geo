@@ -56,6 +56,8 @@ class PacoteCampoObrasTest {
     @Mock com.nexo.app.modules.obras.infrastructure.persistence.OcorrenciaTurnoRepository ocorrenciaRepository;
     @Mock com.nexo.app.modules.execucao.TurnoApi turnoApi;
     @Mock com.nexo.app.modules.obras.infrastructure.persistence.VisitaPreviaObraRepository visitaRepository;
+    @Mock com.nexo.app.modules.sst.AprApi aprApi;
+    @Mock com.nexo.app.modules.listas.ListasApi listasApi;
     @InjectMocks PacoteCampoObras pacote;
 
     private final UUID usuario = UUID.randomUUID();
@@ -69,6 +71,10 @@ class PacoteCampoObrasTest {
         when(dados.codigo()).thenReturn("FIC-01");
         when(equipeApi.buscarPorIdResponse(equipe)).thenReturn(Optional.of(dados));
         when(eventoRepository.listarDaEquipeDesde(any(), any())).thenReturn(List.of());
+        when(aprApi.opcoesParaCampo()).thenReturn(new com.nexo.app.modules.sst.AprApi.OpcoesAprCampo(
+                List.of("Choque elétrico", "Arco elétrico"), List.of("EPI e EPC"), List.of("EPI em bom estado"),
+                java.util.Map.of("DESLIGAMENTO", new com.nexo.app.modules.sst.AprApi.Sugestao(
+                        List.of("Choque elétrico", "Arco elétrico"), List.of())), java.util.Map.of(), java.util.Map.of()));
     }
 
     @Test

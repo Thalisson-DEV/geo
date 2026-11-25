@@ -17,9 +17,6 @@
         @if (podePlanejar) {
           <geo-button variant="outline" size="sm" icon="pi pi-map" label="Planejar" (pressed)="planejar()"></geo-button>
         }
-        @if (podeDevolver) {
-          <geo-button variant="outline" size="sm" icon="pi pi-undo" label="Devolver materiais" (pressed)="devolvendo.set(true)"></geo-button>
-        }
         @if (!o.statusConcluida) {
           <geo-button variant="outline" size="sm" icon="pi pi-cart-plus" label="Solicitar materiais" (pressed)="solicitarMateriais()"></geo-button>
         }
@@ -192,6 +189,8 @@
       }
     </nav>
 
+    <app-obra-conclusao [idObra]="o.id" [podeResolver]="podeEscrever" (concluiu)="recarregar()"></app-obra-conclusao>
+
     <!-- Pontos de atenção -->
     @if (insights().length) {
       <section class="obra-atencao" aria-labelledby="atencao-titulo">
@@ -335,9 +334,6 @@
           <header class="obra-card__cabecalho">
             <h2 id="solicitacoes-titulo"><i class="pi pi-cart-plus" aria-hidden="true"></i> Materiais da obra</h2>
             <span class="geo-actions-row">
-              @if (podeDevolver) {
-                <geo-button variant="ghost" size="sm" icon="pi pi-undo" label="Nova devolução" (pressed)="devolvendo.set(true)"></geo-button>
-              }
               <geo-button variant="ghost" size="sm" icon="pi pi-plus" label="Nova solicitação" (pressed)="solicitarMateriais()"></geo-button>
             </span>
           </header>
@@ -348,7 +344,11 @@
                 actionLabel="Tentar de novo" (action)="carregarSolicitacoes()"></geo-async-state>
             }
             @default {
-              <app-obra-materiais [solicitacoes]="listaSolicitacoes()" [movimentacoes]="listaMovimentacoes()" [truncadas]="movimentacoesTruncadas()" [saldo]="saldoObra()" (recarregarSaldo)="carregarSaldo()"></app-obra-materiais>
+              @if (podeVerSaldo) {
+                <app-obra-material-resumo [idObra]="o.id" [retiradasAbertas]="retiradasAbertas()"></app-obra-material-resumo>
+              } @else {
+                <app-obra-materiais [solicitacoes]="listaSolicitacoes()" [movimentacoes]="listaMovimentacoes()" [truncadas]="movimentacoesTruncadas()" [saldo]="null"></app-obra-materiais>
+              }
             }
           }
         </section>
@@ -375,8 +375,8 @@
                         <span class="obra-linha-tempo__marca" aria-hidden="true"></span>
                         <div class="obra-linha-tempo__corpo">
                           <span class="obra-linha-tempo__titulo">
-                            <i [class]="tipoOcorrencia[oc.tipo].icone" aria-hidden="true"></i>
-                            {{ tipoOcorrencia[oc.tipo].rotulo }}
+                            <i [class]="iconeOcorrencia(oc.tipo)" aria-hidden="true"></i>
+                            {{ oc.tipoRotulo ?? oc.tipo }}
                             @if (oc.impedeExecucao) { <geo-status tone="danger" icon="pi-ban">Sem condição de executar</geo-status> }
                           </span>
                           <span class="obra-linha-tempo__observacao">{{ oc.descricao }}</span>
@@ -782,9 +782,6 @@
 
 @if (editando()) {
   <app-obra-form [idObra]="obra()!.id" (salva)="carregarObra(obra()!.id, true)" (fechado)="editando.set(false)"></app-obra-form>
-}
-@if (devolvendo()) {
-  <app-devolucao-tecnica-form [idObra]="obra()!.id" (registrada)="carregarSolicitacoes()" (fechado)="devolvendo.set(false)"></app-devolucao-tecnica-form>
 }
 @if (solicitando()) {
   <app-nova-solicitacao-tecnica-drawer [visible]="true" (visibleChange)="!$event && solicitando.set(false)" [idObraInicial]="obra()!.id" (criada)="carregarSolicitacoes()" />

@@ -21,7 +21,6 @@ import com.nexo.app.modules.frota.domain.CategoriaCnh;
 import com.nexo.app.modules.frota.domain.Combustivel;
 import com.nexo.app.modules.frota.domain.Criticidade;
 import com.nexo.app.modules.frota.domain.MotivoEncerramentoCobertura;
-import com.nexo.app.modules.frota.domain.NaturezaServico;
 import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.PapelSeguradora;
 import com.nexo.app.modules.frota.domain.RegimeVeiculo;
@@ -291,7 +290,7 @@ class SeguroSinistroUseCasesTest {
             assertThat(e.condutor()).isEqualTo("ANA TESTE");
         });
 
-        var item = itens.criar(new ItemManutencaoRequest("FUNILARIA SINISTRO", NaturezaServico.SUSPENSAO_FREIOS, null, null)).id();
+        var item = itens.criar(new ItemManutencaoRequest("FUNILARIA SINISTRO", "SUSPENSAO_FREIOS", null, null)).id();
         var comOs = sinistros.abrirOrdemServico(sinistro.id(), new AbrirReparoSinistroRequest(TipoManutencao.CORRETIVA,
                 Criticidade.ALTA, null, null, List.of(item), null, null, null, null, null, null, true));
         assertThat(comOs.situacao()).isEqualTo(SituacaoSinistro.EM_OFICINA);
@@ -327,7 +326,7 @@ class SeguroSinistroUseCasesTest {
 
     @Test
     void osDeSinistroSoNascePeloSinistroEApoliceSoValeSeCobria() {
-        var item = itens.criar(new ItemManutencaoRequest("FUNILARIA AVULSA", NaturezaServico.SUSPENSAO_FREIOS, null, null)).id();
+        var item = itens.criar(new ItemManutencaoRequest("FUNILARIA AVULSA", "SUSPENSAO_FREIOS", null, null)).id();
         assertThatThrownBy(() -> ordens.abrir(new AbrirOrdemServicoRequest(idVeiculo, TipoManutencao.CORRETIVA, OrigemOrdemServico.SINISTRO,
                 Criticidade.MEDIA, null, "Batida", List.of(item), null, null, null, null, null, null, null)))
                 .hasMessageContaining("aberta pelo próprio sinistro");

@@ -20,8 +20,8 @@ export interface LinhaMaterial {
 }
 
 const TIPOS: { value: TipoItemTecnico; codigo: string; nome: string }[] = [
-  { value: 'ADICAO_COMUM', codigo: '221', nome: 'Comum' },
-  { value: 'ADICAO_CONCRETO', codigo: '921', nome: 'Concreto' }
+  { value: 'ADICAO_COMUM', codigo: 'Comum', nome: 'Comum' },
+  { value: 'ADICAO_CONCRETO', codigo: 'Concreto', nome: 'Concreto' }
 ];
 
 let proximaChave = 1;

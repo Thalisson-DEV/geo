@@ -291,6 +291,26 @@ export const routes: Routes = [
       { path: 'baixa-avulsa', redirectTo: '/almoxarifado/movimentacoes?operacao=baixa', pathMatch: 'full' },
       { path: 'devolucao-comercial', redirectTo: '/almoxarifado/movimentacoes?operacao=devolucao-comercial', pathMatch: 'full' },
       {
+        path: 'balcao',
+        data: { permission: 'estoque:solicitacao:deliver' },
+        loadComponent: () => import('./features/almoxarifado/balcao/balcao.component').then(m => m.BalcaoComponent)
+      },
+      {
+        path: 'balcao/atendimentos/:id',
+        data: { permission: 'estoque:solicitacao:read', fullscreen: true, relatorio: true },
+        loadComponent: () => import('./features/almoxarifado/balcao/termo-atendimento.component').then(m => m.TermoAtendimentoComponent)
+      },
+      {
+        path: 'estoque-equipes',
+        data: { permission: 'estoque:saldo:read' },
+        loadComponent: () => import('./features/almoxarifado/estoque-equipes/estoque-equipes.component').then(m => m.EstoqueEquipesComponent)
+      },
+      {
+        path: 'regras-balcao',
+        data: { permission: 'estoque:saldo:read' },
+        loadComponent: () => import('./features/almoxarifado/regras-balcao/regras-balcao.component').then(m => m.RegrasBalcaoComponent)
+      },
+      {
         path: 'materiais',
         data: { permission: 'estoque:material:read' },
         component: MateriaisComponent
@@ -311,9 +331,19 @@ export const routes: Routes = [
         loadComponent: () => import('./features/almoxarifado/estoques/estoques.component').then(m => m.EstoquesComponent)
       },
       {
+        path: 'canteiros',
+        data: { permission: 'estoque:estoque:read' },
+        loadComponent: () => import('./features/almoxarifado/canteiros/canteiros.component').then(m => m.CanteirosComponent)
+      },
+      {
         path: 'tipos-estoque',
         data: { permission: 'estoque:tipo-estoque:read' },
         loadComponent: () => import('./features/almoxarifado/tipos-estoque/tipos-estoque.component').then(m => m.TiposEstoqueComponent)
+      },
+      {
+        path: 'motivos-movimentacao',
+        data: { permission: 'estoque:motivo-rejeicao:read', lista: 'MOTIVO_MOVIMENTACAO_ESTOQUE', singular: 'motivo', plural: 'motivos', permissaoEscrita: 'estoque:motivo-rejeicao:write', trilha: ['Almoxarifado', 'Cadastros'], icone: 'pi pi-sort-alt' },
+        loadComponent: () => import('./features/listas/lista-configuravel.component').then(m => m.ListaConfiguravelComponent)
       },
       {
         path: 'motivos-pendencia',
@@ -369,7 +399,7 @@ export const routes: Routes = [
       {
         path: 'solicitacoes-tecnicas/devolucao',
         pathMatch: 'full',
-        redirectTo: ({ queryParams }) => `/almoxarifado/solicitacoes-tecnicas?devolucao=1${queryParams['idObra'] ? '&idObra=' + queryParams['idObra'] : ''}`
+        redirectTo: '/almoxarifado/balcao?fila=devolver&modo=devolucao'
       },
       {
         path: 'solicitacoes-tecnicas/:id',
@@ -676,6 +706,21 @@ export const routes: Routes = [
         loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
       },
       {
+        path: 'cadastros/tipos-documento',
+        data: { permission: 'frota:os:read', lista: 'TIPO_DOCUMENTO_VEICULO', singular: 'tipo de documento', plural: 'tipos de documento', permissaoEscrita: 'frota:configuracao:write', trilha: ['Frota', 'Cadastros'], icone: 'pi pi-file' },
+        loadComponent: () => import('./features/listas/lista-configuravel.component').then(m => m.ListaConfiguravelComponent)
+      },
+      {
+        path: 'cadastros/causas-manutencao',
+        data: { permission: 'frota:os:read', lista: 'CAUSA_MANUTENCAO', singular: 'causa', plural: 'causas', feminino: true, permissaoEscrita: 'frota:configuracao:write', trilha: ['Frota', 'Cadastros'], icone: 'pi pi-question-circle' },
+        loadComponent: () => import('./features/listas/lista-configuravel.component').then(m => m.ListaConfiguravelComponent)
+      },
+      {
+        path: 'cadastros/naturezas-servico',
+        data: { permission: 'frota:os:read', lista: 'NATUREZA_SERVICO_FROTA', singular: 'natureza', plural: 'naturezas', feminino: true, permissaoEscrita: 'frota:configuracao:write', trilha: ['Frota', 'Cadastros'], icone: 'pi pi-sitemap' },
+        loadComponent: () => import('./features/listas/lista-configuravel.component').then(m => m.ListaConfiguravelComponent)
+      },
+      {
         path: 'cadastros/tipos-implemento',
         data: { permission: 'frota:veiculo:read', secao: 'implemento' },
         loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
@@ -797,6 +842,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/obras/documentacao/modelos-checklist.component').then(m => m.ModelosChecklistComponent)
       },
       {
+        path: 'cadastros/motivos-ocorrencia',
+        data: { permission: 'obras:cadastros:read', lista: 'OCORRENCIA_TURNO', singular: 'motivo', plural: 'motivos', permissaoEscrita: 'obras:cadastros:write', trilha: ['Obras', 'Cadastros'], icone: 'pi pi-exclamation-circle' },
+        loadComponent: () => import('./features/listas/lista-configuravel.component').then(m => m.ListaConfiguravelComponent)
+      },
+      {
         path: 'cadastros/tipos-anexos',
         data: { permission: 'obras:cadastros:read' },
         loadComponent: () => import('./features/obras/cadastros/tipos-anexos/tipos-anexos.component').then(m => m.TiposAnexosComponent)
@@ -880,6 +930,11 @@ export const routes: Routes = [
         path: ':id/planejamento',
         data: { permission: 'obras:planejamento:read', fullscreen: true },
         loadComponent: () => import('./features/obras/planejamento/obra-planejamento.component').then(m => m.ObraPlanejamentoComponent)
+      },
+      {
+        path: ':id/material',
+        data: { permission: 'obras:obra:read', backFallback: '/obras' },
+        loadComponent: () => import('./features/obras/material/obra-material.component').then(m => m.ObraMaterialComponent)
       },
       {
         path: ':id',
@@ -1070,6 +1125,13 @@ export const routes: Routes = [
         canActivate: [authGuard],
         data: { permission: 'sst:evento:write' },
         loadComponent: () => import('./features/sst/eventos/evento-form.component').then(m => m.EventoFormComponent)
+      },
+      {
+        path: 'apr',
+        canActivate: [authGuard],
+        canDeactivate: [geoUnsavedChangesGuard],
+        data: { permission: 'sst:formulario:read' },
+        loadComponent: () => import('./features/sst/apr/apr-cadastro.component').then(m => m.AprCadastroComponent)
       },
       {
         path: 'atividades',

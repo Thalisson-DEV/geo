@@ -191,7 +191,7 @@ export class TecnicasAlmoxComponent {
   readonly rede = inject(ConnectivityService);
 
   readonly filas = FILAS;
-  readonly opcoesTipo: OpcaoSeletor[] = TIPOS_TECNICOS.map(t => ({ valor: t.nome, rotulo: `${t.codigo} · ${t.rotulo}` }));
+  readonly opcoesTipo: OpcaoSeletor[] = TIPOS_TECNICOS.map(t => ({ valor: t.nome, rotulo: t.rotulo }));
 
   private readonly salvo = this.sessao.estadoTela<EstadoTela>();
   readonly visoes = VISOES;

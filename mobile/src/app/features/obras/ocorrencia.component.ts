@@ -10,7 +10,7 @@ import { Carimbo, montarCarimbo } from '../../core/fotos/carimbo';
 import { LocalizacaoService } from '../../core/obras/localizacao.service';
 import { TokenService } from '../../core/auth/token.service';
 import { EvidenciaPreparada } from '../../core/sst/evidencia-foto.util';
-import { TIPOS_OCORRENCIA, TipoOcorrencia } from '../../core/obras/obras.models';
+import { TIPOS_OCORRENCIA_ANTIGOS, TipoOcorrencia } from '../../core/obras/obras.models';
 import { ObrasContexto } from './obras-contexto';
 
 /**
@@ -31,7 +31,7 @@ import { ObrasContexto } from './obras-contexto';
     }
     <h2 class="geo-secao">Tipo</h2>
     <div class="tipos" role="radiogroup" aria-label="Tipo da ocorrência">
-      @for (t of tipos; track t.valor) {
+      @for (t of tipos(); track t.valor) {
         <button type="button" role="radio" class="tipo" [attr.aria-checked]="tipo() === t.valor" (click)="tipo.set(t.valor)">
           @if (tipo() === t.valor) { <geo-icone nome="check" [tamanho]="18" /> }{{ t.rotulo }}
         </button>
@@ -41,12 +41,15 @@ import { ObrasContexto } from './obras-contexto';
       <textarea class="geo-input" rows="4" maxlength="2000" [value]="descricao()" (input)="descricao.set($any($event.target).value)"
         [placeholder]="tipo() === 'MATERIAL' ? 'Ex.: faltaram 2 cruzetas no caminhão' : 'Descreva, ou toque no microfone do teclado para ditar'"
         data-testid="descricao-ocorrencia"></textarea></label>
-    <div class="fotos"><span class="fotos__rotulo">Fotos (opcional)</span>
+    @if (pedeFoto(); as motivo) {
+      <p class="explica explica--foto" role="status">{{ motivo }}</p>
+    }
+    <div class="fotos"><span class="fotos__rotulo">{{ pedeFoto() ? 'Fotos (obrigatório)' : 'Fotos (opcional)' }}</span>
       <geo-fotos rotulo="Fotos da ocorrência" [fotos]="fotosExibidas()" [carimbo]="carimbo" (adicionada)="adicionar($event)" (removida)="remover($event)" [galeria]="true" /></div>
     <div class="geo-respiro"></div>
     <div class="geo-rodape-acoes" data-acao-fixa>
       <button type="button" class="geo-btn" [class.geo-btn--perigo]="impede()" [class.geo-btn--principal]="!impede()"
-        [disabled]="!tipo() || !descricao().trim() || salvando()" (click)="salvar()" data-testid="salvar-ocorrencia">
+        [disabled]="!tipo() || !descricao().trim() || faltaFoto() || salvando()" (click)="salvar()" data-testid="salvar-ocorrencia">
         {{ impede() ? 'Registrar sem condição' : 'Registrar ocorrência' }}
       </button>
     </div>
@@ -54,6 +57,7 @@ import { ObrasContexto } from './obras-contexto';
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; }
     .explica { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-erro-suave); font: var(--geo-t-apoio); }
+    .explica--foto { background: var(--geo-atencao-suave); }
     .tipos { display: flex; flex-wrap: wrap; gap: var(--geo-e2); padding: 0 var(--geo-margem); }
     .tipo { min-height: var(--geo-alvo); padding: 0 var(--geo-e4); border-radius: var(--geo-r-pilula); border: 1px solid var(--geo-borda-campo);
       background: var(--geo-superficie); color: var(--geo-texto); font: 500 .9375rem/1 var(--geo-fonte); display: inline-flex; align-items: center; gap: 6px; }
@@ -70,7 +74,11 @@ export class OcorrenciaObraComponent {
   private readonly toast = inject(ToastService);
   readonly turno = inject(TurnoService);
 
-  readonly tipos = TIPOS_OCORRENCIA;
+  /** Motivos do cadastro do cliente, vindos no pacote; pacote antigo usa a lista de antes. */
+  readonly tipos = computed(() => {
+    const doCadastro = this.ctx.pacote.motivosOcorrencia();
+    return doCadastro.length ? doCadastro.map(m => ({ valor: m.codigo, rotulo: m.rotulo })) : TIPOS_OCORRENCIA_ANTIGOS;
+  });
   readonly id = toSignal(this.rota.paramMap.pipe(map(p => p.get('id') ?? '')), { initialValue: '' });
   readonly impede = toSignal(this.rota.queryParamMap.pipe(map(q => q.get('impede') === '1')), { initialValue: false });
   readonly tipoInicial = this.rota.snapshot.queryParamMap.get('tipo') as TipoOcorrencia | null;
@@ -83,13 +91,21 @@ export class OcorrenciaObraComponent {
   readonly fotos = signal<{ id: string; foto: EvidenciaPreparada; url: string }[]>([]);
   readonly fotosExibidas = computed<FotoExibida[]>(() => this.fotos().map(f => ({ id: f.id, url: f.url })));
   readonly salvando = signal(false);
+  /** Motivos que só valem com prova: a obra já feita por outros e o projeto diferente do campo vão para análise do escritório. */
+  readonly pedeFoto = computed(() => {
+    const t = this.tipo();
+    if (t === 'OBRA_EXECUTADA_POR_TERCEIROS') return 'Fotografe a rede como está (postes, estruturas, cabos): o escritório usa as fotos para decidir se a obra sai da carteira ou é medida.';
+    if (t === 'ALTERACAO_DE_PROJETO') return 'Fotografe o que está diferente do projeto: o escritório usa as fotos para pedir a revisão e decidir o que conta como concluído.';
+    return null;
+  });
+  readonly faltaFoto = computed(() => !!this.pedeFoto() && !this.fotos().length);
   readonly subtitulo = computed(() => { const p = this.programacao(); return p ? `Obra ${p.numeroObra ?? ''} · ${this.ctx.ref(p)}` : null; });
   private readonly gps = inject(LocalizacaoService);
   private readonly tokens = inject(TokenService);
   /** Montado na hora da foto: a hora e a posição daquele momento, não de quando a tela abriu. */
   readonly carimbo = async (): Promise<Carimbo> => {
     const posicao = await this.gps.agora(4000);
-    const tipo = TIPOS_OCORRENCIA.find(t => t.valor === this.tipo())?.rotulo;
+    const tipo = this.tipos().find(t => t.valor === this.tipo())?.rotulo;
     return montarCarimbo({ titulo: this.subtitulo() ?? 'Ocorrência', detalhe: tipo ? `Ocorrência · ${tipo}` : 'Ocorrência', data: new Date(),
       latitude: posicao?.latitude, longitude: posicao?.longitude, precisao: posicao?.precisao,
       autoria: [this.ctx.pacote.codigoEquipe() ?? this.turno.composicao()?.codigo, this.tokens.nomeUsuario()].filter(Boolean).join(' · ') });
@@ -129,7 +145,7 @@ export class OcorrenciaObraComponent {
   async salvar(): Promise<void> {
     const p = this.programacao();
     const tipo = this.tipo();
-    if (!p || !tipo || !this.descricao().trim()) return;
+    if (!p || !tipo || !this.descricao().trim() || this.faltaFoto()) return;
     if (!this.turno.turnoAtivo()) {
       this.toast.warning('Abra o turno antes de registrar.');
       return;

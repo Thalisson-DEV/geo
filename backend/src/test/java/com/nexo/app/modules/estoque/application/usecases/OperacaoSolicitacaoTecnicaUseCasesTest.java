@@ -86,6 +86,7 @@ class OperacaoSolicitacaoTecnicaUseCasesTest {
     @Mock private PublicadorEventoSolicitacaoTecnica publicadorEventos;
     @Mock private ObservabilidadeSolicitacaoTecnica observabilidade;
     @Mock private DebitoSaldoService debitoSaldoService;
+    @Mock private com.nexo.app.modules.estoque.application.services.AlocacaoObraService alocacaoObra;
     @Mock private EstoqueCampoEquipeProvisioningService estoqueCampoEquipeService;
     @Mock private MotivoPendenciaRepository motivoPendenciaRepository;
     @Mock private com.nexo.app.modules.estoque.application.services.ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;

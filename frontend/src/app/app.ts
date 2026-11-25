@@ -10,6 +10,7 @@ import { AvisoSemConexaoComponent } from './shared/components/aviso-sem-conexao/
 import { AvaliacaoConviteComponent } from './shared/components/avaliacao-app/avaliacao-convite.component';
 import { AvaliacaoDrawerComponent } from './shared/components/avaliacao-app/avaliacao-drawer.component';
 import { SessaoReautenticacaoComponent } from './shared/components/sessao-reautenticacao/sessao-reautenticacao.component';
+import { ListasService } from './core/services/listas.service';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { MenuItem } from 'primeng/api';
@@ -56,6 +57,7 @@ const ICONES_AVISO: Record<string, string> = {
 })
 export class App {
   protected readonly auth = inject(AuthService);
+  private readonly listas = inject(ListasService);
   protected readonly notificacoes = inject(NotificationService);
   protected readonly iconeAviso = (severidade?: string): string => `p-toast-message-icon pi ${ICONES_AVISO[severidade ?? ''] ?? ICONES_AVISO['info']}`;
   protected readonly theme = inject(ThemeService);
@@ -111,6 +113,7 @@ export class App {
     '/sst/governanca/brigada/acoes': 'sst:governanca:read',
     '/sst/governanca/configuracoes': 'sst:governanca:write',
     '/sst/metas-inspecao': 'sst:meta:write',
+    '/sst/apr': 'sst:formulario:read',
     '/sst/metas-inspecao/acompanhamento': 'sst:meta:read',
     '/notificacoes/admin/comunicados': 'notificacao:comunicado:manage',
     '/notificacoes/automacoes': 'automacao:read',
@@ -155,7 +158,15 @@ export class App {
     '/almoxarifado/solicitacoes-tecnicas/calendario': 'estoque:solicitacao:read',
     '/almoxarifado/solicitacoes-tecnicas/nova': 'estoque:solicitacao:create',
     '/almoxarifado/solicitacoes-tecnicas/devolucao': 'estoque:solicitacao:create',
+    '/almoxarifado/balcao': 'estoque:solicitacao:deliver',
+    '/almoxarifado/estoque-equipes': 'estoque:saldo:read',
+    '/almoxarifado/regras-balcao': 'estoque:saldo:read',
     '/almoxarifado/motivos-pendencia': 'estoque:motivo-rejeicao:read',
+    '/almoxarifado/motivos-movimentacao': 'estoque:motivo-rejeicao:read',
+    '/frota/cadastros/tipos-documento': 'frota:os:read',
+    '/frota/cadastros/causas-manutencao': 'frota:os:read',
+    '/frota/cadastros/naturezas-servico': 'frota:os:read',
+    '/obras/cadastros/motivos-ocorrencia': 'obras:cadastros:read',
     '/almoxarifado/motivos-rejeicao': 'estoque:motivo-rejeicao:read',
     '/almoxarifado/devolucao-comercial': 'estoque:movimentacao:write',
     '/financeiro/compras': 'financeiro:compra:read',
@@ -230,6 +241,11 @@ export class App {
       if (user?.tema === 'dark' && !this.theme.temTemaSalvo()) {
         untracked(() => this.theme.setTema('escuro'));
       }
+    });
+
+    // Nomes das listas configuráveis (motivos, tipos, causas, naturezas) para painéis e relatórios.
+    effect(() => {
+      if (this.auth.currentUser()) untracked(() => this.listas.carregarRotulos());
     });
 
     // O menu é montado uma vez; ao entrar/sair da sessão as entradas dependentes
@@ -407,6 +423,7 @@ export class App {
             { label: 'Tipos de Obra', icon: 'pi pi-tags', routerLink: '/obras/cadastros/tipos-obra' },
             { label: 'Agentes Responsáveis', icon: 'pi pi-users', routerLink: '/obras/cadastros/agentes' },
             { label: 'Tipos de Anexos', icon: 'pi pi-paperclip', routerLink: '/obras/cadastros/tipos-anexos' },
+            { label: 'Motivos de Ocorrência', icon: 'pi pi-exclamation-circle', routerLink: '/obras/cadastros/motivos-ocorrencia' },
             { label: 'Kits Construtivos', icon: 'pi pi-box', routerLink: '/obras/cadastros/kits' },
             { label: 'Checklists da Documentação', icon: 'pi pi-list-check', routerLink: '/obras/cadastros/checklists' }
           ]
@@ -488,6 +505,9 @@ export class App {
             { label: 'Tipos de Veículo', icon: 'pi pi-car', routerLink: '/frota/cadastros/tipos-veiculo' },
             { label: 'Tipos de Implemento', icon: 'pi pi-link', routerLink: '/frota/cadastros/tipos-implemento' },
             { label: 'Itens de Manutenção', icon: 'pi pi-wrench', routerLink: '/frota/cadastros/itens-manutencao' },
+            { label: 'Naturezas de Serviço', icon: 'pi pi-sitemap', routerLink: '/frota/cadastros/naturezas-servico' },
+            { label: 'Causas de Manutenção', icon: 'pi pi-question-circle', routerLink: '/frota/cadastros/causas-manutencao' },
+            { label: 'Tipos de Documento', icon: 'pi pi-file', routerLink: '/frota/cadastros/tipos-documento' },
             { label: 'Modelos de Checklist', icon: 'pi pi-list-check', routerLink: '/frota/cadastros/modelos-checklist' },
             { label: 'Planos de Preventiva', icon: 'pi pi-calendar-clock', routerLink: '/frota/cadastros/planos-preventiva' },
             { label: 'Aprovadores do Abastecimento', icon: 'pi pi-user-edit', routerLink: '/frota/cadastros/aprovadores-abastecimento' },
@@ -506,25 +526,21 @@ export class App {
       icon: 'pi pi-box',
       items: [
         {
-          label: 'Solicitações Comerciais',
-          icon: 'pi pi-shopping-cart',
+          label: 'Rotina do dia',
+          icon: 'pi pi-inbox',
           items: [
-            { label: 'Gerenciar Solicitações', icon: 'pi pi-list', routerLink: '/almoxarifado/solicitacoes', routerLinkActiveOptions: { exact: true } },
-            { label: 'Nova Solicitação', icon: 'pi pi-plus-circle', routerLink: '/almoxarifado/solicitacoes/nova' },
-            { label: 'Nova Devolução', icon: 'pi pi-undo', routerLink: '/almoxarifado/devolucao-comercial' },
-            { label: 'Quadro', icon: 'pi pi-objects-column', routerLink: '/almoxarifado/solicitacoes/kanban' },
-            { label: 'Calendário de saques', icon: 'pi pi-calendar', routerLink: '/almoxarifado/solicitacoes/calendario' },
+            { label: 'Balcão', icon: 'pi pi-inbox', routerLink: '/almoxarifado/balcao' },
+            { label: 'Estoque das equipes', icon: 'pi pi-truck', routerLink: '/almoxarifado/estoque-equipes' },
           ]
         },
         {
-          label: 'Solicitações Técnicas',
-          icon: 'pi pi-wrench',
+          label: 'Solicitações',
+          icon: 'pi pi-list',
           items: [
             { label: 'Gerenciar Solicitações', icon: 'pi pi-list', routerLink: '/almoxarifado/solicitacoes-tecnicas', routerLinkActiveOptions: { exact: true } },
             { label: 'Nova Solicitação', icon: 'pi pi-plus-circle', routerLink: '/almoxarifado/solicitacoes-tecnicas/nova' },
-            { label: 'Nova Devolução', icon: 'pi pi-undo', routerLink: '/almoxarifado/solicitacoes-tecnicas/devolucao' },
             { label: 'Quadro', icon: 'pi pi-objects-column', routerLink: '/almoxarifado/solicitacoes-tecnicas/kanban' },
-            { label: 'Calendário de saques', icon: 'pi pi-calendar', routerLink: '/almoxarifado/solicitacoes-tecnicas/calendario' },
+            { label: 'Calendário de retiradas', icon: 'pi pi-calendar', routerLink: '/almoxarifado/solicitacoes-tecnicas/calendario' },
           ]
         },
         {
@@ -552,8 +568,7 @@ export class App {
           icon: 'pi pi-chart-bar',
           items: [
             { label: 'Visão geral', icon: 'pi pi-compass', routerLink: '/almoxarifado/relatorios', routerLinkActiveOptions: { exact: true } },
-            { label: 'Solicitações comerciais', icon: 'pi pi-shopping-cart', routerLink: '/almoxarifado/relatorios/solicitacoes-comerciais' },
-            { label: 'Solicitações técnicas', icon: 'pi pi-wrench', routerLink: '/almoxarifado/relatorios/solicitacoes-tecnicas' },
+            { label: 'Solicitações', icon: 'pi pi-list', routerLink: '/almoxarifado/relatorios/solicitacoes-tecnicas' },
             { label: 'Encerramento de obras', icon: 'pi pi-flag', routerLink: '/almoxarifado/relatorios/fechamento' },
             { label: 'Movimentações', icon: 'pi pi-arrow-right-arrow-left', routerLink: '/almoxarifado/relatorios/movimentacoes' },
             { label: 'Estoque e saldos', icon: 'pi pi-box', routerLink: '/almoxarifado/relatorios/estoque' },
@@ -569,8 +584,11 @@ export class App {
             { label: 'Avaliações Técnicas', icon: 'pi pi-check-square', routerLink: '/almoxarifado/avaliacoes' },
             { label: 'Centros de Investimento', icon: 'pi pi-chart-line', routerLink: '/almoxarifado/centros-investimento' },
             { label: 'Estoques', icon: 'pi pi-database', routerLink: '/almoxarifado/estoques' },
+            { label: 'Canteiros', icon: 'pi pi-warehouse', routerLink: '/almoxarifado/canteiros' },
+            { label: 'Regras do balcão', icon: 'pi pi-sliders-h', routerLink: '/almoxarifado/regras-balcao' },
             { label: 'Tipos de Estoque', icon: 'pi pi-tags', routerLink: '/almoxarifado/tipos-estoque' },
             { label: 'Motivos de Pendência', icon: 'pi pi-exclamation-triangle', routerLink: '/almoxarifado/motivos-pendencia' },
+            { label: 'Motivos de Entrada e Baixa', icon: 'pi pi-sort-alt', routerLink: '/almoxarifado/motivos-movimentacao' },
             { label: 'Motivos de Rejeição', icon: 'pi pi-times-circle', routerLink: '/almoxarifado/motivos-rejeicao' }
           ]
         }
@@ -742,6 +760,7 @@ export class App {
           items: [
             { label: 'Tipos de Inspeção', icon: 'pi pi-tags', routerLink: '/sst/tipos-inspecao' },
             { label: 'Formulários de Inspeção', icon: 'pi pi-file-edit', routerLink: '/sst/formularios' },
+            { label: 'APR do App de Campo', icon: 'pi pi-shield', routerLink: '/sst/apr' },
             { label: 'Metas de Inspeção', icon: 'pi pi-flag', routerLink: '/sst/metas-inspecao' },
             { label: 'Atividades de SST', icon: 'pi pi-briefcase', routerLink: '/sst/atividades' },
             { label: 'Classificações de Eventos', icon: 'pi pi-tags', routerLink: '/sst/classificacoes-eventos' },

@@ -29,6 +29,18 @@ public interface ObraApi {
     /** Vincula uma equipe ativa ja validada; operacao idempotente. */
     void vincularEquipeSeAusente(UUID idObra, UUID idEquipe);
 
+    /** Material a instalar planejado na obra, por material: previsto e já apontado. */
+    java.util.List<MaterialPrevistoPublico> materiaisPrevistos(UUID idObra);
+
+    /** Número de cada obra, para mostrar rastros entre obras. */
+    java.util.Map<UUID, String> numerosPorIds(java.util.Collection<UUID> ids);
+
+    /** Apontamentos ativos de material, no mesmo formato do evento de execução (para reprocessar o estoque). */
+    java.util.List<com.nexo.app.shared.domain.events.ItemExecutadoEvent> apontamentosDeMaterialAtivos();
+
+    record MaterialPrevistoPublico(UUID idMaterial, java.math.BigDecimal previsto, java.math.BigDecimal executado) {
+    }
+
     record OcorrenciaPublica(UUID id, UUID idObra, String codigo) {
     }
 

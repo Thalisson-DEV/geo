@@ -127,4 +127,12 @@ public interface ApontamentoExecucaoRepository extends JpaRepository<Apontamento
     /** Hora do último apontamento ativo de cada turno (para o status da equipe). */
     @Query("select a.idTurno, max(a.dataCriacao) from ApontamentoExecucao a where a.ativo = true and a.idTurno in :idsTurnos group by a.idTurno")
     List<Object[]> ultimoPorTurno(@Param("idsTurnos") java.util.Collection<UUID> idsTurnos);
+
+    /** Apontamentos ativos de itens de material, para o estoque conferir se já baixou cada um. */
+    @Query("""
+            select a from ApontamentoExecucao a join fetch a.itemPlanejado i
+            where a.ativo = true and i.tipo = com.nexo.app.modules.obras.domain.TipoItemKit.MATERIAL and i.idMaterial is not null
+            order by a.dataCriacao
+            """)
+    java.util.List<ApontamentoExecucao> listarDeMaterialAtivos();
 }

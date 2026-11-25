@@ -21,7 +21,7 @@ import { formatarMoeda } from '../obras-ui';
 import { SITUACAO_PROGRAMACAO, formatarNumero } from '../programacao/programacao.logic';
 import { ProgramacaoDetalheComponent } from '../programacao/programacao-detalhe.component';
 import { AprDrawerComponent } from './apr-drawer.component';
-import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic';
+import { LIBERACAO, cartoesDoTurno, iconeOcorrencia } from './turnos-obra.logic';
 
 /**
  * O dia de uma equipe, na ordem em que ele acontece: para cada obra, primeiro a APR (ou o motivo de não executar),
@@ -127,7 +127,7 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
                         <span>{{ c.aprConcluida?.atividade }} · {{ c.aprConcluida?.responsavel ?? 'Sem responsável' }}{{ c.aprConcluida?.dataConclusao ? ' · ' + ($safeNavigationMigration(c.aprConcluida?.dataConclusao) | date: 'dd/MM HH:mm') : '' }}</span>
                       }
                       @case ('IMPEDIDA') {
-                        <strong>Sem condição de executar · {{ tipoOcorrencia[c.impedimento!.tipo].rotulo }}</strong>
+                        <strong>Sem condição de executar · {{ c.impedimento!.tipoRotulo ?? c.impedimento!.tipo }}</strong>
                         <span>{{ c.impedimento?.descricao }}</span>
                       }
                     }
@@ -209,7 +209,7 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
                 <ul class="td-lista">
                   @for (o of turno.ocorrencias; track o.id) {
                     <li class="td-linha">
-                      <strong><i [class]="tipoOcorrencia[o.tipo].icone" aria-hidden="true"></i> {{ tipoOcorrencia[o.tipo].rotulo }}{{ o.numeroObra ? ' · ' + o.numeroObra : '' }}</strong>
+                      <strong><i [class]="iconeOcorrencia(o.tipo)" aria-hidden="true"></i> {{ o.tipoRotulo ?? o.tipo }}{{ o.numeroObra ? ' · ' + o.numeroObra : '' }}</strong>
                       <span>{{ o.descricao }}</span><small>{{ o.usuario }} · {{ o.data | date: 'dd/MM HH:mm' }}</small>
                     </li>
                   }
@@ -328,7 +328,7 @@ export class TurnoObraDetalheComponent {
   protected readonly moeda = formatarMoeda;
   protected readonly numero = formatarNumero;
   protected readonly duracao = duracao;
-  protected readonly tipoOcorrencia = TIPO_OCORRENCIA;
+  protected readonly iconeOcorrencia = iconeOcorrencia;
   protected readonly liberacao = LIBERACAO;
 
   protected readonly t = signal<TurnoObraDetalhe | null>(null);

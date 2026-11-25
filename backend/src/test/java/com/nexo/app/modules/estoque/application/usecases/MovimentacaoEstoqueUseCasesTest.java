@@ -69,6 +69,7 @@ class MovimentacaoEstoqueUseCasesTest {
     private AssinaturaTransferenciaService assinaturaTransferenciaService;
 
     @Mock private com.nexo.app.modules.estoque.application.services.ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;
+    @Mock private com.nexo.app.modules.listas.ListasApi listasApi;
     @Mock
     private ExecucaoComercialApi execucaoComercialApi;
     @InjectMocks
@@ -133,14 +134,16 @@ class MovimentacaoEstoqueUseCasesTest {
         Material material = materialSemEquivalencia();
         when(estoqueRepository.findById(idEstoque)).thenReturn(Optional.of(mock(Estoque.class)));
         when(materialRepository.findById(idMaterial)).thenReturn(Optional.of(material));
+        when(listasApi.exigirAtiva(any(), any(), any())).thenAnswer(i -> i.getArgument(1));
 
         useCases.baixaLote(new MovimentacaoBulkRequest(idEstoque, null,
                 List.of(new MovimentacaoBulkRequest.ItemMovimentacaoRequest(idMaterial, BigDecimal.TEN, null, CondicaoMaterial.NOVO)),
-                null, null, MotivoMovimentacao.PERDA_AVARIA, "  caiu do caminhão  "), UUID.randomUUID());
+                null, null, "PERDA_AVARIA", "  caiu do caminhão  "), UUID.randomUUID());
+        verify(listasApi).exigirAtiva(com.nexo.app.modules.listas.ListaConfiguravel.MOTIVO_MOVIMENTACAO_ESTOQUE, "PERDA_AVARIA", "BAIXA");
 
         ArgumentCaptor<MovimentacaoEstoque> salva = ArgumentCaptor.forClass(MovimentacaoEstoque.class);
         verify(repository).save(salva.capture());
-        assertEquals(MotivoMovimentacao.PERDA_AVARIA, salva.getValue().getMotivo());
+        assertEquals("PERDA_AVARIA", salva.getValue().getMotivo());
         assertEquals("caiu do caminhão", salva.getValue().getObservacao());
     }
 
@@ -149,7 +152,7 @@ class MovimentacaoEstoqueUseCasesTest {
         MovimentacaoEstoque movimentacao = movimentacao(UUID.randomUUID(), MovimentacaoEstoque.TipoMovimentacao.BAIXA_AVULSA);
 
         assertThrows(InvarianteVioladaException.class,
-                () -> movimentacao.registrarJustificativa(MotivoMovimentacao.OUTROS, "x".repeat(1001)));
+                () -> movimentacao.registrarJustificativa("OUTROS", "x".repeat(1001)));
     }
 
     private static MovimentacaoEstoqueFilter filtroVazio(MovimentacaoEstoque.TipoMovimentacao tipo) {
@@ -206,7 +209,7 @@ class MovimentacaoEstoqueUseCasesTest {
                 idSolicitacao, TipoSolicitacaoTecnica.ADICAO_COMUM, TipoObraSnapshot.CORRETIVA,
                 idObra, " oc   1042 ", idEquipe, idReserva, "000123", idAgente,
                 SolicitacaoMaterial.StatusSolicitacao.ENTREGUE_PARCIAL, StatusSeparacao.SEPARADO,
-                ContextoSolicitacaoMaterial.FECHAMENTO, MotivoMovimentacao.PERDA_AVARIA, "  material  ");
+                ContextoSolicitacaoMaterial.FECHAMENTO, "PERDA_AVARIA", "  material  ");
         Pageable pageable = PageRequest.of(2, 7, Sort.by("tipo").ascending());
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
 

@@ -553,14 +553,14 @@ public class FechamentoObraUseCases {
     ) {
         TipoSolicitacaoTecnica tipo = null;
         if (solicitacao == null || solicitacao.tipo() == null || solicitacao.tipo().isBlank()) {
-            erros.put(campo + ".tipo", "Escolha o tipo: 221, 921, 222 ou 922.");
+            erros.put(campo + ".tipo", "Escolha o tipo: Retirada ou Devolução.");
         } else {
             tipo = java.util.Arrays.stream(TipoSolicitacaoTecnica.values())
                     .filter(candidato -> candidato.getCodigo().equals(solicitacao.tipo().trim())
                             || candidato.name().equalsIgnoreCase(solicitacao.tipo().trim()))
                     .findFirst().orElse(null);
             if (tipo == null) {
-                erros.put(campo + ".tipo", "Escolha o tipo: 221, 921, 222 ou 922.");
+                erros.put(campo + ".tipo", "Escolha o tipo: Retirada ou Devolução.");
             }
         }
         BigInteger numero = null;

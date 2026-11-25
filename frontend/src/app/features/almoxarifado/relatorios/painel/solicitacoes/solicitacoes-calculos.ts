@@ -51,10 +51,10 @@ export const ETAPAS_ABERTAS: Record<ModoPainel, EtapaSolicitacao[]> = {
 };
 
 export const TIPOS_TECNICOS: Partial<Record<string, string>> = {
-  '221': 'Adição comum',
-  '921': 'Adição concreto',
-  '222': 'Devolução comum',
-  '922': 'Devolução concreto'
+  '221': 'Retirada',
+  '921': 'Retirada · concreto',
+  '222': 'Devolução',
+  '922': 'Devolução · concreto'
 };
 
 export const TIPOS_OBRA: Partial<Record<string, string>> = {

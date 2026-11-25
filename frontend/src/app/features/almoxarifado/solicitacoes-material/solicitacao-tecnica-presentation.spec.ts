@@ -14,10 +14,10 @@ describe('apresentação de solicitação técnica', () => {
   it('não confunde atendimento, separação e tipo derivado', () => {
     expect(statusLabel('APROVADO')).toBe('Aprovada');
     expect(separacaoLabel('EM_SEPARACAO')).toBe('Em separação');
-    expect(tipoTecnicoLabel('ADICAO_COMUM')).toBe('221');
-    expect(tipoTecnicoLabel('ADICAO_CONCRETO')).toBe('921');
-    expect(tipoTecnicoLabel('DEVOLUCAO_COMUM')).toBe('222');
-    expect(tipoTecnicoLabel('DEVOLUCAO_CONCRETO')).toBe('922');
+    expect(tipoTecnicoLabel('ADICAO_COMUM')).toBe('Retirada');
+    expect(tipoTecnicoLabel('ADICAO_CONCRETO')).toBe('Retirada · concreto');
+    expect(tipoTecnicoLabel('DEVOLUCAO_COMUM')).toBe('Devolução');
+    expect(tipoTecnicoLabel('DEVOLUCAO_CONCRETO')).toBe('Devolução · concreto');
   });
 
   it('classifica corretamente códigos 221 e 921 (final 1) como adição (verde) e 222 e 922 (final 2) como devolução (vermelho)', () => {
@@ -36,12 +36,12 @@ describe('apresentação de solicitação técnica', () => {
     // Ícones: final 1 (adição) usa carrinho de saque, final 2 (devolução) usa lixeira
     expect(tipoTecnicoIcon('221')).toBe('pi pi-shopping-cart');
     expect(tipoTecnicoIcon('921')).toBe('pi pi-shopping-cart');
-    expect(tipoTecnicoIcon('222')).toBe('pi pi-trash');
-    expect(tipoTecnicoIcon('922')).toBe('pi pi-trash');
+    expect(tipoTecnicoIcon('222')).toBe('pi pi-undo');
+    expect(tipoTecnicoIcon('922')).toBe('pi pi-undo');
     expect(tipoTecnicoIcon('ADICAO_COMUM')).toBe('pi pi-shopping-cart');
     expect(tipoTecnicoIcon('ADICAO_CONCRETO')).toBe('pi pi-shopping-cart');
-    expect(tipoTecnicoIcon('DEVOLUCAO_COMUM')).toBe('pi pi-trash');
-    expect(tipoTecnicoIcon('DEVOLUCAO_CONCRETO')).toBe('pi pi-trash');
+    expect(tipoTecnicoIcon('DEVOLUCAO_COMUM')).toBe('pi pi-undo');
+    expect(tipoTecnicoIcon('DEVOLUCAO_CONCRETO')).toBe('pi pi-undo');
     expect(tipoTecnicoIcon(null)).toBe('pi pi-box');
   });
 

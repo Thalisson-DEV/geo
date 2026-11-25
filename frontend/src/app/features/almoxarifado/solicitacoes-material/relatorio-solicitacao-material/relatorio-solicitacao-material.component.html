@@ -463,7 +463,7 @@
           <div class="painel mb-6">
             <div class="flex items-center justify-between gap-3 mb-3">
               <div>
-                <span class="painel__titulo">Responsável pelo saque</span>
+                <span class="painel__titulo">Quem retira</span>
                 <span class="painel__texto">Identifique quem está recebendo os materiais.</span>
               </div>
               <label class="inline-flex items-center gap-2 text-[11px] font-semibold cursor-pointer">
@@ -478,7 +478,7 @@
 
             @if (withdrawalOutsideTeam()) {
               <geo-autocomplete
-                label="Colaborador responsável pelo saque"
+                label="Colaborador quem retira"
                 [labelVisible]="false"
                 [options]="withdrawalOptions()"
                 [ngModel]="withdrawalCollaboratorId()"

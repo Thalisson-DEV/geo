@@ -102,7 +102,7 @@ const marcaDe = (s: ResumoSolicitacao): Marca => {
         </span>
         <div>
           <h3>{{ selecionadoEhHoje() ? 'Hoje' : semanaExtenso() }}</h3>
-          <p>{{ doDia().length ? doDia().length + (doDia().length === 1 ? ' saque previsto' : ' saques previstos') : 'Nenhum saque previsto' }}</p>
+          <p>{{ doDia().length ? doDia().length + (doDia().length === 1 ? ' retirada prevista' : ' retiradas previstas') : 'Nenhuma retirada prevista' }}</p>
         </div>
       </header>
       @if (carregando() && !carregou()) {

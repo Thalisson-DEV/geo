@@ -115,7 +115,7 @@ class CampoOfflineObrasTest {
     void aprDaManhaLiberaApontamentoDaManhaMesmoComImpedimentoDaTardeEnviadoJunto() {
         AprTurno apr = apr();
         apr.concluirEm(HOJE.atTime(8, 10).atZone(FUSO).toOffsetDateTime(), UUID.randomUUID());
-        OcorrenciaTurno chuva = OcorrenciaTurno.doCampo(TURNO, OBRA, programacao.getId(), TipoOcorrenciaTurno.CLIMA, "Chuva forte", true,
+        OcorrenciaTurno chuva = OcorrenciaTurno.doCampo(TURNO, OBRA, programacao.getId(), "CLIMA", "Chuva forte", true,
                 new RegistroCampo(UUID.randomUUID(), "h", new RegistroCampo.Origem(HOJE.atTime(14, 0).atZone(FUSO).toOffsetDateTime(), null, null, null),
                         HOJE.atTime(14, 0).atZone(FUSO).toOffsetDateTime().plusHours(6)));
 

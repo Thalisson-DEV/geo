@@ -6,11 +6,9 @@ import com.nexo.app.modules.frota.FrotaCondutorApi;
 import com.nexo.app.modules.frota.FrotaOdometroApi;
 import com.nexo.app.modules.frota.application.dto.AbrirOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.ConcluirOrdemServicoRequest;
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import com.nexo.app.modules.frota.domain.Criticidade;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
 import com.nexo.app.modules.frota.domain.ItemManutencao;
-import com.nexo.app.modules.frota.domain.NaturezaServico;
 import com.nexo.app.modules.frota.domain.OrdemServico;
 import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.OrigemPeca;
@@ -83,6 +81,15 @@ class OrdemServicoUseCasesTest {
     private FinanceiroApi financeiro;
     @Mock
     private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private com.nexo.app.modules.listas.ListasApi listasApi;
+
+    @org.junit.jupiter.api.BeforeEach
+    void listasDevolvemOCodigo() {
+        org.mockito.Mockito.lenient().when(listasApi.rotulo(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArgument(1));
+        org.mockito.Mockito.lenient().when(listasApi.exigirAtiva(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArgument(1));
+    }
+
     @InjectMocks
     private OrdemServicoUseCases useCases;
 
@@ -94,7 +101,7 @@ class OrdemServicoUseCasesTest {
     @BeforeEach
     void setUp() {
         ficha = FichaVeiculo.provisionar(idVeiculo, "ABC1D23", UUID.randomUUID());
-        pastilha = new ItemManutencao("PASTILHA", NaturezaServico.SUSPENSAO_FREIOS, null, null);
+        pastilha = new ItemManutencao("PASTILHA", "SUSPENSAO_FREIOS", null, null);
         ReflectionTestUtils.setField(pastilha, "id", UUID.randomUUID());
         lenient().when(fichaRepository.findByIdVeiculo(idVeiculo)).thenReturn(Optional.of(ficha));
         lenient().when(itens.buscarEntidades(anyList())).thenReturn(List.of(pastilha));
@@ -191,7 +198,7 @@ class OrdemServicoUseCasesTest {
 
         useCases.concluir(os.getId(), new ConcluirOrdemServicoRequest(agora.minusHours(5), agora.minusHours(1),
                 "Troca das pastilhas", null, new BigDecimal("300"), null, TipoOficina.INTERNA, null, null, null,
-                CausaManutencao.DESGASTE_NATURAL));
+                "DESGASTE_NATURAL"));
 
         assertThat(os.getSituacao()).isEqualTo(SituacaoOrdemServico.CONCLUIDA);
         assertThat(ficha.getSituacao()).isEqualTo(SituacaoOperacional.ATIVO);
@@ -246,7 +253,7 @@ class OrdemServicoUseCasesTest {
                 OrigemOrdemServico.VERBAL, Criticidade.URGENTE, null, "Pneu", null, agora.minusHours(6), null,
                 TipoOficina.EXTERNA, null, "Borracharia", false), List.of(pastilha), null));
         os.concluir(new OrdemServico.Encerramento(agora.minusHours(5), agora.minusHours(1), "Conserto do pneu", null,
-                new BigDecimal("20"), null, TipoOficina.EXTERNA, null, "Borracharia", CausaManutencao.AVARIA));
+                new BigDecimal("20"), null, TipoOficina.EXTERNA, null, "Borracharia", "AVARIA"));
         when(repository.findById(os.getId())).thenReturn(Optional.of(os));
 
         var preenchimento = useCases.preenchimentoFinanceiro(os.getId());

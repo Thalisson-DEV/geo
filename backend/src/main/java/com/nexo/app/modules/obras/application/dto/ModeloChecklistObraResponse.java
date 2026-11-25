@@ -14,6 +14,7 @@ public record ModeloChecklistObraResponse(
         int grupos,
         int perguntas,
         boolean emUso,
-        boolean ativo
+        boolean ativo,
+        boolean fotosTravamExecucao
 ) {
 }

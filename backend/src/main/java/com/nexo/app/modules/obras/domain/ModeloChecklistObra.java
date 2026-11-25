@@ -44,6 +44,10 @@ public class ModeloChecklistObra extends BaseEntity {
     @Column(name = "estrutura", nullable = false, columnDefinition = "jsonb")
     private EstruturaChecklist estrutura;
 
+    /** Fotos obrigatórias travam o "Tudo feito" (e as de antes, o "Parcial") no app. Desligado, só viram pendência. */
+    @Column(name = "fotos_travam_execucao", nullable = false)
+    private boolean fotosTravamExecucao = true;
+
     public ModeloChecklistObra(Finalidade finalidade, String titulo, String descricao, EstruturaChecklist estrutura) {
         this.finalidade = Objects.requireNonNull(finalidade);
         atualizarDados(titulo, descricao);
@@ -56,6 +60,10 @@ public class ModeloChecklistObra extends BaseEntity {
         }
         this.titulo = titulo.trim();
         this.descricao = descricao != null && !descricao.isBlank() ? descricao.trim() : null;
+    }
+
+    public void definirTravaDeFotos(boolean travam) {
+        this.fotosTravamExecucao = travam;
     }
 
     public void alterarEstrutura(EstruturaChecklist estrutura) {

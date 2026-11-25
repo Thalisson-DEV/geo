@@ -33,7 +33,6 @@ import com.nexo.app.modules.frota.application.dto.TransferenciaEstoqueFrotaReque
 import com.nexo.app.modules.frota.application.dto.VeiculoFrotaRequest;
 import com.nexo.app.modules.frota.domain.Combustivel;
 import com.nexo.app.modules.frota.domain.Criticidade;
-import com.nexo.app.modules.frota.domain.NaturezaServico;
 import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.OrigemPeca;
 import com.nexo.app.modules.frota.domain.RegimeVeiculo;
@@ -218,7 +217,7 @@ class PneusEstoqueOficinaUseCasesTest {
     void pecaDoEstoqueNaOsDaBaixaPeloCustoMedioEVoltaAoSairDaOs() {
         var pastilha = oficina.criarPeca(new PecaFrotaRequest("PD-10", "Pastilha dianteira", "JG", "Freios")).id();
         oficina.entrada(entrada(almoxarifado, pastilha, "3", "120.00"));
-        var item = itens.criar(new ItemManutencaoRequest("FREIO PNEU", NaturezaServico.SUSPENSAO_FREIOS, null, null)).id();
+        var item = itens.criar(new ItemManutencaoRequest("FREIO PNEU", "SUSPENSAO_FREIOS", null, null)).id();
         var os = ordens.abrir(new AbrirOrdemServicoRequest(idVeiculo, TipoManutencao.CORRETIVA, OrigemOrdemServico.VERBAL,
                 Criticidade.MEDIA, null, "Troca de pastilha", List.of(item), null, null, null, null, null, null, false)).ordem().id();
 

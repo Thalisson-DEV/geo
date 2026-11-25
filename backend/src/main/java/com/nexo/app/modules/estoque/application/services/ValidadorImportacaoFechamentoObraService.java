@@ -38,7 +38,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ValidadorImportacaoFechamentoObraService {
 
-    private static final Set<String> TIPOS = Set.of("221", "921", "222", "922");
     private static final int TAMANHO_OBSERVACAO = 1000;
     private static final int CASAS_DECIMAIS = 3;
     private static final List<DateTimeFormatter> FORMATOS_DATA = List.of(
@@ -143,11 +142,16 @@ public class ValidadorImportacaoFechamentoObraService {
 
     private static String tipo(FechamentoImportacaoDTO registro, Erros erros) {
         String tipo = texto(registro.tipo());
-        if (tipo == null || !TIPOS.contains(tipo)) {
-            erros.adicionar("tipo", "O tipo deve ser 221, 921, 222 ou 922.");
+        if (tipo == null) {
+            erros.adicionar("tipo", "O tipo deve ser Retirada, Retirada concreto, Devolução ou Devolução concreto (ou os códigos 221, 921, 222, 922).");
             return null;
         }
-        return tipo;
+        try {
+            return com.nexo.app.modules.estoque.domain.TipoSolicitacaoTecnica.porCodigo(tipo).getCodigo();
+        } catch (IllegalArgumentException ex) {
+            erros.adicionar("tipo", "O tipo deve ser Retirada, Retirada concreto, Devolução ou Devolução concreto (ou os códigos 221, 921, 222, 922).");
+            return null;
+        }
     }
 
     private Material material(

@@ -409,9 +409,9 @@ describe('RelatorioSolicitacaoMaterialComponent', () => {
   });
 
   it('deve exibir o tipo comercial fixado em 221', () => {
-    expect(component['tipoLabel'](component['solicitacao']()?.tipoTecnico)).toBe('221 — Saída Direta / Obra');
-    expect(component['tipoLabel']('ADICAO_COMUM')).toBe('221 — Saída Direta / Obra');
-    expect(component['tipoLabel']('221')).toBe('221 — Saída Direta / Obra');
+    expect(component['tipoLabel'](component['solicitacao']()?.tipoTecnico)).toBe('Retirada');
+    expect(component['tipoLabel']('ADICAO_COMUM')).toBe('Retirada');
+    expect(component['tipoLabel']('221')).toBe('Retirada');
     expect(component['tipoTone'](component['solicitacao']()?.tipoTecnico)).toBe('info');
     expect(component['tipoIcon'](component['solicitacao']()?.tipoTecnico)).toBe('pi pi-shopping-cart');
   });

@@ -35,6 +35,15 @@ public enum TipoSolicitacaoTecnica {
         return !adicao;
     }
 
+    public boolean isConcreto() {
+        return this == ADICAO_CONCRETO || this == DEVOLUCAO_CONCRETO;
+    }
+
+    /** Nome na tela: Retirada ou Devolução; o concreto aparece só como complemento. */
+    public String getRotulo() {
+        return (adicao ? "Retirada" : "Devolução") + (isConcreto() ? " · concreto" : "");
+    }
+
     public static TipoSolicitacaoTecnica porCodigo(String codigo) {
         if (codigo == null || codigo.isBlank()) {
             throw new IllegalArgumentException("Tipo tecnico invalido: " + codigo);
@@ -61,13 +70,14 @@ public enum TipoSolicitacaoTecnica {
         // 4. Descrição textual com ou sem acentos
         String normalizado = java.text.Normalizer.normalize(texto.toUpperCase(java.util.Locale.ROOT), java.text.Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "");
-        if (normalizado.contains("ADICAO") && normalizado.contains("CONCRETO")) {
+        boolean saida = normalizado.contains("ADICAO") || normalizado.contains("RETIRADA") || normalizado.contains("SAQUE");
+        if (saida && normalizado.contains("CONCRETO")) {
             return ADICAO_CONCRETO;
         }
         if (normalizado.contains("DEVOLUCAO") && normalizado.contains("CONCRETO")) {
             return DEVOLUCAO_CONCRETO;
         }
-        if (normalizado.contains("ADICAO")) {
+        if (saida) {
             return ADICAO_COMUM;
         }
         if (normalizado.contains("DEVOLUCAO")) {

@@ -2,14 +2,14 @@ import { NomeIcone } from '../../ui/icone.component';
 import { Tom } from './almox-status';
 import { AcaoSolicitacao, Estoque, ResumoSolicitacao, Solicitacao, SubEtapaKanban } from './almox.models';
 
-/** Os quatro movimentos técnicos, no vocabulário do web. */
+/** Os quatro movimentos técnicos. O código (221/921/222/922) só vale na importação; a tela usa o rótulo. */
 export interface DefTipoTecnico { codigo: string; nome: string; rotulo: string; adicao: boolean }
 
 export const TIPOS_TECNICOS: readonly DefTipoTecnico[] = [
-  { codigo: '221', nome: 'ADICAO_COMUM', rotulo: 'Adição comum', adicao: true },
-  { codigo: '921', nome: 'ADICAO_CONCRETO', rotulo: 'Adição de concreto', adicao: true },
-  { codigo: '222', nome: 'DEVOLUCAO_COMUM', rotulo: 'Devolução comum', adicao: false },
-  { codigo: '922', nome: 'DEVOLUCAO_CONCRETO', rotulo: 'Devolução de concreto', adicao: false },
+  { codigo: '221', nome: 'ADICAO_COMUM', rotulo: 'Retirada', adicao: true },
+  { codigo: '921', nome: 'ADICAO_CONCRETO', rotulo: 'Retirada · concreto', adicao: true },
+  { codigo: '222', nome: 'DEVOLUCAO_COMUM', rotulo: 'Devolução', adicao: false },
+  { codigo: '922', nome: 'DEVOLUCAO_CONCRETO', rotulo: 'Devolução · concreto', adicao: false },
 ];
 
 /** Aceita o código (221) ou o nome do enum (ADICAO_COMUM), como o backend devolve. */

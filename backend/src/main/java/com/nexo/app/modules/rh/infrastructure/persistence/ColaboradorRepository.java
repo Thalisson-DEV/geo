@@ -36,6 +36,10 @@ public interface ColaboradorRepository extends JpaRepository<Colaborador, UUID>,
 
     boolean existsByCpfHash(String cpfHash);
 
+    boolean existsByMatriculaAndAtivoTrueAndIdNot(String matricula, UUID id);
+
+    Optional<Colaborador> findFirstByMatriculaAndAtivoTrue(String matricula);
+
     List<Colaborador> findByAtivoTrueAndFuncaoIn(Collection<Funcao> funcoes);
 
     List<Colaborador> findByAtivoTrueAndFuncaoId(UUID idFuncao);

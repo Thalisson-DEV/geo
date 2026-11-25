@@ -152,10 +152,10 @@ class SolicitacaoCompraTest {
 
         compra.atualizarConteudo(NucleoSolicitacao.de(new ValoresCanonicos(Map.of(
                 CampoCanonico.VALOR, new BigDecimal("750.00"),
-                CampoCanonico.NATUREZA_SERVICO, NaturezaServicoFrota.MECANICA))));
+                CampoCanonico.NATUREZA_SERVICO, "MECANICA"))));
 
         assertEquals(new BigDecimal("750.00"), compra.getNucleo().getValor());
-        assertEquals(NaturezaServicoFrota.MECANICA, compra.getNucleo().getNaturezaServico());
+        assertEquals("MECANICA", compra.getNucleo().getNaturezaServico());
         // Substituição integral: o que não veio no novo núcleo não sobrevive.
         assertEquals(null, compra.getNucleo().getDescricao());
     }

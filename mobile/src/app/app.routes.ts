@@ -54,6 +54,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/material/saldo/estoque-list.component').then(m => m.EstoqueListComponent)
       },
       {
+        // Canteiro: a equipe deixa ou pega material perto da obra, sem perder a obra do material.
+        path: 'material/canteiro',
+        canMatch: [logisticaGuard],
+        loadComponent: () => import('./features/material/canteiro/canteiro.component').then(m => m.CanteiroComponent)
+      },
+      {
         path: 'transferencias',
         canMatch: [logisticaGuard],
         loadChildren: () => import('./features/transferencias/transferencias.routes').then(m => m.TRANSFERENCIAS_ROUTES)

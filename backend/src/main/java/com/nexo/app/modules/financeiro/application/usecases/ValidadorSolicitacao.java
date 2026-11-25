@@ -1,5 +1,8 @@
 package com.nexo.app.modules.financeiro.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.financeiro.domain.CampoCanonico;
 import com.nexo.app.modules.financeiro.domain.CampoFormulario;
 import com.nexo.app.modules.financeiro.domain.FormaPagamento;
@@ -42,6 +45,7 @@ public class ValidadorSolicitacao {
     private static final int ESCALA_MOEDA = 2;
 
     private final ResolvedorReferencias resolvedor;
+    private final ListasApi listasApi;
 
     /**
      * Valida e converte o preenchimento.
@@ -188,6 +192,13 @@ public class ValidadorSolicitacao {
 
     private String converterSelecaoUnica(CampoFormulario campo, Object bruto) {
         String valor = bruto.toString().trim();
+        ListaConfiguravel lista = campo.getCampoCanonico().getLista();
+        if (lista != null) {
+            if (listasApi.ativas(lista).stream().noneMatch(o -> o.codigo().equals(valor))) {
+                throw new ErroDeCampo("O valor '" + valor + "' não é uma opção ativa para '" + campo.getRotulo() + "'.");
+            }
+            return valor;
+        }
         if (!campo.valoresAceitos().contains(valor)) {
             throw new ErroDeCampo("O valor '" + valor + "' não é uma opção válida para '"
                     + campo.getRotulo() + "'.");

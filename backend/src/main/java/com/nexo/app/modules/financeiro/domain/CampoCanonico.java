@@ -1,5 +1,7 @@
 package com.nexo.app.modules.financeiro.domain;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 
 import java.math.BigDecimal;
@@ -108,7 +110,7 @@ public enum CampoCanonico {
     REGIME_VEICULO("regimeVeiculo", TipoCampo.SELECAO_UNICA, null, RegimeVeiculo.class,
             GrupoCampo.FROTA, "Veículo Próprio ou Locado?", TipoSolicitacao.COMPRA),
 
-    NATUREZA_SERVICO("naturezaServico", TipoCampo.SELECAO_UNICA, null, NaturezaServicoFrota.class,
+    NATUREZA_SERVICO("naturezaServico", TipoCampo.SELECAO_UNICA, ListaConfiguravel.NATUREZA_SERVICO_FROTA,
             GrupoCampo.FROTA, "Natureza", TipoSolicitacao.COMPRA),
 
     MOTIVO_SERVICO("motivoServico", TipoCampo.SELECAO_UNICA, null, MotivoServicoFrota.class,
@@ -174,6 +176,8 @@ public enum CampoCanonico {
     private final TipoCampo tipoCampo;
     private final FonteReferencia fonteReferencia;
     private final Class<? extends Enum<?>> enumeracao;
+    /** Lista do cadastro do cliente que origina as opções, quando não é uma enumeração fechada. */
+    private final ListaConfiguravel lista;
     private final GrupoCampo grupo;
     private final String rotuloPadrao;
     private final Set<TipoSolicitacao> aplicavelA;
@@ -201,6 +205,20 @@ public enum CampoCanonico {
         this.tipoCampo = tipoCampo;
         this.fonteReferencia = fonteReferencia;
         this.enumeracao = enumeracao;
+        this.lista = null;
+        this.grupo = grupo;
+        this.rotuloPadrao = rotuloPadrao;
+        this.aplicavelA = EnumSet.copyOf(Arrays.asList(aplicavelA));
+    }
+
+    /** Campo de escolha cujas opções vêm de uma lista configurável (mesmo cadastro usado pela frota). */
+    CampoCanonico(String chave, TipoCampo tipoCampo, ListaConfiguravel lista, GrupoCampo grupo, String rotuloPadrao,
+                  TipoSolicitacao... aplicavelA) {
+        this.chave = chave;
+        this.tipoCampo = tipoCampo;
+        this.fonteReferencia = null;
+        this.enumeracao = null;
+        this.lista = lista;
         this.grupo = grupo;
         this.rotuloPadrao = rotuloPadrao;
         this.aplicavelA = EnumSet.copyOf(Arrays.asList(aplicavelA));
@@ -292,6 +310,11 @@ public enum CampoCanonico {
      */
     public Class<? extends Enum<?>> getEnumeracao() {
         return enumeracao;
+    }
+
+    /** Lista configurável que origina as opções, ou nula quando o campo usa uma enumeração ou não tem opções. */
+    public ListaConfiguravel getLista() {
+        return lista;
     }
 
     /** Rótulo sugerido; a configuração do formulário pode sobrescrevê-lo. */

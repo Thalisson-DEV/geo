@@ -29,6 +29,21 @@ public interface ItemPlanejadoRepository extends JpaRepository<ItemPlanejado, UU
             """)
     List<ServicosDaObra> somarServicos(@Param("ids") Collection<UUID> ids);
 
+    record MaterialDaObra(UUID idMaterial, BigDecimal previsto, BigDecimal executado) {
+    }
+
+    /** Material a instalar planejado na obra, somado por material, com o que já foi apontado. */
+    @Query("""
+            select new com.nexo.app.modules.obras.infrastructure.persistence.ItemPlanejadoRepository$MaterialDaObra(
+                i.idMaterial, sum(i.quantidadePrevista), sum(i.quantidadeExecutada))
+            from ItemPlanejado i join i.kitAplicado k
+            where k.idObra = :idObra and i.ativo = true and k.ativo = true and k.executadoAntes = false
+              and i.tipo = com.nexo.app.modules.obras.domain.TipoItemKit.MATERIAL and i.idMaterial is not null
+              and i.operacao = com.nexo.app.modules.obras.domain.OperacaoItemKit.INSTALAR
+            group by i.idMaterial
+            """)
+    List<MaterialDaObra> somarMateriais(@Param("idObra") UUID idObra);
+
     /** Serviços planejados da obra: o total e quantos ainda não foram concluídos (pendentes, programados ou em andamento). */
     @Query("""
             select count(i), coalesce(sum(case when i.status in (com.nexo.app.modules.obras.domain.StatusItemPlanejado.CONCLUIDO,

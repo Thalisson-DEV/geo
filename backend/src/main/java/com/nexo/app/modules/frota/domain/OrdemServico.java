@@ -163,9 +163,8 @@ public class OrdemServico extends BaseEntity {
     private BigDecimal valorTotal;
 
     /** Obrigatória para concluir (exceto OS importada). */
-    @Enumerated(EnumType.STRING)
     @Column(name = "causa", length = 30)
-    private CausaManutencao causa;
+    private String causa;
 
     @Column(name = "desconto", nullable = false, precision = 14, scale = 2)
     private BigDecimal desconto = BigDecimal.ZERO;
@@ -284,7 +283,7 @@ public class OrdemServico extends BaseEntity {
         /** Conclusão com a baixa no mesmo passo (o formato de antes da baixa pendente). */
         public Encerramento(OffsetDateTime inicioReal, OffsetDateTime fimReal, String descricaoServico,
                             String itensSubstituidos, BigDecimal valorTotal, Long kmEncerramento,
-                            TipoOficina tipoOficina, UUID idFornecedor, String oficinaNome, CausaManutencao causa) {
+                            TipoOficina tipoOficina, UUID idFornecedor, String oficinaNome, String causa) {
             this(inicioReal, fimReal, kmEncerramento, new Baixa(descricaoServico, itensSubstituidos, valorTotal,
                     tipoOficina, idFornecedor, oficinaNome, causa));
         }
@@ -298,7 +297,7 @@ public class OrdemServico extends BaseEntity {
             TipoOficina tipoOficina,
             UUID idFornecedor,
             String oficinaNome,
-            CausaManutencao causa
+            String causa
     ) {
     }
 

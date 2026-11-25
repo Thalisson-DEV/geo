@@ -275,6 +275,8 @@ export interface ColaboradorResponse {
   funcao: FuncaoResponse;
   dataContratacao: string;
   ativo: boolean;
+  /** Matrícula da empresa: identifica quem retira material no balcão. */
+  matricula?: string | null;
 }
 
 export interface ColaboradorRequest {
@@ -286,6 +288,7 @@ export interface ColaboradorRequest {
   idProcesso: string;
   idBaseOperacional: string;
   idFuncao: string;
+  matricula?: string | null;
 }
 
 export interface ColaboradorUpdateRequest {

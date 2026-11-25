@@ -11,17 +11,8 @@ export type Combustivel = 'DIESEL_S10' | 'DIESEL_S500' | 'GASOLINA' | 'ETANOL' |
 export type ProvedorTelemetria = 'UBICALY' | 'ZUQ';
 export type CategoriaCnh = 'A' | 'B' | 'C' | 'D' | 'E' | 'AB' | 'AC' | 'AD' | 'AE';
 export type SituacaoVencimento = 'SEM_VENCIMENTO' | 'VIGENTE' | 'A_VENCER' | 'VENCIDO';
-export type TipoDocumentoFrota =
-  | 'CRLV'
-  | 'LICENCIAMENTO'
-  | 'IPVA'
-  | 'SEGURO'
-  | 'TACOGRAFO'
-  | 'ANTT'
-  | 'INSPECAO_VEICULAR'
-  | 'LAUDO_IMPLEMENTO'
-  | 'CONTRATO_LOCACAO'
-  | 'OUTRO';
+/** Código do cadastro (lista configurável do cliente). */
+export type TipoDocumentoFrota = string;
 export type OrigemLeituraOdometro = 'MANUAL' | 'CHECKLIST' | 'ABASTECIMENTO' | 'MANUTENCAO' | 'TELEMETRIA' | 'IMPORTACAO';
 export type SituacaoLeituraOdometro = 'VALIDA' | 'INCONSISTENTE' | 'ANULADA';
 /** Odômetro em km ou horímetro em horas. */
@@ -767,14 +758,8 @@ export interface OrdemServicoDetalhe {
 }
 
 /** Por que a manutenção aconteceu (obrigatória para concluir). */
-export type CausaManutencao =
-  | 'AVARIA'
-  | 'DESGASTE_NATURAL'
-  | 'USO_INDEVIDO'
-  | 'SERVICO_CORRETIVO'
-  | 'SERVICO_PREVENTIVO'
-  | 'ESTOQUE'
-  | 'SUBSTITUICAO_PNEUS';
+/** Código do cadastro (lista configurável do cliente). */
+export type CausaManutencao = string;
 
 /** De onde veio a peça: estoque só registra a origem; a baixa vem na Fase 4. */
 export type OrigemPeca = 'ESTOQUE' | 'COMPRA';

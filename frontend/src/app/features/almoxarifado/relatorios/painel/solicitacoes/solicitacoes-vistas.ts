@@ -247,7 +247,7 @@ export function visaoGerencial(r: Recorte, modo: ModoPainel): VisaoGerencial {
         icone: 'pi pi-calendar-plus',
         titulo: 'Técnicas sem planejamento completo',
         valor: plural(semPlanejamento.length, 'solicitação', 'solicitações'),
-        texto: `Falta data prevista, equipe de saque ou reserva${semReserva ? ` (${semReserva} sem reserva registrada)` : ''}: não entram na fila de separação.`,
+        texto: `Falta data prevista, equipe que retira ou reserva${semReserva ? ` (${semReserva} sem reserva registrada)` : ''}: não entram na fila de separação.`,
         acao: { rotulo: 'Ver a etapa', alvo: { dimension: 'etapa', value: 'PENDENTE_PLANEJAMENTO' } }
       });
     }
@@ -259,7 +259,7 @@ export function visaoGerencial(r: Recorte, modo: ModoPainel): VisaoGerencial {
         icone: 'pi pi-replay',
         titulo: 'Devoluções técnicas em aberto',
         valor: plural(devolucoes.length, 'devolução', 'devoluções'),
-        texto: `Material que ainda precisa voltar ao almoxarifado (222/922); ${devolucoes.filter((l) => atrasada(l, r.hoje)).length} passou(aram) da data prevista.`,
+        texto: `Material que ainda precisa voltar ao almoxarifado; ${devolucoes.filter((l) => atrasada(l, r.hoje)).length} passou(aram) da data prevista.`,
         acao: { rotulo: 'Ver devoluções', alvo: { dimension: 'etapa', value: 'PENDENTE_DEVOLUCAO' } }
       });
     }

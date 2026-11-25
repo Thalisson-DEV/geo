@@ -51,7 +51,7 @@ describe('ObraMateriaisComponent', () => {
     expect(linhas[0].textContent).toContain('1 com pendência');
     expect(linhas[0].textContent).toContain('1 material');
     expect(linhas[2].textContent).toContain('Devolução');
-    expect(linhas[2].textContent).toContain('922');
+    expect(linhas[2].textContent).toContain('concreto');
     expect(linhas[2].textContent).toContain('Obra → Central');
     expect(linhas[0].getAttribute('aria-expanded')).toBe('false');
   });
@@ -72,7 +72,7 @@ describe('ObraMateriaisComponent', () => {
   });
 
   it('expandir e recolher todas valem só para a seção', () => {
-    const { fixture, el } = abrir([solicitacao('sol-1'), solicitacao('sol-2')], [movimentacao, { ...movimentacao, idReferencia: 'ref-2' }]);
+    const { fixture, el } = abrir([solicitacao('sol-1'), solicitacao('sol-2')], [movimentacao, { ...movimentacao, idReferencia: 'ref-2', dataHora: '2026-11-01T09:00:00-03:00' }]);
     const acoes = el.querySelectorAll<HTMLButtonElement>('.mat-secao__acoes button');
 
     acoes[0].click();
@@ -86,6 +86,14 @@ describe('ObraMateriaisComponent', () => {
     acoes[1].click();
     fixture.detectChanges();
     expect(abertos(el)).toBe(2);
+  });
+
+  it('junta numa linha as movimentações do mesmo dia, tipo e caminho', () => {
+    const { el } = abrir([], [movimentacao, { ...movimentacao, idReferencia: 'ref-2', dataHora: '2026-10-31T15:00:00-03:00' }]);
+    const linhas = el.querySelectorAll('.mat-linha');
+
+    expect(linhas).toHaveLength(1);
+    expect(linhas[0].textContent).toContain('2 lançamentos no dia');
   });
 
   it('só chama de fora do saldo a entrada gerada por devolução', () => {

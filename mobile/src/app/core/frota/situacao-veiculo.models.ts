@@ -31,6 +31,8 @@ export interface PendenciaVeiculo {
 
 export interface DocumentoVeiculo {
   tipo: string;
+  /** Nome do tipo no cadastro do cliente; falta em pacote antigo. */
+  tipoRotulo?: string | null;
   descricao: string | null;
   vencimento: string;
   situacao: SituacaoVencimento;
@@ -62,6 +64,7 @@ export interface SituacaoVeiculo {
 export interface DocumentoConjunto {
   id: string;
   tipo: string;
+  tipoRotulo?: string | null;
   descricao?: string | null;
   /** Placa do veículo ou identificação do implemento. */
   titular?: string | null;
@@ -179,8 +182,8 @@ export function situacaoDocumento(d: DocumentoVeiculo): { rotulo: string; tom: T
   return { rotulo: 'Em dia', tom: 'ok' };
 }
 
-export function nomeDocumento(d: { tipo: string; descricao?: string | null }): string {
-  return d.tipo === 'OUTRO' && d.descricao ? d.descricao : TIPO_DOCUMENTO[d.tipo] ?? d.tipo;
+export function nomeDocumento(d: { tipo: string; descricao?: string | null; tipoRotulo?: string | null }): string {
+  return d.tipo === 'OUTRO' && d.descricao ? d.descricao : d.tipoRotulo ?? TIPO_DOCUMENTO[d.tipo] ?? d.tipo;
 }
 
 export function formatarMedicao(valor: number | null, unidade: 'KM' | 'HORAS'): string {

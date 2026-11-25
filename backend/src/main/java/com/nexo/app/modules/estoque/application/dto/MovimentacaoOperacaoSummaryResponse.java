@@ -1,7 +1,6 @@
 package com.nexo.app.modules.estoque.application.dto;
 
 import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
-import com.nexo.app.modules.estoque.domain.MotivoMovimentacao;
 import com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao;
 import com.nexo.app.modules.estoque.domain.TipoObraSnapshot;
 import com.nexo.app.modules.estoque.domain.TipoSolicitacaoTecnica;
@@ -59,5 +58,5 @@ public class MovimentacaoOperacaoSummaryResponse extends RepresentationModel<Mov
     private String numeroNota;
 
     @Schema(description = "Motivo da entrada ou da baixa avulsa")
-    private MotivoMovimentacao motivo;
+    private String motivo;
 }

@@ -14,7 +14,7 @@ const COLUNAS: readonly DefColuna[] = [
     grupos: [{ sub: 'PRONTO_PARA_SEPARACAO', rotulo: 'Para separar', tom: 'atencao' }, { sub: 'EM_SEPARACAO', rotulo: 'Em separação', tom: 'destaque' }] },
   { id: 'ENTREGAR', titulo: 'Entregar', subtitulo: 'Separadas, esperando a retirada', icone: 'caminhao', tom: 'destaque', vazio: 'Nenhuma retirada pendente.',
     grupos: [{ sub: 'SEPARADO', rotulo: 'Separadas', tom: 'destaque' }, { sub: 'PENDENTE_RETIRADA', rotulo: 'Entregues em parte', tom: 'atencao' }] },
-  { id: 'RECEBER', titulo: 'Receber', subtitulo: 'Devoluções 222/922 a receber', icone: 'desfazer', tom: 'atencao', vazio: 'Nenhuma devolução a receber.',
+  { id: 'RECEBER', titulo: 'Receber', subtitulo: 'Devoluções a receber', icone: 'desfazer', tom: 'atencao', vazio: 'Nenhuma devolução a receber.',
     grupos: [{ sub: 'PENDENTE_DEVOLUCAO', rotulo: 'A receber', tom: 'atencao' }] },
   { id: 'PLANEJAMENTO', titulo: 'Planejamento', subtitulo: 'Ainda sem data ou sem reserva', icone: 'calendario', tom: 'neutro', vazio: 'Nada em planejamento.',
     grupos: [{ sub: 'PENDENTE_PLANEJAMENTO', rotulo: 'Pendente de planejamento', tom: 'atencao' }, { sub: 'PLANEJADO', rotulo: 'Planejadas', tom: 'neutro' }] },

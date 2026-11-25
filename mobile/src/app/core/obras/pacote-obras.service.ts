@@ -57,6 +57,8 @@ export class PacoteObrasService {
   readonly obras = signal<ObraCampo[]>([]);
   readonly modeloApr = signal<ModeloApr | null>(null);
   readonly modelosFoto = signal<ModeloFoto[]>([]);
+  /** Motivos de ocorrência do cadastro; vazio até o primeiro pacote que os traga. */
+  readonly motivosOcorrencia = signal<{ codigo: string; rotulo: string }[]>([]);
   readonly avisos = signal<AvisoProgramacao[]>([]);
   readonly avisosVistos = signal<string[]>([]);
   readonly ultimaSync = signal<string | null>(null);
@@ -96,6 +98,7 @@ export class PacoteObrasService {
     this.obrasAbertas.set(abertas?.value ?? []);
     this.modeloApr.set(modelos?.value?.apr ?? null);
     this.modelosFoto.set(modelos?.value?.fotos ?? []);
+    this.motivosOcorrencia.set(modelos?.value?.motivosOcorrencia ?? []);
     this.avisos.set(avisos?.value ?? []);
     this.avisosVistos.set(vistos?.value ?? []);
     this.codigoEquipe.set(equipe?.value ?? null);
@@ -241,7 +244,7 @@ export class PacoteObrasService {
         .filter((a, i, todos) => todos.findIndex(b => b.id === a.id) === i).slice(-50);
       await db.config.bulkPut([
         { key: CHAVE_DESDE, value: pacote.geradoEm },
-        { key: CHAVE_MODELOS, value: { apr: pacote.modeloApr, fotos: pacote.modelosFoto } },
+        { key: CHAVE_MODELOS, value: { apr: pacote.modeloApr, fotos: pacote.modelosFoto, motivosOcorrencia: pacote.motivosOcorrencia ?? [] } },
         { key: CHAVE_AVISOS, value: avisos },
         { key: CHAVE_EQUIPE, value: pacote.codigoEquipe ?? null },
         { key: CHAVE_RECEBIDO_EM, value: recebidoEm },

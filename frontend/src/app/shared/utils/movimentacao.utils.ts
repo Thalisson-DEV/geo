@@ -1,5 +1,5 @@
 import { GeoTone } from '@geo/ui';
-import { MaterialResponse, MotivoMovimentacao, MovimentacaoItemResponse, TipoMovimentacao } from '../../core/models/almoxarifado.models';
+import { MaterialResponse, MovimentacaoItemResponse, TipoMovimentacao } from '../../core/models/almoxarifado.models';
 
 interface ApresentacaoTipo {
   readonly rotulo: string;
@@ -31,32 +31,15 @@ export function iconeTipoMovimentacao(tipo?: string | null): string {
   return TIPOS_MOVIMENTACAO[tipo as TipoMovimentacao]?.icone ?? 'pi pi-tag';
 }
 
-export const MOTIVOS_ENTRADA: { label: string; value: MotivoMovimentacao }[] = [
-  { label: 'Ajuste de inventário (positivo)', value: 'AJUSTE_INVENTARIO' },
-  { label: 'Devolução de equipe ou obra', value: 'DEVOLUCAO_CAMPO' },
-  { label: 'Aquisição ou suprimento extraordinário', value: 'AQUISICAO_EXTRA' },
-  { label: 'Doação ou bonificação', value: 'DOACAO_BONIFICACAO' },
-  { label: 'Outros', value: 'OUTROS' }
-];
-
-export const MOTIVOS_BAIXA: { label: string; value: MotivoMovimentacao }[] = [
-  { label: 'Perda ou extravio', value: 'PERDA_AVARIA' },
-  { label: 'Avaria ou dano físico', value: 'DANIFICACAO' },
-  { label: 'Sucateamento ou descarte', value: 'SUCATEAMENTO' },
-  { label: 'Ajuste de inventário (negativo)', value: 'AJUSTE_INVENTARIO' },
-  { label: 'Obsolescência ou vencimento', value: 'OBSOLESCENCIA' },
-  { label: 'Outros', value: 'OUTROS' }
-];
-
-/** Ajuste de inventário vale para os dois lados; no filtro e na prévia ele é um só. */
-export const MOTIVOS_MOVIMENTACAO: { label: string; value: MotivoMovimentacao }[] = [
-  { label: 'Ajuste de inventário', value: 'AJUSTE_INVENTARIO' },
-  ...[...MOTIVOS_ENTRADA, ...MOTIVOS_BAIXA].filter((m) => m.value !== 'AJUSTE_INVENTARIO' && m.value !== 'OUTROS'),
-  { label: 'Outros', value: 'OUTROS' }
-];
-
-export function rotuloMotivo(motivo?: string | null): string {
-  return MOTIVOS_MOVIMENTACAO.find((m) => m.value === motivo)?.label ?? '—';
+/**
+ * Nome do motivo para mostrar: o que veio do cadastro na resposta ({@code motivoRotulo}); sem ele, o código legível.
+ * As opções dos formulários vêm do cadastro de motivos (ListasService), não daqui.
+ */
+export function rotuloMotivo(motivo?: string | null, rotulo?: string | null): string {
+  if (rotulo) return rotulo;
+  if (!motivo) return '—';
+  const texto = motivo.replace(/_/g, ' ').toLowerCase();
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
 const TOM_CONDICAO: Record<string, GeoTone> = {

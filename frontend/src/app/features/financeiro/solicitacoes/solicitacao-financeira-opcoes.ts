@@ -1,3 +1,4 @@
+import { OPCOES_FILTRO_LISTAS } from '../../../core/models/listas.models';
 import {
   FormaPagamento,
   LocalAquisicao,
@@ -49,27 +50,8 @@ export const REGIME_VEICULO_OPTIONS: OpcaoFiltro<RegimeVeiculo>[] = [
   { label: 'Locado', value: 'LOCADO' }
 ];
 
-export const NATUREZA_SERVICO_OPTIONS: OpcaoFiltro<NaturezaServico>[] = [
-  ['Compra e reforma de pneus', 'COMPRA_E_REFORMA_DE_PNEUS'],
-  ['Suspensão e freios', 'SUSPENSAO_FREIOS'],
-  ['Arrefecimento', 'ARREFECIMENTO'],
-  ['Transmissão', 'TRANSMISSAO'],
-  ['Elétrica', 'ELETRICA'],
-  ['Chaparia e pintura', 'CHAPARIA_E_PINTURA'],
-  ['Guincho', 'GUINCHO'],
-  ['Hidráulica', 'HIDRAULICA'],
-  ['Tapeçaria', 'TAPECARIA'],
-  ['Lavagem e lubrificação', 'LAVAGEM_E_LUBRIFICACAO'],
-  ['Acessórios', 'ACESSORIOS'],
-  ['Bateria', 'BATERIA'],
-  ['Borracharia', 'BORRACHARIA'],
-  ['Mecânica', 'MECANICA'],
-  ['Pneumática', 'PNEUMATICA'],
-  ['Posto de molas', 'POSTO_DE_MOLAS'],
-  ['Refrigeração e climatização', 'REFRIGERACAO_E_CLIMATIZACAO'],
-  ['Tacógrafo', 'TACOGRAFO'],
-  ['Torneadora', 'TORNEADORA']
-].map(([label, value]) => ({ label, value: value as NaturezaServico }));
+/** Naturezas do cadastro da frota (lista configurável); o array é atualizado quando o cadastro chega. */
+export const NATUREZA_SERVICO_OPTIONS = OPCOES_FILTRO_LISTAS.NATUREZA_SERVICO_FROTA as OpcaoFiltro<NaturezaServico>[];
 
 export const MOTIVO_SERVICO_OPTIONS: OpcaoFiltro<MotivoServico>[] = [
   { label: 'Desgaste natural', value: 'DESGASTE_NATURAL' },

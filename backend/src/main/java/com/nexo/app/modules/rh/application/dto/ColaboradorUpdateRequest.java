@@ -24,5 +24,13 @@ public record ColaboradorUpdateRequest(
     UUID idBaseOperacional,
 
     @NotNull(message = "O ID da função é obrigatório")
-    UUID idFuncao
-) {}
+    UUID idFuncao,
+
+    /** Matrícula da empresa (opcional, única entre os colaboradores ativos). */
+    @jakarta.validation.constraints.Size(max = 30, message = "A matrícula deve ter até 30 caracteres.")
+    String matricula
+) {
+    public ColaboradorUpdateRequest(String primeiroNome, String ultimoNome, String nomeCompleto, UUID idProcesso, UUID idBaseOperacional, UUID idFuncao) {
+        this(primeiroNome, ultimoNome, nomeCompleto, idProcesso, idBaseOperacional, idFuncao, null);
+    }
+}

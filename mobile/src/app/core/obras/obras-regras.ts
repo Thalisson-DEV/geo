@@ -207,6 +207,22 @@ export function proximaFoto(vagas: VagaFoto[], situacao: SituacaoPonto): VagaFot
     ?? null;
 }
 
+/**
+ * Fotos que travam o lançamento quando o modelo pede (trava ligada): o "Tudo feito" exige todas as obrigatórias do
+ * ponto (inclusive a reprovada, que precisa ser refeita); o "Parcial", só as obrigatórias de antes de começar.
+ */
+export function fotosQueTravam(vagas: VagaFoto[], lancamento: 'TUDO' | 'PARCIAL'): VagaFoto[] {
+  return vagas.filter(v => v.obrigatoria && (v.situacao === 'FALTA' || v.situacao === 'REFAZER')
+    && (lancamento === 'TUDO' || v.etapa === 'ANTES'));
+}
+
+/** "a foto X" / "as fotos X e Y" para a mensagem da trava. */
+export function textoFotosQueFaltam(vagas: VagaFoto[]): string {
+  const nomes = vagas.map(v => `“${v.item.titulo}”`);
+  if (nomes.length === 1) return `a foto ${nomes[0]}`;
+  return `as fotos ${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}`;
+}
+
 /** A foto do momento que já passou (ex.: a de "durante" com o ponto pronto). */
 export function fotoAtrasada(vaga: VagaFoto, situacao: SituacaoPonto): boolean {
   return vaga.etapa != null && ORDEM_ETAPA[vaga.etapa] < FASE_DO_PONTO[situacao];
@@ -263,8 +279,11 @@ export function sugestoesApr(modelo: ModeloApr, condicoes: CondicaoApr[]): { ris
   return { riscos: modelo.riscos.filter(r => riscos.has(r)), medidas: modelo.medidas.filter(m => medidas.has(m)) };
 }
 
-/** Medida que cada risco pede: ao marcar o risco na APR, a medida vem marcada junto (dá para desmarcar). */
-const MEDIDAS_DO_RISCO: Record<string, string[]> = {
+/**
+ * Medida que cada risco pede: ao marcar o risco na APR, a medida vem marcada junto (dá para desmarcar). Vale só para
+ * pacote guardado antes do cadastro da APR; o pacote novo traz {@code medidasDoRisco}.
+ */
+const MEDIDAS_DO_RISCO_ANTIGO: Record<string, string[]> = {
   'Queda de altura': ['Inspeção de escada e cinto'],
   'Movimentação de carga': ['Plano de içamento', 'Sinalização e isolamento da área'],
   'Tráfego de veículos': ['Sinalização e isolamento da área'],
@@ -275,13 +294,19 @@ const MEDIDAS_DO_RISCO: Record<string, string[]> = {
 };
 
 /** Medidas do modelo que o risco pede (só as que existem no modelo). */
-export function medidasDoRisco(modelo: Pick<ModeloApr, 'medidas'>, risco: string): string[] {
-  return (MEDIDAS_DO_RISCO[risco] ?? []).filter(m => modelo.medidas.includes(m));
+export function medidasDoRisco(modelo: Pick<ModeloApr, 'medidas' | 'medidasDoRisco'>, risco: string): string[] {
+  const doRisco = modelo.medidasDoRisco ? modelo.medidasDoRisco[risco] : MEDIDAS_DO_RISCO_ANTIGO[risco];
+  return (doRisco ?? []).filter(m => modelo.medidas.includes(m));
 }
 
-/** Verificações que fazem sentido: "Desligamento confirmado" só com desligamento. */
+/**
+ * Verificações que fazem sentido no serviço: a do cadastro com condições só aparece se o serviço tiver uma delas. Pacote
+ * antigo, sem as condições, mantém a regra de antes ("Desligamento confirmado" só com desligamento).
+ */
 export function verificacoesDaApr(modelo: ModeloApr, condicoes: CondicaoApr[]): string[] {
-  return modelo.verificacoes.filter(v => !/desligamento/i.test(v) || condicoes.includes('DESLIGAMENTO'));
+  const exigidas = modelo.condicoesDasVerificacoes;
+  if (!exigidas) return modelo.verificacoes.filter(v => !/desligamento/i.test(v) || condicoes.includes('DESLIGAMENTO'));
+  return modelo.verificacoes.filter(v => !exigidas[v]?.length || exigidas[v].some(c => condicoes.includes(c as CondicaoApr)));
 }
 
 /** O que falta para concluir a APR; vazio = pode concluir. "Não" impede, como no servidor. */

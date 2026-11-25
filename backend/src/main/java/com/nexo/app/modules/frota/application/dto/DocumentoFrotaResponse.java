@@ -1,7 +1,6 @@
 package com.nexo.app.modules.frota.application.dto;
 
 import com.nexo.app.modules.frota.domain.SituacaoVencimento;
-import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -12,7 +11,7 @@ public record DocumentoFrotaResponse(
         String placa,
         UUID idImplemento,
         String implemento,
-        TipoDocumentoFrota tipo,
+        String tipo,
         String tipoRotulo,
         String descricao,
         String numero,

@@ -26,6 +26,7 @@ import {
   EstoqueLocal,
   SaldoLocal,
   SaldoSerieLocal,
+  SaldoObraLocal,
   ProcessoLocal,
   TransferenciaLocal,
   OutboxItem,
@@ -1140,6 +1141,7 @@ export class SyncService {
     if (podeLogistica && estoqueId) {
       etapas.push({ nome: 'Saldos de materiais', exec: () => this.syncSaldos(estoqueId) });
       etapas.push({ nome: 'Números de série', exec: () => this.syncSeriais(estoqueId) });
+      etapas.push({ nome: 'Material por obra e canteiros', exec: () => this.syncSaldosPorObra(estoqueId) });
     }
 
     const resultados = await Promise.allSettled(etapas.map(e => e.exec()));
@@ -1207,6 +1209,42 @@ export class SyncService {
 
     // Substituição atômica de saldos
     await this.dbService.replaceSaldos(saldos);
+  }
+
+  /**
+   * Baixa o caminhão e os canteiros separados por obra, para a equipe ver de qual obra é cada material e
+   * deixar/pegar no canteiro mesmo sem sinal.
+   */
+  async syncSaldosPorObra(estoqueId?: string): Promise<void> {
+    const equipeId = this.tokenService.equipeId();
+    if (!estoqueId || !equipeId) return;
+    const base = `${this.baseUrl}/v1/estoque-obra`;
+    const caminhao = await firstValueFrom(this.http.get<any>(`${base}/equipes/${equipeId}/caminhao`, this.silentOpts));
+    const canteiros = await firstValueFrom(this.http.get<any[]>(`${base}/canteiros`, this.silentOpts));
+    const saldosCanteiros = await Promise.all(
+      (canteiros ?? []).map(c => firstValueFrom(this.http.get<any>(`${base}/estoques/${c.id}`, this.silentOpts)))
+    );
+    const linhas: SaldoObraLocal[] = [];
+    for (const local of [caminhao, ...saldosCanteiros]) {
+      for (const m of local?.materiais ?? []) {
+        const partes: { idObra: string | null; numero: string | null; quantidade: number }[] = (m.obras ?? [])
+          .map((o: any) => ({ idObra: o.idObra, numero: o.numero ?? null, quantidade: Number(o.quantidade) }));
+        if (Number(m.livre) > 0) partes.push({ idObra: null, numero: null, quantidade: Number(m.livre) });
+        for (const p of partes.filter(p => p.quantidade > 0)) {
+          linhas.push({
+            chave: `${local.idEstoque}|${m.idMaterial}|${m.condicao}|${p.idObra ?? 'livre'}`,
+            idEstoque: local.idEstoque, idMaterial: m.idMaterial, codigo: m.codigo, descricao: m.descricao,
+            unidadeMedida: m.unidade ?? null, condicao: m.condicao, idObra: p.idObra, numeroObra: p.numero, quantidade: p.quantidade,
+          });
+        }
+      }
+    }
+    await this.dbService.replaceSaldosObra(
+      [estoqueId, ...(canteiros ?? []).map(c => c.id)],
+      linhas,
+      (canteiros ?? []).map(c => ({ id: c.id, nome: c.nome, nomeBase: c.nomeBase ?? null, referencia: c.referencia ?? null,
+        latitude: c.latitude ?? null, longitude: c.longitude ?? null })),
+    );
   }
 
   /**

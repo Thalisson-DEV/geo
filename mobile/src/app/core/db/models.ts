@@ -278,3 +278,28 @@ import {
   FormularioInspecao,
   RegistrarInspecaoRequest,
 } from '../sst/inspecao.models';
+
+/** Parte do saldo de um caminhão ou canteiro que é de uma obra; `idObra` nulo é material livre. */
+export interface SaldoObraLocal {
+  /** `${idEstoque}|${idMaterial}|${condicao}|${idObra ?? 'livre'}` */
+  chave: string;
+  idEstoque: string;
+  idMaterial: string;
+  codigo: string;
+  descricao: string;
+  unidadeMedida?: string | null;
+  condicao: 'NOVO' | 'SUCATA';
+  idObra: string | null;
+  numeroObra: string | null;
+  quantidade: number;
+}
+
+/** Canteiro perto das obras onde a equipe deixa e pega material. */
+export interface CanteiroLocal {
+  id: string;
+  nome: string;
+  nomeBase?: string | null;
+  referencia?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}

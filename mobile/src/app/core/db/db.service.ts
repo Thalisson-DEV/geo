@@ -3,6 +3,8 @@ import { db } from './app-db';
 import { maisAntiga, ordenarMaisAntigas } from '../saldo/tempo-saldo';
 import { registrarIdTrocado } from '../sync/ids-trocados';
 import {
+  SaldoObraLocal,
+  CanteiroLocal,
   EquipeLocal,
   BaseOperacionalLocal,
   ColaboradorLocal,
@@ -397,6 +399,45 @@ export class DbService {
     await db.transaction('rw', db.saldos, async () => {
       await db.saldos.clear();
       await db.saldos.bulkPut(saldos);
+    });
+  }
+
+  /** Troca, de uma vez, o saldo por obra dos locais informados (caminhão e canteiros). */
+  async replaceSaldosObra(idsEstoque: string[], linhas: SaldoObraLocal[], canteiros?: CanteiroLocal[]): Promise<void> {
+    await db.transaction('rw', db.saldosObra, db.canteiros, async () => {
+      await db.saldosObra.where('idEstoque').anyOf(idsEstoque).delete();
+      await db.saldosObra.bulkPut(linhas);
+      if (canteiros) {
+        await db.canteiros.clear();
+        await db.canteiros.bulkPut(canteiros);
+      }
+    });
+  }
+
+  async getSaldosObra(idEstoque: string): Promise<SaldoObraLocal[]> {
+    return db.saldosObra.where('idEstoque').equals(idEstoque).toArray();
+  }
+
+  async getCanteiros(): Promise<CanteiroLocal[]> {
+    return db.canteiros.orderBy('nome').toArray();
+  }
+
+  /** Movimento feito no aparelho: tira de um local e põe no outro, mantendo a obra. */
+  async moverSaldoObra(origem: string, destino: string,
+                       itens: { idMaterial: string; condicao: 'NOVO' | 'SUCATA'; idObra: string | null; quantidade: number;
+                                codigo: string; descricao: string; unidadeMedida?: string | null; numeroObra: string | null }[]): Promise<void> {
+    await db.transaction('rw', db.saldosObra, async () => {
+      for (const item of itens) {
+        const sufixo = `${item.idMaterial}|${item.condicao}|${item.idObra ?? 'livre'}`;
+        const de = await db.saldosObra.get(`${origem}|${sufixo}`);
+        if (de) await db.saldosObra.put({ ...de, quantidade: Math.max(0, de.quantidade - item.quantidade) });
+        const para = await db.saldosObra.get(`${destino}|${sufixo}`);
+        await db.saldosObra.put(para
+          ? { ...para, quantidade: para.quantidade + item.quantidade }
+          : { chave: `${destino}|${sufixo}`, idEstoque: destino, idMaterial: item.idMaterial, codigo: item.codigo,
+              descricao: item.descricao, unidadeMedida: item.unidadeMedida, condicao: item.condicao, idObra: item.idObra,
+              numeroObra: item.numeroObra, quantidade: item.quantidade });
+      }
     });
   }
 

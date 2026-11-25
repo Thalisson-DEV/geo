@@ -5,8 +5,6 @@ import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,9 +28,9 @@ public class OcorrenciaTurno extends BaseEntity {
     @Column(name = "id_obra")
     private UUID idObra;
 
-    @Enumerated(EnumType.STRING)
+    /** Código do motivo no cadastro de ocorrências do turno (lista configurável). */
     @Column(name = "tipo", nullable = false, length = 30)
-    private TipoOcorrenciaTurno tipo;
+    private String tipo;
 
     @Column(name = "descricao", nullable = false, length = 2000)
     private String descricao;
@@ -48,8 +46,38 @@ public class OcorrenciaTurno extends BaseEntity {
     @Embedded
     private RegistroCampo campo;
 
+    /** Quando o escritório resolveu (ocorrências que seguram a conclusão da obra). */
+    @Column(name = "resolvida_em")
+    private java.time.OffsetDateTime resolvidaEm;
+
+    @Column(name = "resolucao", length = 500)
+    private String resolucao;
+
+    @Column(name = "usuario_resolucao")
+    private String usuarioResolucao;
+
+    /** Motivos que seguram a conclusão da obra até o escritório decidir (códigos semeados no cadastro de ocorrências). */
+    public static final java.util.Set<String> TRAVAM_CONCLUSAO = java.util.Set.of("ALTERACAO_DE_PROJETO", "OBRA_EXECUTADA_POR_TERCEIROS");
+
+    public boolean travaConclusao() {
+        return resolvidaEm == null && TRAVAM_CONCLUSAO.contains(tipo);
+    }
+
+    /** O escritório registra o que decidiu (projeto revisado, obra mantida, obra sai da carteira…). */
+    public void resolver(String resolucao, String usuario) {
+        if (resolvidaEm != null) {
+            throw new InvarianteVioladaException("Esta ocorrência já foi resolvida.");
+        }
+        if (resolucao == null || resolucao.isBlank()) {
+            throw new InvarianteVioladaException("Diga o que foi decidido sobre a ocorrência.");
+        }
+        this.resolucao = resolucao.trim().length() > 500 ? resolucao.trim().substring(0, 500) : resolucao.trim();
+        this.usuarioResolucao = usuario;
+        this.resolvidaEm = java.time.OffsetDateTime.now();
+    }
+
     /** Ocorrência lançada pelo app, com o id gerado no aparelho. */
-    public static OcorrenciaTurno doCampo(UUID idTurno, UUID idObra, UUID idProgramacao, TipoOcorrenciaTurno tipo,
+    public static OcorrenciaTurno doCampo(UUID idTurno, UUID idObra, UUID idProgramacao, String tipo,
                                           String descricao, boolean impedeExecucao, RegistroCampo campo) {
         OcorrenciaTurno ocorrencia = new OcorrenciaTurno(idTurno, idObra, tipo, descricao, impedeExecucao);
         ocorrencia.idProgramacao = idProgramacao;
@@ -68,13 +96,13 @@ public class OcorrenciaTurno extends BaseEntity {
         return getDataCriacao() != null ? getDataCriacao() : java.time.OffsetDateTime.now();
     }
 
-    public OcorrenciaTurno(UUID idTurno, UUID idObra, TipoOcorrenciaTurno tipo, String descricao, boolean impedeExecucao) {
+    public OcorrenciaTurno(UUID idTurno, UUID idObra, String tipo, String descricao, boolean impedeExecucao) {
         this.idTurno = Objects.requireNonNull(idTurno);
         informar(idObra, tipo, descricao, impedeExecucao);
     }
 
-    public void informar(UUID idObra, TipoOcorrenciaTurno tipo, String descricao, boolean impedeExecucao) {
-        if (tipo == null) {
+    public void informar(UUID idObra, String tipo, String descricao, boolean impedeExecucao) {
+        if (tipo == null || tipo.isBlank()) {
             throw new InvarianteVioladaException("Informe o tipo da ocorrência.");
         }
         if (descricao == null || descricao.isBlank()) {

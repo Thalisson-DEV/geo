@@ -20,9 +20,10 @@ export function normalizarTipoTecnico(valor?: string | null): CodigoTipoTecnico 
     .replace(/[\u0300-\u036f]/g, '')
     .toUpperCase();
 
-  if (normalizado.includes('ADICAO') && normalizado.includes('CONCRETO')) return '921';
+  const saida = normalizado.includes('ADICAO') || normalizado.includes('RETIRADA') || normalizado.includes('SAQUE');
+  if (saida && normalizado.includes('CONCRETO')) return '921';
   if (normalizado.includes('DEVOLUCAO') && normalizado.includes('CONCRETO')) return '922';
-  if (normalizado.includes('ADICAO')) return '221';
+  if (saida) return '221';
   if (normalizado.includes('DEVOLUCAO')) return '222';
 
   return v as CodigoTipoTecnico;

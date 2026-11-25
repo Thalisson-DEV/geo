@@ -667,10 +667,10 @@ export class ExportarSolicitacoesDialogComponent implements OnInit, OnChanges {
   ];
 
   readonly tipoTecnicoOptions = [
-    { label: '221 - Adição Comum', value: 'ADICAO_COMUM' },
-    { label: '222 - Devolução Comum', value: 'DEVOLUCAO_COMUM' },
-    { label: '921 - Adição Concreto', value: 'ADICAO_CONCRETO' },
-    { label: '922 - Devolução Concreto', value: 'DEVOLUCAO_CONCRETO' },
+    { label: 'Retirada', value: 'ADICAO_COMUM' },
+    { label: 'Devolução', value: 'DEVOLUCAO_COMUM' },
+    { label: 'Retirada · concreto', value: 'ADICAO_CONCRETO' },
+    { label: 'Devolução · concreto', value: 'DEVOLUCAO_CONCRETO' },
   ];
 
   readonly statusSeparacaoOptions = [

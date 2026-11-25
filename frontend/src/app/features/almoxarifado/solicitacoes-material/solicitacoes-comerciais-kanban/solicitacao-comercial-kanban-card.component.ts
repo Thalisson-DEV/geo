@@ -184,7 +184,7 @@ export class SolicitacaoComercialKanbanCardComponent {
       this.status().label,
       `${this.quantidadeItens()} ${this.quantidadeItens() === 1 ? 'item' : 'itens'}`
     ];
-    if (this.atrasada()) partes.push('saque atrasado');
+    if (this.atrasada()) partes.push('retirada atrasada');
     if (it.possuiPendencia) partes.push('com pendência');
     return `${partes.join(', ')}. Enter abre o detalhe.`;
   });

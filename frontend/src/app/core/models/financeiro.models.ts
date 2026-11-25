@@ -17,25 +17,8 @@ export type FormaPagamento =
   | 'CARTAO_DEBITO'
   | 'OUTRA';
 export type RegimeVeiculo = 'PROPRIO' | 'LOCADO';
-export type NaturezaServico =
-  | 'COMPRA_E_REFORMA_DE_PNEUS'
-  | 'SUSPENSAO_FREIOS'
-  | 'ARREFECIMENTO'
-  | 'TRANSMISSAO'
-  | 'ELETRICA'
-  | 'CHAPARIA_E_PINTURA'
-  | 'HIDRAULICA'
-  | 'TAPECARIA'
-  | 'LAVAGEM_E_LUBRIFICACAO'
-  | 'ACESSORIOS'
-  | 'BATERIA'
-  | 'BORRACHARIA'
-  | 'MECANICA'
-  | 'PNEUMATICA'
-  | 'POSTO_DE_MOLAS'
-  | 'REFRIGERACAO_E_CLIMATIZACAO'
-  | 'TACOGRAFO'
-  | 'TORNEADORA';
+/** Código do cadastro (lista configurável do cliente). */
+export type NaturezaServico = string;
 export type MotivoServico =
   | 'DESGASTE_NATURAL'
   | 'ADEQUACAO_DE_MELHORIA'

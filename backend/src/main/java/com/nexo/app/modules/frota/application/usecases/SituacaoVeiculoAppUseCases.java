@@ -1,5 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.frota.application.dto.ArquivoDocumentoFrota;
 import com.nexo.app.modules.frota.application.dto.SituacaoVeiculoAppResponse;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
@@ -48,6 +51,7 @@ public class SituacaoVeiculoAppUseCases {
     private final PreventivaUseCases preventiva;
     private final com.nexo.app.modules.frota.infrastructure.persistence.AcoplamentoImplementoRepository acoplamentos;
     private final com.nexo.app.shared.infrastructure.storage.ObjectStorageService objectStorage;
+    private final ListasApi listasApi;
 
     @Transactional(readOnly = true)
     public SituacaoVeiculoAppResponse situacao(UUID idVeiculo) {
@@ -118,7 +122,7 @@ public class SituacaoVeiculoAppUseCases {
         return resultado;
     }
 
-    private static SituacaoVeiculoAppResponse.DocumentoConjunto documentoConjunto(DocumentoFrota d, String titular,
+    private SituacaoVeiculoAppResponse.DocumentoConjunto documentoConjunto(DocumentoFrota d, String titular,
                                                                                 boolean doImplemento, LocalDate hoje,
                                                                                 int diasAviso) {
         boolean comArquivo = d.possuiArquivo();
@@ -127,7 +131,8 @@ public class SituacaoVeiculoAppUseCases {
                         : SituacaoVencimento.calcular(d.getDataVencimento(), hoje, diasAviso),
                 comArquivo ? d.getArquivoNome() : null, comArquivo ? d.getArquivoContentType() : null,
                 comArquivo ? d.getArquivoTamanhoBytes() : null,
-                comArquivo ? d.getArquivoChave() + ":" + d.getVersao() : null);
+                comArquivo ? d.getArquivoChave() + ":" + d.getVersao() : null,
+                listasApi.rotulo(ListaConfiguravel.TIPO_DOCUMENTO_VEICULO, d.getTipo()));
     }
 
     private List<SituacaoVeiculoAppResponse.Lavagem> lavagens(UUID idVeiculo) {
@@ -143,9 +148,10 @@ public class SituacaoVeiculoAppUseCases {
                 .toList();
     }
 
-    private static SituacaoVeiculoAppResponse.Documento documento(DocumentoFrota d, LocalDate hoje, int diasAviso) {
+    private SituacaoVeiculoAppResponse.Documento documento(DocumentoFrota d, LocalDate hoje, int diasAviso) {
         return new SituacaoVeiculoAppResponse.Documento(d.getTipo(), d.getDescricao(), d.getDataVencimento(),
-                SituacaoVencimento.calcular(d.getDataVencimento(), hoje, diasAviso));
+                SituacaoVencimento.calcular(d.getDataVencimento(), hoje, diasAviso),
+                listasApi.rotulo(ListaConfiguravel.TIPO_DOCUMENTO_VEICULO, d.getTipo()));
     }
 
     private static SituacaoVeiculoAppResponse.Ordem ordem(OrdemServico o) {

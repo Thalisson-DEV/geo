@@ -17,5 +17,7 @@ public record ItemExecutadoEvent(
     UUID idTurno,
     LocalDate data,
     BigDecimal quantidade,
-    BigDecimal valor
+    BigDecimal valor,
+    UUID idMaterial,
+    boolean retirada
 ) {}

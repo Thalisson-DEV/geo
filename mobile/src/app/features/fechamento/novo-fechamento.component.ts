@@ -73,7 +73,7 @@ function comEscolhido(opcoes: OpcaoSeletor[], valor: string | null, rotulo: stri
             <div class="tipos" role="group" aria-label="Tipos de solicitação">
               @for (t of tipos; track t.codigo) {
                 <button type="button" class="tipo" [attr.aria-pressed]="tem(t.codigo)" (click)="alternarTipo(t.codigo)">
-                  <geo-icone [nome]="icone(t.codigo)" /><span class="txt"><strong class="geo-num">{{ t.codigo }} · {{ t.nome }}</strong><span>{{ t.descricao }}</span></span>
+                  <geo-icone [nome]="icone(t.codigo)" /><span class="txt"><strong class="geo-num">{{ t.nome }}</strong><span>{{ t.descricao }}</span></span>
                   <span class="marca" aria-hidden="true"><geo-icone nome="check" [tamanho]="16" /></span>
                 </button>
               }

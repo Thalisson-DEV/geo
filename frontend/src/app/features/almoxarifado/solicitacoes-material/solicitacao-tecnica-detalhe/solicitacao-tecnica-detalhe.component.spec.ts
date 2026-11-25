@@ -129,7 +129,7 @@ describe('SolicitacaoTecnicaDetalheComponent (relatório)', () => {
 
   it('a planejar: o próximo passo é PLANEJAR, sem editar ao lado', async () => {
     const el = await montar(detalhe('APROVADO', { dataPrevista: null, idEquipe: null, acoesPermitidas: ['EDITAR_PLANEJAMENTO'] }));
-    expect(el.textContent).toContain('Defina a data do saque e, se já souber, a equipe');
+    expect(el.textContent).toContain('Defina a data da retirada e, se já souber, a equipe');
     expect(botoes(el)).toEqual(['Voltar', 'Imprimir', 'Pendência', 'Planejar']);
   });
 

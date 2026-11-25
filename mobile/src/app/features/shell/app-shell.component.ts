@@ -15,7 +15,7 @@ import { Aba, BarraAbasComponent, ModoNavegacao } from '../../ui';
 import { AvisoSessaoComponent } from '../../ui/aviso-sessao.component';
 
 /** Telas de topo: mostram a barra de abas. Lançamentos e detalhes ocupam a tela toda. */
-const TELAS_DE_TOPO = /^\/(hoje|obras|supervisao|material|material\/saldo|frota|transferencias|perfil|inspecoes|desvios|almox\/solicitacoes|almox\/tecnicas|almox\/movimentacoes|almox\/fechamento|fechamento)(\?|$)/;
+const TELAS_DE_TOPO = /^\/(hoje|obras|supervisao|material|material\/saldo|frota|transferencias|perfil|inspecoes|desvios|almox\/balcao|almox\/equipes|almox\/tecnicas|almox\/movimentacoes|almox\/fechamento|fechamento)(\?|$)/;
 
 /** Detalhes que, no tablet deitado, aparecem ao lado da lista (a ficha da obra). */
 const LISTA_DETALHE = /^\/obras\/(?!nao-programada|relatorio)[^/?]+(\?|$)/;

@@ -57,7 +57,7 @@ import { contarSolicitacoesComerciaisPrevistas } from '../solicitacao-comercial-
   ],
   template: `
     <geo-import-drawer [(visible)]="visible" title="Importar solicitações comerciais"
-      description="Planilha CSV com estoque de origem (físico), estoque de destino (de campo), material, quantidade, data prevista do saque e observação. Quem solicita é você."
+      description="Planilha CSV com estoque de origem (físico), estoque de destino (de campo), material, quantidade, data prevista da retirada e observação. Quem solicita é você."
       [rows]="registros()" [uploading]="enviando()" [processing]="processando()"
       (templateRequested)="baixarModeloCsv()" (fileSelected)="onFileSelected($event)"
       (processed)="onProcessImport()" (cleared)="limpar()">
@@ -173,7 +173,7 @@ export class SolicitacoesComerciaisImportacaoComponent {
     { key: 'destino', header: 'Destino', type: 'custom', priority: 1, value: (r) => r.nomeEstoqueDestino },
     { key: 'material', header: 'Material', type: 'custom', priority: 1, value: (r) => r.codigoMaterial },
     { key: 'quantidade', header: 'Qtd.', type: 'custom', value: (r) => r.quantidade },
-    { key: 'dataPrevista', header: 'Saque previsto', type: 'custom', value: (r) => r.dataPrevista },
+    { key: 'dataPrevista', header: 'Retirada prevista', type: 'custom', value: (r) => r.dataPrevista },
     { key: 'observacao', header: 'Observação', type: 'custom', value: (r) => r.observacao },
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (r) => r.status }
   ];

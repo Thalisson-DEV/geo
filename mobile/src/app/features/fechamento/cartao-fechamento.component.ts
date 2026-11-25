@@ -18,7 +18,7 @@ export type AcaoFechamento = 'movimentar' | 'reserva';
     <article class="cartao">
       <button type="button" class="corpo" (click)="abrir.emit(item())" [attr.aria-label]="rotuloAcessivel()">
         <span class="tipo" [class.tipo--dev]="!tipo().adicao" aria-hidden="true">
-          <geo-icone [nome]="icone()" [tamanho]="18" /><span class="geo-num">{{ item().tipo }}</span>
+          <geo-icone [nome]="icone()" [tamanho]="18" /><span>{{ tipo().nome }}</span>
         </span>
         <span class="txt">
           <span class="obra">{{ obra() }}</span>
@@ -100,6 +100,6 @@ export class CartaoFechamentoComponent {
     return lista;
   });
 
-  readonly rotuloAcessivel = computed(() => `${this.item().tipo} ${this.tipo().nome}, obra ${this.obra()}, ${this.situacao().rotulo}`
+  readonly rotuloAcessivel = computed(() => `${this.tipo().nome}, obra ${this.obra()}, ${this.situacao().rotulo}`
     + `${this.prazo() ? ', ' + this.prazo() : ''}, ${numeroBr(this.item().totalItens)} ${this.item().totalItens === 1 ? 'item' : 'itens'}. Abrir detalhe.`);
 }

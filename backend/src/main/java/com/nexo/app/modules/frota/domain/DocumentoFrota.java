@@ -35,9 +35,8 @@ public class DocumentoFrota extends BaseEntity {
     @Column(name = "id_implemento", updatable = false)
     private UUID idImplemento;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false, length = 30)
-    private TipoDocumentoFrota tipo;
+    private String tipo;
 
     @Column(name = "descricao", length = 150)
     private String descricao;
@@ -121,7 +120,7 @@ public class DocumentoFrota extends BaseEntity {
     private void preencher(DadosDocumento dados) {
         Objects.requireNonNull(dados, "Os dados do documento são obrigatórios");
         if (dados.tipo() == null) throw new InvarianteVioladaException("Informe o tipo do documento.");
-        if (dados.tipo() == TipoDocumentoFrota.OUTRO && (dados.descricao() == null || dados.descricao().isBlank())) {
+        if ("OUTRO".equals(dados.tipo()) && (dados.descricao() == null || dados.descricao().isBlank())) {
             throw new InvarianteVioladaException("Descreva o documento quando o tipo for \"Outro\".");
         }
         if (dados.dataEmissao() != null && dados.dataVencimento() != null
@@ -137,7 +136,7 @@ public class DocumentoFrota extends BaseEntity {
     }
 
     /** Valores editáveis do documento. */
-    public record DadosDocumento(TipoDocumentoFrota tipo, String descricao, String numero,
+    public record DadosDocumento(String tipo, String descricao, String numero,
                                  LocalDate dataEmissao, LocalDate dataVencimento, String observacao) {
     }
 }

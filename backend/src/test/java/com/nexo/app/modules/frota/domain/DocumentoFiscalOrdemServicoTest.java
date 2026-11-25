@@ -18,7 +18,7 @@ class DocumentoFiscalOrdemServicoTest {
     private final OrdemServico os = abrir();
 
     private static OrdemServico abrir() {
-        var item = new ItemManutencao("PASTILHA", NaturezaServico.SUSPENSAO_FREIOS, null, null);
+        var item = new ItemManutencao("PASTILHA", "SUSPENSAO_FREIOS", null, null);
         ReflectionTestUtils.setField(item, "id", UUID.randomUUID());
         var ficha = FichaVeiculo.provisionar(UUID.randomUUID(), "ABC1D23", UUID.randomUUID());
         var os = OrdemServico.abrir(ficha, new OrdemServico.Abertura(TipoManutencao.CORRETIVA, OrigemOrdemServico.VERBAL,
@@ -47,7 +47,7 @@ class DocumentoFiscalOrdemServicoTest {
     void aceitaOsConcluidaERecusaCancelada() {
         os.concluir(new OrdemServico.Encerramento(OffsetDateTime.now().minusHours(2), OffsetDateTime.now().minusHours(1),
                 "Feito", null, new BigDecimal("230"), null, TipoOficina.EXTERNA, null, "Oficina do Zé",
-                CausaManutencao.AVARIA));
+                "AVARIA"));
         assertThat(DocumentoFiscalOrdemServico.registrar(os, nota("1", null, "Zé")).getNumero()).isEqualTo("1");
 
         var cancelada = abrir();

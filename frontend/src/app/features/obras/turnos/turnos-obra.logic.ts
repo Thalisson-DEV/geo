@@ -7,20 +7,25 @@ import {
   ServicoApontado,
   SituacaoLiberacao,
   StatusAprTurno,
-  TipoOcorrenciaTurno,
   TurnoObraDetalhe
 } from '../../../core/models/obras-turnos.models';
 
-export const TIPO_OCORRENCIA: Record<TipoOcorrenciaTurno, { rotulo: string; icone: string }> = {
-  SEGURANCA: { rotulo: 'Segurança', icone: 'pi pi-shield' },
-  CLIMA: { rotulo: 'Clima', icone: 'pi pi-cloud' },
-  MATERIAL: { rotulo: 'Falta de material', icone: 'pi pi-box' },
-  EQUIPAMENTO: { rotulo: 'Veículo ou equipamento', icone: 'pi pi-wrench' },
-  ACESSO: { rotulo: 'Acesso ao local', icone: 'pi pi-map-marker' },
-  DESLIGAMENTO: { rotulo: 'Desligamento', icone: 'pi pi-bolt' },
-  TERCEIROS: { rotulo: 'Terceiros ou clientes', icone: 'pi pi-users' },
-  OUTROS: { rotulo: 'Outros', icone: 'pi pi-info-circle' }
+/** Ícone dos motivos que vêm com o sistema; motivo criado pelo cliente usa o genérico. O nome vem do cadastro. */
+const ICONE_OCORRENCIA: Record<string, string> = {
+  SEGURANCA: 'pi pi-shield',
+  CLIMA: 'pi pi-cloud',
+  MATERIAL: 'pi pi-box',
+  EQUIPAMENTO: 'pi pi-wrench',
+  ACESSO: 'pi pi-map-marker',
+  DESLIGAMENTO: 'pi pi-bolt',
+  TERCEIROS: 'pi pi-users',
+  OBRA_EXECUTADA_POR_TERCEIROS: 'pi pi-users',
+  ALTERACAO_DE_PROJETO: 'pi pi-pencil'
 };
+
+export function iconeOcorrencia(tipo: string | null | undefined): string {
+  return (tipo && ICONE_OCORRENCIA[tipo]) || 'pi pi-info-circle';
+}
 
 export const STATUS_APR: Record<StatusAprTurno, { rotulo: string; tom: GeoTone; icone: string }> = {
   RASCUNHO: { rotulo: 'Rascunho', tom: 'warning', icone: 'pi pi-pencil' },

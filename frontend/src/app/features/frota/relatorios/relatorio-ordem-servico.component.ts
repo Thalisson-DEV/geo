@@ -1,3 +1,4 @@
+import { ROTULOS_LISTAS } from '../../../core/models/listas.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -45,15 +46,8 @@ const ROTULO_MOTIVO: Record<MotivoServico, string> = {
   OUTRA: 'Outro'
 };
 
-const ROTULO_CAUSA: Record<CausaManutencao, string> = {
-  AVARIA: 'Avaria',
-  DESGASTE_NATURAL: 'Desgaste natural',
-  USO_INDEVIDO: 'Uso indevido',
-  SERVICO_CORRETIVO: 'Serviço corretivo',
-  SERVICO_PREVENTIVO: 'Serviço preventivo',
-  ESTOQUE: 'Estoque',
-  SUBSTITUICAO_PNEUS: 'Substituição de pneus'
-};
+/** Nomes do cadastro de causas de manutenção (lista configurável). */
+const ROTULO_CAUSA: Record<string, string> = ROTULOS_LISTAS.CAUSA_MANUTENCAO;
 
 const EVENTO: Record<string, { icone: string; tom: GeoTone }> = {
   ABERTA: { icone: 'pi-plus', tom: 'brand' },

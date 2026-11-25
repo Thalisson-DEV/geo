@@ -20,7 +20,7 @@ class ExecucaoOrdemServicoTest {
     private final UUID joao = UUID.randomUUID();
 
     private static ItemManutencao item() {
-        var item = new ItemManutencao("PASTILHA", NaturezaServico.SUSPENSAO_FREIOS, null, null);
+        var item = new ItemManutencao("PASTILHA", "SUSPENSAO_FREIOS", null, null);
         ReflectionTestUtils.setField(item, "id", UUID.randomUUID());
         return item;
     }
@@ -129,7 +129,7 @@ class ExecucaoOrdemServicoTest {
         assertThat(os.getServicos()).allMatch(s -> ana.equals(s.getIdMecanico()));
     }
 
-    private OrdemServico.Encerramento encerramento(BigDecimal valorDigitado, CausaManutencao causa) {
+    private OrdemServico.Encerramento encerramento(BigDecimal valorDigitado, String causa) {
         return new OrdemServico.Encerramento(agora.minusHours(2), agora, "Feito", null, valorDigitado, null,
                 TipoOficina.INTERNA, null, null, causa);
     }
@@ -174,10 +174,10 @@ class ExecucaoOrdemServicoTest {
 
         assertThatThrownBy(() -> os.concluir(encerramento(new BigDecimal("300"), null)))
                 .hasMessage("Informe a causa da manutenção.");
-        os.concluir(encerramento(new BigDecimal("300"), CausaManutencao.DESGASTE_NATURAL));
+        os.concluir(encerramento(new BigDecimal("300"), "DESGASTE_NATURAL"));
 
         assertThat(os.getValorTotal()).isEqualByComparingTo("250.00");
-        assertThat(os.getCausa()).isEqualTo(CausaManutencao.DESGASTE_NATURAL);
+        assertThat(os.getCausa()).isEqualTo("DESGASTE_NATURAL");
     }
 
     @Test
@@ -187,7 +187,7 @@ class ExecucaoOrdemServicoTest {
                 BigDecimal.ONE, BigDecimal.ZERO));
         os.lancarPeca(new OrdemServico.DadosPeca("Lâmpada H4", null, OrigemPeca.COMPRA, BigDecimal.ONE, "UN", BigDecimal.ZERO));
 
-        os.concluir(encerramento(null, CausaManutencao.DESGASTE_NATURAL));
+        os.concluir(encerramento(null, "DESGASTE_NATURAL"));
 
         assertThat(os.pendencias()).containsExactly("Peça: Lâmpada H4");
         assertThat(os.isBaixaPendente()).isTrue();
@@ -197,7 +197,7 @@ class ExecucaoOrdemServicoTest {
     void semLancamentosValeOValorDigitado() {
         var os = abrir(TipoOficina.INTERNA);
 
-        os.concluir(encerramento(new BigDecimal("500"), CausaManutencao.AVARIA));
+        os.concluir(encerramento(new BigDecimal("500"), "AVARIA"));
 
         assertThat(os.getValorTotal()).isEqualByComparingTo("500");
     }
@@ -207,7 +207,7 @@ class ExecucaoOrdemServicoTest {
         var os = abrir(TipoOficina.EXTERNA);
         os.lancarServico(servico(null, "Zé"));
 
-        assertThatThrownBy(() -> os.concluir(encerramento(null, CausaManutencao.AVARIA)))
+        assertThatThrownBy(() -> os.concluir(encerramento(null, "AVARIA")))
                 .hasMessageContaining("todo serviço precisa de um mecânico colaborador");
     }
 
@@ -252,7 +252,7 @@ class ExecucaoOrdemServicoTest {
     void osFinalizadaNaoAceitaLancamento() {
         var os = abrir(TipoOficina.INTERNA);
         os.concluir(new OrdemServico.Encerramento(agora.minusHours(2), agora, "Trocadas", null, new BigDecimal("100"),
-                null, TipoOficina.INTERNA, null, null, CausaManutencao.AVARIA));
+                null, TipoOficina.INTERNA, null, null, "AVARIA"));
 
         assertThatThrownBy(() -> os.lancarPeca(oleo("1")))
                 .isInstanceOf(InvarianteVioladaException.class)

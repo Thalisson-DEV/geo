@@ -1,5 +1,8 @@
 package com.nexo.app.modules.estoque.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.estoque.domain.QuantidadeConvertida;
 import com.nexo.app.modules.estoque.application.dto.*;
 import com.nexo.app.modules.estoque.MovimentacaoEstoqueApi;
@@ -64,6 +67,7 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
     private final EstoqueCampoEquipeProvisioningService estoqueCampoEquipeService;
     private final AssinaturaTransferenciaService assinaturaTransferenciaService;
     private final ExecucaoComercialApi execucaoComercialApi;
+    private final ListasApi listasApi;
 
     private static final Map<String, Integer> MESES_MAP = Map.ofEntries(
             Map.entry("JAN", 1), Map.entry("FEV", 2), Map.entry("MAR", 3),
@@ -244,8 +248,14 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
         return filter.processo() == null ? null : filter.processo().name();
     }
 
+    /** Motivo é opcional; informado, precisa estar ativo no cadastro. */
+    private String motivoValido(String motivo, String contexto) {
+        return motivo == null || motivo.isBlank() ? null
+                : listasApi.exigirAtiva(ListaConfiguravel.MOTIVO_MOVIMENTACAO_ESTOQUE, motivo, contexto);
+    }
+
     private String motivo(MovimentacaoEstoqueFilter filter) {
-        return filter.motivo() == null ? null : filter.motivo().name();
+        return filter.motivo() == null || filter.motivo().isBlank() ? null : filter.motivo().trim();
     }
 
     private String tipoTecnico(MovimentacaoEstoqueFilter filter) {
@@ -303,6 +313,7 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
                 assinaturaRecebedor,
                 numerosDasNotas(List.of(base)).get(base.getIdReferenciaOperacao()),
                 base.getMotivo(),
+                base.getMotivo() == null ? null : listasApi.rotulo(ListaConfiguravel.MOTIVO_MOVIMENTACAO_ESTOQUE, base.getMotivo()),
                 base.getObservacao()
         );
     }
@@ -333,6 +344,7 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
         UUID idReferencia = UUID.randomUUID();
         OffsetDateTime dataHora = OffsetDateTime.now();
 
+        String motivo = motivoValido(request.motivo(), "ENTRADA");
         for (MovimentacaoBulkRequest.ItemMovimentacaoRequest itemReq : request.itens()) {
             Material material = materialRepository.findById(itemReq.idMaterial())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Material não encontrado: " + itemReq.idMaterial()));
@@ -345,7 +357,7 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
                     null, destino, material, quantidade,
                     MovimentacaoEstoque.TipoMovimentacao.ENTRADA_AVULSA, condicao, idOperador, idReferencia, itemReq.numSerie(), dataHora
             );
-            mov.registrarJustificativa(request.motivo(), request.observacao());
+            mov.registrarJustificativa(motivo, request.observacao());
             mov.registrarQuantidadeInformada(convertida);
             repository.save(mov);
 
@@ -373,6 +385,7 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
         UUID idReferencia = UUID.randomUUID();
         OffsetDateTime dataHora = OffsetDateTime.now();
 
+        String motivo = motivoValido(request.motivo(), "BAIXA");
         for (MovimentacaoBulkRequest.ItemMovimentacaoRequest itemReq : request.itens()) {
             Material material = materialRepository.findById(itemReq.idMaterial())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Material não encontrado: " + itemReq.idMaterial()));
@@ -385,7 +398,7 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
                     origem, null, material, quantidade,
                     MovimentacaoEstoque.TipoMovimentacao.BAIXA_AVULSA, condicao, idOperador, idReferencia, itemReq.numSerie(), dataHora
             );
-            mov.registrarJustificativa(request.motivo(), request.observacao());
+            mov.registrarJustificativa(motivo, request.observacao());
             mov.registrarQuantidadeInformada(convertida);
             repository.save(mov);
 
@@ -414,6 +427,7 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
         var assinaturasArmazenadas = assinaturaTransferenciaService.armazenar(
                 idReferencia, request.assinaturaEntregador(), request.assinaturaRecebedor());
 
+        String motivo = motivoValido(request.motivo(), null);
         for (MovimentacaoBulkRequest.ItemMovimentacaoRequest itemReq : request.itens()) {
             Material material = materialRepository.findById(itemReq.idMaterial())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Material não encontrado: " + itemReq.idMaterial()));
@@ -428,7 +442,7 @@ public class MovimentacaoEstoqueUseCases implements MovimentacaoEstoqueApi {
                     MovimentacaoEstoque.TipoMovimentacao.TRANSFERENCIA, condicao, idOperador, idReferencia, itemReq.numSerie(), dataHora
             );
             mov.registrarAssinaturas(assinaturasArmazenadas.entregador(), assinaturasArmazenadas.recebedor());
-            mov.registrarJustificativa(request.motivo(), request.observacao());
+            mov.registrarJustificativa(motivo, request.observacao());
             mov.registrarQuantidadeInformada(convertida);
             repository.save(mov);
 

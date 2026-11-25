@@ -4,7 +4,8 @@ import { PagedResponse } from './shared.models';
 
 export type StatusTurnoObra = 'ABERTO' | 'FECHADO';
 export type MetaTurnoFiltro = 'BATEU' | 'NAO_BATEU';
-export type TipoOcorrenciaTurno = 'SEGURANCA' | 'CLIMA' | 'MATERIAL' | 'EQUIPAMENTO' | 'ACESSO' | 'DESLIGAMENTO' | 'TERCEIROS' | 'OUTROS';
+/** Código do motivo no cadastro de ocorrências do turno (lista configurável do cliente). */
+export type TipoOcorrenciaTurno = string;
 export type StatusAprTurno = 'RASCUNHO' | 'CONCLUIDA';
 export type SituacaoEquipeBoletim = 'EM_TURNO' | 'ENCERRADO' | 'SEM_TURNO';
 export type SituacaoLiberacao = 'PENDENTE' | 'EM_PREENCHIMENTO' | 'LIBERADA' | 'IMPEDIDA';
@@ -137,6 +138,8 @@ export interface FotoTurno {
 export interface OcorrenciaDoTurno {
   id: string;
   tipo: TipoOcorrenciaTurno;
+  /** Nome do motivo no cadastro. */
+  tipoRotulo: string;
   descricao: string;
   idObra: string | null;
   numeroObra: string | null;
@@ -151,6 +154,7 @@ export interface OcorrenciaDaObra {
   idTurno: string;
   codigoEquipe: string | null;
   tipo: TipoOcorrenciaTurno;
+  tipoRotulo: string;
   descricao: string;
   impedeExecucao: boolean;
   /** ISO 8601, hora do aparelho quando veio do app. */

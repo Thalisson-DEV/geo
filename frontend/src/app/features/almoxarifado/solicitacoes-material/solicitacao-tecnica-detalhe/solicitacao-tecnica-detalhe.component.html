@@ -151,7 +151,7 @@
             <span class="kv-v">{{ (sol.dataSolicitacao | date: 'dd/MM/yyyy HH:mm') || '—' }}</span>
           </div>
           <div class="kv">
-            <span class="kv-l">Saque previsto</span>
+            <span class="kv-l">Retirada prevista</span>
             @if (tech.dataPrevista) {
               <span class="kv-v">{{ dataCurta(tech.dataPrevista) }}</span>
             } @else {
@@ -161,7 +161,7 @@
           @if (tech.atrasada && !encerrada() && (sol.status === 'APROVADO' || sol.status === 'PENDENTE' || sol.status === 'ENTREGUE_PARCIAL')) {
             <div class="kv">
               <span class="kv-l">Prazo</span>
-              <geo-status tone="danger" icon="pi pi-clock">Saque atrasado</geo-status>
+              <geo-status tone="danger" icon="pi pi-clock">Retirada atrasada</geo-status>
             </div>
           }
           @if (tech.foraPrazoSaque) {
@@ -202,7 +202,7 @@
         <div class="flex flex-col gap-3">
           <div class="quadro__titulo"><i class="pi pi-users" aria-hidden="true"></i><span>Envolvidos</span></div>
           <div class="kv">
-            <span class="kv-l">Equipe de saque</span>
+            <span class="kv-l">Equipe que retira</span>
             <div class="flex items-center gap-1.5 min-w-0">
               @if (equipeNome(); as eq) {
                 <span class="kv-v font-semibold" [title]="eq">{{ eq }}</span>
@@ -210,13 +210,13 @@
                 <span class="kv-v kv-v--muted">A definir</span>
               }
               @if (podePlanejar() && isOnline()) {
-                <geo-icon-button icon="pi pi-pencil" [label]="equipeNome() ? 'Trocar a equipe de saque' : 'Definir a equipe de saque'"
+                <geo-icon-button icon="pi pi-pencil" [label]="equipeNome() ? 'Trocar a equipe que retira' : 'Definir a equipe que retira'"
                   [tooltip]="equipeNome() ? 'Trocar equipe' : 'Definir equipe'" size="icon-sm" class="print:hidden" (pressed)="abrirPainel('planejamento')" />
               }
             </div>
           </div>
           <div class="kv">
-            <span class="kv-l">Responsável pelo saque</span>
+            <span class="kv-l">Quem retira</span>
             <span class="kv-v font-semibold" [class.kv-v--muted]="!responsavelSaqueNome()">{{ responsavelSaqueNome() || 'A definir' }}</span>
           </div>
           @if (tech.saqueForaEquipe) {
@@ -503,8 +503,8 @@
                     <img [src]="assinaturaEquipeUrl()" class="signature-image" alt="Assinatura de quem retirou" />
                   }
                 </div>
-                <span class="assinatura__nome">{{ responsavelSaqueNome() || 'Responsável pelo saque' }}</span>
-                <span class="assinatura__papel">Responsável pelo saque</span>
+                <span class="assinatura__nome">{{ responsavelSaqueNome() || 'Quem retira' }}</span>
+                <span class="assinatura__papel">Quem retira</span>
                 <span class="assinatura__data">{{ dataEntrega() ? (dataEntrega() | date: 'dd/MM/yyyy HH:mm') : 'Data: ____/____/________' }}</span>
               </div>
             </div>

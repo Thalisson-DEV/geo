@@ -141,8 +141,8 @@ class CampoCanonicoTest {
                 }
                 case SELECAO_UNICA -> {
                     assertNull(campo.getFonteReferencia(), campo + " é escolha fechada, não referência.");
-                    assertFalse(campo.valoresAceitos().isEmpty(),
-                            campo + " é escolha fechada e precisa de uma enumeração que a alimente.");
+                    assertTrue(!campo.valoresAceitos().isEmpty() || campo.getLista() != null,
+                            campo + " é escolha e precisa de uma enumeração ou de uma lista configurável que a alimente.");
                 }
                 default -> {
                     assertNull(campo.getFonteReferencia());

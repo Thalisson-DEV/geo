@@ -45,7 +45,7 @@ describe('SyncService', () => {
     const ETAPAS_CATALOGO = [
         'syncEquipeDoUsuario', 'syncMembrosEquipe', 'syncTodasEquipes', 'syncTodosColaboradores',
         'syncMunicipios', 'syncVeiculos', 'syncProcessos', 'syncFormularios', 'syncTiposInspecao',
-        'syncMateriais', 'syncEstoques', 'syncSaldos', 'syncSeriais', 'pullParcialData'
+        'syncMateriais', 'syncEstoques', 'syncSaldos', 'syncSeriais', 'syncSaldosPorObra', 'pullParcialData'
     ];
 
     function stubEtapas(): void {
@@ -164,6 +164,8 @@ describe('SyncService', () => {
 
         service = TestBed.inject(SyncService);
         httpMock = TestBed.inject(HttpTestingController);
+        // O estoque por obra tem teste próprio ("guarda o caminhão e os canteiros..."); nos demais só a etapa existir basta.
+        vi.spyOn(service as any, 'syncSaldosPorObra').mockResolvedValue(undefined);
     });
 
     afterEach(() => {
@@ -172,6 +174,28 @@ describe('SyncService', () => {
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    it('guarda o caminhão e os canteiros separados por obra, com o livre à parte', async () => {
+        vi.mocked((service as any).syncSaldosPorObra).mockRestore();
+        mockDbService.replaceSaldosObra = vi.fn().mockResolvedValue(undefined);
+        const base = `${environment.apiBaseUrl}/v1/estoque-obra`;
+
+        const pedido = service.syncSaldosPorObra('est-1');
+        httpMock.expectOne(`${base}/equipes/456/caminhao`).flush({
+            idEstoque: 'est-1', materiais: [{ idMaterial: 'm1', codigo: '300117', descricao: 'Poste', unidade: 'UN', condicao: 'NOVO',
+                fisico: 4, livre: 1, obras: [{ idObra: 'o1', numero: '430126363', quantidade: 3 }] }]
+        });
+        await Promise.resolve();
+        httpMock.expectOne(`${base}/canteiros`).flush([{ id: 'c1', nome: 'CANTEIRO NORTE' }]);
+        await new Promise(r => setTimeout(r));
+        httpMock.expectOne(`${base}/estoques/c1`).flush({ idEstoque: 'c1', materiais: [] });
+        await pedido;
+
+        const [locais, linhas, canteiros] = mockDbService.replaceSaldosObra.mock.calls[0];
+        expect(locais).toEqual(['est-1', 'c1']);
+        expect(linhas.map((l: any) => [l.idObra, l.numeroObra, l.quantidade])).toEqual([['o1', '430126363', 3], [null, null, 1]]);
+        expect(canteiros[0]).toEqual(expect.objectContaining({ id: 'c1', nome: 'CANTEIRO NORTE' }));
     });
 
     describe('syncTotal() — resiliência a permissões', () => {

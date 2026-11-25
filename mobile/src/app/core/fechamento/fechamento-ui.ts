@@ -13,10 +13,10 @@ export interface Rotulo { rotulo: string; tom: TomFechamento; icone: NomeIcone }
 export interface DefTipoFechamento { codigo: TipoFechamento; nome: string; descricao: string; adicao: boolean }
 
 export const TIPOS_FECHAMENTO: DefTipoFechamento[] = [
-  { codigo: '221', nome: 'Adição comum', descricao: 'Material que entrou na obra e não estava no orçamento', adicao: true },
-  { codigo: '921', nome: 'Adição concreto', descricao: 'Concreto que entrou na obra e não estava no orçamento', adicao: true },
-  { codigo: '222', nome: 'Devolução comum', descricao: 'Sobra da obra que volta para o almoxarifado', adicao: false },
-  { codigo: '922', nome: 'Devolução concreto', descricao: 'Sobra de concreto que volta para o almoxarifado', adicao: false },
+  { codigo: '221', nome: 'Retirada', descricao: 'Material que entrou na obra e não estava no orçamento', adicao: true },
+  { codigo: '921', nome: 'Retirada · concreto', descricao: 'Concreto que entrou na obra e não estava no orçamento', adicao: true },
+  { codigo: '222', nome: 'Devolução', descricao: 'Sobra da obra que volta para o almoxarifado', adicao: false },
+  { codigo: '922', nome: 'Devolução · concreto', descricao: 'Sobra de concreto que volta para o almoxarifado', adicao: false },
 ];
 
 export function tipoFechamento(tipo: TipoFechamento): DefTipoFechamento {

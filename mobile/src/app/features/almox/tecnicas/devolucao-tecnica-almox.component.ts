@@ -38,7 +38,7 @@ const CONDICOES: OpcaoSegmento<CondicaoDev>[] = [
 ];
 
 /**
- * Receber a devolução 222/922 de uma solicitação técnica: o que voltou de cada material,
+ * Receber a devolução de uma solicitação técnica: o que voltou de cada material,
  * em que condição e se fica guardado no almoxarifado ou sai em baixa na hora (sucata que não
  * volta ao estoque). Material com série volta uma unidade por linha, com a série informada.
  */
@@ -65,7 +65,7 @@ const CONDICOES: OpcaoSegmento<CondicaoDev>[] = [
           <span class="rotulo">Obra</span><strong class="obra">{{ titulo().obra }}</strong>
           <p class="rota"><span>Estoque da obra</span><geo-icone nome="seta" [tamanho]="16" /><strong>{{ almoxarifado() }}</strong></p>
           <span class="rotulo">Equipe</span><span>{{ equipe() }}</span>
-          <span class="tipo geo-num">{{ tipo().codigo }} · {{ tipo().rotulo }}</span>
+          <span class="tipo geo-num">{{ tipo().rotulo }}</span>
         </section>
 
         @if (pedeReserva()) {

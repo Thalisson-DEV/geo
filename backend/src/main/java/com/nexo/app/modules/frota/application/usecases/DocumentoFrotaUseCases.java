@@ -1,5 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.frota.application.dto.ArquivoDocumentoFrota;
 import com.nexo.app.modules.frota.application.dto.DocumentoFrotaFilter;
 import com.nexo.app.modules.frota.application.dto.DocumentoFrotaRequest;
@@ -58,6 +61,7 @@ public class DocumentoFrotaUseCases {
     private final ImplementoRepository implementoRepository;
     private final ParametrosFrotaUseCases parametros;
     private final ObjectStorageService objectStorage;
+    private final ListasApi listasApi;
 
     @Transactional(readOnly = true)
     public PageResponse<DocumentoFrotaResponse> listar(DocumentoFrotaFilter filtro, Pageable pageable) {
@@ -179,8 +183,8 @@ public class DocumentoFrotaUseCases {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Documento não encontrado."));
     }
 
-    private static DocumentoFrota.DadosDocumento dados(DocumentoFrotaRequest request) {
-        return new DocumentoFrota.DadosDocumento(request.tipo(), request.descricao(), request.numero(),
+    private DocumentoFrota.DadosDocumento dados(DocumentoFrotaRequest request) {
+        return new DocumentoFrota.DadosDocumento(listasApi.exigirAtiva(ListaConfiguravel.TIPO_DOCUMENTO_VEICULO, request.tipo()), request.descricao(), request.numero(),
                 request.dataEmissao(), request.dataVencimento(), request.observacao());
     }
 
@@ -200,7 +204,7 @@ public class DocumentoFrotaUseCases {
                 d.getIdImplemento(),
                 d.getIdImplemento() == null ? null : implementos.get(d.getIdImplemento()),
                 d.getTipo(),
-                d.getTipo().getRotulo(),
+                listasApi.rotulo(ListaConfiguravel.TIPO_DOCUMENTO_VEICULO, d.getTipo()),
                 d.getDescricao(),
                 d.getNumero(),
                 d.getDataEmissao(),

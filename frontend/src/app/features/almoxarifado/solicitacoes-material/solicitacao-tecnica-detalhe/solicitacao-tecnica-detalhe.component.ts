@@ -211,13 +211,13 @@ export class SolicitacaoTecnicaDetalheComponent implements OnInit, OnDestroy {
     }
     switch (this.situacao().label) {
       case 'A planejar':
-        return { tom: 'warning', icone: 'pi pi-calendar-plus', titulo: 'A planejar', texto: `Defina a data do saque${t.idEquipe ? '' : ' e, se já souber, a equipe'} para liberar a separação.` };
+        return { tom: 'warning', icone: 'pi pi-calendar-plus', titulo: 'A planejar', texto: `Defina a data da retirada${t.idEquipe ? '' : ' e, se já souber, a equipe'} para liberar a separação.` };
       case 'Em separação':
         return { tom: 'info', icone: 'pi pi-box', titulo: 'Em separação', texto: `O almoxarifado está separando ${materiais(pendentes)}; ao concluir, fica pronta para a retirada.` };
       case 'A entregar':
-        return { tom: 'brand', icone: 'pi pi-truck', titulo: 'Separada, aguardando retirada', texto: `${materiais(pendentes)} prontos para ${equipe} · saque previsto em ${this.dataCurta(t.dataPrevista)}.` };
+        return { tom: 'brand', icone: 'pi pi-truck', titulo: 'Separada, aguardando retirada', texto: `${materiais(pendentes)} prontos para ${equipe} · retirada prevista em ${this.dataCurta(t.dataPrevista)}.` };
       default:
-        return { tom: 'info', icone: 'pi pi-calendar', titulo: 'Planejada, a separar', texto: `Saque previsto em ${this.dataCurta(t.dataPrevista)} para ${equipe}; falta separar ${materiais(pendentes)}.` };
+        return { tom: 'info', icone: 'pi pi-calendar', titulo: 'Planejada, a separar', texto: `Retirada prevista em ${this.dataCurta(t.dataPrevista)} para ${equipe}; falta separar ${materiais(pendentes)}.` };
     }
   });
 
