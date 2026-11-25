@@ -43,6 +43,15 @@ export interface DocumentacaoObra {
   documentos: { id: string; tipo: string; numeroVersao: number; status: string }[];
 }
 
+/** O que ainda segura a conclusão da obra (mesma consulta da ficha no web). */
+export interface ConclusaoObra {
+  concluida: boolean;
+  servicos: number;
+  servicosAbertos: number;
+  fotos: { idPonto: string; numeroPonto: string | null; titulo: string; motivoReprovacao: string | null }[];
+  ocorrencias: { id: string; tipo: string; rotulo: string; descricao: string; registradaEm: string }[];
+}
+
 const CHAVE_STATUS = 'supervisao_status';
 
 /**
@@ -144,5 +153,18 @@ export class SupervisaoService {
     setTimeout(() => {
       void import('../sync/sync.service').then(({ SyncService }) => this.injector.get(SyncService).syncOutbox().catch(() => undefined));
     }, 300);
+  }
+
+  /** Precisa de internet; sem sinal ou sem permissão devolve null e o bloco não aparece. */
+  async conclusao(idObra: string): Promise<ConclusaoObra | null> {
+    try {
+      return await firstValueFrom(this.http.get<ConclusaoObra>(`${this.baseUrl}/v1/obras/${idObra}/conclusao`, { headers: { 'X-Silent-Error': 'true' } }));
+    } catch {
+      return null;
+    }
+  }
+
+  resolverOcorrencia(idObra: string, idOcorrencia: string, resolucao: string): Promise<ConclusaoObra> {
+    return firstValueFrom(this.http.post<ConclusaoObra>(`${this.baseUrl}/v1/obras/${idObra}/conclusao/ocorrencias/${idOcorrencia}/resolver`, { resolucao }));
   }
 }

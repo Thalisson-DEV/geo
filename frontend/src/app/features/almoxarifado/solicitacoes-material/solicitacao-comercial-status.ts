@@ -51,7 +51,7 @@ export interface SaqueComercial {
   encerrada?: boolean | null;
 }
 
-/** Saque previsto vencido com trabalho em aberto (saldo encerrado não conta). */
+/** Retirada prevista vencido com trabalho em aberto (saldo encerrado não conta). */
 export function saqueAtrasado(s: SaqueComercial | null | undefined, hoje = new Date()): boolean {
   if (!s?.dataPrevista || s.encerrada || !STATUS_EM_ABERTO.includes(s.status as SolicitacaoStatus)) return false;
   return s.dataPrevista.substring(0, 10) < isoCivil(hoje);

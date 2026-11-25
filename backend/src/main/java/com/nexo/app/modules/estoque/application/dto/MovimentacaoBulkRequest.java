@@ -1,7 +1,6 @@
 package com.nexo.app.modules.estoque.application.dto;
 
 import com.nexo.app.modules.estoque.domain.CondicaoMaterial;
-import com.nexo.app.modules.estoque.domain.MotivoMovimentacao;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.List;
@@ -27,7 +26,7 @@ public record MovimentacaoBulkRequest(
     String assinaturaRecebedor,
 
     @Schema(description = "Motivo da entrada ou da baixa avulsa", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    MotivoMovimentacao motivo,
+    String motivo,
 
     @Schema(description = "Observação da operação, até 1000 caracteres", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     String observacao

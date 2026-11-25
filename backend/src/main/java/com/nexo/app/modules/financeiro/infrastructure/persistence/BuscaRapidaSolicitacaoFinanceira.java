@@ -7,7 +7,6 @@ import com.nexo.app.modules.financeiro.domain.GrauPrioridade;
 import com.nexo.app.modules.financeiro.domain.LocalAquisicao;
 import com.nexo.app.modules.financeiro.domain.MotivoSemCompra;
 import com.nexo.app.modules.financeiro.domain.MotivoServicoFrota;
-import com.nexo.app.modules.financeiro.domain.NaturezaServicoFrota;
 import com.nexo.app.modules.financeiro.domain.RegimeVeiculo;
 import com.nexo.app.modules.financeiro.domain.Rotulavel;
 import com.nexo.app.modules.financeiro.domain.SolicitacaoCompra;
@@ -175,10 +174,20 @@ final class BuscaRapidaSolicitacaoFinanceira {
         adicionarEnum(alternativas, nucleo.get("localAquisicao"), termo, LocalAquisicao.class, cb);
         adicionarEnum(alternativas, nucleo.get("formaPagamento"), termo, FormaPagamento.class, cb);
         adicionarEnum(alternativas, nucleo.get("regimeVeiculo"), termo, RegimeVeiculo.class, cb);
-        adicionarEnum(alternativas, nucleo.get("naturezaServico"), termo, NaturezaServicoFrota.class, cb);
+        adicionarCodigo(alternativas, nucleo.get("naturezaServico"), termo, cb);
         adicionarEnum(alternativas, nucleo.get("motivoServico"), termo, MotivoServicoFrota.class, cb);
         adicionarEnum(alternativas, nucleo.get("tipoDespesa"), termo, TipoDespesa.class, cb);
         adicionarEnum(alternativas, nucleo.get("motivoSemCompra"), termo, MotivoSemCompra.class, cb);
+    }
+
+    /** Natureza vem do cadastro: procura pelo código ("suspensao" acha SUSPENSAO_FREIOS). */
+    private static void adicionarCodigo(List<Predicate> alternativas, Expression<?> expressao, String termo, CriteriaBuilder cb) {
+        if (termo == null || termo.isBlank()) {
+            return;
+        }
+        String codigo = java.text.Normalizer.normalize(termo, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "")
+                .toUpperCase(java.util.Locale.ROOT).trim().replaceAll("[^A-Z0-9]+", "_");
+        alternativas.add(cb.like(expressao.as(String.class), "%" + codigo + "%"));
     }
 
     private static <E extends Enum<E>> void adicionarEnum(List<Predicate> alternativas,
@@ -375,7 +384,7 @@ final class BuscaRapidaSolicitacaoFinanceira {
         adicionarEnum(alternativas, compraNucleo.get("localAquisicao"), termo, LocalAquisicao.class, cb);
         adicionarEnum(alternativas, compraNucleo.get("formaPagamento"), termo, FormaPagamento.class, cb);
         adicionarEnum(alternativas, compraNucleo.get("regimeVeiculo"), termo, RegimeVeiculo.class, cb);
-        adicionarEnum(alternativas, compraNucleo.get("naturezaServico"), termo, NaturezaServicoFrota.class, cb);
+        adicionarCodigo(alternativas, compraNucleo.get("naturezaServico"), termo, cb);
         adicionarEnum(alternativas, compraNucleo.get("motivoServico"), termo, MotivoServicoFrota.class, cb);
         adicionarEnum(alternativas, compraNucleo.get("tipoDespesa"), termo, TipoDespesa.class, cb);
         adicionarEnum(alternativas, compraNucleo.get("motivoSemCompra"), termo, MotivoSemCompra.class, cb);

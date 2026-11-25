@@ -1,5 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.financeiro.FinanceiroApi;
 import com.nexo.app.modules.frota.application.dto.AgendaFrotaResponse;
 import com.nexo.app.modules.frota.domain.Apolice;
@@ -59,6 +62,7 @@ public class AgendaFrotaUseCases {
     private final PreventivaUseCases preventiva;
     private final ApoliceRepository apolices;
     private final FinanceiroApi financeiro;
+    private final ListasApi listasApi;
 
     @Transactional(readOnly = true)
     public AgendaFrotaResponse agenda(LocalDate de, LocalDate ate, Collection<UUID> idsBase, Collection<TipoEventoAgendaFrota> tipos) {
@@ -164,7 +168,7 @@ public class AgendaFrotaUseCases {
             String numero = d.getNumero() == null ? "" : " · Nº " + d.getNumero();
             eventos.add(new AgendaFrotaResponse.Evento(TipoEventoAgendaFrota.DOCUMENTO_VENCIMENTO,
                     TipoEventoAgendaFrota.DOCUMENTO_VENCIMENTO.getRotulo(), d.getDataVencimento(), null,
-                    d.getTipo().getRotulo() + " · " + alvo, (vencido ? "Vencido" : "Vence neste dia") + numero,
+                    listasApi.rotulo(ListaConfiguravel.TIPO_DOCUMENTO_VEICULO, d.getTipo()) + " · " + alvo, (vencido ? "Vencido" : "Vence neste dia") + numero,
                     ficha != null ? ficha.getPlaca() : null, idBase == null ? null : nomesBase.get(idBase), d.getId(), null,
                     vencido ? "danger" : "warning", vencido));
         }

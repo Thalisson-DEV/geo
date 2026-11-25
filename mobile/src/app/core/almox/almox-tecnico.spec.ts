@@ -7,7 +7,7 @@ const resumo = (extra: Partial<ResumoSolicitacao>): ResumoSolicitacao => ({
 
 describe('almox-tecnico', () => {
     it('aceita o tipo técnico pelo código ou pelo nome do enum', () => {
-        expect(defTipoTecnico('221').rotulo).toBe('Adição comum');
+        expect(defTipoTecnico('221').rotulo).toBe('Retirada');
         expect(defTipoTecnico('DEVOLUCAO_CONCRETO').codigo).toBe('922');
         expect(defTipoTecnico('922').adicao).toBe(false);
     });

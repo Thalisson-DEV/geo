@@ -26,6 +26,7 @@ import { createControlId, getDescribedBy } from './form-control.helpers';
       <p-inputnumber
         [autofocus]="false"
         class="geo-prime-control"
+        [class.geo-number-input--end]="align() === 'end'"
         size="small"
         [inputId]="controlId()"
         [ngModel]="value()"
@@ -89,6 +90,8 @@ export class GeoNumberInputComponent {
   readonly prefix = input<string | undefined>();
   readonly suffix = input<string | undefined>();
   readonly showButtons = input(false);
+  /** `end` alinha o número à direita, como nas colunas numéricas das tabelas (quantidades em conferência). */
+  readonly align = input<'start' | 'end'>('start');
 
   protected onValueChange(value: number | null): void {
     if (!this.disabled() && !this.readonly()) this.value.set(value);

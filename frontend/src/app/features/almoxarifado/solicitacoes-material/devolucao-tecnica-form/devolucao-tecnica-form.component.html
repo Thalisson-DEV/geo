@@ -1,4 +1,4 @@
-<geo-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" title="Nova devolução técnica (222/922)"
+<geo-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" title="Nova devolução"
   [description]="obraFixa() ? obraRotulo() : 'Do estoque da obra para o almoxarifado; o saldo é movimentado na hora.'"
   size="lg" [resizable]="true" [dirty]="alterado()" [loading]="carregando()">
   @if (erroCatalogos()) {

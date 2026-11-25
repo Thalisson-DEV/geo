@@ -36,6 +36,7 @@ public class EvidenciaPontoUseCases {
     private final FichaAsBuiltRepository fichaRepository;
     private final ModeloChecklistObraUseCases modeloUseCases;
     private final ObjectStorageService objectStorage;
+    private final ConclusaoObraUseCases conclusao;
 
     @Transactional
     public UUID registrar(UUID idObra, UUID idPonto, UUID idModelo, String idItem, String legenda, MultipartFile arquivo) {
@@ -89,8 +90,11 @@ public class EvidenciaPontoUseCases {
         String chaveMiniatura = base + "_miniatura.jpg";
         objectStorage.enviar(chave, new ByteArrayInputStream(conteudo), conteudo.length, tipo);
         objectStorage.enviar(chaveMiniatura, new ByteArrayInputStream(miniatura), miniatura.length, "image/jpeg");
-        return repository.save(EvidenciaPonto.doCampo(idObra, idPonto, item, legenda,
+        EvidenciaPonto salva = repository.save(EvidenciaPonto.doCampo(idObra, idPonto, item, legenda,
                 new EvidenciaPonto.Arquivo(nome, tipo, conteudo.length, chave, chaveMiniatura), captura, origem));
+        // A foto pode ser a última obrigatória que faltava: a obra conclui agora, se nada mais falta.
+        conclusao.tentarConcluir(idObra, null);
+        return salva;
     }
 
     @Transactional

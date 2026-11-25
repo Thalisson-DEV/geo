@@ -13,6 +13,8 @@ import {
 import {
   GeoButtonComponent,
   GeoIconButtonComponent,
+  GeoSegmentedComponent,
+  GeoSegmentedOption,
   GeoStatusComponent,
   GeoSurfaceComponent,
 } from '../primitives';
@@ -43,6 +45,7 @@ import {
     GeoFileInputComponent,
     GeoIconButtonComponent,
     GeoPasswordInputComponent,
+    GeoSegmentedComponent,
     GeoStatusComponent,
     GeoSurfaceComponent,
     DesignSystemCatalogListPageComponent,
@@ -139,6 +142,9 @@ import {
                 label="Excluir registro"
                 variant="destructive"
               ></geo-icon-button>
+            </div>
+            <div class="geo-catalog__row">
+              <geo-segmented label="Forma de visualizar (exemplo)" [options]="visoesExemplo" [(value)]="visaoExemplo"></geo-segmented>
             </div>
           </geo-surface>
         </section>
@@ -465,6 +471,12 @@ export class DesignSystemCatalogComponent {
   protected readonly theme = inject(ThemeService);
   protected readonly catalogFile = signal<File | null>(null);
   protected readonly blockingProgressVisible = signal(false);
+  protected readonly visoesExemplo: GeoSegmentedOption[] = [
+    { value: 'quadro', label: 'Quadro', icon: 'pi pi-table' },
+    { value: 'fila', label: 'Fila', icon: 'pi pi-list', count: 4 },
+    { value: 'registro', label: 'Registrados', icon: 'pi pi-history', count: 12 },
+  ];
+  protected readonly visaoExemplo = signal<string | null>('quadro');
   protected readonly chartLabels = GEO_CHART_CATALOG_LABELS;
   protected readonly chartSeries = GEO_CHART_CATALOG_SERIES;
   protected readonly chartSeriesSaidas = GEO_CHART_CATALOG_SERIES.slice(1);

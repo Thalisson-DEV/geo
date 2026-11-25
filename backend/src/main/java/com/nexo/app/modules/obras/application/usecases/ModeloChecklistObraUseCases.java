@@ -37,7 +37,11 @@ public class ModeloChecklistObraUseCases {
     @Transactional
     public ModeloChecklistObraResponse criar(ModeloChecklistObraRequest request) {
         exigirTituloLivre(request.finalidade(), request.titulo(), null);
-        return paraResponse(repository.save(new ModeloChecklistObra(request.finalidade(), request.titulo(), request.descricao(), request.estrutura())));
+        ModeloChecklistObra novo = new ModeloChecklistObra(request.finalidade(), request.titulo(), request.descricao(), request.estrutura());
+        if (request.fotosTravamExecucao() != null) {
+            novo.definirTravaDeFotos(request.fotosTravamExecucao());
+        }
+        return paraResponse(repository.save(novo));
     }
 
     @Transactional
@@ -56,6 +60,9 @@ public class ModeloChecklistObraUseCases {
             modelo.alterarEstrutura(request.estrutura());
         }
         modelo.atualizarDados(request.titulo(), request.descricao());
+        if (request.fotosTravamExecucao() != null) {
+            modelo.definirTravaDeFotos(request.fotosTravamExecucao());
+        }
         return paraResponse(repository.save(modelo));
     }
 
@@ -73,7 +80,9 @@ public class ModeloChecklistObraUseCases {
     public ModeloChecklistObraResponse duplicar(UUID id) {
         ModeloChecklistObra origem = buscarEntidade(id);
         String titulo = tituloDaCopia(origem);
-        return paraResponse(repository.save(new ModeloChecklistObra(origem.getFinalidade(), titulo, origem.getDescricao(), origem.getEstrutura())));
+        ModeloChecklistObra copia = new ModeloChecklistObra(origem.getFinalidade(), titulo, origem.getDescricao(), origem.getEstrutura());
+        copia.definirTravaDeFotos(origem.isFotosTravamExecucao());
+        return paraResponse(repository.save(copia));
     }
 
     @Transactional
@@ -124,6 +133,6 @@ public class ModeloChecklistObraUseCases {
     private ModeloChecklistObraResponse paraResponse(ModeloChecklistObra modelo) {
         return new ModeloChecklistObraResponse(modelo.getId(), modelo.getFinalidade(), modelo.getTitulo(), modelo.getDescricao(), modelo.getEstrutura(),
                 modelo.getEstrutura().grupos().size(), modelo.getEstrutura().grupos().stream().mapToInt(g -> g.perguntas().size()).sum(),
-                emUso(modelo.getId()), modelo.isAtivo());
+                emUso(modelo.getId()), modelo.isAtivo(), modelo.isFotosTravamExecucao());
     }
 }

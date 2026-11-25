@@ -1,7 +1,6 @@
 package com.nexo.app.modules.estoque.application.dto;
 
 import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
-import com.nexo.app.modules.estoque.domain.MotivoMovimentacao;
 import com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao;
 import com.nexo.app.modules.estoque.domain.TipoObraSnapshot;
 import com.nexo.app.modules.estoque.domain.TipoSolicitacaoTecnica;
@@ -59,8 +58,11 @@ public record MovimentacaoOperacaoResponse(
     @Schema(description = "Número da nota que gerou a aplicação, retirada ou estorno; nulo nas demais operações")
     String numeroNota,
 
-    @Schema(description = "Motivo da entrada ou da baixa avulsa")
-    MotivoMovimentacao motivo,
+    @Schema(description = "Motivo da entrada ou da baixa avulsa (código do cadastro)")
+    String motivo,
+
+    @Schema(description = "Nome do motivo no cadastro")
+    String motivoRotulo,
 
     @Schema(description = "Observação registrada na operação")
     String observacao

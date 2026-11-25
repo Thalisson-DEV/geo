@@ -180,7 +180,7 @@ const CONTADAS: readonly SituacaoTecnicaDef[] = [SITUACAO_EM_ABERTO, ...SITUACOE
         title="Solicitações técnicas"
         icon="pi pi-wrench"
         [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Solicitações técnicas' }]"
-        description="Material para obras: planejar, separar e entregar (221/921) e receber as devoluções (222/922)."
+        description="Material das obras: retiradas (planejar, separar e entregar) e devoluções. A rotina diária das equipes fica no Balcão."
         helpLabel="Ajuda sobre solicitações técnicas"
         (help)="ajuda.show()"
       >
@@ -323,7 +323,7 @@ const CONTADAS: readonly SituacaoTecnicaDef[] = [SITUACAO_EM_ABERTO, ...SITUACOE
             </ng-template>
             <ng-template geoCell="equipe" let-row>
               <span class="sol-nowrap" [class.geo-cell-muted]="!row.idEquipe">{{ row.idEquipe ? equipeLabel(row.idEquipe) : 'A definir' }}</span>
-              @if (row.saqueForaEquipe) { <span class="geo-cell-muted">Saque fora da equipe</span> }
+              @if (row.saqueForaEquipe) { <span class="geo-cell-muted">Retirada fora da equipe</span> }
             </ng-template>
             <ng-template geoCell="saque" let-row>
               <span class="sol-prazo">
@@ -393,12 +393,12 @@ const CONTADAS: readonly SituacaoTecnicaDef[] = [SITUACAO_EM_ABERTO, ...SITUACOE
         <p class="help-text-desc">Planejada, a solicitação vai para a separação e, separada, para a entrega à equipe.</p>
       </div>
       <div class="help-section">
-        <h4 class="help-section-title"><i class="pi pi-undo"></i> Devoluções (222/922)</h4>
+        <h4 class="help-section-title"><i class="pi pi-undo"></i> Devoluções</h4>
         <p class="help-text-desc">Em "Nova devolução", informe a obra e os materiais que voltam do estoque da obra. A devolução aparece nesta lista e o almoxarifado a recebe no painel, dizendo se cada material volta novo ou como sucata.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-calendar-plus"></i> Origem</h4>
-        <p class="help-text-desc">Ao programar a obra, os materiais a instalar viram uma solicitação com o início da programação como saque previsto ("Programação #N"). As lançadas aqui aparecem como "Manual".</p>
+        <p class="help-text-desc">Ao programar a obra, os materiais a instalar viram uma solicitação com o início da programação como retirada prevista ("Programação #N"). As lançadas aqui aparecem como "Manual".</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-objects-column"></i> Tabela, quadro e calendário</h4>
@@ -560,7 +560,7 @@ export class SolicitacoesMaterialTecnicasComponent {
       id: 'almoxarifado.solicitacoes-tecnicas',
       nome: 'Gestão de solicitações técnicas',
       modulo: 'Almoxarifado',
-      descricao: 'Fila de solicitações técnicas de material para obras: planejamento do saque, separação, entrega (221/921) e recebimento das devoluções (222/922).',
+      descricao: 'Fila de solicitações técnicas de material para obras: planejamento da retirada, separação, entrega e recebimento das devoluções.',
       rota: VISOES.find((v) => v.value === this.visao)!.rota,
       periodo: periodoPainel(f.periodo.from ? dataLocal(f.periodo.from) : null, f.periodo.to ? dataLocal(f.periodo.to) : null),
       filtros: [
@@ -582,7 +582,7 @@ export class SolicitacoesMaterialTecnicasComponent {
         : [],
       datasets: ['solicitacoes', 'itens_solicitacao', 'operacoes_solicitacao', 'historico_solicitacoes', 'materiais', 'estoques'],
       sugestoes: [
-        { rotulo: 'Priorizar a fila', icone: 'pi pi-clock', requer: ['dados'], pergunta: 'Quais solicitações técnicas deste recorte devo planejar ou separar primeiro, considerando o saque previsto e as pendências?' },
+        { rotulo: 'Priorizar a fila', icone: 'pi pi-clock', requer: ['dados'], pergunta: 'Quais solicitações técnicas deste recorte devo planejar ou separar primeiro, considerando o retirada prevista e as pendências?' },
         { rotulo: 'Saques atrasados', icone: 'pi pi-truck', requer: ['dados'], pergunta: 'Quais saques estão atrasados neste recorte, para quais obras e equipes, e há saldo no almoxarifado para atendê-los?' },
         { rotulo: 'Pendências abertas', icone: 'pi pi-flag', requer: ['dados'], pergunta: 'Resuma as pendências abertas nas solicitações deste recorte, agrupadas por motivo.' }
       ]
@@ -594,7 +594,7 @@ export class SolicitacoesMaterialTecnicasComponent {
     { key: 'obra', header: 'Obra / OS-OC', type: 'custom', priority: 1, value: (s) => this.obraLabel(s.idObra) },
     { key: 'tipo', header: 'Tipo', type: 'custom', value: (s) => (s.tipo ? tipoTecnicoLabel(s.tipo) : '') },
     { key: 'equipe', header: 'Equipe', type: 'custom', value: (s) => this.equipeLabel(s.idEquipe) },
-    { key: 'saque', header: 'Saque previsto', type: 'custom', sortField: 'dataPrevistaRetirada', value: (s) => s.dataPrevista },
+    { key: 'saque', header: 'Retirada prevista', type: 'custom', sortField: 'dataPrevistaRetirada', value: (s) => s.dataPrevista },
     { key: 'status', header: 'Situação', type: 'custom', priority: 1, sortField: 'status', value: (s) => situacaoAtual(s.status, s.dataPrevista, s.statusSeparacao).label },
     { key: 'reserva', header: 'Reserva', type: 'custom', value: (s) => s.numeroReserva },
     { key: 'itens', header: 'Itens', type: 'integer', value: (s) => s.quantidadeItens }

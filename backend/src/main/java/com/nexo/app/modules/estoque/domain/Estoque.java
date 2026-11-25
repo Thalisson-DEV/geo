@@ -23,6 +23,7 @@ import java.util.UUID;
 public class Estoque extends BaseEntity {
 
     public static final String TIPO_FROTA = "FROTA";
+    public static final String TIPO_CANTEIRO = "CANTEIRO";
 
     @NotBlank(message = "O nome identificador do estoque é obrigatório")
     @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres")
@@ -50,6 +51,16 @@ public class Estoque extends BaseEntity {
     /** UUID da obra cuja custodia patrimonial este estoque representa. */
     @Column(name = "id_obra")
     private UUID idObra;
+
+    /** Canteiro: onde fica (referência de quem chega) e coordenadas. */
+    @Column(name = "referencia", length = 300)
+    private String referencia;
+
+    @Column(name = "latitude", precision = 9, scale = 6)
+    private java.math.BigDecimal latitude;
+
+    @Column(name = "longitude", precision = 9, scale = 6)
+    private java.math.BigDecimal longitude;
 
     public Estoque(String nomeIdentificador, TipoEstoque tipoEstoque) {
         validarNome(nomeIdentificador);
@@ -125,6 +136,35 @@ public class Estoque extends BaseEntity {
     /** Almoxarifado da oficina da frota: só recebe peças do catálogo FROTA. */
     public boolean isTipoFrota() {
         return this.tipoEstoque != null && TIPO_FROTA.equalsIgnoreCase(this.tipoEstoque.getNome());
+    }
+
+    public boolean isTipoCanteiro() {
+        return this.tipoEstoque != null && TIPO_CANTEIRO.equalsIgnoreCase(this.tipoEstoque.getNome());
+    }
+
+    /** Locais onde o material fica separado por obra: o caminhão da equipe e o canteiro. */
+    public boolean guardaMaterialPorObra() {
+        return isTipoCampo() || isTipoCanteiro();
+    }
+
+    /** Dados do canteiro: base, referência e coordenadas (as duas juntas ou nenhuma). */
+    public void definirLocalCanteiro(UUID idBaseOperacional, String referencia,
+                                     java.math.BigDecimal latitude, java.math.BigDecimal longitude) {
+        validarStatus();
+        if (!isTipoCanteiro()) {
+            throw new InvarianteVioladaException("Só canteiros têm referência e coordenadas.");
+        }
+        if ((latitude == null) != (longitude == null)) {
+            throw new InvarianteVioladaException("Informe latitude e longitude juntas.");
+        }
+        String texto = referencia == null || referencia.isBlank() ? null : referencia.trim();
+        if (texto != null && texto.length() > 300) {
+            throw new InvarianteVioladaException("A referência deve ter até 300 caracteres.");
+        }
+        this.idBaseOperacional = Objects.requireNonNull(idBaseOperacional, "A base operacional do canteiro é obrigatória");
+        this.referencia = texto;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public boolean isTipoObra() {

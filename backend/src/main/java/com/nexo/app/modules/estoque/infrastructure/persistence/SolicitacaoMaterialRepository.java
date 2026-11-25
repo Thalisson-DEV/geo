@@ -53,4 +53,22 @@ public interface SolicitacaoMaterialRepository extends JpaRepository<Solicitacao
             where s.contexto = com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial.FECHAMENTO
             """)
     List<UUID> listarSolicitantesFechamento();
+
+    /** Retiradas abertas de um almoxarifado até a data (balcão): adições técnicas aprovadas ou parciais, com equipe. */
+    @Query("""
+            select distinct s from SolicitacaoMaterial s
+            left join fetch s.itens i
+            left join fetch i.material
+            where s.contexto = com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial.TECNICO
+              and s.tipoTecnico in (com.nexo.app.modules.estoque.domain.TipoSolicitacaoTecnica.ADICAO_COMUM,
+                                    com.nexo.app.modules.estoque.domain.TipoSolicitacaoTecnica.ADICAO_CONCRETO)
+              and s.status in (com.nexo.app.modules.estoque.domain.SolicitacaoMaterial.StatusSolicitacao.APROVADO,
+                               com.nexo.app.modules.estoque.domain.SolicitacaoMaterial.StatusSolicitacao.ENTREGUE_PARCIAL)
+              and s.encerradaEm is null and s.canceladaEm is null and s.ativo = true
+              and s.almoxarifadoAtendimento.id = :idAlmoxarifado
+              and s.idEquipeSaque is not null
+              and s.dataPrevistaRetirada is not null and s.dataPrevistaRetirada <= :ate
+            """)
+    List<SolicitacaoMaterial> retiradasAbertasDoBalcao(@Param("idAlmoxarifado") UUID idAlmoxarifado,
+                                                      @Param("ate") java.time.LocalDate ate);
 }

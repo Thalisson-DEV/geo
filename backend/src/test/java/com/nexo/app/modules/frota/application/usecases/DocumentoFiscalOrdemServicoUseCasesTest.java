@@ -6,7 +6,6 @@ import com.nexo.app.modules.frota.domain.Criticidade;
 import com.nexo.app.modules.frota.domain.DocumentoFiscalOrdemServico;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
 import com.nexo.app.modules.frota.domain.ItemManutencao;
-import com.nexo.app.modules.frota.domain.NaturezaServico;
 import com.nexo.app.modules.frota.domain.OrdemServico;
 import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.TipoDocumentoFiscal;
@@ -64,7 +63,7 @@ class DocumentoFiscalOrdemServicoUseCasesTest {
 
     @BeforeEach
     void setUp() {
-        var item = new ItemManutencao("PASTILHA", NaturezaServico.SUSPENSAO_FREIOS, null, null);
+        var item = new ItemManutencao("PASTILHA", "SUSPENSAO_FREIOS", null, null);
         ReflectionTestUtils.setField(item, "id", UUID.randomUUID());
         var ficha = FichaVeiculo.provisionar(UUID.randomUUID(), "ABC1D23", UUID.randomUUID());
         os = OrdemServico.abrir(ficha, new OrdemServico.Abertura(TipoManutencao.CORRETIVA, OrigemOrdemServico.VERBAL,

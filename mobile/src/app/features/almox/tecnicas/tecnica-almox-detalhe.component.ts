@@ -43,7 +43,7 @@ const MINIMO_MOTIVO = 5;
         <section class="hero" aria-label="Resumo">
           <div class="selos">
             <span [class]="'geo-etiqueta geo-etiqueta--' + etapa().tom"><geo-icone [nome]="etapa().icone" [tamanho]="14" />{{ etapa().rotulo }}</span>
-            <span class="geo-etiqueta geo-etiqueta--neutro tipo geo-num">{{ tipo().codigo }} · {{ tipo().rotulo }}</span>
+            <span class="geo-etiqueta geo-etiqueta--neutro tipo geo-num">{{ tipo().rotulo }}</span>
             @if (d.tecnico?.atrasada) { <span class="geo-etiqueta geo-etiqueta--erro"><geo-icone nome="alerta" [tamanho]="14" />Saque atrasado</span> }
             @if (d.foraPrazoSaque) { <span class="geo-etiqueta geo-etiqueta--atencao"><geo-icone nome="relogio" [tamanho]="14" />Fora das 48h</span> }
             @if (d.possuiPendencia) { <span class="geo-etiqueta geo-etiqueta--atencao"><geo-icone nome="bandeira" [tamanho]="14" />Com pendência</span> }
@@ -66,7 +66,7 @@ const MINIMO_MOTIVO = 5;
         </section>
 
         <dl class="geo-dados">
-          <div><dt>Saque previsto</dt>
+          <div><dt>Retirada prevista</dt>
             <dd>@if (dataPrevista(); as p) { <span [class.alerta]="d.tecnico?.atrasada">{{ dataCurta(p.substring(0, 10)) }}</span><span class="apoio"> · {{ relativo(p) }}</span> } @else { Não agendado }</dd></div>
           <div><dt>Equipe</dt><dd>{{ equipe() }}</dd></div>
           <div><dt>Reserva</dt><dd>@if (d.tecnico?.reserva?.numero; as r) { <span class="geo-num">{{ r }}</span> } @else { <span class="apoio">Sem reserva</span> }</dd></div>

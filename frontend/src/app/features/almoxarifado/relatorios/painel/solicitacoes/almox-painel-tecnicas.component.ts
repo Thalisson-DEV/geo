@@ -96,7 +96,7 @@ export class AlmoxPainelTecnicasComponent extends PainelSolicitacoesBase {
   }
 
   protected readonly contextoCopiloto = computed(() => this.contextoBase('almoxarifado.relatorios.tecnicas', 'Solicitações técnicas',
-    'Adições e devoluções das obras (221/921/222/922): planejamento, separação, retirada, devoluções pendentes, obras, tipos e equipes.',
+    'Retiradas e devoluções das obras: planejamento, separação, retirada, devoluções pendentes, obras, tipos e equipes.',
     '/almoxarifado/relatorios/solicitacoes-tecnicas'));
 
   constructor() {

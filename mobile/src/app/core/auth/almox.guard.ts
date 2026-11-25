@@ -11,6 +11,16 @@ export const almoxGuard: CanMatchFn = () => {
   return auth.podeAcessarAlmoxarifado() ? true : inject(Router).createUrlTree(['/hoje']);
 };
 
+export const almoxBalcaoGuard: CanMatchFn = () => {
+  const auth = inject(AuthService);
+  return auth.podeOperarBalcao() || inject(Router).createUrlTree(['/almox']);
+};
+
+export const almoxEquipesGuard: CanMatchFn = () => {
+  const auth = inject(AuthService);
+  return auth.podeVerEstoqueEquipes() || inject(Router).createUrlTree(['/almox']);
+};
+
 export const almoxSolicitacoesGuard: CanMatchFn = () => {
   const auth = inject(AuthService);
   if (auth.podeVerSolicitacoesAlmox()) return true;
@@ -19,13 +29,13 @@ export const almoxSolicitacoesGuard: CanMatchFn = () => {
 
 export const almoxEntregaGuard: CanMatchFn = () => {
   const auth = inject(AuthService);
-  return auth.podeGerirSolicitacoesAlmox() ? true : inject(Router).createUrlTree(['/almox/solicitacoes']);
+  return auth.podeGerirSolicitacoesAlmox() ? true : inject(Router).createUrlTree(['/almox/tecnicas']);
 };
 
 export const almoxMovimentacoesGuard: CanMatchFn = () => {
   const auth = inject(AuthService);
   if (auth.podeVerMovimentacoes()) return true;
-  return inject(Router).createUrlTree([auth.podeVerSolicitacoesAlmox() ? '/almox/solicitacoes' : auth.podeVerFechamentoAlmox() ? '/almox/fechamento' : '/hoje']);
+  return inject(Router).createUrlTree([auth.podeVerSolicitacoesAlmox() ? '/almox/tecnicas' : auth.podeVerFechamentoAlmox() ? '/almox/fechamento' : '/hoje']);
 };
 
 export const almoxMovimentarGuard: CanMatchFn = () => {

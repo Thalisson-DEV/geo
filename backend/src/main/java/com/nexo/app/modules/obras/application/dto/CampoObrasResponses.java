@@ -43,7 +43,12 @@ public final class CampoObrasResponses {
                          List<ObraCampo> obras, ModeloApr modeloApr, List<ModeloFoto> modelosFoto, List<Aviso> avisos,
                          /** APRs concluídas e "sem condição" da equipe hoje, em qualquer aparelho: a liberação do dia no app. */
                          List<LiberacaoDia> liberacaoDoDia,
-                         List<ObraResumo> obrasAbertas) {
+                         List<ObraResumo> obrasAbertas,
+                         /** Motivos de ocorrência do cadastro do cliente, na ordem para o app oferecer sem sinal. */
+                         List<OpcaoCampo> motivosOcorrencia) {
+    }
+
+    public record OpcaoCampo(String codigo, String rotulo) {
     }
 
     /** {@code tipo}: APR (concluída) ou IMPEDIMENTO ("sem condição de executar"). {@code idLocal}: id do aparelho, se veio do app. */
@@ -111,15 +116,24 @@ public final class CampoObrasResponses {
     public record PendenciaFoto(UUID idPonto, String numeroPonto, String idItem, String titulo, String motivoReprovacao) {
     }
 
-    /** Opções da APR e as sugestões por condição (desligamento, linha viva, poda, aterramento). */
+    /**
+     * Opções da APR vindas do cadastro: as sugestões por condição (desligamento, linha viva, poda, aterramento...), as
+     * medidas que cada risco marca junto e, só para as verificações que não valem em todo serviço, as condições em que
+     * aparecem.
+     */
     public record ModeloApr(List<String> riscos, List<String> medidas, List<String> verificacoes,
-                            Map<String, Sugestao> sugestoes) {
+                            Map<String, Sugestao> sugestoes, Map<String, List<String>> medidasDoRisco,
+                            Map<String, List<String>> condicoesDasVerificacoes) {
     }
 
     public record Sugestao(List<String> riscos, List<String> medidas) {
     }
 
-    public record ModeloFoto(UUID id, String titulo, List<ItemFoto> itens) {
+    /** {@code travaExecucao}: as fotos obrigatórias travam o "Tudo feito" (e as de antes, o "Parcial"). */
+    public record ModeloFoto(UUID id, String titulo, List<ItemFoto> itens, boolean travaExecucao) {
+        public ModeloFoto(UUID id, String titulo, List<ItemFoto> itens) {
+            this(id, titulo, itens, true);
+        }
     }
 
     /** {@code etapa}: o momento da foto (ANTES, DURANTE, DEPOIS); nula, o app segue a situação do ponto. */

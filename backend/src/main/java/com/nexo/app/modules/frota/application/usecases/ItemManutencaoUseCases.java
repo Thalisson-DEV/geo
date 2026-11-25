@@ -1,5 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.frota.application.dto.ItemManutencaoFilter;
 import com.nexo.app.modules.frota.application.dto.ItemManutencaoRequest;
 import com.nexo.app.modules.frota.application.dto.ItemManutencaoResponse;
@@ -36,6 +39,7 @@ import java.util.stream.Collectors;
 public class ItemManutencaoUseCases {
 
     private final ItemManutencaoRepository repository;
+    private final ListasApi listasApi;
 
     @Transactional
     @CacheEvict(allEntries = true)
@@ -43,7 +47,7 @@ public class ItemManutencaoUseCases {
         if (repository.existsByNomeIgnoreCase(request.nome().trim())) {
             throw new InvarianteVioladaException("Já existe um item de manutenção com este nome.");
         }
-        var item = new ItemManutencao(request.nome(), request.natureza(), request.descricao(), request.diasRepeticao());
+        var item = new ItemManutencao(request.nome(), listasApi.exigirAtiva(ListaConfiguravel.NATUREZA_SERVICO_FROTA, request.natureza()), request.descricao(), request.diasRepeticao());
         item.definirTipo(request.tipo());
         return toResponse(repository.save(item));
     }
@@ -55,7 +59,7 @@ public class ItemManutencaoUseCases {
         if (repository.existsByNomeIgnoreCaseAndIdNot(request.nome().trim(), id)) {
             throw new InvarianteVioladaException("Já existe um item de manutenção com este nome.");
         }
-        item.atualizar(request.nome(), request.natureza(), request.descricao(), request.diasRepeticao());
+        item.atualizar(request.nome(), listasApi.exigirAtiva(ListaConfiguravel.NATUREZA_SERVICO_FROTA, request.natureza()), request.descricao(), request.diasRepeticao());
         item.definirTipo(request.tipo());
         return toResponse(repository.save(item));
     }
@@ -96,7 +100,7 @@ public class ItemManutencaoUseCases {
         if (filtro != null && filtro.tipo() != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("tipo"), filtro.tipo()));
         }
-        return PageResponse.fromPage(repository.findAll(spec, pageable).map(ItemManutencaoUseCases::toResponse));
+        return PageResponse.fromPage(repository.findAll(spec, pageable).map(this::toResponse));
     }
 
     /** Itens na ordem informada, sem repetição. Recusa id inexistente. */
@@ -115,9 +119,9 @@ public class ItemManutencaoUseCases {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Item de manutenção não encontrado."));
     }
 
-    static ItemManutencaoResponse toResponse(ItemManutencao item) {
+    ItemManutencaoResponse toResponse(ItemManutencao item) {
         return new ItemManutencaoResponse(item.getId(), item.getNome(), item.getNatureza(),
-                item.getNatureza().getRotulo(), item.getDescricao(), item.getDiasRepeticao(), item.getTipo(),
+                listasApi.rotulo(ListaConfiguravel.NATUREZA_SERVICO_FROTA, item.getNatureza()), item.getDescricao(), item.getDiasRepeticao(), item.getTipo(),
                 item.getTipo().getRotulo(), item.isAtivo());
     }
 }

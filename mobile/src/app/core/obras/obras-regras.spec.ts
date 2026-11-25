@@ -2,6 +2,7 @@ import {
   pontoNaFolhaGirada, contarLocais, idadeDaAgenda,
   aprVazia, condicoesDaProgramacao, etapaDaFoto, proximaFoto, vagasDeFoto, medidasDoRisco, nomeLocais, faltasDaApr, aprQueLibera, liberacaoLocal, linkComoChegar, materialPrevisto, pendenciasDeFoto,
   pontosDaExecucao, programacoesDoDia, proximoPasso, relatorioDoDia, sugestoesApr, verificacoesDaApr, EstadoDoDia,
+  fotosQueTravam, textoFotosQueFaltam, VagaFoto,
 } from './obras-regras';
 import { ModeloApr, ObraCampo, ProgramacaoCampo, RegistroObraLocal } from './obras.models';
 
@@ -226,6 +227,20 @@ describe('regras de Obras no app', () => {
     expect(medidasDoRisco(modelo, 'Risco sem medida')).toEqual([]);
   });
 
+  it('APR do cadastro: medidas do risco e verificações condicionais vêm do pacote, não do código', () => {
+    const modelo = {
+      riscos: ['Ruído'], medidas: ['Protetor auricular', 'Inspeção de escada e cinto'], verificacoes: ['Área sinalizada', 'Desligamento confirmado', 'Poda autorizada'],
+      sugestoes: {}, medidasDoRisco: { 'Ruído': ['Protetor auricular'] },
+      condicoesDasVerificacoes: { 'Poda autorizada': ['PODA'] }
+    };
+    expect(medidasDoRisco(modelo, 'Ruído')).toEqual(['Protetor auricular']);
+    // O cadastro não liga escada a queda de altura: a regra antiga não vale mais.
+    expect(medidasDoRisco(modelo, 'Queda de altura')).toEqual([]);
+    // Sem condição no cadastro, "Desligamento confirmado" aparece em todo serviço.
+    expect(verificacoesDaApr(modelo, ['SEMPRE'])).toEqual(['Área sinalizada', 'Desligamento confirmado']);
+    expect(verificacoesDaApr(modelo, ['SEMPRE', 'PODA'])).toEqual(['Área sinalizada', 'Desligamento confirmado', 'Poda autorizada']);
+  });
+
   it('contagem diz "pontos e vãos" quando há vão', () => {
     expect(nomeLocais([{}, { vao: { id: 'v' } }])).toBe('pontos e vãos');
     expect(nomeLocais([{}, {}])).toBe('pontos');
@@ -262,5 +277,31 @@ describe('idadeDaAgenda', () => {
 
   it('sem pacote recebido não diz nada', () => {
     expect(idadeDaAgenda(null, agora)).toBeNull();
+  });
+});
+
+describe('trava de fotos obrigatórias', () => {
+  const vaga = (titulo: string, etapa: 'ANTES' | 'DURANTE' | 'DEPOIS' | null, situacao: VagaFoto['situacao'], obrigatoria = true): VagaFoto => ({
+    item: { id: titulo, titulo, obrigatoria, etapa }, etapa, obrigatoria, situacao, motivo: null, noAparelho: 0, noServidor: 0, naFila: 0, cedo: false,
+  });
+  const vagas = [
+    vaga('Poste antes', 'ANTES', 'FALTA'),
+    vaga('Estrutura pronta', 'DEPOIS', 'FALTA'),
+    vaga('Placa', 'DURANTE', 'REFAZER'),
+    vaga('Panorama', null, 'FALTA', false),
+    vaga('Aterramento', 'DEPOIS', 'FEITA'),
+  ];
+
+  it('"Tudo feito" exige todas as obrigatórias, inclusive a reprovada', () => {
+    expect(fotosQueTravam(vagas, 'TUDO').map(v => v.item.titulo)).toEqual(['Poste antes', 'Estrutura pronta', 'Placa']);
+  });
+
+  it('"Parcial" exige só as obrigatórias de antes', () => {
+    expect(fotosQueTravam(vagas, 'PARCIAL').map(v => v.item.titulo)).toEqual(['Poste antes']);
+  });
+
+  it('monta o texto das fotos que faltam', () => {
+    expect(textoFotosQueFaltam(fotosQueTravam(vagas, 'PARCIAL'))).toBe('a foto “Poste antes”');
+    expect(textoFotosQueFaltam(fotosQueTravam(vagas, 'TUDO'))).toBe('as fotos “Poste antes”, “Estrutura pronta” e “Placa”');
   });
 });

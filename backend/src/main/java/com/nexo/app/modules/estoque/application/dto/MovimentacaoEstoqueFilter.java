@@ -2,7 +2,6 @@ package com.nexo.app.modules.estoque.application.dto;
 
 import com.nexo.app.modules.estoque.domain.CondicaoMaterial;
 import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
-import com.nexo.app.modules.estoque.domain.MotivoMovimentacao;
 import com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao;
 import com.nexo.app.modules.estoque.domain.SolicitacaoMaterial.StatusSolicitacao;
 import com.nexo.app.modules.estoque.domain.StatusSeparacao;
@@ -46,7 +45,7 @@ public record MovimentacaoEstoqueFilter(
     ContextoSolicitacaoMaterial processo,
 
     @Parameter(description = "Motivo da entrada ou da baixa avulsa")
-    MotivoMovimentacao motivo,
+    String motivo,
 
     @Parameter(description = "Busca rápida (LIKE, case/accent-insensitive)")
     String buscaGlobal

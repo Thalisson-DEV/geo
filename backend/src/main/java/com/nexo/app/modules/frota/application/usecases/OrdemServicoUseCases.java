@@ -1,5 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.financeiro.FinanceiroApi;
 import com.nexo.app.modules.financeiro.ResumoSolicitacaoFinanceira;
 import com.nexo.app.modules.frota.FrotaCondutorApi;
@@ -93,6 +96,7 @@ public class OrdemServicoUseCases {
     private final FrotaOdometroApi odometro;
     private final FinanceiroApi financeiro;
     private final ApplicationEventPublisher eventPublisher;
+    private final ListasApi listasApi;
 
     // ── Consultas ──────────────────────────────────────────────────────────────────
 
@@ -219,8 +223,9 @@ public class OrdemServicoUseCases {
             valores.put("baseId", os.getIdBaseOperacional());
             rotulos.put("baseId", referencias.nomesBases(List.of(os.getIdBaseOperacional())).get(os.getIdBaseOperacional()));
         }
+        // A compra usa o mesmo cadastro de naturezas da frota.
         os.getItens().stream().findFirst()
-                .ifPresent(item -> valores.put("naturezaServico", item.getItem().getNatureza().name()));
+                .ifPresent(item -> valores.put("naturezaServico", item.getItem().getNatureza()));
         if (os.getMotivo() != null) {
             valores.put("motivoServico", os.getMotivo().name());
         }
@@ -447,7 +452,7 @@ public class OrdemServicoUseCases {
         }
         boolean estavaParado = os.isParadaEmCurso();
         OrdemServico.Baixa baixa = new OrdemServico.Baixa(request.descricaoServico(), request.itensSubstituidos(),
-                request.valorTotal(), request.tipoOficina(), request.idFornecedor(), request.oficinaNome(), request.causa());
+                request.valorTotal(), request.tipoOficina(), request.idFornecedor(), request.oficinaNome(), causaValida(request.causa()));
         os.concluir(new OrdemServico.Encerramento(request.inicioReal(), request.fimReal(), request.kmEncerramento(), baixa));
         os.registrarFinalizacao(usuario);
         boolean finalizada = !os.isBaixaPendente();
@@ -494,12 +499,12 @@ public class OrdemServicoUseCases {
         }
         boolean finalizada = os.completarConclusao(new OrdemServico.Baixa(request.descricaoServico(),
                 request.itensSubstituidos(), request.valorTotal(), request.tipoOficina(), request.idFornecedor(),
-                request.oficinaNome(), request.causa()), usuario);
+                request.oficinaNome(), causaValida(request.causa())), usuario);
         repeticoes.registrar(os);
         repository.save(os);
         eventPublisher.publishEvent(new AnaliseIaPedida(AlvoAnaliseIa.ORDEM_SERVICO, os.getId()));
         registrar(os, TipoEventoOrdemServico.EDITADA, "Conclusão completada: " + (os.getCausa() == null
-                ? os.getDescricaoServico() : os.getCausa().getRotulo() + ": " + os.getDescricaoServico()), usuario);
+                ? os.getDescricaoServico() : listasApi.rotulo(ListaConfiguravel.CAUSA_MANUTENCAO, os.getCausa()) + ": " + os.getDescricaoServico()), usuario);
         registrarFinalizacao(os, finalizada, usuario);
         return montador.detalhar(os, List.of());
     }
@@ -687,5 +692,10 @@ public class OrdemServicoUseCases {
     private String nomeBase(OrdemServico os) {
         return os.getIdBaseOperacional() == null ? null
                 : referencias.nomesBases(List.of(os.getIdBaseOperacional())).get(os.getIdBaseOperacional());
+    }
+
+    /** Causa é opcional na OS importada; informada, precisa estar ativa no cadastro. */
+    private String causaValida(String causa) {
+        return causa == null || causa.isBlank() ? null : listasApi.exigirAtiva(ListaConfiguravel.CAUSA_MANUTENCAO, causa);
     }
 }

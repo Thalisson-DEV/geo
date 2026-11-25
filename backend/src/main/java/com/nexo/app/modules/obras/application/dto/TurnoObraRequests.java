@@ -2,7 +2,6 @@ package com.nexo.app.modules.obras.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nexo.app.modules.obras.domain.FormularioApr;
-import com.nexo.app.modules.obras.domain.TipoOcorrenciaTurno;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -31,7 +30,7 @@ public final class TurnoObraRequests {
 
     public record Ocorrencia(
             UUID idObra,
-            @NotNull(message = "Informe o tipo da ocorrência") TipoOcorrenciaTurno tipo,
+            @NotBlank(message = "Informe o tipo da ocorrência") String tipo,
             @NotBlank(message = "Descreva a ocorrência") @Size(max = 2000) String descricao,
             boolean impedeExecucao) {
     }

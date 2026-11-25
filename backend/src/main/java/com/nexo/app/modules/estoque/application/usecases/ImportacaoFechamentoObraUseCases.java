@@ -53,12 +53,12 @@ public class ImportacaoFechamentoObraUseCases {
     public byte[] modeloCsv() {
         StringBuilder csv = new StringBuilder("﻿");
         csv.append("# Modelo de importacao de solicitacoes de encerramento de obra\r\n");
-        csv.append("# Cada Obra + Almoxarifado + Tipo + Reserva vira uma solicitacao. Tipo: 221, 921, 222 ou 922.\r\n");
+        csv.append("# Cada Obra + Almoxarifado + Tipo + Reserva vira uma solicitacao. Tipo: Retirada, Retirada concreto, Devolucao ou Devolucao concreto (ou 221, 921, 222, 922).\r\n");
         csv.append("# Reserva e data sao opcionais. Datas: DD/MM/AAAA. Quantidade: ate 3 casas decimais.\r\n");
         csv.append(String.join(";", CABECALHOS)).append("\r\n");
-        csv.append("OBRA-1001;ALMOX CENTRAL;221;MAT-001;10.500;;;Sobra levantada na vistoria\r\n");
-        csv.append("OBRA-1001;ALMOX CENTRAL;221;MAT-002;2;;;\r\n");
-        csv.append("OBRA-1001;ALMOX CENTRAL;222;MAT-003;5;1234567890;05/11/2026;\r\n");
+        csv.append("OBRA-1001;ALMOX CENTRAL;Retirada;MAT-001;10.500;;;Sobra levantada na vistoria\r\n");
+        csv.append("OBRA-1001;ALMOX CENTRAL;Retirada;MAT-002;2;;;\r\n");
+        csv.append("OBRA-1001;ALMOX CENTRAL;Devolucao;MAT-003;5;1234567890;05/11/2026;\r\n");
         return csv.toString().getBytes(StandardCharsets.UTF_8);
     }
 

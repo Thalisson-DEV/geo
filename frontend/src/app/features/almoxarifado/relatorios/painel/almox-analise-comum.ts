@@ -1,3 +1,4 @@
+import { ROTULOS_LISTAS } from '../../../../core/models/listas.models';
 import { GeoChartSeries, GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { of } from 'rxjs';
 
@@ -198,17 +199,8 @@ export const ROTULO_TIPO_MOV: Record<TipoMovimentacao, string> = {
   DEVOLUCAO: 'Devolução'
 };
 
-export const ROTULO_MOTIVO: Record<string, string> = {
-  AJUSTE_INVENTARIO: 'Ajuste de inventário',
-  DEVOLUCAO_CAMPO: 'Devolução de campo',
-  AQUISICAO_EXTRA: 'Aquisição extra',
-  DOACAO_BONIFICACAO: 'Doação ou bonificação',
-  PERDA_AVARIA: 'Perda ou avaria',
-  DANIFICACAO: 'Danificação',
-  SUCATEAMENTO: 'Sucateamento',
-  OBSOLESCENCIA: 'Obsolescência',
-  OUTROS: 'Outros'
-};
+/** Nomes do cadastro de motivos de entrada e baixa (lista configurável). */
+export const ROTULO_MOTIVO: Record<string, string> = ROTULOS_LISTAS.MOTIVO_MOVIMENTACAO_ESTOQUE;
 
 /** Motivos de baixa que são perda de material (e não destinação normal de sucata). */
 export const MOTIVOS_PERDA = new Set(['PERDA_AVARIA', 'DANIFICACAO', 'OBSOLESCENCIA']);
@@ -217,7 +209,7 @@ export const ROTULO_TIPO_ESTOQUE: Record<string, string> = { FISICO: 'Almoxarifa
 export const ROTULO_CONDICAO: Record<string, string> = { NOVO: 'Novo', SUCATA: 'Sucata' };
 export const ROTULO_CONTEXTO: Record<string, string> = { COMERCIAL: 'Comercial', TECNICO: 'Técnico', FECHAMENTO: 'Encerramento de obra' };
 export const TIPOS_TECNICOS: Record<string, string> = {
-  '221': 'Adição comum', '921': 'Adição concreto', '222': 'Devolução comum', '922': 'Devolução concreto'
+  '221': 'Retirada', '921': 'Retirada · concreto', '222': 'Devolução', '922': 'Devolução · concreto'
 };
 
 export const rotulo = (mapa: Record<string, string>, chave: string | null | undefined, vazio = 'Não informado') =>

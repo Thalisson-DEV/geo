@@ -3,7 +3,6 @@ package com.nexo.app.modules.frota.application.usecases;
 import com.nexo.app.modules.frota.domain.Criticidade;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
 import com.nexo.app.modules.frota.domain.ItemManutencao;
-import com.nexo.app.modules.frota.domain.NaturezaServico;
 import com.nexo.app.modules.frota.domain.OrdemServico;
 import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.SolicitacaoOrdemServico;
@@ -59,7 +58,7 @@ class OrcamentoOrdemServicoUseCasesTest {
     @BeforeEach
     void setUp() {
         var ficha = FichaVeiculo.provisionar(UUID.randomUUID(), "ABC1D23", null);
-        var item = new ItemManutencao("PASTILHA", NaturezaServico.SUSPENSAO_FREIOS, null, null);
+        var item = new ItemManutencao("PASTILHA", "SUSPENSAO_FREIOS", null, null);
         ReflectionTestUtils.setField(item, "id", UUID.randomUUID());
         os = OrdemServico.abrir(ficha, new OrdemServico.Abertura(TipoManutencao.CORRETIVA, OrigemOrdemServico.VERBAL,
                 Criticidade.MEDIA, null, "x", null, OffsetDateTime.now().minusHours(2), null, null, null, null, null),

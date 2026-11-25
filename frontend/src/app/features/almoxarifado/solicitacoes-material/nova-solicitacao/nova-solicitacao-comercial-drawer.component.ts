@@ -87,12 +87,12 @@ const ehTipo = (e: EstoqueResponse, tipo: string) => e.tipoEstoque?.nome?.trim()
                 [error]="tentou() && !idOrigem() ? 'Escolha o almoxarifado.' : undefined"
               />
               <geo-datepicker
-                label="Saque previsto"
+                label="Retirada prevista"
                 [value]="dataPrevista()"
                 (valueChange)="dataPrevista.set($any($event))"
                 [minDate]="hoje"
                 [required]="true"
-                [error]="tentou() && !dataPrevista() ? 'Informe a data do saque.' : undefined"
+                [error]="tentou() && !dataPrevista() ? 'Informe a data da retirada.' : undefined"
                 description="Peça com 48 horas de antecedência."
               />
               @if (!foraEquipe()) {
@@ -125,7 +125,7 @@ const ehTipo = (e: EstoqueResponse, tipo: string) => e.tipoEstoque?.nome?.trim()
             @if (prazoCurto()) {
               <p class="ns-info ns-info--aviso" aria-live="polite">
                 <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
-                <span>Saque em menos de 48 horas: a solicitação fica marcada como <strong>fora do prazo</strong>.</span>
+                <span>Retirada em menos de 48 horas: a solicitação fica marcada como <strong>fora do prazo</strong>.</span>
               </p>
             }
           </div>
@@ -266,7 +266,7 @@ export class NovaSolicitacaoComercialDrawerComponent {
     this.tentou.set(true);
     const linhas = this.linhas();
     if (!this.idEquipe() || !this.destino() || !this.idOrigem() || !this.dataPrevista()) {
-      return this.notificacoes.warning('Preencha a equipe, o almoxarifado e a data do saque.');
+      return this.notificacoes.warning('Preencha a equipe, o almoxarifado e a data da retirada.');
     }
     if (!linhas.length) return this.notificacoes.warning('Inclua ao menos um material.');
     const semQuantidade = linhas.find((l) => !((l.quantidade ?? 0) > 0));

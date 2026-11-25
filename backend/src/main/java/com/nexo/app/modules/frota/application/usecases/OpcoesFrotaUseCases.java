@@ -1,14 +1,15 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.frota.application.dto.OpcaoFrota;
 import com.nexo.app.modules.frota.application.dto.OpcoesFrotaResponse;
 import com.nexo.app.modules.frota.domain.CategoriaCnh;
 import com.nexo.app.modules.frota.domain.SituacaoSinistro;
 import com.nexo.app.modules.frota.domain.TipoSinistro;
 import com.nexo.app.modules.frota.domain.Criticidade;
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import com.nexo.app.modules.frota.domain.MotivoServico;
-import com.nexo.app.modules.frota.domain.NaturezaServico;
 import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.OrigemPeca;
 import com.nexo.app.modules.frota.domain.SituacaoAprovacaoOrcamento;
@@ -20,15 +21,26 @@ import com.nexo.app.modules.frota.domain.OrigemLeituraOdometro;
 import com.nexo.app.modules.frota.domain.ProvedorTelemetria;
 import com.nexo.app.modules.frota.domain.RegimeVeiculo;
 import com.nexo.app.modules.frota.domain.SituacaoOperacional;
-import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /** Listas fechadas da frota com o rótulo de exibição, para a tela não duplicar textos. */
 @Service
 public class OpcoesFrotaUseCases {
+
+    private final ListasApi listasApi;
+
+    public OpcoesFrotaUseCases(ListasApi listasApi) {
+        this.listasApi = listasApi;
+    }
+
+    /** Tipos de documento, naturezas e causas vêm do cadastro do cliente (listas configuráveis). */
+    private List<OpcaoFrota> doCadastro(ListaConfiguravel lista) {
+        return listasApi.ativas(lista).stream().map(o -> new OpcaoFrota(o.codigo(), o.rotulo())).toList();
+    }
 
     private static final Map<OrigemLeituraOdometro, String> ORIGENS = Map.of(
             OrigemLeituraOdometro.MANUAL, "Lançamento manual",
@@ -45,7 +57,7 @@ public class OpcoesFrotaUseCases {
                 Arrays.stream(Combustivel.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
                 Arrays.stream(ProvedorTelemetria.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
                 Arrays.stream(CategoriaCnh.values()).map(v -> new OpcaoFrota(v.name(), v.name())).toList(),
-                Arrays.stream(TipoDocumentoFrota.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
+                doCadastro(ListaConfiguravel.TIPO_DOCUMENTO_VEICULO),
                 Arrays.stream(OrigemLeituraOdometro.values()).map(v -> new OpcaoFrota(v.name(), ORIGENS.get(v))).toList(),
                 Arrays.stream(SituacaoOrdemServico.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
                 Arrays.stream(Criticidade.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
@@ -53,9 +65,9 @@ public class OpcoesFrotaUseCases {
                 Arrays.stream(OrigemOrdemServico.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
                 Arrays.stream(TipoOficina.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
                 Arrays.stream(MotivoServico.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
-                Arrays.stream(NaturezaServico.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
+                doCadastro(ListaConfiguravel.NATUREZA_SERVICO_FROTA),
                 Arrays.stream(SituacaoAprovacaoOrcamento.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
-                Arrays.stream(CausaManutencao.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
+                doCadastro(ListaConfiguravel.CAUSA_MANUTENCAO),
                 Arrays.stream(OrigemPeca.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
                 Arrays.stream(TipoSinistro.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList(),
                 Arrays.stream(SituacaoSinistro.values()).map(v -> new OpcaoFrota(v.name(), v.getRotulo())).toList());

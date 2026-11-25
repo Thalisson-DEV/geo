@@ -148,10 +148,10 @@ import { locaisProgramaveis } from './programar.logic';
 
       @if (materiaisASolicitar(); as qtd) {
         <geo-form-section title="Solicitação de material" icon="pi pi-box"
-          description="Ao programar, os materiais a instalar viram uma solicitação técnica ao almoxarifado, com o início como saque previsto.">
+          description="Ao programar, os materiais a instalar viram uma solicitação técnica ao almoxarifado, com o início como retirada prevista.">
           <p class="programar__resumo">
             <strong>{{ qtd }} {{ qtd === 1 ? 'material' : 'materiais' }}</strong> {{ qtd === 1 ? 'será solicitado' : 'serão solicitados' }}
-            com saque previsto para <strong>{{ inicioTexto() }}</strong>. Material a retirar da rede volta pela devolução, depois da execução.
+            com retirada prevista para <strong>{{ inicioTexto() }}</strong>. Material a retirar da rede volta pela devolução, depois da execução.
           </p>
           <div class="geo-form-grid">
             <geo-select label="Almoxarifado de atendimento" [required]="true" [options]="opcoesAlmoxarifado()" [value]="idAlmoxarifado()"

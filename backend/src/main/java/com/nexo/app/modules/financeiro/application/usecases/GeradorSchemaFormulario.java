@@ -1,5 +1,6 @@
 package com.nexo.app.modules.financeiro.application.usecases;
 
+import com.nexo.app.modules.listas.ListasApi;
 import com.nexo.app.modules.financeiro.application.dto.CampoSchemaResponse;
 import com.nexo.app.modules.financeiro.application.dto.CondicaoSchema;
 import com.nexo.app.modules.financeiro.application.dto.FormularioSchemaResponse;
@@ -28,6 +29,12 @@ import java.util.List;
  */
 @Component
 public class GeradorSchemaFormulario {
+
+    private final ListasApi listasApi;
+
+    public GeradorSchemaFormulario(ListasApi listasApi) {
+        this.listasApi = listasApi;
+    }
 
     public FormularioSchemaResponse gerar(FormularioSolicitacao formulario) {
         // Ordem de apresentação: os blocos na sequência declarada no catálogo e, dentro
@@ -71,6 +78,10 @@ public class GeradorSchemaFormulario {
 
     /** Opções de um campo de escolha, publicadas já com o rótulo pronto. */
     private List<OpcaoSchema> gerarOpcoes(CampoFormulario campo) {
+        if (campo.getCampoCanonico().getLista() != null) {
+            return listasApi.ativas(campo.getCampoCanonico().getLista()).stream()
+                    .map(o -> new OpcaoSchema(o.codigo(), o.rotulo())).toList();
+        }
         Class<? extends Enum<?>> enumeracao = campo.getCampoCanonico().getEnumeracao();
         if (enumeracao == null) {
             return List.of();

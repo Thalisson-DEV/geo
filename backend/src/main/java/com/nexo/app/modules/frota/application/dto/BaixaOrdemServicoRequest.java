@@ -1,6 +1,5 @@
 package com.nexo.app.modules.frota.application.dto;
 
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import com.nexo.app.modules.frota.domain.TipoOficina;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,7 @@ import java.util.UUID;
  * só vale sem lançamentos na execução). {@code idsItem} nulo mantém os itens da OS.
  */
 public record BaixaOrdemServicoRequest(
-        @NotNull(message = "Escolha a causa da manutenção.") CausaManutencao causa,
+        @NotBlank(message = "Escolha a causa da manutenção.") String causa,
         @NotBlank(message = "Descreva o serviço realizado.") @Size(max = 4000) String descricaoServico,
         @Size(max = 4000) String itensSubstituidos,
         @PositiveOrZero BigDecimal valorTotal,

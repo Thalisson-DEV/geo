@@ -289,8 +289,8 @@ describe('SolicitacaoTecnicaHistoricoComponent', () => {
     component['equipesMap'].set(new Map([['b7ef1a42-bc9d-4660-a618-a9f1ca01fbda', 'EQ-01 — Linha Viva']]));
     component['obrasMap'].set(new Map([['35a8157b-dcd3-4898-bd30-55a2e7cb833f', 'OB-1042 — Expansão']]));
 
-    expect(component['formatValue']('DEVOLUCAO_COMUM', 'tipoTecnico')).toBe('Devolução comum (222)');
-    expect(component['formatValue']('ADICAO_COMUM', 'tipoTecnico')).toBe('Adição comum (221)');
+    expect(component['formatValue']('DEVOLUCAO_COMUM', 'tipoTecnico')).toBe('Devolução de material comum');
+    expect(component['formatValue']('ADICAO_COMUM', 'tipoTecnico')).toBe('Retirada de material comum');
     expect(component['formatValue']('OBRA', 'tipoObra')).toBe('Obra');
     expect(component['formatValue']('CORRETIVA', 'tipoObra')).toBe('Corretiva');
     expect(component['formatValue']('ALMOXARIFADO_JUAZEIRO', 'almoxarifado')).toBe('Almoxarifado Juazeiro');

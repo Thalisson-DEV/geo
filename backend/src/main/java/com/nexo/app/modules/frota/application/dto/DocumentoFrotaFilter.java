@@ -1,7 +1,6 @@
 package com.nexo.app.modules.frota.application.dto;
 
 import com.nexo.app.modules.frota.domain.SituacaoVencimento;
-import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 import com.nexo.app.shared.application.SelecaoMultipla;
 
 import java.time.LocalDate;
@@ -13,7 +12,7 @@ public record DocumentoFrotaFilter(
         UUID idVeiculo,
         UUID idImplemento,
         List<UUID> idsBase,
-        List<TipoDocumentoFrota> tipos,
+        List<String> tipos,
         SituacaoVencimento situacao,
         LocalDate vencimentoAte
 ) {

@@ -1,5 +1,8 @@
 package com.nexo.app.modules.obras.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.execucao.TurnoApi;
 import com.nexo.app.modules.execucao.application.dto.ConsultaTurnos;
 import com.nexo.app.modules.execucao.application.dto.PapeisTurno;
@@ -96,6 +99,7 @@ public class ConsultarTurnosObra {
     private final AprTurnoRepository aprRepository;
     private final AnexoTurnoRepository anexoRepository;
     private final ProgramacaoObraUseCases programacaoUseCases;
+    private final ListasApi listasApi;
 
     /** As últimas ocorrências lançadas na obra, de qualquer turno, da mais recente para a mais antiga. */
     @Transactional(readOnly = true)
@@ -113,9 +117,10 @@ public class ConsultarTurnosObra {
                         e -> equipeApi.buscarPorIdResponse(e).map(EquipeResponse::codigo).orElse(null)));
             }
         }
+        Map<String, String> motivos = listasApi.rotulos(ListaConfiguravel.OCORRENCIA_TURNO);
         return ocorrencias.stream()
                 .map(o -> new TurnoObraResponses.OcorrenciaDaObra(o.getId(), o.getIdTurno(), equipePorTurno.get(o.getIdTurno()),
-                        o.getTipo(), o.getDescricao(), o.isImpedeExecucao(), o.momento()))
+                        o.getTipo(), motivos.getOrDefault(o.getTipo(), o.getTipo()), o.getDescricao(), o.isImpedeExecucao(), o.momento()))
                 .sorted(Comparator.comparing(TurnoObraResponses.OcorrenciaDaObra::momento).reversed())
                 .toList();
     }
@@ -210,7 +215,8 @@ public class ConsultarTurnosObra {
                         .orElse(null),
                 anexos.stream().filter(a -> a.getIdApr() == null).map(ConsultarTurnosObra::paraFoto).toList(),
                 ocorrencias.stream().sorted(Comparator.comparing(OcorrenciaTurno::getDataCriacao))
-                        .map(o -> new TurnoObraResponses.OcorrenciaDoTurno(o.getId(), o.getTipo(), o.getDescricao(), o.getIdObra(),
+                        .map(o -> new TurnoObraResponses.OcorrenciaDoTurno(o.getId(), o.getTipo(),
+                                listasApi.rotulo(ListaConfiguravel.OCORRENCIA_TURNO, o.getTipo()), o.getDescricao(), o.getIdObra(),
                                 o.getIdObra() != null && obras.containsKey(o.getIdObra()) ? obras.get(o.getIdObra()).getNumero() : null,
                                 o.isImpedeExecucao(), o.getUsuarioCriacao(), o.getDataCriacao()))
                         .toList(),

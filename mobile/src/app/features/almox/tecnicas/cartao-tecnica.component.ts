@@ -36,7 +36,7 @@ const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
           </span>
           @if (titulo().ocorrencia) { <span class="obra">{{ titulo().obra }}</span> }
           <span class="linha-status">
-            <span class="tipo geo-num" [class.tipo--dev]="!tipo().adicao">{{ tipo().codigo }}</span>
+            <span class="tipo geo-num" [class.tipo--dev]="!tipo().adicao">{{ tipo().adicao ? 'Retirada' : 'Devolução' }}</span>
             <span class="status" [attr.data-tom]="etapa().tom"><i aria-hidden="true"></i>{{ etapa().rotulo }}</span>
             <span class="sep" aria-hidden="true">·</span>
             <span class="geo-num">{{ item().totalItens }} {{ item().totalItens === 1 ? 'item' : 'itens' }}</span>

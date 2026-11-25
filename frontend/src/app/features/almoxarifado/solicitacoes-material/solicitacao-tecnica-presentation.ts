@@ -293,14 +293,21 @@ export function possuiSaldoPendenteAtendimento(
   return isReturn ? possuiSaldoPendenteDevolucao(detail) : possuiSaldoPendenteEntrega(detail);
 }
 
-export function tipoTecnicoLabel(tipo?: TipoSolicitacaoTecnica | null): string {
-  return tipo ? obterCodigoTecnico(tipo) : 'Comercial';
+/**
+ * Nome do tipo na tela: Retirada (sai do almoxarifado para a equipe) ou Devolução (volta da equipe). Concreto vira só
+ * complemento. Os códigos 221/921/222/922 ficam para a importação de planilha.
+ */
+export function tipoTecnicoLabel(tipo?: TipoSolicitacaoTecnica | CodigoTipoTecnico | string | null): string {
+  if (!tipo) return 'Comercial';
+  const str = String(tipo).trim().toUpperCase();
+  const concreto = str.includes('CONCRETO') || str === '921' || str === '922';
+  return (tipoTecnicoEhAdicao(str) ? 'Retirada' : 'Devolução') + (concreto ? ' · concreto' : '');
 }
 
-/** Ícone: carrinho de saque (adições - 221/921) ou lixeira de retirada (devoluções - 222/922). */
+/** Ícone: carrinho para retirada, seta de volta para devolução. */
 export function tipoTecnicoIcon(tipo?: TipoSolicitacaoTecnica | CodigoTipoTecnico | string | null): string {
   if (!tipo) return 'pi pi-box';
-  return tipoTecnicoEhAdicao(tipo) ? 'pi pi-shopping-cart' : 'pi pi-trash';
+  return tipoTecnicoEhAdicao(tipo) ? 'pi pi-shopping-cart' : 'pi pi-undo';
 }
 
 /**
@@ -421,10 +428,10 @@ export function tipoTecnicoNome(
 ): string {
   if (!tipo) return 'Comercial';
   const str = String(tipo).trim().toUpperCase();
-  if (str === 'ADICAO_COMUM' || str === '221' || str.endsWith('ADICAO_COMUM')) return 'Adição Comum';
-  if (str === 'DEVOLUCAO_COMUM' || str === '222' || str.endsWith('DEVOLUCAO_COMUM')) return 'Devolução Comum';
-  if (str === 'ADICAO_CONCRETO' || str === '921' || str.endsWith('ADICAO_CONCRETO')) return 'Adição Concreto';
-  if (str === 'DEVOLUCAO_CONCRETO' || str === '922' || str.endsWith('DEVOLUCAO_CONCRETO')) return 'Devolução Concreto';
+  if (str === 'ADICAO_COMUM' || str === '221' || str.endsWith('ADICAO_COMUM')) return 'Retirada';
+  if (str === 'DEVOLUCAO_COMUM' || str === '222' || str.endsWith('DEVOLUCAO_COMUM')) return 'Devolução';
+  if (str === 'ADICAO_CONCRETO' || str === '921' || str.endsWith('ADICAO_CONCRETO')) return 'Retirada · concreto';
+  if (str === 'DEVOLUCAO_CONCRETO' || str === '922' || str.endsWith('DEVOLUCAO_CONCRETO')) return 'Devolução · concreto';
   return tipo;
 }
 
@@ -433,10 +440,10 @@ export function tipoTecnicoDescricaoCompleta(
 ): string {
   if (!tipo) return 'Comercial';
   const str = String(tipo).trim().toUpperCase();
-  if (str === 'ADICAO_COMUM' || str === '221' || str.endsWith('ADICAO_COMUM')) return 'Adição comum (221)';
-  if (str === 'DEVOLUCAO_COMUM' || str === '222' || str.endsWith('DEVOLUCAO_COMUM')) return 'Devolução comum (222)';
-  if (str === 'ADICAO_CONCRETO' || str === '921' || str.endsWith('ADICAO_CONCRETO')) return 'Adição concreto (921)';
-  if (str === 'DEVOLUCAO_CONCRETO' || str === '922' || str.endsWith('DEVOLUCAO_CONCRETO')) return 'Devolução concreto (922)';
+  if (str === 'ADICAO_COMUM' || str === '221' || str.endsWith('ADICAO_COMUM')) return 'Retirada de material comum';
+  if (str === 'DEVOLUCAO_COMUM' || str === '222' || str.endsWith('DEVOLUCAO_COMUM')) return 'Devolução de material comum';
+  if (str === 'ADICAO_CONCRETO' || str === '921' || str.endsWith('ADICAO_CONCRETO')) return 'Retirada de concreto (postes e estruturas)';
+  if (str === 'DEVOLUCAO_CONCRETO' || str === '922' || str.endsWith('DEVOLUCAO_CONCRETO')) return 'Devolução de concreto (postes e estruturas)';
   return tipo;
 }
 

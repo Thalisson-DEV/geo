@@ -549,6 +549,12 @@
     font-size: var(--geo-font-control);
   }
 
+  /* geo-number-input align="end": quantidades alinhadas à direita, como a coluna numérica da tabela. */
+  .geo-number-input--end .p-inputnumber-input {
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+  }
+
   /* Robust reset for PrimeNG select inner DOM that might be broken by global forms styling */
   p-select.geo-prime-control > .p-select,
   p-multiselect.geo-prime-control > .p-multiselect,

@@ -70,7 +70,7 @@ interface DiaCalendario {
               @if (carregando()) {
                 <span><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Carregando…</span>
               } @else {
-                <span>{{ totalNoMes() }} {{ totalNoMes() === 1 ? 'saque previsto' : 'saques previstos' }} no mês</span>
+                <span>{{ totalNoMes() }} {{ totalNoMes() === 1 ? 'retirada prevista' : 'saques previstos' }} no mês</span>
                 @if (atrasadasNoMes() > 0) {
                   <geo-status tone="danger" icon="pi pi-exclamation-triangle">{{ atrasadasNoMes() }} {{ atrasadasNoMes() === 1 ? 'atrasada' : 'atrasadas' }}</geo-status>
                 }
@@ -137,7 +137,7 @@ interface DiaCalendario {
 
         <aside class="cal-card cal-agenda" aria-labelledby="cal-agenda-titulo">
           <div class="cal-agenda__head">
-            <p class="cal-agenda__eyebrow">{{ agendaSelecionada().length }} {{ agendaSelecionada().length === 1 ? 'saque previsto' : 'saques previstos' }}</p>
+            <p class="cal-agenda__eyebrow">{{ agendaSelecionada().length }} {{ agendaSelecionada().length === 1 ? 'retirada prevista' : 'saques previstos' }}</p>
             <h3 id="cal-agenda-titulo" class="cal-agenda__title">{{ tituloDiaSelecionado() }}</h3>
           </div>
           <div class="cal-agenda__list">
@@ -184,7 +184,7 @@ interface DiaCalendario {
               </button>
               }
             } @empty {
-              <p class="cal-agenda__vazio"><i [class]="'pi ' + iconeVazio()" aria-hidden="true"></i>Nenhum saque previsto neste dia.</p>
+              <p class="cal-agenda__vazio"><i [class]="'pi ' + iconeVazio()" aria-hidden="true"></i>Nenhum retirada prevista neste dia.</p>
             }
           </div>
         </aside>
@@ -368,7 +368,7 @@ export class SolicitacoesComerciaisCalendarioComponent {
   protected rotuloDia(dia: DiaCalendario): string {
     const data = dataCivil(dia.iso).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
     const n = dia.itens.length;
-    return `${data}: ${n === 0 ? 'nenhum saque previsto' : n === 1 ? '1 saque previsto' : n + ' saques previstos'}`;
+    return `${data}: ${n === 0 ? 'nenhum retirada prevista' : n === 1 ? '1 retirada prevista' : n + ' saques previstos'}`;
   }
 
   protected rotuloSolicitacao(s: SolicitacaoSummaryResponse): string {

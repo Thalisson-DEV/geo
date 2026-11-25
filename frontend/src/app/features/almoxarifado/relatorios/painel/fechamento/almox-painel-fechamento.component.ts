@@ -258,7 +258,7 @@ export class AlmoxPainelFechamentoComponent extends PainelAlmoxBase<FechamentoRe
       id: 'almoxarifado.relatorios.fechamento',
       nome: 'Encerramento de obras',
       modulo: 'Almoxarifado',
-      descricao: 'Solicitações de encerramento de obra (221/921/222/922): prazos de 48 horas úteis da reserva e da movimentação, obras, supervisores, pendências.',
+      descricao: 'Solicitações de encerramento de obra (retiradas e devoluções): prazos de 48 horas úteis da reserva e da movimentação, obras, supervisores, pendências.',
       rota: '/almoxarifado/relatorios/fechamento',
       periodo: periodoPainel(f.de, f.ate),
       filtros: [filtroPainel('situacao', 'Situação', p.situacoes.map((s) => ROTULO_SITUACAO_FECHAMENTO[s as keyof typeof ROTULO_SITUACAO_FECHAMENTO] ?? s), p.situacoes)],

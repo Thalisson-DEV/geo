@@ -92,6 +92,10 @@ public class Colaborador extends BaseEntity {
     @Column(name = "data_contratacao")
     private LocalDate dataContratacao;
 
+    /** Matrícula da empresa; identifica quem retira material no balcão. Opcional. */
+    @Column(name = "matricula", length = 30)
+    private String matricula;
+
     public Colaborador(String primeiroNome, String ultimoNome, String nomeCompleto, String cpf, ProcessoNegocio processo, BaseOperacional baseOperacional, Funcao funcao, LocalDate dataContratacao) {
         validarCamposObrigatorios(primeiroNome, ultimoNome, nomeCompleto, cpf, processo, baseOperacional, funcao);
         validarEntidadesAtivas(processo, baseOperacional, funcao);
@@ -131,6 +135,18 @@ public class Colaborador extends BaseEntity {
         this.ultimoNome = ultimoNome.toUpperCase();
         this.nomeCompleto = nomeCompleto.toUpperCase();
         gerarBlindIndices();
+    }
+
+    /** Define a matrícula (vazia remove). Sem espaços nas pontas e em maiúsculas, para conferir no balcão. */
+    public void definirMatricula(String matricula) {
+        String limpa = matricula == null ? null : matricula.trim().toUpperCase();
+        if (limpa != null && limpa.isEmpty()) {
+            limpa = null;
+        }
+        if (limpa != null && limpa.length() > 30) {
+            throw new InvarianteVioladaException("A matrícula deve ter até 30 caracteres.");
+        }
+        this.matricula = limpa;
     }
 
     public void vincularUsuario(UUID idUsuario) {

@@ -100,7 +100,7 @@
               (pointSelect)="analisarObra($event.index)"></geo-chart>
           </article>
           <article class="dash-panel dash-col-5">
-            <header class="dash-panel__header"><div><span class="dash-eyebrow">Tipo</span><h2>Por tipo técnico</h2><p>221/921 adicionam, 222/922 devolvem. Clique num tipo.</p></div></header>
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Tipo</span><h2>Por tipo</h2><p>Retiradas saem do almoxarifado, devoluções voltam. Clique num tipo.</p></div></header>
             <geo-chart kind="bar-stacked" title="Solicitações por tipo técnico" [showTitle]="false" [selectable]="true" selectLabel="Analisar o tipo"
               [labels]="graficoTipo().rotulos" [series]="graficoTipo().series" valueFormat="integer" [height]="Math.max(220, obrasTop().length * 40)"
               (pointSelect)="analisarTipo($event.index)"></geo-chart>

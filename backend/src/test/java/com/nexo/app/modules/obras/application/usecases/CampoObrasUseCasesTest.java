@@ -8,7 +8,6 @@ import com.nexo.app.modules.obras.application.dto.CampoObrasRequests;
 import com.nexo.app.modules.obras.application.dto.CampoObrasResponses;
 import com.nexo.app.modules.obras.domain.OcorrenciaTurno;
 import com.nexo.app.modules.obras.domain.PresencaObra;
-import com.nexo.app.modules.obras.domain.TipoOcorrenciaTurno;
 import com.nexo.app.modules.obras.infrastructure.persistence.*;
 import com.nexo.app.modules.rh.EquipeApi;
 import com.nexo.app.modules.rh.EquipeResponse;
@@ -53,6 +52,7 @@ class CampoObrasUseCasesTest {
     @Mock EvidenciaPontoRepository evidenciaRepository;
     @Mock VaoPlanejamentoRepository vaoRepository;
     @Mock RelatorioTurnoRepository relatorioRepository;
+    @Mock com.nexo.app.modules.listas.ListasApi listasApi;
     @Mock ApontamentoExecucaoUseCases apontamentos;
     @Mock EvidenciaPontoUseCases evidencias;
     @Mock com.nexo.app.modules.rh.SupervisorApi supervisorApi;
@@ -72,7 +72,9 @@ class CampoObrasUseCasesTest {
         ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
         useCases = new CampoObrasUseCases(turnoApi, equipeApi, obraRepository, programacaoRepository, aprRepository,
                 ocorrenciaRepository, atividadeRepository, apontamentoRepository, presencaRepository, evidenciaRepository,
-                vaoRepository, relatorioRepository, apontamentos, evidencias, mapper, supervisorApi, eventos);
+                vaoRepository, relatorioRepository, listasApi, apontamentos, evidencias, mapper, supervisorApi, eventos);
+        when(listasApi.exigirExistente(any(), any())).thenAnswer(i -> i.getArgument(1));
+        when(listasApi.rotulo(any(), any())).thenAnswer(i -> "CLIMA".equals(i.getArgument(1)) ? "Clima" : i.getArgument(1));
         when(equipeApi.buscarIdEquipePorUsuario(usuario)).thenReturn(Optional.of(equipe));
         EquipeResponse dados = mock(EquipeResponse.class);
         var proc = mock(com.nexo.app.modules.rh.ProcessoNegocioResponse.class);
@@ -97,7 +99,7 @@ class CampoObrasUseCasesTest {
     }
 
     private CampoObrasRequests.Ocorrencia ocorrencia(UUID idLocal, UUID idTurno, String descricao) {
-        return new CampoObrasRequests.Ocorrencia(campo(idLocal, idTurno), obra, null, TipoOcorrenciaTurno.CLIMA, descricao, true);
+        return new CampoObrasRequests.Ocorrencia(campo(idLocal, idTurno), obra, null, "CLIMA", descricao, true);
     }
 
     @Test
@@ -151,7 +153,7 @@ class CampoObrasUseCasesTest {
 
         // Reenvio com o turno já trocado pelo id definitivo: o turno não conta no conteúdo.
         CampoObrasRequests.Ocorrencia reenvio = new CampoObrasRequests.Ocorrencia(new CampoObrasRequests.Campo(idLocal, turno.id(),
-                salva.getValue().getCampo().getDataOrigem(), null, null, null), obra, null, TipoOcorrenciaTurno.CLIMA, "Chuva", true);
+                salva.getValue().getCampo().getDataOrigem(), null, null, null), obra, null, "CLIMA", "Chuva", true);
 
         CampoObrasResponses.Resultado r = useCases.registrarOcorrencia(reenvio, usuario);
         assertThat(r.jaRecebido()).isTrue();
@@ -159,7 +161,7 @@ class CampoObrasUseCasesTest {
         verify(ocorrenciaRepository, times(1)).save(any());
 
         CampoObrasRequests.Ocorrencia outra = new CampoObrasRequests.Ocorrencia(new CampoObrasRequests.Campo(idLocal, null,
-                salva.getValue().getCampo().getDataOrigem(), null, null, null), obra, null, TipoOcorrenciaTurno.CLIMA, "Granizo", true);
+                salva.getValue().getCampo().getDataOrigem(), null, null, null), obra, null, "CLIMA", "Granizo", true);
         assertThatThrownBy(() -> useCases.registrarOcorrencia(outra, usuario)).isInstanceOf(IdLocalReutilizadoException.class);
     }
 

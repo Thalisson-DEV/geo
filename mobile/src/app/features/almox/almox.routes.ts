@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import {
-  almoxEntregaGuard, almoxFechamentoGuard, almoxMovimentacoesGuard, almoxMovimentarGuard, almoxSolicitacoesGuard,
+  almoxBalcaoGuard, almoxEntregaGuard, almoxEquipesGuard, almoxFechamentoGuard, almoxMovimentacoesGuard, almoxMovimentarGuard, almoxSolicitacoesGuard,
 } from '../../core/auth/almox.guard';
 import { rotasFechamento } from '../fechamento/fechamento.routes';
 
@@ -13,15 +13,33 @@ export const ALMOX_ROUTES: Routes = [
     // Abre na parte que a pessoa pode usar (solicitações primeiro).
     redirectTo: () => {
       const auth = inject(AuthService);
-      if (auth.podeVerSolicitacoesAlmox()) return '/almox/solicitacoes';
+      if (auth.podeOperarBalcao()) return '/almox/balcao';
+      if (auth.podeVerEstoqueEquipes() && !auth.podeVerSolicitacoesAlmox()) return '/almox/equipes';
+      if (auth.podeVerSolicitacoesAlmox()) return '/almox/tecnicas';
       return auth.podeVerMovimentacoes() ? '/almox/movimentacoes' : '/almox/fechamento';
     },
+  },
+  {
+    // Balcão: a rotina do dia (retirada de manhã, devolução no fim do dia), feita no tablet do almoxarifado.
+    path: 'balcao',
+    canMatch: [almoxBalcaoGuard],
+    children: [
+      { path: '', loadComponent: () => import('./balcao/balcao-almox.component').then(m => m.BalcaoAlmoxComponent) },
+      { path: ':idEquipe/:modo', loadComponent: () => import('./balcao/atendimento-balcao.component').then(m => m.AtendimentoBalcaoComponent) },
+    ],
+  },
+  {
+    // Estoque das equipes: o que cada caminhão leva, por obra, com sucata e negativos (precisa de internet).
+    path: 'equipes',
+    canMatch: [almoxEquipesGuard],
+    loadComponent: () => import('./equipes/estoque-equipes-almox.component').then(m => m.EstoqueEquipesAlmoxComponent),
   },
   {
     path: 'solicitacoes',
     canMatch: [almoxSolicitacoesGuard],
     children: [
-      { path: '', loadComponent: () => import('./solicitacoes/solicitacoes-almox.component').then(m => m.SolicitacoesAlmoxComponent) },
+      // A lista comercial saiu do app (o GEO é de Obras): quem chega aqui vai para as técnicas.
+      { path: '', pathMatch: 'full', redirectTo: '/almox/tecnicas' },
       {
         path: ':id/entrega',
         canMatch: [almoxEntregaGuard],

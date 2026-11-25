@@ -327,7 +327,15 @@ export class AuthService {
   readonly podeCriarFechamento = computed(() => this.podeVerFechamento() && this.temPermissao('obras:fechamento:create'));
   readonly podeMovimentarFechamento = computed(() => this.podeVerFechamento() && this.temPermissao('obras:fechamento:movimentar'));
   readonly podeVerFechamentoAlmox = computed(() => this.isAdministrativo() && this.podeVerFechamento());
-  readonly podeAcessarAlmoxarifado = computed(() => this.podeVerSolicitacoesAlmox() || this.podeVerMovimentacoes()
+  /** Balcão do almoxarifado (retirada e devolução das equipes no tablet do balcão). */
+  readonly podeOperarBalcao = computed(() => this.isAdministrativo()
+    && (this.temPermissao('estoque:balcao:operate') || this.temPermissao('estoque:solicitacao:deliver')));
+  /** Estoque das equipes: o que cada caminhão leva, por obra (mesma regra do web). */
+  readonly podeVerEstoqueEquipes = computed(() => this.isAdministrativo()
+    && (this.temPermissao('estoque:balcao:operate') || this.temPermissao('estoque:saldo:read')));
+  /** Registrar a decisão sobre alteração de projeto / obra feita por terceiros (libera a conclusão da obra). */
+  readonly podeResolverConclusaoObra = computed(() => this.isAdministrativo() && this.temPermissao('obras:obra:write'));
+  readonly podeAcessarAlmoxarifado = computed(() => this.podeOperarBalcao() || this.podeVerEstoqueEquipes() || this.podeVerSolicitacoesAlmox() || this.podeVerMovimentacoes()
     || (this.podeVerFechamentoAlmox() && !this.podeCriarFechamento()));
   /**
    * Aprovação do abastecimento: só o administrativo com a permissão aprova (como as solicitações

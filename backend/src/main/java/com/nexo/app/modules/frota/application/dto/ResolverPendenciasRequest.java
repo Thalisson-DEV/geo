@@ -1,6 +1,5 @@
 package com.nexo.app.modules.frota.application.dto;
 
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +20,6 @@ public record ResolverPendenciasRequest(
         UUID idExecutor,
         @Size(max = 120) String executorNome,
         UUID idBaseOperacional,
-        CausaManutencao causa
+        String causa
 ) {
 }

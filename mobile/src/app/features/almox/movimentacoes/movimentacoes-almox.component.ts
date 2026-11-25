@@ -34,7 +34,7 @@ const NOVAS: { tipo: 'entrada' | 'saida' | 'transferencia' | 'devolucao'; titulo
   { tipo: 'entrada', titulo: 'Entrada', texto: 'Material que chega a um estoque (compra, devolução, ajuste).', icone: 'entrada', tom: 'ok' },
   { tipo: 'saida', titulo: 'Saída', texto: 'Baixa definitiva: perda, avaria, sucateamento, ajuste.', icone: 'saida', tom: 'erro' },
   { tipo: 'transferencia', titulo: 'Transferir', texto: 'De um estoque para outro, com as duas assinaturas.', icone: 'transferencia', tom: 'destaque' },
-  { tipo: 'devolucao', titulo: 'Devolver', texto: 'A equipe devolve ao almoxarifado (comercial ou técnica 222/922).', icone: 'desfazer', tom: 'atencao' },
+  { tipo: 'devolucao', titulo: 'Devolver', texto: 'A equipe devolve ao almoxarifado.', icone: 'desfazer', tom: 'atencao' },
 ];
 const TAMANHO = 30;
 

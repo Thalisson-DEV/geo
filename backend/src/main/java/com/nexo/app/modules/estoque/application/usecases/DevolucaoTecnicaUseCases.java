@@ -66,7 +66,7 @@ public class DevolucaoTecnicaUseCases {
 
         for (DevolucaoTecnicaRequest.ItemDevolucaoTecnicaRequest item : request.itens()) {
             if (!item.tipo().isDevolucao()) {
-                throw new InvarianteVioladaException("A devolucao tecnica aceita somente os tipos 222 e 922.");
+                throw new InvarianteVioladaException("Esta operação aceita só devolução.");
             }
             Material material = materialRepository.findById(item.idMaterial())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Material não encontrado: " + item.idMaterial()));

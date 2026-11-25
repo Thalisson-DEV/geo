@@ -213,8 +213,11 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
         <section class="mc-grupo" aria-labelledby="mc-evidencias">
           <div>
             <h3 id="mc-evidencias" class="mc-evidencias__titulo">Fotos do book</h3>
-            <p class="mc-evidencias__ajuda">O que precisa ser fotografado em cada ponto e em que momento. O app mostra as fotos nessa ordem e marca a etapa sozinho. Foto obrigatória que faltar gera um aviso ao gerar o As Built, sem impedir. O momento pode ser ajustado mesmo com o modelo em uso.</p>
+            <p class="mc-evidencias__ajuda">O que precisa ser fotografado em cada ponto e em que momento. O app mostra as fotos nessa ordem e marca a etapa sozinho. O momento pode ser ajustado mesmo com o modelo em uso.</p>
           </div>
+          <geo-boolean-control label="Fotos obrigatórias travam a execução no app" kind="toggle" [value]="fotosTravam()" [readonly]="somenteLeitura()"
+            (valueChange)="fotosTravam.set($event)"
+            [description]="fotosTravam() ? 'O ponto só fica &quot;Tudo feito&quot; com todas as fotos obrigatórias; o &quot;Parcial&quot; pede as obrigatórias de antes.' : 'A foto obrigatória que faltar vira pendência e aviso no As Built, sem impedir o lançamento.'"></geo-boolean-control>
           @for (item of evidencias(); track item.id; let i = $index) {
             <div class="mc-pergunta__linha">
               <geo-text-input class="mc-pergunta__enunciado" [label]="'Foto ' + (i + 1)" [required]="true" placeholder="Ex.: Aterramento" [maxlength]="150" [value]="item.titulo" [readonly]="estruturaTravada()"
@@ -306,6 +309,7 @@ export class ModelosChecklistComponent {
   protected readonly finalidade = signal<FinalidadeChecklist>('VISITA_PREVIA');
   protected readonly titulo = signal('');
   protected readonly descricao = signal('');
+  protected readonly fotosTravam = signal(true);
   protected readonly grupos = signal<GrupoChecklist[]>([]);
   protected readonly evidencias = signal<ItemEvidenciaModelo[]>([]);
   protected readonly momentos = [
@@ -338,6 +342,7 @@ export class ModelosChecklistComponent {
     this.finalidade.set(finalidade);
     this.titulo.set(titulo);
     this.descricao.set(descricao);
+    this.fotosTravam.set(modelo?.fotosTravamExecucao ?? true);
     this.grupos.set(grupos);
     this.evidencias.set(evidencias);
     this.tentou.set(false);
@@ -420,7 +425,8 @@ export class ModelosChecklistComponent {
   protected salvar(): void {
     this.tentou.set(true);
     if (!this.titulo().trim() || this.problema()) return;
-    const request = { finalidade: this.finalidade(), titulo: this.titulo().trim(), descricao: this.descricao().trim() || null, estrutura: this.estrutura() };
+    const request = { finalidade: this.finalidade(), titulo: this.titulo().trim(), descricao: this.descricao().trim() || null, estrutura: this.estrutura(),
+      fotosTravamExecucao: this.fotosTravam() };
     const id = this.emEdicao()?.id;
     this.salvando.set(true);
     (id ? this.servico.atualizarModelo(id, request) : this.servico.criarModelo(request)).subscribe({
@@ -475,7 +481,7 @@ export class ModelosChecklistComponent {
   }
 
   private instantaneo(): string {
-    return JSON.stringify([this.finalidade(), this.titulo(), this.descricao(), this.grupos(), this.evidencias()]);
+    return JSON.stringify([this.finalidade(), this.titulo(), this.descricao(), this.fotosTravam(), this.grupos(), this.evidencias()]);
   }
 
   private filtro() {

@@ -30,7 +30,7 @@ type Folha = 'mais' | 'reserva' | 'cancelar' | 'pendencia';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <geo-barra-topo [titulo]="det() ? det()!.tipo + ' · ' + tipo().nome : 'Encerramento'" [subtitulo]="det() ? $safeNavigationMigration(situacao()?.rotulo) : 'Carregando…'" (voltar)="voltar()">
+    <geo-barra-topo [titulo]="det() ? tipo().nome : 'Encerramento'" [subtitulo]="det() ? $safeNavigationMigration(situacao()?.rotulo) : 'Carregando…'" (voltar)="voltar()">
       <geo-indicador-rede />
       <button type="button" class="geo-btn-icone" (click)="carregar()" [disabled]="carregando()" aria-label="Atualizar"><geo-icone nome="atualizar" /></button>
     </geo-barra-topo>

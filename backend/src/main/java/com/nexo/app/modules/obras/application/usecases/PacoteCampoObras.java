@@ -3,6 +3,9 @@ package com.nexo.app.modules.obras.application.usecases;
 import com.nexo.app.modules.obras.application.dto.CampoObrasResponses;
 import com.nexo.app.modules.obras.application.dto.DownloadAnexoObraDTO;
 import com.nexo.app.modules.execucao.TurnoApi;
+import com.nexo.app.modules.sst.AprApi;
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
 import com.nexo.app.modules.obras.domain.AnexoObra;
 import com.nexo.app.modules.obras.domain.EstruturaChecklist;
 import com.nexo.app.modules.obras.domain.EventoProgramacao;
@@ -81,16 +84,6 @@ public class PacoteCampoObras {
     static final ZoneId FUSO = ZoneId.of("America/Sao_Paulo");
     static final int DIAS_A_FRENTE = 7;
 
-    /** Opções da APR (a validar com o SST); o texto fica gravado como foi respondido. */
-    static final List<String> RISCOS = List.of("Choque elétrico", "Arco elétrico", "Queda de altura",
-            "Queda de materiais ou ferramentas", "Movimentação de carga", "Tráfego de veículos", "Escavação",
-            "Animais peçonhentos", "Condições climáticas", "Calor ou esforço físico");
-    static final List<String> MEDIDAS = List.of("Desenergização", "Bloqueio e aterramento", "Linha viva",
-            "Sinalização e isolamento da área", "Inspeção de escada e cinto", "Plano de içamento", "EPI e EPC",
-            "Revezamento e hidratação");
-    static final List<String> VERIFICACOES = List.of("Conversa sobre os riscos feita com a equipe", "EPI em bom estado",
-            "Ferramentas e veículo inspecionados", "Área sinalizada", "O clima permite o trabalho", "Desligamento confirmado");
-
     private final EquipeApi equipeApi;
     private final MunicipioApi municipioApi;
     private final CampoObrasUseCases campo;
@@ -110,6 +103,8 @@ public class PacoteCampoObras {
     private final OcorrenciaTurnoRepository ocorrenciaRepository;
     private final TurnoApi turnoApi;
     private final VisitaPreviaObraRepository visitaRepository;
+    private final AprApi aprApi;
+    private final ListasApi listasApi;
 
     /**
      * @param idEquipe opcional para o encarregado (vale a equipe dele; outra equipe é 403); obrigatório para quem não
@@ -172,7 +167,8 @@ public class PacoteCampoObras {
                 .toList();
         return new CampoObrasResponses.Pacote(agora, desde, equipe, dadosEquipe.codigo(), hoje, fim, programacoes,
                 List.copyOf(removidas), obrasCampo, modeloApr(), modelosFoto(), avisos, liberacaoDoDia(equipe, hoje),
-                obrasAbertas(dadosEquipe));
+                obrasAbertas(dadosEquipe), listasApi.ativas(ListaConfiguravel.OCORRENCIA_TURNO).stream()
+                        .map(o -> new CampoObrasResponses.OpcaoCampo(o.codigo(), o.rotulo())).toList());
     }
 
     /**
@@ -397,9 +393,27 @@ public class PacoteCampoObras {
         return pendenciasFoto(idObra, pontos, fotos, fichas, idModelo);
     }
 
+    /** As pendências de foto dos modelos que travam a execução: seguram a conclusão da obra até a foto chegar. */
+    public List<CampoObrasResponses.PendenciaFoto> pendenciasFotoQueTravam(UUID idObra) {
+        List<PontoPlanejamento> pontos = pontoRepository.findByIdObraAndAtivoTrueOrderByPaginaAscNumeroAsc(idObra);
+        List<EvidenciaPonto> fotos = evidenciaRepository.findByIdObraAndAtivoTrueOrderByDataCriacaoAsc(idObra);
+        List<FichaAsBuilt> fichas = fichaRepository.findByIdObraAndAtivoTrue(idObra);
+        UUID idModelo = fichas.stream().map(FichaAsBuilt::getIdModelo).filter(Objects::nonNull).findFirst()
+                .or(() -> fotos.stream().map(EvidenciaPonto::getIdModelo).filter(Objects::nonNull).findFirst())
+                .or(() -> modelosFoto().stream().findFirst().map(CampoObrasResponses.ModeloFoto::id))
+                .orElse(null);
+        return pendenciasFoto(idObra, pontos, fotos, fichas, idModelo, true);
+    }
+
     private List<CampoObrasResponses.PendenciaFoto> pendenciasFoto(UUID idObra, List<PontoPlanejamento> pontos,
                                                                    List<EvidenciaPonto> fotos, List<FichaAsBuilt> fichas,
                                                                    UUID idModeloObra) {
+        return pendenciasFoto(idObra, pontos, fotos, fichas, idModeloObra, false);
+    }
+
+    private List<CampoObrasResponses.PendenciaFoto> pendenciasFoto(UUID idObra, List<PontoPlanejamento> pontos,
+                                                                   List<EvidenciaPonto> fotos, List<FichaAsBuilt> fichas,
+                                                                   UUID idModeloObra, boolean soQueTravam) {
         Set<UUID> executados = new java.util.HashSet<>();
         for (Programacao p : programacaoRepository.listarDaObraComItens(idObra)) {
             for (ProgramacaoItem v : p.getItensAtivos()) {
@@ -423,7 +437,7 @@ public class PacoteCampoObras {
                 continue;
             }
             ModeloChecklistObra modelo = modelos.computeIfAbsent(idModelo, id -> modeloRepository.findById(id).orElse(null));
-            if (modelo == null) {
+            if (modelo == null || (soQueTravam && !modelo.isFotosTravamExecucao())) {
                 continue;
             }
             Set<String> respondidos = fotos.stream().filter(f -> ponto.getId().equals(f.getIdPonto()) && f.getIdItem() != null && !f.reprovada())
@@ -463,25 +477,13 @@ public class PacoteCampoObras {
                 p.getSituacaoIntervencao(), p.getObservacao(), p.situacaoEm(hoje), p.getVersao(), itens, p.isAvulsa());
     }
 
-    static CampoObrasResponses.ModeloApr modeloApr() {
+    /** APR do cadastro do SST, no formato do pacote do app. */
+    private CampoObrasResponses.ModeloApr modeloApr() {
+        AprApi.OpcoesAprCampo o = aprApi.opcoesParaCampo();
         Map<String, CampoObrasResponses.Sugestao> sugestoes = new LinkedHashMap<>();
-        sugestoes.put("SEMPRE", new CampoObrasResponses.Sugestao(List.of("Queda de materiais ou ferramentas"),
-                List.of("Sinalização e isolamento da área", "EPI e EPC")));
-        sugestoes.put("DESLIGAMENTO", new CampoObrasResponses.Sugestao(List.of("Choque elétrico", "Arco elétrico"),
-                List.of("Desenergização", "Bloqueio e aterramento")));
-        sugestoes.put("LINHA_VIVA", new CampoObrasResponses.Sugestao(List.of("Choque elétrico", "Arco elétrico", "Queda de altura"),
-                List.of("Linha viva", "Inspeção de escada e cinto")));
-        sugestoes.put("PODA", new CampoObrasResponses.Sugestao(List.of("Queda de altura", "Queda de materiais ou ferramentas", "Animais peçonhentos"),
-                List.of("Inspeção de escada e cinto")));
-        sugestoes.put("ATERRAMENTO", new CampoObrasResponses.Sugestao(List.of("Choque elétrico", "Escavação"),
-                List.of("Bloqueio e aterramento")));
-        // Implantar ou retirar poste: içamento com guindauto, cava e trabalho em altura.
-        sugestoes.put("POSTE", new CampoObrasResponses.Sugestao(List.of("Movimentação de carga", "Escavação", "Queda de altura"),
-                List.of("Plano de içamento", "Sinalização e isolamento da área", "Inspeção de escada e cinto")));
-        // Visita prévia apontou fluxo de veículos ou interdição da via.
-        sugestoes.put("TRAFEGO", new CampoObrasResponses.Sugestao(List.of("Tráfego de veículos"),
-                List.of("Sinalização e isolamento da área")));
-        return new CampoObrasResponses.ModeloApr(RISCOS, MEDIDAS, VERIFICACOES, sugestoes);
+        o.sugestoes().forEach((condicao, s) -> sugestoes.put(condicao, new CampoObrasResponses.Sugestao(s.riscos(), s.medidas())));
+        return new CampoObrasResponses.ModeloApr(o.riscos(), o.medidas(), o.verificacoes(), sugestoes, o.medidasDoRisco(),
+                o.condicoesDasVerificacoes());
     }
 
     private List<CampoObrasResponses.ModeloFoto> modelosFoto() {
@@ -489,7 +491,8 @@ public class PacoteCampoObras {
                 .filter(m -> m.isAtivo() && m.getFinalidade() == ModeloChecklistObra.Finalidade.AS_BUILT
                         && !m.getEstrutura().evidencias().isEmpty())
                 .map(m -> new CampoObrasResponses.ModeloFoto(m.getId(), m.getTitulo(), m.getEstrutura().evidencias().stream()
-                        .map(i -> new CampoObrasResponses.ItemFoto(i.id(), i.titulo(), i.obrigatoria(), i.etapa() != null ? i.etapa().name() : null)).toList()))
+                        .map(i -> new CampoObrasResponses.ItemFoto(i.id(), i.titulo(), i.obrigatoria(), i.etapa() != null ? i.etapa().name() : null)).toList(),
+                        m.isFotosTravamExecucao()))
                 .toList();
     }
 

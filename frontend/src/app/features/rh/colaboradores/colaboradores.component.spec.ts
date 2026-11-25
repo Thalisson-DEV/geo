@@ -62,7 +62,7 @@ describe('ColaboradoresComponent', () => {
   it('abre já nos dados, ordenado pelo nome no servidor, com o CPF formatado', async () => {
     const { el } = await abrir();
     expect(rh['listarColaboradores']).toHaveBeenCalledWith(
-      expect.objectContaining({ nomeCompleto: undefined, cpf: undefined, idBaseOperacional: null, ativo: null, page: 0, size: 25, sort: 'nomeCompleto,asc' })
+      expect.objectContaining({ buscaGlobal: undefined, cpf: undefined, idBaseOperacional: null, ativo: null, page: 0, size: 25, sort: 'nomeCompleto,asc' })
     );
     expect(el.textContent).toContain('MARIA DE SOUZA');
     expect(el.textContent).toContain('123.456.789-01');

@@ -381,14 +381,14 @@ public class ValidadorImportacaoSolicitacaoTecnicaService {
         String texto = limpar(valor);
         if (texto == null) {
             linha.erro("Tipo Movimentacao", "TIPO_MOVIMENTACAO_OBRIGATORIO", valor,
-                    "O tipo deve ser 221, 222, 921 ou 922.");
+                    "O tipo deve ser Retirada, Retirada concreto, Devolução ou Devolução concreto (ou os códigos 221, 921, 222, 922).");
             return null;
         }
         try {
             return TipoSolicitacaoTecnica.porCodigo(texto);
         } catch (IllegalArgumentException ex) {
             linha.erro("Tipo Movimentacao", "TIPO_MOVIMENTACAO_INVALIDO", valor,
-                    "O tipo deve ser 221, 222, 921 ou 922.");
+                    "O tipo deve ser Retirada, Retirada concreto, Devolução ou Devolução concreto (ou os códigos 221, 921, 222, 922).");
             return null;
         }
     }

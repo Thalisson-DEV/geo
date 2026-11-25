@@ -204,7 +204,7 @@ export class FechamentoListaComponent {
   readonly situacoes = ATALHOS.filter(a => a.valor !== 'ABERTO');
   readonly visoes = VISOES;
   readonly opcoesQuem = QUEM;
-  readonly opcoesTipo: OpcaoSeletor[] = TIPOS_FECHAMENTO.map(t => ({ valor: t.codigo, rotulo: `${t.codigo} · ${t.nome}` }));
+  readonly opcoesTipo: OpcaoSeletor[] = TIPOS_FECHAMENTO.map(t => ({ valor: t.codigo, rotulo: t.nome }));
 
   private readonly salvo = this.sessao.estadoTela<EstadoTela>();
   readonly visao = signal<Visao>(this.almox ? this.salvo.visao ?? lerVisao() : 'lista');

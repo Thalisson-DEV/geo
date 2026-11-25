@@ -105,14 +105,18 @@ public class MovimentacaoEstoque extends BaseEntity {
     @Column(name = "id_equipe")
     private UUID idEquipe;
 
+    /** Obra de onde o material saiu quando ele passa de uma obra para outra (empréstimo ou remanejamento). */
+    @Column(name = "id_obra_origem")
+    private UUID idObraOrigem;
+
     @NotNull(message = "A condição do material é obrigatória")
     @Enumerated(EnumType.STRING)
     @Column(name = "condicao", nullable = false, length = 20)
     private CondicaoMaterial condicao;
 
-    @Enumerated(EnumType.STRING)
+    /** Código do motivo no cadastro de motivos de entrada e baixa avulsa (lista configurável). */
     @Column(name = "motivo", length = 30)
-    private MotivoMovimentacao motivo;
+    private String motivo;
 
     @Column(name = "observacao", length = 1000)
     private String observacao;
@@ -144,7 +148,7 @@ public class MovimentacaoEstoque extends BaseEntity {
         this.unidadeInformada = convertida.unidadeInformada();
     }
 
-    public void registrarJustificativa(MotivoMovimentacao motivo, String observacao) {
+    public void registrarJustificativa(String motivo, String observacao) {
         String texto = observacao == null || observacao.isBlank() ? null : observacao.trim();
         if (texto != null && texto.length() > TAMANHO_OBSERVACAO) {
             throw new InvarianteVioladaException("A observação deve ter até 1000 caracteres.");
@@ -161,7 +165,9 @@ public class MovimentacaoEstoque extends BaseEntity {
         ESTORNO,
         APLICACAO,
         RETIRADA,
-        DEVOLUCAO
+        DEVOLUCAO,
+        /** Material muda de obra (ou fica livre) sem mudar de local; leva a obra de origem e a de destino. */
+        REMANEJAMENTO
     }
 
     public MovimentacaoEstoque(Estoque origem, Estoque destino, Material material, BigDecimal quantidade, 
@@ -182,6 +188,52 @@ public class MovimentacaoEstoque extends BaseEntity {
         this.idReferenciaOperacao = idReferenciaOperacao != null ? idReferenciaOperacao : UUID.randomUUID();
         this.numSerie = numSerie;
         this.dataHora = dataHora != null ? dataHora : OffsetDateTime.now();
+    }
+
+    /**
+     * Movimento do estoque por obra (aplicação pelo apontamento, rastro entre obras, canteiro, devolução de sobra).
+     * Controla quantidade: como no fechamento, não exige número de série, nem em material seriado.
+     */
+    public static MovimentacaoEstoque criarPorObra(
+            Estoque origem,
+            Estoque destino,
+            Material material,
+            BigDecimal quantidade,
+            TipoMovimentacao tipo,
+            CondicaoMaterial condicao,
+            UUID idObra,
+            UUID idObraOrigem,
+            UUID idEquipe,
+            UUID idUsuarioOperador,
+            UUID idReferencia,
+            String observacao
+    ) {
+        if (quantidade == null || quantidade.signum() <= 0) {
+            throw new IllegalArgumentException("A quantidade deve ser positiva");
+        }
+        MovimentacaoEstoque movimentacao = new MovimentacaoEstoque();
+        movimentacao.estoqueOrigem = origem;
+        movimentacao.estoqueDestino = destino;
+        movimentacao.material = Objects.requireNonNull(material, "O material e obrigatorio");
+        movimentacao.quantidade = quantidade;
+        movimentacao.tipo = Objects.requireNonNull(tipo, "O tipo e obrigatorio");
+        movimentacao.condicao = Objects.requireNonNullElse(condicao, CondicaoMaterial.NOVO);
+        movimentacao.idObra = idObra;
+        movimentacao.idObraOrigem = idObraOrigem;
+        movimentacao.idEquipe = idEquipe;
+        movimentacao.idUsuarioOperador = Objects.requireNonNull(idUsuarioOperador, "O usuario operador e obrigatorio");
+        movimentacao.idReferenciaOperacao = idReferencia;
+        movimentacao.dataHora = OffsetDateTime.now();
+        movimentacao.observacao = observacao == null || observacao.isBlank() ? null
+                : observacao.trim().substring(0, Math.min(observacao.trim().length(), TAMANHO_OBSERVACAO));
+        return movimentacao;
+    }
+
+    /** Série do material quando o movimento por obra leva um item seriado (ex.: devolução no balcão). */
+    public void registrarSerie(String numeroSerie) {
+        if (numeroSerie != null && !numeroSerie.isBlank()) {
+            this.numSerie = numeroSerie.trim();
+        }
     }
 
     public static MovimentacaoEstoque criarTecnica(

@@ -11,10 +11,8 @@ import com.nexo.app.modules.frota.application.dto.PlanoPreventivoRequest;
 import com.nexo.app.modules.frota.application.dto.RegistrarLeituraRequest;
 import com.nexo.app.modules.frota.application.dto.TipoVeiculoRequest;
 import com.nexo.app.modules.frota.application.dto.VeiculoFrotaRequest;
-import com.nexo.app.modules.frota.domain.CausaManutencao;
 import com.nexo.app.modules.frota.domain.Combustivel;
 import com.nexo.app.modules.frota.domain.Criticidade;
-import com.nexo.app.modules.frota.domain.NaturezaServico;
 import com.nexo.app.modules.frota.domain.OrigemBasePreventiva;
 import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.RegimeVeiculo;
@@ -114,7 +112,7 @@ class PreventivaUseCasesTest {
         var centro = centroRepository.save(new CentroFaturamento("REGIONAL PREVENTIVA"));
         var base = baseRepository.save(new BaseOperacional("BASE PREVENTIVA", "BA", "Rua P, 3", centro));
         idTipo = tipos.criar(new TipoVeiculoRequest("PICAPE PREVENTIVA", null, null)).id();
-        idOleo = itens.criar(new ItemManutencaoRequest("TROCA DE ÓLEO PREVENTIVA", NaturezaServico.SUSPENSAO_FREIOS, null, null)).id();
+        idOleo = itens.criar(new ItemManutencaoRequest("TROCA DE ÓLEO PREVENTIVA", "SUSPENSAO_FREIOS", null, null)).id();
         idVeiculo = veiculos.criar(new VeiculoFrotaRequest("PRV1A23", "HILUX", "TOYOTA", base.getId(), idTipo, 2024, 2025,
                 null, null, null, Combustivel.DIESEL_S10, new BigDecimal("80"), new BigDecimal("9"),
                 SituacaoOperacional.ATIVO, RegimeVeiculo.PROPRIO, null, null, null, null, null, null, null, null)).idVeiculo();
@@ -177,7 +175,7 @@ class PreventivaUseCasesTest {
                 .hasMessageContaining("já tem a OS");
 
         ordens.concluir(idOs, new ConcluirOrdemServicoRequest(agora, OffsetDateTime.now(), "Óleo trocado", null, null,
-                50_100L, TipoOficina.EXTERNA, null, "Oficina do teste", null, CausaManutencao.SERVICO_PREVENTIVO));
+                50_100L, TipoOficina.EXTERNA, null, "Oficina do teste", null, "SERVICO_PREVENTIVO"));
 
         var depois = preventiva.doVeiculo(idVeiculo);
         assertThat(depois.controles()).singleElement().satisfies(c -> {
@@ -209,7 +207,7 @@ class PreventivaUseCasesTest {
     @Test
     void outroPlanoDoVeiculoEntraNaPreventivaQueAindaNaoComecou() {
         planos.criar(revisao());
-        var freios = itens.criar(new ItemManutencaoRequest("PASTILHA PREVENTIVA", NaturezaServico.SUSPENSAO_FREIOS, null, null)).id();
+        var freios = itens.criar(new ItemManutencaoRequest("PASTILHA PREVENTIVA", "SUSPENSAO_FREIOS", null, null)).id();
         planos.criar(new PlanoPreventivoRequest("Revisão de freios", null, Set.of(idTipo), Set.of(),
                 20_000L, null, null, 2_000L, null, null, Criticidade.ALTA, false, List.of(freios), List.of("Medir as pastilhas")));
         var controles = preventiva.acompanhamento(filtro(), PageRequest.of(0, 10)).pagina().getContent();
@@ -233,11 +231,11 @@ class PreventivaUseCasesTest {
         var corretiva = ordens.abrir(new AbrirOrdemServicoRequest(idVeiculo, TipoManutencao.CORRETIVA, OrigemOrdemServico.VERBAL,
                 Criticidade.MEDIA, null, "Vazamento de óleo", List.of(idOleo), null, null, null, null, null, null, false)).ordem();
         ordens.concluir(corretiva.id(), new ConcluirOrdemServicoRequest(agora.minusDays(3), agora.minusDays(2), "Retentor trocado",
-                null, null, null, TipoOficina.EXTERNA, null, "Oficina do teste", null, CausaManutencao.AVARIA));
+                null, null, null, TipoOficina.EXTERNA, null, "Oficina do teste", null, "AVARIA"));
         var idOs = preventiva.abrirOs(new AbrirOsPreventivaRequest(List.of(idControle()))).ordens().get(0).id();
 
         ordens.concluir(idOs, new ConcluirOrdemServicoRequest(agora, OffsetDateTime.now(), "Revisão feita", null, null,
-                null, TipoOficina.EXTERNA, null, "Oficina do teste", null, CausaManutencao.SERVICO_PREVENTIVO));
+                null, TipoOficina.EXTERNA, null, "Oficina do teste", null, "SERVICO_PREVENTIVO"));
 
         assertThat(ordens.detalhar(idOs).itens()).allSatisfy(i -> assertThat(i.repeticao()).isNull());
     }
@@ -286,7 +284,7 @@ class PreventivaUseCasesTest {
         var os = ordens.abrir(new AbrirOrdemServicoRequest(idVeiculo, TipoManutencao.CORRETIVA, OrigemOrdemServico.VERBAL,
                 Criticidade.MEDIA, null, "Vazamento de óleo", List.of(idOleo), null, null, null, null, null, null, false)).ordem();
         ordens.concluir(os.id(), new ConcluirOrdemServicoRequest(agora, OffsetDateTime.now(), "Retentor trocado", null,
-                new BigDecimal("350.00"), null, TipoOficina.EXTERNA, null, "Oficina do teste", null, CausaManutencao.AVARIA));
+                new BigDecimal("350.00"), null, TipoOficina.EXTERNA, null, "Oficina do teste", null, "AVARIA"));
 
         assertThat(preventiva.corretivasPorItem(null, null, null, List.of(idTipo))).singleElement().satisfies(l -> {
             assertThat(l.item()).isEqualTo("TROCA DE ÓLEO PREVENTIVA");

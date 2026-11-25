@@ -1,5 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.nexo.app.modules.estoque.EstoqueFrotaApi;
 import com.nexo.app.modules.financeiro.FinanceiroApi;
 import com.nexo.app.modules.financeiro.ResumoSolicitacaoFinanceira;
@@ -60,6 +63,7 @@ class MontadorOrdemServico {
     private final RealizacaoPreventivaRepository realizacoesPreventivas;
     private final SinistroRepository sinistros;
     private final EstoqueFrotaApi estoqueFrota;
+    private final ListasApi listasApi;
 
     List<OrdemServicoResponse> montar(List<OrdemServico> lista) {
         if (lista.isEmpty()) return List.of();
@@ -185,7 +189,7 @@ class MontadorOrdemServico {
             }
             var natureza = item.getItem().getNatureza();
             resultado.add(new ItemOrdemServicoResponse(item.getItem().getId(), item.getItem().getNome(),
-                    natureza, natureza.getRotulo(), repeticao));
+                    natureza, listasApi.rotulo(ListaConfiguravel.NATUREZA_SERVICO_FROTA, natureza), repeticao));
         }
         return resultado;
     }

@@ -1,0 +1,194 @@
+<div class="oe-secao">
+  <h3 class="oe-secao__titulo">Onde está o material
+    @if (dados(); as d) { <span class="oe-contagem">{{ d.materiais.length }}</span> }
+  </h3>
+  <span class="oe-legenda">Entregue às equipes, aplicado e onde está agora</span>
+</div>
+
+@switch (carga().estado) {
+  @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Carregando o material da obra"></geo-async-state> }
+  @case ('error') {
+    <geo-async-state state="error" [compact]="true" title="Não foi possível carregar o material da obra"
+      [description]="mensagemErro()" actionLabel="Tentar de novo" (action)="carregar()"></geo-async-state>
+  }
+  @default {
+    @if (materiais().length) {
+      @if (avisos().length) {
+        <geo-callout class="oe-aviso" [tone]="tomAviso()" icon="pi pi-info-circle" [dense]="true">
+          <ul class="oe-aviso__lista">
+            @for (a of avisos(); track a) { <li>{{ a }}</li> }
+          </ul>
+        </geo-callout>
+      }
+
+      <div class="oe-rolagem" tabindex="0" role="region" aria-label="Material da obra">
+        <table class="oe-tabela">
+          <thead>
+            <tr>
+              <th scope="col">Material</th>
+              <th scope="col" class="oe-num">Previsto</th>
+              <th scope="col" class="oe-num">Entregue</th>
+              <th scope="col" class="oe-num">Aplicado</th>
+              <th scope="col" class="oe-num">Com equipes</th>
+              <th scope="col" class="oe-num">Devolvido</th>
+              <th scope="col">Onde está</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of materiais(); track m.idMaterial) {
+              <tr>
+                <td>
+                  <span class="oe-material" [title]="m.descricao">
+                    <span class="oe-codigo">{{ m.codigo }}{{ m.unidade ? ' · ' + m.unidade : '' }}</span>
+                    <span class="oe-descricao">{{ m.descricao }}</span>
+                  </span>
+                  @if (m.recebido > 0 || m.cedido > 0 || m.retirado > 0) {
+                    <span class="oe-marcas">
+                      @if (m.recebido > 0) { <geo-status tone="warning" icon="pi-arrow-down-left">{{ m.recebido | number: '1.0-3' }} de outra obra</geo-status> }
+                      @if (m.cedido > 0) { <geo-status tone="info" icon="pi-arrow-up-right">{{ m.cedido | number: '1.0-3' }} para outra obra</geo-status> }
+                      @if (m.retirado > 0) { <geo-status tone="neutral" icon="pi-replay">{{ m.retirado | number: '1.0-3' }} retirado (sucata)</geo-status> }
+                    </span>
+                  }
+                </td>
+                <td class="oe-num oe-fraco">{{ m.previsto ? (m.previsto | number: '1.0-3') : '—' }}</td>
+                <td class="oe-num">{{ m.entregue | number: '1.0-3' }}</td>
+                <td class="oe-num" [class.oe-alerta]="m.aplicadoSemSaldo > 0">{{ m.aplicado | number: '1.0-3' }}</td>
+                <td class="oe-num oe-forte">{{ m.comEquipes | number: '1.0-3' }}</td>
+                <td class="oe-num">{{ m.devolvido | number: '1.0-3' }}</td>
+                <td>
+                  @if (m.onde.length) {
+                    <span class="oe-onde">
+                      @for (l of m.onde; track l.idEstoque + l.condicao) {
+                        <span class="oe-local" [attr.data-sucata]="l.condicao === 'SUCATA'">
+                          <i [class]="iconeLocal(l.tipo)" aria-hidden="true"></i>{{ l.nome }} · {{ l.quantidade | number: '1.0-3' }}{{ l.condicao === 'SUCATA' ? ' sucata' : '' }}
+                        </span>
+                      }
+                    </span>
+                  } @else {
+                    <span class="oe-fraco">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (locais().length) {
+        <div class="oe-secao oe-secao--segunda">
+          <h3 class="oe-secao__titulo">Com as equipes e nos canteiros <span class="oe-contagem">{{ locais().length }}</span></h3>
+        </div>
+        <ul class="oe-locais">
+          @for (local of locais(); track local.idEstoque) {
+            <li class="oe-cartao">
+              <span class="oe-cartao__icone" aria-hidden="true"><i [class]="iconeLocal(local.tipo)"></i></span>
+              <span class="oe-cartao__corpo">
+                <span class="oe-cartao__titulo">{{ local.nome }}</span>
+                <span class="oe-fraco">{{ rotuloLocal(local.tipo) }} · {{ local.itens.length }} {{ local.itens.length === 1 ? 'material' : 'materiais' }} desta obra</span>
+              </span>
+              @if (podeMovimentar()) {
+                <span class="oe-cartao__acoes">
+                  @if (local.idEquipe) {
+                    <geo-button variant="ghost" size="sm" icon="pi pi-inbox" label="Devolver no balcão" routerLink="/almoxarifado/balcao"
+                      [queryParams]="{ equipe: local.idEquipe, fila: 'devolver', modo: 'devolucao' }"></geo-button>
+                  }
+                  <geo-button variant="ghost" size="sm" icon="pi pi-arrow-right-arrow-left" [label]="local.idEquipe ? 'Passar para outra obra' : 'Devolver ou passar'" (pressed)="abrirAcao(local)"></geo-button>
+                </span>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      @if (rastros().length) {
+        <div class="oe-secao oe-secao--segunda">
+          <h3 class="oe-secao__titulo">Rastro <span class="oe-contagem">{{ gruposRastro().length }}</span></h3>
+          <span class="oe-legenda">Material de outras obras, livre ou que não estava no caminhão</span>
+        </div>
+        <ol class="oe-rastros">
+          @for (g of rastrosExibidos(); track g.chave) {
+            <li class="oe-rastro" [attr.data-sentido]="g.sentido">
+              <i [class]="iconeRastro(g.primeiro)" aria-hidden="true"></i>
+              <span class="oe-rastro__corpo">
+                <span class="oe-rastro__titulo">{{ textoRastro(g.primeiro) }}</span>
+                <span class="oe-fraco">{{ g.itens }} · {{ g.ultima | date: 'dd/MM/yyyy HH:mm' }}{{ g.qtdLancamentos > 1 ? ' · ' + g.qtdLancamentos + ' lançamentos' : '' }}</span>
+                @if (g.primeiro.observacao && g.primeiro.tipo === 'REMANEJAMENTO') { <span class="oe-rastro__obs">"{{ g.primeiro.observacao }}"</span> }
+              </span>
+            </li>
+          }
+        </ol>
+        @if (gruposRastro().length > 3) {
+          <button type="button" class="oe-link" (click)="todosRastros.set(!todosRastros())">{{ todosRastros() ? 'Mostrar menos' : 'Ver todos (' + gruposRastro().length + ')' }}</button>
+        }
+      }
+    } @else {
+      <p class="oe-vazio">Nenhum material desta obra ainda. Ele aparece aqui quando o almoxarifado entrega uma solicitação à equipe.</p>
+    }
+  }
+}
+
+<geo-dialog-shell [visible]="!!acaoLocal()" (visibleChange)="!$event && acaoLocal.set(null)" size="lg"
+  [title]="'Material desta obra em ' + (acaoLocal()?.nome ?? '')"
+  [description]="acaoLocal()?.idEquipe ? 'O material continua no caminhão, mas passa a ser da obra escolhida. A sobra volta pelo balcão.' : 'Sobrou material? Devolva ao almoxarifado. Vai ser usado em outra obra? Passe para ela.'"
+  [loading]="enviando()" loadingLabel="Registrando">
+  @if (acaoLocal(); as local) {
+    <div class="oe-acao">
+      <div class="oe-modos" role="group" aria-label="O que fazer com o material">
+        @if (!local.idEquipe) {
+        <button type="button" class="oe-modo" [attr.aria-pressed]="modo() === 'DEVOLVER'" (click)="modo.set('DEVOLVER')">
+          <i [class]="modo() === 'DEVOLVER' ? 'pi pi-check-circle' : 'pi pi-inbox'" aria-hidden="true"></i>
+          <span><strong>Devolver ao almoxarifado</strong><span class="oe-fraco">A sobra volta livre para o estoque.</span></span>
+        </button>
+        }
+        <button type="button" class="oe-modo" [attr.aria-pressed]="modo() === 'REMANEJAR'" (click)="modo.set('REMANEJAR')">
+          <i [class]="modo() === 'REMANEJAR' ? 'pi pi-check-circle' : 'pi pi-arrow-right-arrow-left'" aria-hidden="true"></i>
+          <span><strong>Passar para outra obra</strong><span class="oe-fraco">Continua no mesmo lugar, mas passa a ser da outra obra.</span></span>
+        </button>
+      </div>
+
+      <table class="oe-tabela oe-tabela--acao">
+        <thead>
+          <tr>
+            <th scope="col">Material</th>
+            <th scope="col" class="oe-num">Desta obra aqui</th>
+            <th scope="col" class="oe-num oe-col-qtd">Quantidade</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of itensAcao(); track item.idMaterial + item.condicao; let i = $index) {
+            <tr>
+              <td>
+                <span class="oe-material"><span class="oe-codigo">{{ item.codigo }}</span><span>{{ item.descricao }}</span></span>
+                @if (item.condicao === 'SUCATA') { <geo-status tone="warning">Sucata</geo-status> }
+              </td>
+              <td class="oe-num">{{ item.disponivel | number: '1.0-3' }} {{ item.unidade }}</td>
+              <td class="oe-num">
+                <geo-number-input [label]="'Quantidade de ' + item.codigo" [labelVisible]="false" [value]="item.quantidade"
+                  (valueChange)="definirQuantidade(i, $event)" [min]="0" [max]="item.disponivel" [maxFractionDigits]="3"
+                  [error]="(item.quantidade ?? 0) > item.disponivel ? 'Mais do que há aqui' : undefined"></geo-number-input>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (modo() === 'DEVOLVER') {
+        <geo-select label="Almoxarifado que recebe" [required]="true" [options]="almoxOpcoes()" [value]="idAlmox()"
+          (valueChange)="idAlmox.set($event)" [filter]="true" [placeholder]="preparando() ? 'Carregando…' : 'Selecione'"></geo-select>
+        <geo-textarea label="Observação" [value]="motivo()" (valueChange)="motivo.set($event ?? '')" [rows]="2" [maxlength]="500"
+          description="Por exemplo: programação #173 não foi feita."></geo-textarea>
+      } @else {
+        <geo-select label="Obra que vai usar" [required]="true" [options]="obraOpcoes()" [value]="idObraDestino()"
+          (valueChange)="idObraDestino.set($event)" [filter]="true" [placeholder]="preparando() ? 'Carregando…' : 'Buscar obra'"></geo-select>
+        <geo-textarea label="Motivo" [required]="true" [value]="motivo()" (valueChange)="motivo.set($event ?? '')" [rows]="2" [maxlength]="500"
+          description="Fica no rastro das duas obras."></geo-textarea>
+      }
+      @if (erroAcao()) { <geo-callout tone="danger" [dense]="true">{{ erroAcao() }}</geo-callout> }
+      @if (!podeConfirmar() && pendencia()) { <p class="oe-fraco" aria-live="polite">{{ pendencia() }}</p> }
+    </div>
+  }
+  <div dialog-footer class="oe-rodape">
+    <geo-button variant="ghost" label="Cancelar" (pressed)="acaoLocal.set(null)"></geo-button>
+    <geo-button [label]="modo() === 'DEVOLVER' ? 'Registrar devolução' : 'Passar para a obra'" [disabled]="!podeConfirmar()" (pressed)="confirmar()"></geo-button>
+  </div>
+</geo-dialog-shell>

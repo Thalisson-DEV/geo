@@ -42,6 +42,7 @@ export interface ModeloChecklistRequest {
   titulo: string;
   descricao: string | null;
   estrutura: EstruturaChecklist;
+  fotosTravamExecucao?: boolean;
 }
 
 export interface ModeloChecklistResponse {
@@ -54,6 +55,8 @@ export interface ModeloChecklistResponse {
   perguntas: number;
   emUso: boolean;
   ativo: boolean;
+  /** Fotos obrigatórias travam o "Tudo feito" no app (e as de antes, o "Parcial"). */
+  fotosTravamExecucao?: boolean;
 }
 
 export interface ModeloChecklistFilter {

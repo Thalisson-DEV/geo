@@ -7,7 +7,6 @@ import com.nexo.app.modules.obras.domain.SituacaoLiberacao;
 import com.nexo.app.modules.obras.domain.SituacaoProgramacao;
 import com.nexo.app.modules.obras.domain.StatusAprTurno;
 import com.nexo.app.modules.obras.domain.TipoItemKit;
-import com.nexo.app.modules.obras.domain.TipoOcorrenciaTurno;
 import com.nexo.app.shared.application.dto.Paged;
 
 import java.math.BigDecimal;
@@ -75,7 +74,7 @@ public final class TurnoObraResponses {
     public record Foto(UUID id, String nomeArquivo, String contentType, long tamanhoBytes) {
     }
 
-    public record OcorrenciaDoTurno(UUID id, TipoOcorrenciaTurno tipo, String descricao, UUID idObra, String numeroObra,
+    public record OcorrenciaDoTurno(UUID id, String tipo, String tipoRotulo, String descricao, UUID idObra, String numeroObra,
                                     boolean impedeExecucao, String usuario, OffsetDateTime data) {
     }
 
@@ -115,7 +114,7 @@ public final class TurnoObraResponses {
     }
 
     /** O que as equipes registraram sobre a obra, de todos os turnos, para a ficha. */
-    public record OcorrenciaDaObra(UUID id, UUID idTurno, String codigoEquipe, TipoOcorrenciaTurno tipo, String descricao,
+    public record OcorrenciaDaObra(UUID id, UUID idTurno, String codigoEquipe, String tipo, String tipoRotulo, String descricao,
                                    boolean impedeExecucao, OffsetDateTime momento) {
     }
 }

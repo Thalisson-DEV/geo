@@ -5,7 +5,6 @@ import com.nexo.app.modules.obras.domain.EvidenciaPonto;
 import com.nexo.app.modules.obras.domain.FormularioApr;
 import com.nexo.app.modules.obras.domain.PresencaObra;
 import com.nexo.app.modules.obras.domain.RegistroCampo;
-import com.nexo.app.modules.obras.domain.TipoOcorrenciaTurno;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -68,7 +67,7 @@ public final class CampoObrasRequests {
             @NotNull @Valid Campo campo,
             UUID idObra,
             UUID idProgramacao,
-            @NotNull(message = "Informe o tipo da ocorrência") TipoOcorrenciaTurno tipo,
+            @NotBlank(message = "Informe o tipo da ocorrência") String tipo,
             @NotBlank(message = "Descreva a ocorrência") @Size(max = 2000) String descricao,
             boolean impedeExecucao) {
     }

@@ -47,6 +47,7 @@ spring:
     init:
       mode: always
       schema-locations: classpath:h2/telemetria.sql
+      data-locations: classpath:h2/listas.sql
   flyway:
     enabled: false
   

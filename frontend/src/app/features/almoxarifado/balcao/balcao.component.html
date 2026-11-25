@@ -1,0 +1,436 @@
+<div class="geo-page">
+  <geo-page-header title="Balcão" icon="pi pi-inbox"
+    [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Balcão' }]"
+    description="Retirada de manhã e devolução no fim do dia, por equipe.">
+    <geo-select actions class="bc-almox" label="Almoxarifado" [labelVisible]="false" [options]="almoxOpcoes()"
+      [value]="painel()?.idAlmoxarifado ?? null" (valueChange)="trocarAlmoxarifado($event)" placeholder="Almoxarifado"></geo-select>
+    <geo-button actions variant="outline" icon="pi pi-truck" label="Estoque das equipes" routerLink="/almoxarifado/estoque-equipes"></geo-button>
+    <geo-icon-button actions icon="pi pi-cog" label="Regras do balcão" routerLink="/almoxarifado/regras-balcao"></geo-icon-button>
+    <geo-icon-button actions icon="pi pi-refresh" label="Atualizar o quadro" (pressed)="carregarPainel(painel()?.idAlmoxarifado)"></geo-icon-button>
+  </geo-page-header>
+
+  @if (carregandoPainel() && !painel()) {
+    <geo-async-state state="loading" title="Montando o quadro do dia"></geo-async-state>
+  } @else if (erroPainel() && !painel()) {
+    <geo-async-state state="error" title="Não foi possível abrir o balcão" [description]="erroPainel() ?? undefined"
+      actionLabel="Tentar de novo" (action)="carregarPainel()"></geo-async-state>
+  } @else if (painel(); as p) {
+    <section class="pn" aria-label="Panorama do dia">
+      <div class="pn__dia">
+        <span class="pn__data">{{ hoje | date: "EEEE, d 'de' MMMM" }}</span>
+        <app-faixa-situacao [titulo]="tituloFaixa()" [apoio]="p.almoxarifado" [partes]="partesFaixa()" [ativo]="situacao()"
+          rotuloGrupo="Filtrar as equipes pela situação do dia" (escolher)="definirSituacao($event)"></app-faixa-situacao>
+      </div>
+      <dl class="pn__numeros">
+        <div><dt><i class="pi pi-arrow-down" aria-hidden="true"></i> Retiradas</dt><dd>{{ numerosDia().retiradas }}</dd><span>{{ numerosDia().itensSaida }} {{ numerosDia().itensSaida === 1 ? 'material saiu' : 'materiais saíram' }}</span></div>
+        <div><dt><i class="pi pi-undo" aria-hidden="true"></i> Devoluções</dt><dd>{{ numerosDia().devolucoes }}</dd><span>{{ numerosDia().itensVolta }} {{ numerosDia().itensVolta === 1 ? 'material voltou' : 'materiais voltaram' }}</span></div>
+        <div [class.pn--alerta]="contagem().atrasadas"><dt><i class="pi pi-clock" aria-hidden="true"></i> Atrasadas</dt><dd>{{ contagem().atrasadas }}</dd><span>retiradas de dias anteriores</span></div>
+      </dl>
+    </section>
+
+    <div class="bc-barra">
+      <div class="geo-quick-filters bc-atalhos" role="group" aria-label="Atalhos">
+        @for (a of atalhos(); track a.valor) {
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="atalho() === a.valor" (click)="definirAtalho(a.valor)">
+            @if (a.icone) { <i [class]="a.icone" aria-hidden="true"></i> }
+            {{ a.rotulo }} <span class="bc-contagem" [class.bc-contagem--alerta]="a.alerta && a.total">{{ a.total }}</span>
+          </button>
+        }
+      </div>
+      <div class="bc-barra__dir">
+        @if (visao() !== 'registro') {
+          <geo-text-input class="bc-busca" label="Buscar equipe" [labelVisible]="false" placeholder="Equipe ou encarregado"
+            [value]="busca()" (valueChange)="busca.set($event)"></geo-text-input>
+        }
+        <geo-segmented label="Forma de visualizar" [options]="visoes()" [value]="visao()" (valueChange)="definirVisao($event)"></geo-segmented>
+      </div>
+    </div>
+
+    @switch (visao()) {
+      @case ('fila') {
+        <div class="fl">
+          @for (raia of raias(); track raia.modo) {
+            <section class="fl__raia" [attr.data-modo]="raia.modo" [attr.aria-labelledby]="'raia-' + raia.modo">
+              <header class="fl__cab">
+                <h2 [id]="'raia-' + raia.modo"><i [class]="raia.icone" aria-hidden="true"></i> {{ raia.titulo }}</h2>
+                <span class="fl__total">{{ raia.linhas.length }}</span>
+              </header>
+              <ol class="fl__lista">
+                @for (l of raia.linhas; track l.equipe.idEquipe; let i = $index) {
+                  <li class="fl__item" [class.fl__item--alerta]="!!(raia.modo === 'retirada' ? l.retirada.alerta : l.devolucao.alerta)">
+                    <span class="fl__pos" aria-hidden="true">{{ i + 1 }}</span>
+                    <span class="fl__quem">
+                      <strong>{{ l.equipe.codigo }}</strong>
+                      <span>{{ l.equipe.encarregado ?? 'Sem encarregado' }}</span>
+                    </span>
+                    <span class="fl__oque">
+                      <span>{{ raia.modo === 'retirada' ? l.retirada.texto : l.devolucao.texto }}</span>
+                      @if (raia.modo === 'retirada' ? l.retirada.alerta : l.devolucao.alerta; as alerta) {
+                        <geo-status [tone]="raia.modo === 'retirada' ? 'warning' : 'danger'">{{ alerta }}</geo-status>
+                      }
+                    </span>
+                    <geo-button size="sm" [variant]="raia.modo === 'retirada' ? 'primary' : 'secondary'"
+                      [label]="(raia.modo === 'retirada' ? 'Atender ' : 'Receber ') + l.equipe.codigo"
+                      (pressed)="atender(l.equipe.idEquipe, raia.modo)"></geo-button>
+                  </li>
+                } @empty {
+                  <li class="fl__vazio"><i class="pi pi-check-circle" aria-hidden="true"></i> {{ raia.vazio }}</li>
+                }
+              </ol>
+            </section>
+          }
+        </div>
+      }
+      @case ('registro') {
+        <geo-data-table title="Atendimentos registrados" [columns]="colunasRegistro" [rows]="registros()" [rowKey]="chaveRegistro"
+          storageKey="balcao-registro" searchPlaceholder="Equipe, pessoa ou matrícula" [exportFileName]="'balcao-' + (dataRegistro() ?? 'hoje')"
+          rowActionLabel="Abrir termo" rowActionIcon="pi pi-file" (rowActivate)="abrirTermo($event)"
+          [state]="carregandoRegistro() ? 'loading' : 'ready'" stateTitle="Nenhum atendimento neste dia"
+          stateDescription="As retiradas e devoluções registradas no balcão aparecem aqui.">
+          <div table-filters class="bc-reg-filtros">
+            <geo-datepicker class="bc-data" label="Dia" [labelVisible]="false" [value]="dataRegistroLocal()" [maxDate]="hoje"
+              (valueChange)="definirDataRegistro($event)"></geo-datepicker>
+            <geo-segmented label="Tipo de atendimento" [options]="tiposRegistro()" [value]="tipoRegistro()" (valueChange)="tipoRegistro.set($event ?? 'todos')"></geo-segmented>
+          </div>
+          <ng-template geoCell="hora" let-a><span class="bc-hora">{{ a.realizadoEm | date: 'HH:mm' }}</span></ng-template>
+          <ng-template geoCell="tipo" let-a>
+            <geo-status [tone]="a.tipo === 'RETIRADA' ? 'info' : 'neutral'" [icon]="a.tipo === 'RETIRADA' ? 'pi-arrow-down' : 'pi-undo'">{{ a.tipo === 'RETIRADA' ? 'Retirada' : 'Devolução' }}</geo-status>
+          </ng-template>
+          <ng-template geoCell="quem" let-a>
+            <span>{{ a.nomeColaborador ?? '—' }}</span>
+            @if (a.matricula) { <span class="geo-cell-muted">matrícula {{ a.matricula }}</span> }
+          </ng-template>
+          <ng-template geoCell="comprovantes" let-a>
+            <span class="bc-comp">
+              <span [class.bc-comp--ok]="a.temAssinatura || a.assinaturaFisica">
+                <i [class]="a.assinaturaFisica ? 'pi pi-file-edit' : 'pi pi-pencil'" aria-hidden="true"></i> {{ a.assinaturaFisica ? 'Assinou no papel' : a.temAssinatura ? 'Assinou' : 'Sem assinatura' }}
+              </span>
+              <span [class.bc-comp--ok]="a.temFoto"><i class="pi pi-camera" aria-hidden="true"></i> {{ a.temFoto ? 'Foto' : 'Sem foto' }}</span>
+            </span>
+          </ng-template>
+          <ng-template geoRowDetail let-a>
+            <table class="bc-det">
+              <thead><tr><th scope="col">Material</th><th scope="col">Obra</th><th scope="col" class="bc-num">Quantidade</th></tr></thead>
+              <tbody>
+                @for (i of a.itens; track $index) {
+                  <tr>
+                    <td>{{ i.descricao }} <span class="geo-cell-muted">{{ i.codigo }}</span>
+                      @if (i.condicao === 'SUCATA') { <geo-status tone="warning">Sucata</geo-status> }
+                      @if (i.destino === 'DESCARTAR') { <geo-status tone="neutral">Descarte</geo-status> }
+                      @if (i.excedente) { <geo-status tone="warning">{{ num(i.excedente) }} acima do pedido</geo-status> }
+                    </td>
+                    <td>{{ i.numeroObra ? 'Obra ' + i.numeroObra : '—' }}</td>
+                    <td class="bc-num">{{ num(i.quantidade) }} {{ i.unidade }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </ng-template>
+        </geo-data-table>
+      }
+      @default {
+        @if (linhasVisiveis().length) {
+          <div class="qd">
+            <table class="qd__tabela">
+              <thead>
+                <tr>
+                  <th scope="col" class="qd__col-equipe">Equipe</th>
+                  <th scope="col"><i class="pi pi-arrow-down" aria-hidden="true"></i> Retirada</th>
+                  <th scope="col"><i class="pi pi-undo" aria-hidden="true"></i> Devolução</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (l of linhasVisiveis(); track l.equipe.idEquipe) {
+                  <tr [class.qd__linha--aberta]="aberto() && idEquipe() === l.equipe.idEquipe" [attr.data-situacao]="l.situacao">
+                    <th scope="row" class="qd__equipe">
+                      <span class="qd__codigo">{{ l.equipe.codigo }}</span>
+                      <span class="qd__pessoa">{{ l.equipe.encarregado ?? 'Sem encarregado' }}@if (l.equipe.base) {, {{ l.equipe.base }} }</span>
+                    </th>
+                    @for (c of [l.retirada, l.devolucao]; track $index; let ehRetirada = $first) {
+                      <td class="qd__celula" [attr.data-estado]="c.estado">
+                        <div class="qd__conteudo">
+                          <span class="qd__marca" aria-hidden="true">
+                            @if (c.estado === 'feita') { <i class="pi pi-check"></i> }
+                          </span>
+                          <span class="qd__texto">
+                            <span class="qd__principal">{{ c.texto }}</span>
+                            @if (c.alerta || c.detalhe) {
+                              <span class="qd__detalhe">
+                                @if (c.alerta) { <geo-status [tone]="ehRetirada ? 'warning' : 'danger'">{{ c.alerta }}</geo-status> }
+                                @if (c.detalhe) { <span>{{ c.detalhe }}</span> }
+                              </span>
+                            }
+                          </span>
+                          <span class="qd__acao">
+                            @if (c.estado === 'pendente') {
+                              <geo-button size="sm" [variant]="ehRetirada ? 'primary' : 'secondary'"
+                                [label]="ehRetirada ? 'Atender retirada' : 'Receber devolução'"
+                                (pressed)="atender(l.equipe.idEquipe, ehRetirada ? 'retirada' : 'devolucao')"></geo-button>
+                            } @else if (c.feito) {
+                              <geo-button size="sm" variant="ghost" icon="pi pi-file" label="Termo" (pressed)="abrirTermo(c.feito)"></geo-button>
+                            }
+                          </span>
+                        </div>
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else if (linhas().length) {
+          <geo-async-state state="empty" title="Nenhuma equipe neste recorte" description="Troque o atalho, a situação ou a busca."
+            actionLabel="Ver todas" (action)="limpar()"></geo-async-state>
+        } @else {
+          <geo-async-state state="empty" title="Nenhuma equipe neste almoxarifado"
+            description="As equipes aparecem quando a programação pede material daqui ou quando já retiraram aqui."></geo-async-state>
+        }
+      }
+    }
+  }
+
+  <!-- Atendimento -->
+  <geo-drawer [visible]="aberto()" (visibleChange)="!$event && fechar()" size="xl"
+    [title]="atendimento()?.codigo ?? 'Atendimento'"
+    [description]="atendimento() ? (pessoasResumo(atendimento()!)) : ''">
+    @if (carregandoAtendimento() && !atendimento()) {
+      <geo-async-state state="loading" [compact]="true" title="Abrindo a equipe"></geo-async-state>
+    } @else if (erroAtendimento()) {
+      <geo-async-state state="error" [compact]="true" title="Não foi possível abrir a equipe" [description]="erroAtendimento() ?? undefined"
+        actionLabel="Tentar de novo" (action)="recarregarAtendimento()"></geo-async-state>
+    } @else if (atendimento(); as a) {
+      <div class="at">
+        <geo-segmented class="at__modo" label="Tipo de atendimento" size="md" [fullWidth]="true" [options]="modos()" [value]="modo()" (valueChange)="$event && trocarModo($event)"></geo-segmented>
+
+        @if (concluido(); as c) {
+          <div class="at__feito" role="status">
+            <i class="pi pi-check-circle" aria-hidden="true"></i>
+            <div>
+              <strong>{{ c.tipo === 'RETIRADA' ? 'Retirada registrada' : 'Devolução registrada' }} às {{ c.realizadoEm | date: 'HH:mm' }}</strong>
+              <span>{{ c.itens.length }} {{ c.itens.length === 1 ? 'material' : 'materiais' }}{{ c.nomeColaborador ? ', com ' + c.nomeColaborador : '' }}. O saldo do caminhão já mudou.</span>
+            </div>
+            <geo-button size="sm" variant="secondary" icon="pi pi-file" label="Abrir termo" [routerLink]="['/almoxarifado/balcao/atendimentos', c.id]"></geo-button>
+          </div>
+          <ul class="at__lista-feita">
+            @for (i of c.itens; track $index) {
+              <li><span>{{ i.descricao }}@if (i.numeroObra) { <span class="ob__fraco">obra {{ i.numeroObra }}</span> }</span><strong>{{ num(i.quantidade) }} {{ i.unidade }}</strong></li>
+            }
+          </ul>
+          @if (modo() === 'retirada' ? a.retiradas.length : linhasDev().length) {
+            <geo-button class="at__outra" variant="ghost" size="sm" icon="pi pi-plus" [label]="modo() === 'retirada' ? 'Registrar outra retirada desta equipe' : 'Registrar outra devolução desta equipe'" (pressed)="concluido.set(null)"></geo-button>
+          }
+        } @else {
+
+        <!-- 1. Conferir -->
+        <section class="at__passo" aria-labelledby="passo-1">
+          <h3 id="passo-1" class="at__passo-titulo"><span class="at__n">1</span>{{ modo() === 'retirada' ? 'Confira o que sai' : 'Confira o que volta' }}</h3>
+
+          @if (modo() === 'retirada') {
+            @if (a.retiradas.length) {
+              @for (r of a.retiradas; track r.idSolicitacao) {
+                <article class="ob">
+                  <header class="ob__cab">
+                    <div class="ob__nome">
+                      <strong>Obra {{ r.numeroObra ?? 'sem número' }}</strong>
+                      <span>{{ r.tituloObra }}</span>
+                    </div>
+                    <div class="ob__meta">
+                      @if (r.numeroProgramacao) { <span>Programação {{ r.numeroProgramacao }}</span> }
+                      <span>para {{ r.dataPrevista | date: 'dd/MM' }}</span>
+                      @if (r.atrasada) { <geo-status tone="warning" icon="pi-clock">Atrasada</geo-status> }
+                      @if (r.concreto) { <geo-status tone="neutral">Concreto</geo-status> }
+                      @if (rotuloSeparacao(r.separacao); as sep) { <geo-status [tone]="regras()?.separacaoObrigatoria ? 'warning' : 'neutral'">{{ sep }}</geo-status> }
+                    </div>
+                  </header>
+                  <div class="ob__reserva">
+                    @if (r.reserva) {
+                      <span class="ob__fraco">Reserva {{ r.reserva }}</span>
+                    } @else {
+                      <geo-text-input class="ob__reserva-campo" label="Reserva" [required]="true" placeholder="Número da reserva"
+                        [value]="reservas()[r.idSolicitacao] ?? ''" (valueChange)="definirReserva(r.idSolicitacao, $event)"></geo-text-input>
+                    }
+                    <span class="ob__atalhos">
+                      <button type="button" (click)="entregarTudo(r)">Tudo</button>
+                      <button type="button" (click)="zerar(r)">Nada</button>
+                    </span>
+                  </div>
+                  <table class="it">
+                    <thead>
+                      <tr>
+                        <th scope="col">Material</th>
+                        <th scope="col" class="it__num">Pedido</th>
+                        <th scope="col" class="it__num">Falta</th>
+                        <th scope="col" class="it__num">No almoxarifado</th>
+                        <th scope="col" class="it__num it__qtd">Sai agora</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (i of r.itens; track i.idItem) {
+                        <tr [class.it--excede]="excede(i.idItem, i.falta)">
+                          <td><span class="it__desc">{{ i.descricao }}</span><span class="it__cod">{{ i.codigo }}</span></td>
+                          <td class="it__num it__fraco">{{ num(i.pedido) }}</td>
+                          <td class="it__num">{{ num(i.falta) }} <span class="it__un">{{ i.unidade }}</span></td>
+                          <td class="it__num" [class.it__falta]="i.saldoAlmoxarifado < (quantidades()[i.idItem] ?? 0)">{{ num(i.saldoAlmoxarifado) }}</td>
+                          <td class="it__num">
+                            <geo-number-input [label]="'Sai agora: ' + i.descricao" [labelVisible]="false" [value]="quantidades()[i.idItem] ?? null"
+                              (valueChange)="definirQuantidade(i.idItem, $event)" align="end" [min]="0" [maxFractionDigits]="3" [suffix]="i.unidade ? ' ' + i.unidade : undefined"
+                              [max]="regras()?.entregaAcimaPedido ? undefined : i.falta"></geo-number-input>
+                          </td>
+                        </tr>
+                        @if (excede(i.idItem, i.falta)) {
+                          <tr class="it--excede it__motivo">
+                            <td colspan="5">
+                              <span class="it__aviso">{{ num((quantidades()[i.idItem] ?? 0) - i.falta) }} {{ i.unidade }} acima do pedido</span>
+                              <geo-text-input label="Motivo do excedente" [labelVisible]="false" [maxlength]="300"
+                                placeholder="Por que sai mais? Ex.: o projeto pede 2 isoladores e a reserva tem 1"
+                                [value]="motivos()[i.idItem] ?? ''" (valueChange)="definirMotivo(i.idItem, $event)"></geo-text-input>
+                            </td>
+                          </tr>
+                        }
+                      }
+                    </tbody>
+                  </table>
+                </article>
+              }
+            } @else {
+              <p class="at__vazio">Esta equipe não tem retirada até hoje neste almoxarifado.</p>
+            }
+          } @else {
+            @if (linhasDev().length) {
+              <p class="at__dica">Já vem tudo o que está no caminhão. Zere o que a equipe vai usar amanhã.</p>
+            }
+            @for (g of gruposDevolucao(); track g.chave) {
+              <article class="ob">
+                <header class="ob__cab">
+                  <div class="ob__nome">
+                    <strong>{{ g.titulo }}</strong>
+                    @if (g.subtitulo) { <span>{{ g.subtitulo }}</span> }
+                  </div>
+                  <span class="ob__atalhos">
+                    <button type="button" (click)="devolverGrupo(g.chave, true)">Tudo</button>
+                    <button type="button" (click)="devolverGrupo(g.chave, false)">Nada</button>
+                  </span>
+                </header>
+                <table class="it">
+                  <thead>
+                    <tr>
+                      <th scope="col">Material</th>
+                      <th scope="col" class="it__num">No caminhão</th>
+                      <th scope="col" class="it__num it__qtd">Volta</th>
+                      <th scope="col" class="it__destino">Vai para</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (l of g.linhas; track l.chave) {
+                      <tr>
+                        <td>
+                          <span class="it__desc">{{ l.descricao }}@if (l.condicao === 'SUCATA') { <geo-status tone="warning">Sucata</geo-status> }</span>
+                          <span class="it__cod">{{ l.codigo }}@if (l.series.length) { , série {{ l.series[0] }} }</span>
+                        </td>
+                        <td class="it__num it__fraco">@if (l.incluida) { — } @else { {{ num(l.noCaminhao) }} <span class="it__un">{{ l.unidade }}</span> }</td>
+                        <td class="it__num">
+                          <geo-number-input [label]="'Volta: ' + l.descricao" [labelVisible]="false" [value]="l.quantidade"
+                            (valueChange)="definirQuantidadeDevolucao(l.chave, $event)" align="end" [min]="0" [maxFractionDigits]="3" [suffix]="l.unidade ? ' ' + l.unidade : undefined"
+                            [max]="l.detalhaSerie ? 1 : (l.condicao === 'NOVO' && !l.incluida && !regras()?.devolucaoAcimaCaminhao ? l.noCaminhao : undefined)"></geo-number-input>
+                        </td>
+                        <td class="it__destino">
+                          <geo-segmented [label]="'Destino de ' + l.descricao" [options]="destinos" [value]="l.destino" (valueChange)="$event && definirDestino(l.chave, $event)"></geo-segmented>
+                          @if (l.incluida) { <geo-icon-button icon="pi pi-times" size="icon-sm" [label]="'Tirar ' + l.descricao" (pressed)="removerLinha(l.chave)"></geo-icon-button> }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </article>
+            } @empty {
+              <p class="at__vazio">O caminhão desta equipe está vazio. Se ela trouxe sucata da rede, inclua abaixo.</p>
+            }
+            <div class="at__incluir">
+              <geo-autocomplete inputId="balcaoIncluirMaterial" label="Trouxe algo que não está no caminhão?"
+                [showSearchInstruction]="false" [options]="materiais()" [ngModel]="idMaterialNovo()" (ngModelChange)="incluirMaterial($event)"
+                [loading]="materiaisCarregando()" [status]="materiaisStatus()" placeholder="Código ou nome do material"
+                [minLength]="2" appendTo="body" (search)="buscarMateriais($event)"></geo-autocomplete>
+              <geo-select label="Condição" [options]="condicoes" [value]="condicaoNova()" (valueChange)="condicaoNova.set($event ?? 'SUCATA')"></geo-select>
+            </div>
+          }
+        </section>
+
+        @if (modo() === 'retirada' ? a.retiradas.length : linhasDev().length) {
+          <!-- 2. Quem -->
+          <section class="at__passo" id="balcao-passo-2" aria-labelledby="passo-2">
+            <h3 id="passo-2" class="at__passo-titulo"><span class="at__n">2</span>{{ modo() === 'retirada' ? 'Quem está retirando' : 'Quem está devolvendo' }}</h3>
+            <div class="qm" role="radiogroup" [attr.aria-label]="modo() === 'retirada' ? 'Quem está retirando' : 'Quem está devolvendo'">
+              @for (p of a.pessoas; track p.idColaborador) {
+                <button type="button" class="qm__pessoa" role="radio" [attr.aria-checked]="pessoa()?.idColaborador === p.idColaborador" (click)="escolherPessoa(p)">
+                  <span class="qm__radio" aria-hidden="true"></span>
+                  <span class="qm__nome">{{ p.nome }}</span>
+                  <span class="qm__funcao">{{ p.encarregado ? 'Encarregado' : 'Parceiro' }}</span>
+                  <span class="qm__mat" [class.qm__mat--falta]="!p.matricula">{{ p.matricula ? 'Matrícula ' + p.matricula : 'Sem matrícula no cadastro' }}</span>
+                </button>
+              }
+              @if (deFora(); as f) {
+                <button type="button" class="qm__pessoa" role="radio" aria-checked="true">
+                  <span class="qm__radio" aria-hidden="true"></span>
+                  <span class="qm__nome">{{ f.nome }}</span>
+                  <span class="qm__funcao">Fora da equipe</span>
+                  <span class="qm__mat">Matrícula conferida no cadastro</span>
+                </button>
+              }
+            </div>
+            <div class="qm__fora">
+              <geo-autocomplete inputId="balcaoQuemDeFora" label="Outra pessoa (fora da equipe)" [showSearchInstruction]="false"
+                [options]="colaboradores()" [ngModel]="deFora()?.idColaborador ?? null" (ngModelChange)="escolherDeFora($event)"
+                [loading]="colaboradoresCarregando()" [status]="colaboradoresStatus()" placeholder="Nome do colaborador"
+                [minLength]="2" appendTo="body" (search)="buscarColaboradores($event)"></geo-autocomplete>
+            </div>
+            @if (dicaMatricula(); as d) {
+              <p class="qm__dica">{{ d }} <a routerLink="/admin/cadastros/colaboradores" target="_blank">Abrir Colaboradores</a></p>
+            }
+          </section>
+
+          <!-- 3. Assinar -->
+          <section class="at__passo" id="balcao-passo-3" aria-labelledby="passo-3">
+            <h3 id="passo-3" class="at__passo-titulo"><span class="at__n">3</span>Assinatura e foto{{ pessoa() ? ' de ' + primeiro(pessoa()!.nome) : '' }}</h3>
+            <div class="as">
+              <div class="as__assinatura">
+                @if (assinatura() === 'FISICA') {
+                  <div class="as__papel-feito">
+                    <i class="pi pi-file-edit" aria-hidden="true"></i>
+                    <span>Assina no termo em papel, depois de registrar.</span>
+                    <button type="button" class="as__papel" (click)="assinatura.set('')">Assinar na tela</button>
+                  </div>
+                } @else {
+                  <app-solicitacao-tecnica-assinatura [label]="pessoa() ? 'Assinatura de ' + pessoa()!.nome : 'Assinatura'"
+                    [value]="assinatura()" (valueChanged)="assinatura.set($event)"></app-solicitacao-tecnica-assinatura>
+                  <button type="button" class="as__papel" (click)="assinatura.set('FISICA')">Vai assinar no termo em papel</button>
+                }
+              </div>
+              <app-foto-captura [rotulo]="'Foto de ' + (pessoa() ? pessoa()!.nome : 'quem retira')" [foto]="foto()" (fotoChange)="foto.set($event)"></app-foto-captura>
+            </div>
+          </section>
+        }
+        }
+      </div>
+    }
+    <div drawer-footer class="at__rodape">
+      <span class="at__msg" aria-live="polite">
+        @if (erroEnvio()) {
+          <geo-callout tone="danger" [dense]="true">{{ erroEnvio() }}</geo-callout>
+        } @else if (bloqueio() && !concluido()) {
+          @if (passoPendente(); as passo) {
+            <button type="button" class="at__ir" (click)="irPara(passo)">{{ bloqueio() }}</button>
+          } @else {
+            {{ bloqueio() }}
+          }
+        } @else if (modo() === 'retirada' && resumo().excedentes) {
+          <span class="at__aviso">{{ resumo().excedentes }} {{ resumo().excedentes === 1 ? 'material sai' : 'materiais saem' }} acima do pedido.</span>
+        }
+      </span>
+      <geo-button variant="ghost" label="Fechar" (pressed)="fechar()"></geo-button>
+      @if (!concluido() && atendimento() && (modo() === 'retirada' ? atendimento()!.retiradas.length : linhasDev().length)) {
+        <geo-button icon="pi pi-check" [disabled]="!!bloqueio()" [loading]="enviando()" (pressed)="registrar()"
+          [label]="(modo() === 'retirada' ? 'Registrar retirada de ' : 'Registrar devolução de ') + quantosItens() + (quantosItens() === 1 ? ' material' : ' materiais')"></geo-button>
+      }
+    </div>
+  </geo-drawer>
+</div>

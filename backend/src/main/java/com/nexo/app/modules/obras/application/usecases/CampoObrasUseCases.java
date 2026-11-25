@@ -1,5 +1,8 @@
 package com.nexo.app.modules.obras.application.usecases;
 
+import com.nexo.app.modules.listas.ListaConfiguravel;
+import com.nexo.app.modules.listas.ListasApi;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nexo.app.modules.execucao.TurnoApi;
 import com.nexo.app.modules.execucao.application.dto.TurnoResponse;
@@ -74,6 +77,7 @@ public class CampoObrasUseCases {
     private final EvidenciaPontoRepository evidenciaRepository;
     private final VaoPlanejamentoRepository vaoRepository;
     private final RelatorioTurnoRepository relatorioRepository;
+    private final ListasApi listasApi;
     private final ApontamentoExecucaoUseCases apontamentos;
     private final EvidenciaPontoUseCases evidencias;
     private final ObjectMapper mapper;
@@ -134,7 +138,8 @@ public class CampoObrasUseCases {
         }
         RegistroCampo campo = new RegistroCampo(comando.campo().idLocal(), hash, comando.campo().origem(), OffsetDateTime.now());
         OcorrenciaTurno salva = ocorrenciaRepository.save(OcorrenciaTurno.doCampo(turno.id(), comando.idObra(),
-                comando.idProgramacao(), comando.tipo(), comando.descricao(), comando.impedeExecucao(), campo));
+                comando.idProgramacao(), listasApi.exigirExistente(ListaConfiguravel.OCORRENCIA_TURNO, comando.tipo()),
+                comando.descricao(), comando.impedeExecucao(), campo));
         eventos.publishEvent(avisoDeOcorrencia(salva, turno, usuario));
         return resultado(comando.campo(), "OCORRENCIA", List.of(salva.getId()), false, turno.id());
     }
@@ -356,7 +361,7 @@ public class CampoObrasUseCases {
                 : equipeApi.buscarPorIdResponse(turno.idEquipe()).map(EquipeResponse::codigo).orElse(null);
         return new ObrasOcorrenciaCampoEvent(ocorrencia.getId(), turno.id(), ocorrencia.getIdObra(),
                 obra != null ? obra.getNumero() : null, obra != null ? obra.getTitulo() : null, equipe,
-                ocorrencia.getTipo().rotulo(), ocorrencia.getDescricao(), ocorrencia.isImpedeExecucao(), supervisor, autor);
+                listasApi.rotulo(ListaConfiguravel.OCORRENCIA_TURNO, ocorrencia.getTipo()), ocorrencia.getDescricao(), ocorrencia.isImpedeExecucao(), supervisor, autor);
     }
 
     private void exigirObra(UUID idObra) {

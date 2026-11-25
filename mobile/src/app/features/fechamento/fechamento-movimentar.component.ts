@@ -29,7 +29,7 @@ interface ItemMovimentar { id: string; codigo: string; descricao: string; unidad
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
-      <geo-barra-topo titulo="Movimentar" [subtitulo]="det() ? det()!.tipo + ' · ' + tipo().nome : 'Carregando…'" navegacao="fechar" rotuloFechar="Fechar sem movimentar" (voltar)="fechar()">
+      <geo-barra-topo titulo="Movimentar" [subtitulo]="det() ? tipo().nome : 'Carregando…'" navegacao="fechar" rotuloFechar="Fechar sem movimentar" (voltar)="fechar()">
         <geo-indicador-rede />
       </geo-barra-topo>
 

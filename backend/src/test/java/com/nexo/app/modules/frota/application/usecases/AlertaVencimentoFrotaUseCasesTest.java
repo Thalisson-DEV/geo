@@ -7,7 +7,6 @@ import com.nexo.app.modules.frota.domain.DocumentoFrota;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
 import com.nexo.app.modules.frota.domain.ParametrosFrota;
 import com.nexo.app.modules.frota.domain.TipoAlvoAlerta;
-import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 import com.nexo.app.modules.frota.infrastructure.persistence.AlertaVencimentoRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.ApoliceRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.CondutorRepository;
@@ -67,6 +66,15 @@ class AlertaVencimentoFrotaUseCasesTest {
     private FinanceiroApi financeiro;
     @Mock
     private ApoliceUseCases apolices;
+    @Mock
+    private com.nexo.app.modules.listas.ListasApi listasApi;
+
+    @org.junit.jupiter.api.BeforeEach
+    void listasDevolvemOCodigo() {
+        org.mockito.Mockito.lenient().when(listasApi.rotulo(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArgument(1));
+        org.mockito.Mockito.lenient().when(listasApi.exigirAtiva(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArgument(1));
+    }
+
     @InjectMocks
     private AlertaVencimentoFrotaUseCases useCases;
 
@@ -81,7 +89,7 @@ class AlertaVencimentoFrotaUseCasesTest {
         valores.atualizar(List.of(30, 15, 7, 0), 1500);
         when(parametros.obter()).thenReturn(valores);
         crlv = DocumentoFrota.doVeiculo(idVeiculo, new DocumentoFrota.DadosDocumento(
-                TipoDocumentoFrota.CRLV, null, "123", null, HOJE.plusDays(5), null));
+                "CRLV", null, "123", null, HOJE.plusDays(5), null));
         ReflectionTestUtils.setField(crlv, "id", UUID.randomUUID());
         when(documentoRepository.findAllByAtivoTrueAndDataVencimentoLessThanEqual(HOJE.plusDays(30)))
                 .thenReturn(List.of(crlv));

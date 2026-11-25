@@ -45,7 +45,9 @@ class ObraApiAdapterTest {
 
     @BeforeEach
     void setUp() {
-        api = new ObraApiAdapter(repository, ocorrenciaRepository, relacionamentoProjetoUseCases, processoNegocioApi);
+        api = new ObraApiAdapter(repository, ocorrenciaRepository, relacionamentoProjetoUseCases, processoNegocioApi,
+                org.mockito.Mockito.mock(com.nexo.app.modules.obras.infrastructure.persistence.ItemPlanejadoRepository.class),
+                org.mockito.Mockito.mock(com.nexo.app.modules.obras.infrastructure.persistence.ApontamentoExecucaoRepository.class));
     }
 
     @Test

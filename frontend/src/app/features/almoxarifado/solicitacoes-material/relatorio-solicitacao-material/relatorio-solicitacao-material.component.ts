@@ -343,7 +343,7 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
   /** Saldos do material escolhido para adicionar: na origem e no destino. */
   protected readonly saldosDoSelecionado = signal<{ origem: number; destino: number } | null>(null);
 
-  // Atendimento: quem aprova troca origem e data do saque; quem entrega, só a origem
+  // Atendimento: quem aprova troca origem e data da retirada; quem entrega, só a origem
   protected readonly opcoesOrigem = signal<GeoSelectOption<string>[]>([]);
   protected readonly carregandoOrigens = signal(false);
   protected readonly idOrigemEscolhida = signal<string | null>(null);
@@ -640,8 +640,8 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
   }
 
   protected tipoLabel(tipo?: string | null): string {
-    if (tipo === 'DEVOLUCAO_COMUM' || tipo === '222') return '222 — Devolução';
-    return '221 — Saída Direta / Obra';
+    if (tipo === 'DEVOLUCAO_COMUM' || tipo === '222') return 'Devolução';
+    return 'Retirada';
   }
 
   protected tipoTone(tipo?: string | null): GeoTone {
@@ -984,7 +984,7 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
       this.messageService.add({
         severity: 'warn',
         summary: 'Responsável obrigatório',
-        detail: 'Selecione o colaborador responsável pelo saque.',
+        detail: 'Selecione o colaborador quem retira.',
       });
       return;
     }

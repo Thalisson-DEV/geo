@@ -1,3 +1,4 @@
+import { ROTULOS_LISTAS } from '../../../../core/models/listas.models';
 import { GeoChartSeries, GeoDataTableColumn, GeoTone } from '@geo/ui';
 
 import { IndicadorFrota, RelatorioGerencialFrota, VeiculoRelatorioFrota } from '../../../../core/models/frota-relatorios.models';
@@ -24,10 +25,8 @@ export const ROTULO_ORIGEM_OS: Record<string, string> = {
   VERBAL: 'Pedido verbal', CHECKLIST: 'Checklist', INSPECAO: 'Inspeção', PREVENTIVA: 'Plano preventivo', MANUAL: 'Lançamento manual',
   IMPORTACAO: 'Importação', SINISTRO: 'Sinistro'
 };
-export const ROTULO_CAUSA: Record<string, string> = {
-  AVARIA: 'Avaria', DESGASTE_NATURAL: 'Desgaste natural', USO_INDEVIDO: 'Uso indevido', SERVICO_CORRETIVO: 'Serviço corretivo',
-  SERVICO_PREVENTIVO: 'Serviço preventivo', ESTOQUE: 'Estoque', SUBSTITUICAO_PNEUS: 'Substituição de pneus', SEM_CAUSA: 'Sem causa informada'
-};
+/** Nomes do cadastro (lista configurável CAUSA_MANUTENCAO). */
+export const ROTULO_CAUSA: Record<string, string> = ROTULOS_LISTAS.CAUSA_MANUTENCAO;
 export const ROTULO_CRITICIDADE: Record<string, string> = { BAIXA: 'Baixa', MEDIA: 'Média', ALTA: 'Alta', CRITICA: 'Crítica', URGENTE: 'Urgente' };
 export const ROTULO_OFICINA: Record<string, string> = { INTERNA: 'Oficina interna', EXTERNA: 'Oficina externa' };
 export const ROTULO_SITUACAO_OS: Record<string, string> = { PENDENTE: 'A agendar', AGENDADA: 'Agendada', EM_ANDAMENTO: 'Em execução' };
@@ -36,10 +35,8 @@ export const ROTULO_ALERTA: Record<string, string> = {
   CONSUMO_FORA_PADRAO: 'Consumo fora do padrão', PRECO_ACIMA_MEDIA: 'Preço acima da média', FOTO_REPETIDA: 'Foto repetida',
   FREQUENCIA_ALTA: 'Frequência alta', POSTO_SEM_PRECO: 'Posto sem preço', SEM_CHECKLIST: 'Sem checklist', LONGE_DO_POSTO: 'Longe do posto'
 };
-export const ROTULO_DOCUMENTO: Record<string, string> = {
-  CRLV: 'CRLV', LICENCIAMENTO: 'Licenciamento', IPVA: 'IPVA', SEGURO: 'Seguro', TACOGRAFO: 'Tacógrafo', ANTT: 'ANTT',
-  INSPECAO_VEICULAR: 'Inspeção veicular', LAUDO_IMPLEMENTO: 'Laudo do implemento', CONTRATO_LOCACAO: 'Contrato de locação', OUTRO: 'Outro'
-};
+/** Nomes do cadastro (lista configurável TIPO_DOCUMENTO_VEICULO). */
+export const ROTULO_DOCUMENTO: Record<string, string> = ROTULOS_LISTAS.TIPO_DOCUMENTO_VEICULO;
 export const ROTULO_SITUACAO_VEICULO: Record<string, string> = {
   ATIVO: 'Ativo', EM_MANUTENCAO: 'Em manutenção', PARADO: 'Parado', RESERVA: 'Reserva', BAIXADO: 'Baixado'
 };

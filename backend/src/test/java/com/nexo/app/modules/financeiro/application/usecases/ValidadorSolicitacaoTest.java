@@ -4,7 +4,6 @@ import com.nexo.app.modules.financeiro.domain.CampoCanonico;
 import com.nexo.app.modules.financeiro.domain.FonteReferencia;
 import com.nexo.app.modules.financeiro.domain.FormaPagamento;
 import com.nexo.app.modules.financeiro.domain.FormularioSolicitacao;
-import com.nexo.app.modules.financeiro.domain.NaturezaServicoFrota;
 import com.nexo.app.modules.financeiro.domain.TipoSolicitacao;
 import com.nexo.app.shared.domain.exception.PreenchimentoInvalidoException;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +41,9 @@ class ValidadorSolicitacaoTest {
     private static final UUID BASE_EXISTENTE = UUID.randomUUID();
 
     @Mock
+    private com.nexo.app.modules.listas.ListasApi listasApi;
+
+    @Mock
     private ResolvedorReferencias resolvedor;
 
     private ValidadorSolicitacao validador;
@@ -49,7 +51,9 @@ class ValidadorSolicitacaoTest {
 
     @BeforeEach
     void montarFormulario() {
-        validador = new ValidadorSolicitacao(resolvedor);
+        validador = new ValidadorSolicitacao(resolvedor, listasApi);
+        org.mockito.Mockito.when(listasApi.ativas(com.nexo.app.modules.listas.ListaConfiguravel.NATUREZA_SERVICO_FROTA))
+                .thenReturn(java.util.List.of(new com.nexo.app.modules.listas.ListasApi.Opcao("MECANICA", "Mecânica", java.util.List.of())));
         // Apenas esta base existe; qualquer outra referência deve ser recusada.
         when(resolvedor.existe(any(), any())).thenReturn(false);
         when(resolvedor.existe(eq(FonteReferencia.BASE_OPERACIONAL), eq(BASE_EXISTENTE))).thenReturn(true);
@@ -88,8 +92,7 @@ class ValidadorSolicitacaoTest {
         assertEquals(BASE_EXISTENTE, valores.referencia(CampoCanonico.BASE));
         assertEquals(Boolean.TRUE, valores.logico(CampoCanonico.TEM_NF));
         assertEquals("12345", valores.texto(CampoCanonico.NUMERO_NF));
-        assertEquals(NaturezaServicoFrota.MECANICA,
-                valores.enumerado(CampoCanonico.NATUREZA_SERVICO, NaturezaServicoFrota.class));
+        assertEquals("MECANICA", valores.texto(CampoCanonico.NATUREZA_SERVICO));
     }
 
     @Test
@@ -165,14 +168,14 @@ class ValidadorSolicitacaoTest {
     }
 
     @Test
-    @DisplayName("Recusa opção fora da enumeração que apoia o campo")
+    @DisplayName("Recusa opção que não está ativa no cadastro que apoia o campo")
     void recusaOpcaoInvalida() {
         var payload = payloadMinimo();
         payload.put("naturezaServico", "AERONAUTICA");
 
         var erro = assertThrows(PreenchimentoInvalidoException.class,
                 () -> validador.validar(formulario, payload));
-        assertTrue(erro.getErros().get("naturezaServico").contains("não é uma opção válida"));
+        assertTrue(erro.getErros().get("naturezaServico").contains("não é uma opção ativa"));
     }
 
     @Test

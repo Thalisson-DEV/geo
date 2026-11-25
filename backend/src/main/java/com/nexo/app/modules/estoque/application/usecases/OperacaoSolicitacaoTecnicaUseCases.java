@@ -86,6 +86,7 @@ public class OperacaoSolicitacaoTecnicaUseCases {
     private final DebitoSaldoService debitoSaldoService;
     private final EstoqueCampoEquipeProvisioningService estoqueCampoEquipeService;
     private final MotivoPendenciaRepository motivoPendenciaRepository;
+    private final com.nexo.app.modules.estoque.application.services.AlocacaoObraService alocacaoObra;
 
     @Transactional
     @CacheEvict(value = SALDOS, allEntries = true)
@@ -708,7 +709,7 @@ public class OperacaoSolicitacaoTecnicaUseCases {
 
     private void validarEntrega(SolicitacaoMaterial solicitacao, ConfirmarEntregaTecnicaRequest request) {
         if (!solicitacao.getTipoTecnico().isAdicao()) {
-            throw new InvarianteVioladaException("Entrega tecnica se aplica somente aos tipos 221 e 921.");
+            throw new InvarianteVioladaException("Só uma solicitação de retirada pode ser entregue.");
         }
         if (solicitacao.getDataPrevistaRetirada() == null) {
             throw new InvarianteVioladaException("Defina a data prevista antes de confirmar a entrega tecnica.");
@@ -724,7 +725,7 @@ public class OperacaoSolicitacaoTecnicaUseCases {
 
     private void validarDevolucao(SolicitacaoMaterial solicitacao, ConfirmarDevolucaoTecnicaRequest request) {
         if (!solicitacao.getTipoTecnico().isDevolucao()) {
-            throw new InvarianteVioladaException("Devolucao tecnica se aplica somente aos tipos 222 e 922.");
+            throw new InvarianteVioladaException("Só uma solicitação de devolução pode ser recebida.");
         }
         if (request.idEquipe() == null) {
             throw new InvarianteVioladaException("A equipe e obrigatoria para confirmar a devolucao tecnica.");
@@ -972,6 +973,9 @@ public class OperacaoSolicitacaoTecnicaUseCases {
                 .orElseGet(() -> new Saldo(destino, itemOperacao.getMaterial(), condicao));
         saldoDestino.adicionarQuantidade(itemOperacao.getQuantidade());
         saldoRepository.save(saldoDestino);
+        // O material da solicitação é da obra dela: entra carimbado no caminhão e sai dele ao voltar.
+        alocacaoObra.acompanharTransferencia(origem, destino, itemOperacao.getMaterial(), condicao,
+                itemOperacao.getOperacao().getIdObra(), itemOperacao.getQuantidade());
 
         if (itemOperacao.getMaterial().isDetalhaSerie()) {
             SaldoSerie serie = saldoSerieRepository

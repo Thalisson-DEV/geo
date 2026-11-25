@@ -25,7 +25,11 @@ import { EstoqueResponse, MaterialResponse, MotivoMovimentacao, ItemMovimentacao
 import { getErrorMessage } from '../../../../core/models/shared.models';
 import { createFormDraft } from '../../../../core/navigation';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
-import { MOTIVOS_BAIXA, MOTIVOS_ENTRADA, rotuloCondicao, tomCondicao } from '../../../../shared/utils/movimentacao.utils';
+import { rotuloCondicao, tomCondicao } from '../../../../shared/utils/movimentacao.utils';
+import { ListasService } from '../../../../core/services/listas.service';
+import { valeEm } from '../../../../core/models/listas.models';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
 import { SolicitacaoTecnicaAssinaturaComponent } from '../../solicitacoes-material/solicitacao-tecnica-assinatura/solicitacao-tecnica-assinatura.component';
 
 export type TipoOperacaoEstoque = 'ENTRADA' | 'BAIXA' | 'TRANSFERENCIA';
@@ -292,6 +296,8 @@ const TAMANHO_OBSERVACAO = 1000;
 })
 export class OperacaoEstoqueDrawerComponent {
   private readonly almoxarifado = inject(AlmoxarifadoService);
+  /** Motivos do cadastro do cliente; cada um marca se vale na entrada, na baixa ou nas duas. */
+  private readonly opcoesMotivo = toSignal(inject(ListasService).ativas('MOTIVO_MOVIMENTACAO_ESTOQUE').pipe(catchError(() => of([]))), { initialValue: [] });
   private readonly lookupStore = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
   private readonly confirmacao = inject(GeoConfirmationService);
@@ -366,7 +372,10 @@ export class OperacaoEstoqueDrawerComponent {
   });
 
   protected readonly textos = computed(() => TEXTOS[this.tipo()]);
-  protected readonly motivos = computed(() => (this.tipo() === 'BAIXA' ? MOTIVOS_BAIXA : MOTIVOS_ENTRADA));
+  protected readonly motivos = computed(() => {
+    const contexto = this.tipo() === 'BAIXA' ? 'BAIXA' : 'ENTRADA';
+    return this.opcoesMotivo().filter((o) => valeEm(o, contexto)).map((o) => ({ label: o.rotulo, value: o.codigo }));
+  });
   protected readonly opcoesEstoque = computed<GeoSelectOption<string>[]>(() => this.estoques().map((e) => ({ label: e.nomeIdentificador, value: e.id })));
   protected readonly opcoesDestino = computed(() => this.opcoesEstoque().filter((o) => this.tipo() !== 'TRANSFERENCIA' || o.value !== this.idOrigem()));
   /** O saldo mostrado é o do estoque que perde (baixa e transferência) ou ganha (entrada) material. */

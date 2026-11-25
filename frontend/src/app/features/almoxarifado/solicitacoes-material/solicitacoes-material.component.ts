@@ -340,7 +340,7 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-clock"></i> Prazo de saque</h4>
-        <p class="help-text-desc">O saque previsto precisa respeitar a antecedência de 48h; as solicitações fora do prazo e as com saque vencido aparecem marcadas.</p>
+        <p class="help-text-desc">O retirada prevista precisa respeitar a antecedência de 48h; as solicitações fora do prazo e as com saque vencido aparecem marcadas.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-replay"></i> Estorno</h4>
@@ -471,7 +471,7 @@ export class SolicitacoesMaterialComponent {
       id: 'almoxarifado.solicitacoes-comerciais',
       nome: 'Gestão de solicitações comerciais',
       modulo: 'Almoxarifado',
-      descricao: 'Fila de solicitações comerciais de material: aprovação pelo almoxarifado, retirada pela equipe (saque previsto) e encerramento.',
+      descricao: 'Fila de solicitações comerciais de material: aprovação pelo almoxarifado, retirada pela equipe (retirada prevista) e encerramento.',
       rota: VISOES.find((v) => v.value === this.visao)!.rota,
       periodo: periodoPainel(f.periodo.from ? dataLocal(f.periodo.from) : null, f.periodo.to ? dataLocal(f.periodo.to) : null),
       filtros: [
@@ -491,7 +491,7 @@ export class SolicitacoesMaterialComponent {
         : [],
       datasets: ['solicitacoes', 'itens_solicitacao', 'operacoes_solicitacao', 'historico_solicitacoes', 'materiais', 'estoques'],
       sugestoes: [
-        { rotulo: 'Priorizar aprovações', icone: 'pi pi-clock', requer: ['dados'], pergunta: 'Quais solicitações comerciais deste recorte devo aprovar primeiro, considerando o saque previsto e as pendências?' },
+        { rotulo: 'Priorizar aprovações', icone: 'pi pi-clock', requer: ['dados'], pergunta: 'Quais solicitações comerciais deste recorte devo aprovar primeiro, considerando o retirada prevista e as pendências?' },
         { rotulo: 'Retiradas atrasadas', icone: 'pi pi-truck', requer: ['dados'], pergunta: 'Quais retiradas estão atrasadas neste recorte, para quais equipes, e há saldo na origem para entregá-las?' },
         { rotulo: 'Pendências abertas', icone: 'pi pi-flag', requer: ['dados'], pergunta: 'Resuma as pendências abertas nas solicitações deste recorte, agrupadas por motivo.' }
       ]
@@ -505,7 +505,7 @@ export class SolicitacoesMaterialComponent {
     { key: 'destino', header: 'Destino', priority: 1, sortField: 'estoqueDestino.nomeIdentificador', value: (s) => s.estoqueDestinoNome },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (s) => this.statusLabel(s.status) },
     { key: 'solicitado', header: 'Solicitado', type: 'date', sortField: 'dataSolicitacao', value: (s) => s.dataSolicitacao, display: (s) => dataHora(s.dataSolicitacao) },
-    { key: 'saque', header: 'Saque previsto', type: 'custom', sortField: 'dataPrevistaRetirada', value: (s) => s.dataPrevista },
+    { key: 'saque', header: 'Retirada prevista', type: 'custom', sortField: 'dataPrevistaRetirada', value: (s) => s.dataPrevista },
     { key: 'verificado', header: 'Verificado', type: 'date', sortField: 'dataVerificacao', value: (s) => s.dataVerificacao, display: (s) => dataHora(s.dataVerificacao) },
     { key: 'entregue', header: 'Entregue', type: 'date', sortField: 'dataEntrega', value: (s) => s.dataEntrega, display: (s) => dataHora(s.dataEntrega) },
     { key: 'itens', header: 'Itens', type: 'integer', value: (s) => s.totalItens }

@@ -1,6 +1,6 @@
 package com.nexo.app.modules.frota.application.dto;
 
-import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -11,7 +11,7 @@ import java.util.UUID;
 public record DocumentoFrotaRequest(
         UUID idVeiculo,
         UUID idImplemento,
-        @NotNull(message = "Informe o tipo do documento.") TipoDocumentoFrota tipo,
+        @NotBlank(message = "Informe o tipo do documento.") String tipo,
         @Size(max = 150) String descricao,
         @Size(max = 80) String numero,
         LocalDate dataEmissao,
