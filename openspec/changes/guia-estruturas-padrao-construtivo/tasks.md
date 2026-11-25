@@ -1,7 +1,7 @@
 # Tarefas — guia-estruturas-padrao-construtivo
 
 **Frentes e dependências:**
-- **A (catálogo)** vem antes de todas.
+- **A (catálogo)** e **I (configuração do padrão construtivo)** vêm antes de todas e andam juntas: as tarefas I.1 a I.4 entram na mesma migração de A, e o leitor da frente B depende de I.5.
 - **B (importação do PDF)**, **C (guia web)** e **E (kit × norma)** podem andar em paralelo depois de A.
 - **D (guia no app)** depende de A e de C.3 (endpoint de materiais calculados).
 - **F (apresentação)** depende de B.
@@ -14,7 +14,7 @@
 - [ ] 1.1 Migração V277: `normas_tecnicas`, `normas_tecnicas_tensoes`, `estruturas_padrao` (com `codigo_normalizado`, `versao_conteudo`, `elementos_visuais` jsonb, `apelidos` text[]), `estruturas_padrao_materiais`, `estruturas_padrao_fixacoes`, `estruturas_padrao_midias`, `estruturas_padrao_recomendacoes`; índice único parcial da norma vigente; índice em `estruturas_padrao_materiais(codigo_material)`
 - [ ] 1.2 Sementes das listas `ESTRUTURA_FAMILIA` e `ESTRUTURA_FUNCAO` em `opcoes_lista` (valores da spec, sem marca)
 - [ ] 1.3 Sementes das permissões `obras:estrutura:read|write|import` e distribuição aos perfis (read para campo, planejamento e revisão; write/import para o administrador de Obras)
-- [ ] 1.4 Domínio `NormaTecnica` (situação, publicar/substituir, invariante de uma vigente por código, exigência de PDF ou "sem documento-fonte")
+- [ ] 1.4 Domínio `NormaTecnica` com o emissor obrigatório (situação, publicar/substituir, invariante de uma vigente por emissor + código, exigência de PDF ou "sem documento-fonte")
 - [ ] 1.5 Domínio `EstruturaPadrao` com materiais, fixações, mídias e recomendações como filhos; `normalizarCodigo()` (sem caixa, espaço, hífen e ponto), apelidos, `subirVersaoConteudo()`, somente leitura quando a norma está SUBSTITUIDA, justificativa obrigatória na edição de norma VIGENTE
 - [ ] 1.6 `ListaMateriaisEstrutura.calcular(poste?)`: lista fixa + fixação do poste, com "não se aplica" ≠ zero e o aviso de poste fora da tabela (testes unitários com a N1 e a N3)
 - [ ] 1.7 `ElementosVisuaisDerivador`: regras por descrição (cruzeta, isolador pilar/ancoragem, chave, para-raios, transformador, estai), com testes com N1, N4, TE e as estruturas de BT
@@ -30,7 +30,7 @@
 
 - [ ] 2.1 Migração V278: `importacoes_norma` (tipo, situação, progresso, rascunho jsonb, contagens, erro, duração)
 - [ ] 2.2 Fixtures de teste: páginas mínimas das três normas (capa, quadro de materiais em duas colunas, fixação com texto girado, quadro quebrado entre páginas, desenho dividindo página com tabela, página de afastamentos) em `src/test/resources`, fora do pacote final
-- [ ] 2.3 `LeitorNormaEstruturas`: identificação da norma pela capa e pelo cabeçalho; detecção de PDF sem texto
+- [ ] 2.3 `LeitorNormaEstruturas` recebendo o `PerfilLeituraNorma` (nenhum padrão fixo no código): identificação da norma pela capa e pelo cabeçalho; detecção de PDF sem texto
 - [ ] 2.4 Leitura dos títulos "Desenho NN … Estrutura X" e "Quadro NN - Lista de Materiais referente ao Desenho NN"
 - [ ] 2.5 Leitura do quadro de materiais em duas colunas (agrupamento por y, divisão por x, padrões de item/código/quantidade, descrição em várias linhas, "Tabela NN" → dependente, "0" → pendência)
 - [ ] 2.6 Leitura da fixação (comprimentos, resistências em texto girado, quantidades por coluna, "-" → não se aplica) e junção de quadros quebrados entre páginas
@@ -113,3 +113,18 @@
 - [ ] 8.3 Implantação de demonstração: importar as 3 normas pelo assistente, conferir 20 estruturas, importar as fotos da cartilha, ligar os kits do contrato piloto e conferir as divergências com o planejamento
 - [ ] 8.4 Atualizar o roteiro do sistema (seção de Obras) com o guia de estruturas e a conformidade dos kits
 - [ ] 8.5 Responder às perguntas em aberto do design (equivalência de códigos, poste no ponto, ranking, quem administra, autorização das fotos, elementos visuais) e registrar as decisões no design antes de fechar a change
+
+## 9. Frente I — Configuração do padrão construtivo (multi-cliente)
+
+- [ ] 9.1 Na V277: `parametros_padrao_construtivo` (registro único com os padrões da spec), `emissores_norma`, `contratos_normas_aplicaveis`, `perfis_leitura_norma` (com o perfil genérico semeado), `regras_codigo_padrao_construtivo` (com a semente de sufixos e normalização) e `dicionario_elementos_visuais` (com os termos genéricos semeados); `id_emissor` em `normas_tecnicas`; nenhuma semente com nome de distribuidora, código de norma ou código de material
+- [ ] 9.2 `ParametrosPadraoConstrutivo` + UseCases com cache (padrão de `ParametrosFrota`) e endpoint; o front e o pacote do app respeitando os ligar/desligar (guia, guia no app, conformidade, parecer automático) sem apagar dados
+- [ ] 9.3 Cadastro de emissores (CRUD, soft delete) e filtro por emissor no guia, na importação e na busca
+- [ ] 9.4 `contratos_normas_aplicaveis` + `NormasAplicaveisService.doContrato()` (sem linha = todas as vigentes), usado pela sugestão de vínculo, pela conformidade, pelo pacote do app e pelo parecer; tela "Normas do contrato" em Obras, sem alterar o módulo `contrato`
+- [ ] 9.5 `PerfilLeituraNorma` (regras em jsonb versionado), validação e compilação das expressões com tempo limite, CRUD/duplicar, perfil padrão por emissor e o teste em até 10 páginas de amostra sem gravar
+- [ ] 9.6 `LeitorPlanilhaNorma` (abas Estruturas, Materiais, Fixação, Recomendações) gerando o mesmo rascunho do PDF; endpoint da planilha modelo com exemplo fictício; pendências por linha e aba
+- [ ] 9.7 `NormalizadorCodigos` (sufixos de kit, normalização do código de material com zeros, espaços/pontos e prefixo, leitura do poste) como porta única, com endpoint de teste e testes unitários (`N1/C → N1`, `MAT-134830013` ↔ `134830013`)
+- [ ] 9.8 Dicionário de elementos visuais (CRUD) lido pelo `ElementosVisuaisDerivador`, com `elementos_visuais_editados` e a ação "recalcular as estruturas não editadas"
+- [ ] 9.9 Escopo da IA nos parâmetros (elementos avaliados e itens ignorados), com o texto de sistema montado a partir das listas
+- [ ] 9.10 Exportar/importar a configuração em JSON (`versao_formato`, perfis, dicionário, regras, escopo da IA, famílias, funções), com prévia de criar/substituir e sem normas, estruturas, imagens ou dados de obra
+- [ ] 9.11 Web: a tela "Configuração do padrão construtivo" em Obras (abas Parâmetros, Emissores, Perfis de leitura com teste, Regras de código com teste, Dicionário, Escopo da IA, Exportar/Importar), com `obras:estrutura:import`
+- [ ] 9.12 Teste de aceite multi-cliente: uma implantação com dois emissores (um perfil genérico e outro duplicado com outra ordem de colunas), contratos ligados a emissores diferentes, sugestão e guia do app só com as normas do contrato; uma implantação nova sem norma, com o guia vazio e os kits funcionando como antes

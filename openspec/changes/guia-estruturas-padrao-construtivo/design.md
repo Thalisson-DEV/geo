@@ -17,7 +17,7 @@
 - Uma apresentação .pptx de 71 slides: em cada slide, um desenho e um quadro em imagem (de uma revisão antiga da norma), fotos de campo com setas, 3 logotipos repetidos e textos de recomendação.
 
 **Restrições:**
-- White label: o nome da distribuidora não entra em código, sementes nem textos.
+- White label e multi-cliente: o GEO atende vários clientes, um por implantação, e uma empresa pode trabalhar para mais de uma distribuidora. O nome, o código de norma e o layout de uma distribuidora não entram em código, sementes nem textos; viram configuração desta funcionalidade (D12), sem mudar outros módulos.
 - Tudo configurável.
 - O app é offline-first, 70% em tablet.
 - A IA só sugere.
@@ -31,6 +31,7 @@
 - Levar o guia ao campo offline e abrir a estrutura certa a partir do ponto.
 - Conferir os kits contra a norma, só avisando.
 - Ter um parecer da IA na revisão de fotos, com métrica de acerto para decidir se vale manter.
+- Servir qualquer cliente e distribuidora por configuração: perfis de leitura, regras de código, dicionário, normas por contrato e parâmetros, sem deploy por cliente.
 
 **Non-Goals:**
 - Gerar kits ou propor os kits do ponto a partir do projeto (etapa futura, com a Bússola).
@@ -38,6 +39,7 @@
 - Parecer da IA no aparelho, antes do envio.
 - Rede compacta e subterrânea (o modelo comporta, mas não há validação específica).
 - Editar o desenho (o catálogo guarda imagem, não vetor).
+- Criar um cadastro global de "cliente da implantação" ou alterar os módulos de contrato e estoque.
 
 ## Decisions
 
@@ -51,7 +53,7 @@ O kit, o ponto, a evidência e o pacote de campo, que são os consumidores, est�
   - `id`, `codigo` (texto livre, digitado ou lido do PDF), `titulo`, `revisao`, `data_homologacao` (date), `situacao` (RASCUNHO/VIGENTE/SUBSTITUIDA);
   - `chave_pdf`, `nome_arquivo`, `paginas`, `sem_documento_fonte` (bool);
   - mais as colunas da BaseEntity.
-  - Índice único parcial `(lower(codigo)) WHERE situacao='VIGENTE' AND ativo`.
+  - `id_emissor` obrigatório (D12). Índice único parcial `(id_emissor, lower(codigo)) WHERE situacao='VIGENTE' AND ativo`.
 - **`normas_tecnicas_tensoes`:** `id_norma`, `classe_tensao` (o enum `ClasseTensao` existente).
 - **`estruturas_padrao`:**
   - `id_norma`, `codigo`, `codigo_normalizado` (único por norma, entre as ativas), `nome`, `familia` e `funcao` (código da opção nas listas configuráveis), `fases` (1/2/3/null);
@@ -75,7 +77,7 @@ O kit, o ponto, a evidência e o pacote de campo, que são os consumidores, est�
 **Por que tabelas e não jsonb para materiais e fixação:** a comparação com o kit, o recálculo por código de material e a busca "quais estruturas usam o código X" precisam de índice. O jsonb fica só para o rascunho da importação e para os elementos visuais.
 
 ### D3. Extração do PDF por layout (PDFBox), sem IA
-É um `LeitorNormaEstruturas` determinístico:
+É um `LeitorNormaEstruturas` determinístico, guiado pelo perfil de leitura (D12). Os padrões abaixo são os do perfil genérico semeado, e nenhum deles fica fixo no código:
 1. Lê a página com `PDFTextStripper` em ordem de posição e guarda as posições (`TextPosition`).
 2. Acha os títulos por expressão regular:
    - `Desenho\s+(\d+)\s*-\s*(.+?)\s*[–-]\s*Estrutura\s+(.+)$`;
@@ -176,6 +178,27 @@ Sem nenhum dos três, o poste é "desconhecido".
   - `GET /api/obras/revisao-fotos/painel?idObra=`, `GET /api/obras/pareceres-ia/metricas?inicio=&fim=`.
 - **Erros:** todos em ProblemDetail, com `errors[]` por campo.
 
+### D12. Configuração por implantação, só para o padrão construtivo
+O GEO atende vários clientes (uma empresa por implantação, sem tenant), e uma empresa pode trabalhar para mais de uma distribuidora. Tudo o que muda de cliente para cliente ou de distribuidora para distribuidora vira configuração desta funcionalidade, e nada sai do padrão construtivo.
+- **`parametros_padrao_construtivo`:** um registro único, no mesmo desenho de `ParametrosFrota`/`ParametrosEstoque` (`ParametrosPadraoConstrutivo` + `ParametrosPadraoConstrutivoUseCases`, com cache). Guarda os ligar/desligar do guia, do guia no app, da conformidade e do parecer automático; o limite do guia no aparelho; a concorrência e o limite por hora da IA; o limite de "quantidade fora do comum"; os dias de retenção do rascunho; e se "Estrutura fora do padrão" conta no ranking. As propriedades `obras.ia.foto.*` do D9 passam a ser só o teto técnico do servidor, e o parâmetro da implantação não pode passar dele.
+- **`emissores_norma`:** `nome`, `sigla`, situação. Sem semente. `normas_tecnicas.id_emissor` é obrigatório, e o índice único da vigente passa a ser `(id_emissor, lower(codigo))`.
+- **`contratos_normas_aplicaveis`:** `id_contrato`, `id_emissor` (nulo quando a linha aponta uma norma) e `id_norma` (nulo quando a linha aponta o emissor inteiro). Fica em Obras e guarda só o `idContrato` (UUID), sem FK nem mudança no módulo `contrato`. Sem linha para o contrato, valem todas as normas vigentes. Um único serviço, `NormasAplicaveisService.doContrato(idContrato)`, resolve isso para a sugestão de vínculo, a conformidade, o pacote do app e o parecer.
+- **`perfis_leitura_norma`:** `nome`, `id_emissor_padrao` (opcional) e `regras` (jsonb versionado). As regras guardam:
+  - os padrões de texto: título do desenho, quadro de materiais, quadro de fixação, rodapé, item, código, "depende de tabela", "sem código";
+  - `colunas_lado_a_lado` e `ordem_campos`;
+  - as palavras do título que sugerem cada família e cada função.
+
+  O perfil "Quadro de materiais por desenho" é semeado com os padrões do D3, escritos de forma genérica, sem nome de distribuidora. O `LeitorNormaEstruturas` deixa de ter constantes e recebe um `PerfilLeituraNorma`: as expressões são compiladas e validadas ao salvar, com tempo limite contra expressões catastróficas (o texto é lido página a página, e o casamento é cortado em 200 ms). O teste de perfil roda o leitor em até 10 páginas de um PDF de amostra, sem gravar nada.
+- **Planilha modelo:** um `LeitorPlanilhaNorma` (Apache POI) lê as abas Estruturas, Materiais, Fixação e Recomendações para o mesmo `RascunhoImportacao` do PDF. A partir daí, o fluxo é um só (pendências, comparação, publicação). Um `GET /api/obras/importacoes-norma/planilha-modelo` gera o .xlsx com cabeçalhos, validações e um exemplo fictício.
+- **`regras_codigo_padrao_construtivo`:** um registro único com os sufixos de variação do kit (lista de padrões; a semente é a do D6), a normalização do código de material (`remover_zeros_esquerda`, `remover_espacos_pontos`, `prefixo_ignorado`) e o padrão de leitura do poste. Um `NormalizadorCodigos` é a única porta usada pelo catálogo, pela conformidade e pela resolução do poste. Ele tem um endpoint de teste: exemplo na entrada, resultado na saída.
+- **`dicionario_elementos_visuais`:** `termo`, `elemento`, `tipo`, `soma_quantidade`, ativo. Tem sementes genéricas. O `ElementosVisuaisDerivador` lê o dicionário. Cada estrutura guarda `elementos_visuais_editados` (bool), para que o recálculo depois de mudar o dicionário não sobrescreva o que foi corrigido à mão.
+- **Escopo da IA:** fica nos parâmetros (`ia_elementos_avaliados` e `ia_itens_ignorados`, text[]). O texto de sistema do D9 é montado a partir dessas listas.
+- **Exportar/importar a configuração:** um JSON com `versao_formato`, os perfis, o dicionário, as regras de código, o escopo da IA, as famílias e as funções. A importação primeiro mostra a prévia (criar ou substituir, casando pelo nome ou pelo código) e só grava depois. Normas, estruturas, imagens e dados de obra nunca entram no arquivo.
+- **Permissão:** a configuração usa `obras:estrutura:import`, sem permissão nova.
+- **Alternativas recusadas:**
+  - Guardar o perfil de leitura como código, uma classe por distribuidora: obrigaria um deploy a cada cliente novo.
+  - Colocar o "cliente da implantação" num módulo global: isso é tema de outra change, e esta não mexe no resto do sistema.
+
 ## Risks / Trade-offs
 
 - **[A extração erra num quadro com layout diferente]** → Testes com fixtures das três normas, a pendência "quantidade fora do comum", a revisão obrigatória antes de publicar e a edição com auditoria. A meta é ao menos 95% das linhas certas na NT de 275 páginas, medida contra uma amostra de 20 estruturas conferidas à mão.
@@ -186,11 +209,14 @@ Sem nenhum dos três, o poste é "desconhecido".
 - **[O custo da IA com muitas fotos]** → O limite por hora, só as fotos "depois", no máximo 5 imagens por parecer e os tokens registrados.
 - **[A cartilha traz uma revisão antiga]** → Ela nunca alimenta materiais (spec). As fotos importadas recebem `origem_ref` com o slide, para conferência.
 - **[Direitos sobre as normas e as fotos]** → O catálogo é carregado por implantação, com os arquivos do próprio cliente, e nada vai como semente no repositório. As fixtures de teste ficam com páginas mínimas e em `src/test/resources`, que não são publicadas.
+- **[O layout de uma norma nova não casa com nenhum perfil]** → Duplicar o perfil e ajustá-lo com o teste em amostra. Se nem assim der, a planilha modelo sempre funciona. Nenhum caso exige deploy.
+- **[Expressão regular mal escrita pelo administrador]** → Validação ao salvar, tempo limite por casamento e teste em amostra obrigatório antes do primeiro uso do perfil.
+- **[Configuração demais para quem implanta]** → Sementes que funcionam sem mexer para normas no layout do perfil genérico, e a exportação/importação da configuração para reaproveitar entre clientes da mesma distribuidora.
 - **[Concorrência na edição do rascunho]** → Controle de versão otimista no jsonb, com a mensagem "O rascunho foi alterado por outra pessoa; recarregue".
 
 ## Migration Plan
 
-1. **V277:** normas, estruturas, materiais, fixação, mídias, recomendações e as sementes das listas (família/função).
+1. **V277:** configuração (parâmetros com os padrões, emissores, normas aplicáveis ao contrato, perfis de leitura com o genérico semeado, regras de código, dicionário de elementos visuais) + normas (com `id_emissor`), estruturas, materiais, fixação, mídias, recomendações e as sementes das listas (família/função).
 2. **V278:** importações.
 3. **V279:** as colunas de kit e de kit aplicado, mais o poste opcional no ponto.
 4. **V280:** os pareceres e o valor novo de inconformidade (enum como texto, sem migração de dados).
@@ -210,6 +236,7 @@ Sem nenhum dos três, o poste é "desconhecido".
 1. **Equivalência de códigos:** o código de material da norma é o mesmo do cadastro de materiais do almoxarifado do cliente? Se não for, é preciso uma tabela de equivalência (norma → material) antes da conformidade fazer sentido.
 2. **Poste no ponto:** o poste (comprimento/resistência) do ponto deve vir da leitura do projeto já nesta change, ou basta o campo manual mais a inferência pelo kit?
 3. **Escopo da revisão de fotos:** a inconformidade "Estrutura fora do padrão" deve entrar no ranking de qualidade das fotos da equipe, ou ficar separada (é erro de montagem, não de foto)?
-4. **Quem administra o catálogo:** a engenharia da empreiteira ou o fornecedor do sistema na implantação? Isso define quem recebe `obras:estrutura:import`.
+4. **Quem administra o catálogo e a configuração:** a engenharia de cada cliente ou o time de implantação do GEO? Isso define quem recebe `obras:estrutura:import` e se o perfil de leitura de uma distribuidora deve vir num pacote de configuração pronto para clientes novos.
 5. **Fotos da cartilha:** o autor da apresentação autoriza o uso das fotos no sistema? Se não, as fotos de referência começam vazias e são preenchidas com as melhores fotos aprovadas do próprio book (há uma ação "usar como referência" na revisão de fotos, que pode entrar nesta change se for confirmada).
 6. **Elementos visuais:** a derivação automática pela descrição dá conta das famílias de chaves e equipamentos, ou o administrador vai precisar preencher todos à mão?
+7. **Normas aplicáveis por contrato:** a ligação entre contrato e emissor deve ser obrigatória quando a implantação tem mais de um emissor cadastrado, ou continuar opcional (sem ligação = todas as vigentes)?

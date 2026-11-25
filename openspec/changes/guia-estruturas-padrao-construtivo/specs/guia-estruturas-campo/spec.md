@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Guia de estruturas no web
-O web SHALL ter a tela "Guia de estruturas" em Obras, que segue o padrão "tabela primeiro": uma lista paginada no servidor, com busca por código, apelido e nome, e filtros por família, função, classe de tensão, número de fases e norma (por padrão só as vigentes). Cada linha SHALL mostrar a miniatura do desenho, o código, o nome, a família, a tensão, a norma com a revisão, o total de materiais e o total de kits ligados.
+O web SHALL ter a tela "Guia de estruturas" em Obras, que segue o padrão "tabela primeiro": uma lista paginada no servidor, com busca por código, apelido e nome, e filtros por emissor, família, função, classe de tensão, número de fases e norma (por padrão só as vigentes). Cada linha SHALL mostrar a miniatura do desenho, o código, o nome, a família, a tensão, a norma com a revisão, o total de materiais e o total de kits ligados.
 
 #### Scenario: Buscar por código
 - **WHEN** a pessoa digita "n3" na busca
@@ -31,7 +31,7 @@ O detalhe SHALL mostrar, nesta ordem:
 - **THEN** o detalhe mostra a faixa "Revisão substituída pela 04 · ver a versão vigente", com o link para a estrutura vigente de mesmo código
 
 ### Requirement: Guia no pacote offline do app
-O pacote offline da equipe SHALL incluir o guia das normas vigentes nas classes de tensão das obras da agenda e das obras abertas da base (no mínimo, as estruturas usadas pelos kits dessas obras). Ele traz os dados de cada estrutura (materiais, fixação, recomendações) e as imagens em tamanho de tela (no máximo 1600 px no lado maior). O app MUST baixar as imagens uma vez e só as que mudaram depois, por um carimbo de versão por estrutura. O tamanho total das imagens do guia SHALL ser informado na tela de sincronização.
+Quando o guia no app está ligado nos parâmetros, o pacote offline da equipe SHALL incluir o guia das normas vigentes aplicáveis aos contratos e às classes de tensão das obras da agenda e das obras abertas da base (no mínimo, as estruturas usadas pelos kits dessas obras). Ele traz os dados de cada estrutura (materiais, fixação, recomendações) e as imagens em tamanho de tela (no máximo 1600 px no lado maior). O app MUST baixar as imagens uma vez e só as que mudaram depois, por um carimbo de versão por estrutura. O tamanho total das imagens do guia SHALL ser informado na tela de sincronização e MUST respeitar o limite dos parâmetros (padrão 150 MB). Acima dele, só vão as estruturas ligadas aos kits das obras.
 
 #### Scenario: Primeira sincronização
 - **WHEN** o encarregado sincroniza pela primeira vez, com rede

@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Norma técnica com revisões
-O sistema SHALL manter cada norma técnica com código, título, revisão, data de homologação, classes de tensão atendidas, o PDF original e uma situação (RASCUNHO, VIGENTE, SUBSTITUIDA). Para o mesmo código de norma, MUST existir no máximo uma revisão VIGENTE. Publicar uma revisão nova SHALL marcar a anterior como SUBSTITUIDA sem apagá-la.
+O sistema SHALL manter cada norma técnica com o emissor (cadastro da configuração do padrão construtivo), código, título, revisão, data de homologação, classes de tensão atendidas, o PDF original e uma situação (RASCUNHO, VIGENTE, SUBSTITUIDA). Para o mesmo emissor e código de norma, MUST existir no máximo uma revisão VIGENTE. Publicar uma revisão nova SHALL marcar a anterior como SUBSTITUIDA sem apagá-la.
 
 #### Scenario: Publicar revisão nova
 - **WHEN** a norma de MT 13,8 kV + BT está vigente na revisão 03 e a revisão 04 é publicada
@@ -16,7 +16,7 @@ O sistema SHALL manter cada norma técnica com código, título, revisão, data 
 - **THEN** o cadastro é aceito, mas a norma não pode ser publicada como VIGENTE até receber o PDF ou a confirmação explícita "sem documento-fonte"
 
 ### Requirement: Estrutura padrão
-Cada estrutura SHALL pertencer a uma revisão de norma e ter código, nome, família, função, classes de tensão, número de fases, a página e a referência do desenho na norma ("Desenho 70") e uma situação ativa ou desativada. O código MUST ser único dentro da revisão, comparado sem diferença de caixa, espaço ou hífen (`N3-N3` = `n3 n3`). Uma estrutura SHALL poder ter códigos alternativos (apelidos) usados na busca e no casamento com os kits.
+Cada estrutura SHALL pertencer a uma revisão de norma e ter código, nome, família, função, classes de tensão, número de fases, a página e a referência do desenho na norma ("Desenho 70") e uma situação ativa ou desativada. O código MUST ser único dentro da revisão, comparado sem diferença de caixa, espaço ou hífen (`N3-N3` = `n3 n3`). Como cada emissor tem sua nomenclatura, o sistema MUST NOT presumir significado fixo para as letras do código; a família e a função vêm do cadastro. Uma estrutura SHALL poder ter códigos alternativos (apelidos) usados na busca e no casamento com os kits.
 
 #### Scenario: Código repetido na revisão
 - **WHEN** a revisão 04 já tem a estrutura `B3-B3` e alguém cadastra `b3 b3`
@@ -40,7 +40,7 @@ A família e a função da estrutura SHALL vir de listas configuráveis (cadastr
 - **THEN** ela passa a valer nos filtros do guia e no cadastro de estruturas, sem nenhuma mudança de código
 
 ### Requirement: Lista de materiais da estrutura
-A estrutura SHALL ter uma lista de materiais, em que cada linha traz o item do desenho (A-02, I-05, F-36…), o código do material na norma, a descrição, a quantidade e a unidade. Uma linha MUST poder ser "dependente de tabela" (o código varia conforme o poste, o cabo ou o laço), com a referência da tabela da norma ("Tabela 30") no lugar do código. A quantidade MUST ser positiva. Quando o código casa com um material cadastrado no estoque, a linha SHALL mostrar esse material.
+A estrutura SHALL ter uma lista de materiais, em que cada linha traz o item do desenho (A-02, I-05, F-36…), o código do material na norma, a descrição, a quantidade e a unidade. Uma linha MUST poder ser "dependente de tabela" (o código varia conforme o poste, o cabo ou o laço), com a referência da tabela da norma ("Tabela 30") no lugar do código. A quantidade MUST ser positiva. Quando o código, normalizado pelas regras de código da configuração, casa com um material cadastrado no estoque, a linha SHALL mostrar esse material.
 
 #### Scenario: Linha comum
 - **WHEN** a estrutura N1 traz "I-05 · 123140003 · Isolador pilar 15 kV · 3"

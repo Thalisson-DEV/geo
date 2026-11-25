@@ -26,7 +26,7 @@ O parecer só SHALL ser pedido para fotos da etapa "depois" (estrutura pronta) o
 - **THEN** o sistema não pede o parecer e a foto fica sem parecer, sem erro
 
 ### Requirement: Elementos visuais esperados da estrutura
-Cada estrutura do catálogo SHALL ter uma lista de elementos visuais esperados (elemento, quantidade, tipo), usada como gabarito do parecer. Na publicação, a lista MUST ser derivada automaticamente da lista de materiais, pela descrição: linhas de cruzeta somam cruzetas, "isolador pilar" soma isoladores pilar, "isolador ancoragem" soma isoladores de ancoragem, e o mesmo vale para chave, para-raios, transformador e estai. O administrador SHALL poder corrigir a lista. Uma estrutura sem elemento visual MUST NOT receber parecer.
+Cada estrutura do catálogo SHALL ter uma lista de elementos visuais esperados (elemento, quantidade, tipo), usada como gabarito do parecer. Na publicação, a lista MUST ser derivada automaticamente da lista de materiais pelo dicionário de elementos visuais da configuração (na semente: cruzeta soma cruzetas, "isolador pilar" soma isoladores pilar, "isolador ancoragem" soma isoladores de ancoragem, e o mesmo vale para chave, para-raios, transformador e estai). O administrador SHALL poder corrigir a lista. Uma estrutura sem elemento visual MUST NOT receber parecer.
 
 #### Scenario: Derivar da N4
 - **WHEN** a N4 é publicada com 2 cruzetas tipo T, 3 isoladores pilar e 6 isoladores de ancoragem na lista de materiais
@@ -44,7 +44,7 @@ O parecer SHALL ser apenas uma sugestão para o revisor. Nenhum parecer MUST mud
 - **THEN** a foto continua PENDENTE, entra na medição pelas regras atuais e não aparece como reprovada no app da equipe
 
 ### Requirement: Aceitar ou descartar o parecer
-Na revisão de fotos, o revisor SHALL ver o parecer ao lado da foto, com a foto de referência e o desenho da estrutura, e registrar se concorda (o parecer está certo) ou discorda (o parecer está errado). Quando o revisor reprova uma foto com parecer DIVERGE, o sistema SHALL sugerir uma inconformidade nova, "Estrutura fora do padrão", com as observações do parecer no texto, para o revisor editar. Essa inconformidade MUST ser incluída na lista de motivos de reprovação.
+Na revisão de fotos, o revisor SHALL ver o parecer ao lado da foto, com a foto de referência e o desenho da estrutura, e registrar se concorda (o parecer está certo) ou discorda (o parecer está errado). Quando o revisor reprova uma foto com parecer DIVERGE, o sistema SHALL sugerir uma inconformidade nova, "Estrutura fora do padrão", com as observações do parecer no texto, para o revisor editar. Essa inconformidade MUST ser incluída na lista de motivos de reprovação. Ela só entra no ranking de qualidade das fotos da equipe quando o parâmetro correspondente estiver ligado (padrão desligado).
 
 #### Scenario: Revisor concorda e reprova
 - **WHEN** o revisor abre a foto com parecer DIVERGE, concorda e clica em "Reprovar"
@@ -55,7 +55,7 @@ Na revisão de fotos, o revisor SHALL ver o parecer ao lado da foto, com a foto 
 - **THEN** a foto fica aprovada e o parecer fica marcado como "discordado pelo revisor", entrando na métrica de acerto
 
 ### Requirement: Quando o parecer é pedido
-O parecer SHALL ser pedido em segundo plano quando a foto chega ao servidor, se a análise automática estiver ligada nas configurações de Obras, e SHALL poder ser pedido à mão pelo revisor ("Pedir parecer da IA"). A fila MUST limitar as análises simultâneas e por hora (configurável) e MUST NOT atrasar o recebimento da foto nem a sincronização do app. Sem modelo com visão configurado, o resultado MUST ser NAO_ANALISADO e a ação manual MUST ficar oculta.
+O parecer SHALL ser pedido em segundo plano quando a foto chega ao servidor, se o parecer automático estiver ligado nos parâmetros do padrão construtivo, e SHALL poder ser pedido à mão pelo revisor ("Pedir parecer da IA"). A fila MUST limitar as análises simultâneas e por hora pelos parâmetros (padrão 4 e 300) e MUST NOT atrasar o recebimento da foto nem a sincronização do app. Sem modelo com visão configurado, o resultado MUST ser NAO_ANALISADO e a ação manual MUST ficar oculta.
 
 #### Scenario: Visão desligada
 - **WHEN** a implantação não tem modelo com visão configurado
@@ -70,7 +70,7 @@ O parecer SHALL ser pedido em segundo plano quando a foto chega ao servidor, se 
 - **THEN** o parecer fica NAO_ANALISADO, com o motivo, e o revisor pode pedir de novo
 
 ### Requirement: Escopo do que a IA avalia
-O pedido ao modelo SHALL limitar a avaliação a elementos visíveis numa foto de campo tirada do chão: o tipo e a quantidade de cruzetas, a quantidade e o tipo de isoladores (pilar ou ancoragem), as chaves, os para-raios, o estai, o transformador, o aterramento aparente e a presença de amarração pré-formada. O pedido MUST instruir o modelo a responder INCONCLUSIVO, em vez de adivinhar, sobre parafusos, arruelas, porcas, conectores e coxins, e a nunca afirmar medida em milímetros. As observações sobre esses itens pequenos MUST ser descartadas antes de gravar o parecer.
+O pedido ao modelo SHALL limitar a avaliação aos elementos avaliados do escopo configurável da IA (semente: o tipo e a quantidade de cruzetas, a quantidade e o tipo de isoladores, as chaves, os para-raios, o estai, o transformador, o aterramento aparente e a presença de amarração pré-formada). O pedido MUST instruir o modelo a responder INCONCLUSIVO, em vez de adivinhar, sobre os itens ignorados do escopo (semente: parafusos, arruelas, porcas, conectores e coxins), e a nunca afirmar medida em milímetros. As observações sobre esses itens pequenos MUST ser descartadas antes de gravar o parecer.
 
 #### Scenario: Modelo comenta arruela
 - **WHEN** a resposta do modelo traz "Arruela quadrada · esperado 4 · visto 2"

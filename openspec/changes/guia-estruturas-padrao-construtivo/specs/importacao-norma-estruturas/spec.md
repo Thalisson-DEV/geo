@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Importação do PDF da norma sem IA
-O sistema SHALL receber o PDF de uma norma de estruturas (até 60 MB) e extrair dele, sem modelo de IA, a identificação da norma (código, título e revisão pela capa e pelo cabeçalho das páginas), a lista de desenhos e, para cada estrutura, o quadro "Lista de materiais", o quadro "Lista de fixação" e a página do desenho. O processamento MUST rodar em segundo plano e mostrar o andamento por página. O resultado SHALL ficar como RASCUNHO até a publicação.
+O sistema SHALL receber o PDF de uma norma de estruturas (até 60 MB), com o emissor e o perfil de leitura escolhidos, e extrair dele, sem modelo de IA e só com as regras do perfil, a identificação da norma (código, título e revisão pela capa e pelo cabeçalho das páginas), a lista de desenhos e, para cada estrutura, o quadro "Lista de materiais", o quadro "Lista de fixação" e a página do desenho. O processamento MUST rodar em segundo plano e mostrar o andamento por página. O resultado SHALL ficar como RASCUNHO até a publicação.
 
 #### Scenario: Norma de 275 páginas
 - **WHEN** o administrador envia o PDF da norma de MT 13,8 kV + BT, com 275 páginas
@@ -12,11 +12,11 @@ O sistema SHALL receber o PDF de uma norma de estruturas (até 60 MB) e extrair 
 - **THEN** a importação termina com "Este PDF não tem texto para ler. Cadastre as estruturas à mão ou envie o PDF original da norma." e nenhuma estrutura é criada
 
 #### Scenario: Arquivo que não é norma de estruturas
-- **WHEN** o PDF enviado não tem nenhum quadro "Lista de materiais referente ao Desenho"
-- **THEN** a importação termina com "Nenhuma estrutura encontrada neste PDF." e o arquivo é descartado
+- **WHEN** o perfil escolhido não encontra nenhum quadro de materiais no PDF
+- **THEN** a importação termina com "Nenhuma estrutura encontrada com o perfil escolhido. Teste outro perfil ou use a planilha modelo." e o arquivo fica disponível por 24 horas para tentar com outro perfil
 
 ### Requirement: Leitura dos quadros de materiais
-Para cada quadro de materiais, o importador SHALL ler as linhas em duas colunas lado a lado (item, código, quantidade, descrição), ligar o quadro à estrutura pelo título ("Quadro 50 - Lista de Materiais referente ao Desenho 67 – Estrutura N1") e tratar os quadros que continuam na página seguinte como um só. Um código no formato "Tabela NN" MUST virar uma linha dependente de tabela. Um código "0" ou vazio MUST virar a pendência "material sem código".
+Para cada quadro de materiais, o importador SHALL ler as linhas conforme o perfil (número de colunas lado a lado e ordem dos campos; no perfil genérico, duas colunas de item, código, quantidade e descrição), ligar o quadro à estrutura pelo título ("Quadro 50 - Lista de Materiais referente ao Desenho 67 – Estrutura N1") e tratar os quadros que continuam na página seguinte como um só. Um código que casa com o padrão "depende de tabela" do perfil (no genérico, "Tabela NN") MUST virar uma linha dependente de tabela. Um código igual ao "sem código" do perfil (no genérico, "0") ou vazio MUST virar a pendência "material sem código".
 
 #### Scenario: Quadro em duas colunas
 - **WHEN** o quadro da N1 traz à esquerda "A-02 134830013 04 Arruela quadrada…" e à direita "M-14 Tabela 31 03 Laço pré-formado de topo"
@@ -49,7 +49,7 @@ O importador SHALL gerar a imagem do desenho de cada estrutura a partir da regi�
 - **THEN** o desenho é gerado de novo com a área escolhida e a pendência fecha
 
 ### Requirement: Revisão do rascunho com pendências
-Antes de publicar, o sistema SHALL mostrar o rascunho por estrutura, com a contagem de pendências por tipo: material sem código, quantidade fora do comum (acima de 50 ou zero), quadro sem desenho, desenho sem quadro, recorte a conferir, estrutura sem família/função, código sem material no estoque. A pessoa SHALL poder editar qualquer campo, aceitar a pendência como está ou excluir a estrutura do rascunho. A família e a função SHALL ser sugeridas pelo título do desenho ("Monofásica", "Beco", "Secundária Multiplexada", "Estaiamento", "Chaves e equipamentos") e pela letra do código.
+Antes de publicar, o sistema SHALL mostrar o rascunho por estrutura, com a contagem de pendências por tipo: material sem código, quantidade fora do comum (acima do limite dos parâmetros, padrão 50, ou zero), quadro sem desenho, desenho sem quadro, recorte a conferir, estrutura sem família/função, código sem material no estoque. A pessoa SHALL poder editar qualquer campo, aceitar a pendência como está ou excluir a estrutura do rascunho. A família e a função SHALL ser sugeridas pelas palavras do título do desenho configuradas no perfil (no genérico: "Monofásica", "Beco", "Secundária Multiplexada", "Estaiamento", "Chaves e equipamentos").
 
 #### Scenario: Sugestão de família
 - **WHEN** o desenho se chama "Rede de Média Tensão Bifásica – Estrutura Beco Bifásica – B2B"
@@ -64,7 +64,7 @@ Antes de publicar, o sistema SHALL mostrar o rascunho por estrutura, com a conta
 - **THEN** eles entram no rascunho como mídias de referência da norma (DETALHE), não como estruturas, e a pessoa pode descartá-los
 
 ### Requirement: Comparação entre revisões
-Ao importar uma revisão nova de uma norma que já tem revisão vigente, o sistema SHALL mostrar, por estrutura, o que é novo, o que foi removido e o que mudou: materiais incluídos ou retirados, quantidades alteradas, fixação alterada e desenho alterado (por diferença de imagem). Também SHALL listar os kits ligados às estruturas afetadas.
+Ao importar uma revisão nova de uma norma do mesmo emissor que já tem revisão vigente, o sistema SHALL mostrar, por estrutura, o que é novo, o que foi removido e o que mudou: materiais incluídos ou retirados, quantidades alteradas, fixação alterada e desenho alterado (por diferença de imagem). Também SHALL listar os kits ligados às estruturas afetadas.
 
 #### Scenario: Quantidade mudou na revisão
 - **WHEN** a revisão 04 traz 10 arruelas na N4 e a vigente 03 trazia 12
@@ -86,7 +86,7 @@ Publicar SHALL criar ou atualizar a revisão da norma com todas as estruturas ac
 - **THEN** nada da publicação fica gravado e o rascunho continua disponível para tentar de novo
 
 ### Requirement: Importação da apresentação de treinamento
-O sistema SHALL receber um arquivo .pptx (até 100 MB) e, para cada slide, extrair as imagens e os textos. Imagens repetidas em mais da metade dos slides (logotipos e cabeçalhos) MUST ser descartadas automaticamente. Para cada slide, o sistema SHALL sugerir a estrutura do catálogo vigente pelo código encontrado no título ("Estrutura N4", "(U3-U3)", "S1I"). Slides sem código casado ficam "sem estrutura". A pessoa SHALL escolher, imagem por imagem, entre: foto de referência correta, foto de erro comum, detalhe ou ignorar; e, texto por texto, se vira recomendação (com a gravidade). Materiais e fixação MUST NOT ser importados da apresentação.
+O sistema SHALL receber um arquivo .pptx (até 100 MB) e, para cada slide, extrair as imagens e os textos. Imagens repetidas em mais da metade dos slides (logotipos e cabeçalhos) MUST ser descartadas automaticamente. Na importação, a pessoa SHALL escolher o emissor ou a norma de destino. Para cada slide, o sistema SHALL sugerir a estrutura das normas vigentes escolhidas pelo código encontrado no título ("Estrutura N4", "(U3-U3)", "S1I"). Slides sem código casado ficam "sem estrutura". A pessoa SHALL escolher, imagem por imagem, entre: foto de referência correta, foto de erro comum, detalhe ou ignorar; e, texto por texto, se vira recomendação (com a gravidade). Materiais e fixação MUST NOT ser importados da apresentação.
 
 #### Scenario: Slide da N4
 - **WHEN** o slide 30 tem o título "Rede de Média Tensão Trifásica – Estrutura N4", um desenho, uma tabela em imagem e 3 logotipos

@@ -9,14 +9,25 @@ Em 25/11/2026 o contratante pediu três coisas:
 
 As três normas recebidas trazem texto extraível e um quadro de materiais por estrutura. Por isso dá para montar o catálogo sem digitar e sem depender de IA para os dados.
 
+O pedido veio de um cliente, mas o GEO atende vários clientes, um por implantação, e uma mesma empresa pode trabalhar para mais de uma distribuidora, cada uma com suas normas e seu layout de documento. Por isso a funcionalidade nasce configurável por implantação, sem nada de um cliente ou de uma distribuidora fixo no código. Essa configuração vale só para o padrão construtivo e não muda o resto do sistema.
+
 ## What Changes
 
+- **Configuração do padrão construtivo por implantação.** Inclui:
+  - os parâmetros que ligam e desligam o guia, a conformidade e a IA, além dos limites;
+  - o emissor da norma (distribuidora ou órgão);
+  - as normas aplicáveis a cada contrato, guardadas em Obras, sem mexer no cadastro de contratos;
+  - perfis de leitura de PDF configuráveis por layout de norma, com um perfil genérico semeado e teste com amostra;
+  - a importação por planilha modelo como alternativa universal;
+  - as regras de código (sufixos de kit, normalização do código de material, leitura do poste);
+  - o dicionário de elementos visuais e o escopo da IA;
+  - a exportação e importação dessa configuração entre implantações.
 - **Catálogo de estruturas (novo cadastro em Obras).**
   - **Norma técnica:** o documento-fonte, com código, revisão, data de homologação, classes de tensão e o PDF original. Cada revisão é guardada separadamente; uma está vigente e as anteriores ficam para consulta.
   - **Estrutura padrão da norma:** código (N1, B3, S1I, U4, TE…), nome, família (monofásica, bifásica, trifásica, beco, sem cruzeta, baixa tensão, estaiamento, equipamento), função (passagem/tangente, ângulo, ancoragem, fim de linha, derivação, seccionamento, transição, equipamento), desenho, lista de materiais (item do desenho, código do material, quantidade, descrição), tabela de fixação conforme o comprimento e a resistência do poste, materiais que dependem de outra tabela (poste, alça, laço) e recomendações de montagem.
   - **Mídias:** o desenho recortado da norma e as fotos de referência de campo, com legenda e setas já desenhadas na imagem. Cada foto é marcada como "correta" ou "erro comum".
   - Tudo é editável e versionado. Nada fica fixo no código.
-- **Importação assistida de norma em PDF.** O sistema lê o PDF sem IA e propõe as estruturas, com quadros de materiais, fixação e o recorte do desenho. A pessoa revisa (o sistema aponta o que não conseguiu ler, como materiais sem código ou quantidades estranhas) e publica. Reimportar uma revisão nova da norma mostra o que mudou em cada estrutura antes de publicar.
+- **Importação assistida de norma em PDF.** O sistema lê o PDF sem IA, guiado pelo perfil de leitura escolhido, e propõe as estruturas, com quadros de materiais, fixação e o recorte do desenho. A pessoa revisa (o sistema aponta o que não conseguiu ler, como materiais sem código ou quantidades estranhas) e publica. Reimportar uma revisão nova da norma mostra o que mudou em cada estrutura antes de publicar.
 - **Importação assistida da cartilha (.pptx).** O sistema separa as imagens de cada slide, descarta logotipos repetidos e sugere a estrutura pelo título do slide. A pessoa escolhe quais imagens viram foto de referência e quais textos viram recomendação. Os dados (materiais e fixação) nunca vêm da cartilha, só da norma.
 - **Guia de estruturas para consulta.**
   - **No web:** uma tela de consulta, com busca por código e nome e filtros por família, função, tensão e norma, além do detalhe da estrutura.
@@ -28,12 +39,14 @@ As três normas recebidas trazem texto extraível e um quadro de materiais por e
 - A leitura do projeto pela Bússola usar o catálogo para propor os kits do ponto a partir da estrutura desenhada no projeto.
 - Gerar kits automaticamente a partir da estrutura (com o preço do serviço por contrato).
 - A crítica da foto ainda no app, antes do envio (avisar a equipe enquanto ela está no poste).
-- Redes compactas e subterrâneas, e as normas de outras distribuidoras além das três recebidas. O modelo já comporta, mas as sementes e as validações desta change cobrem as três.
+- Validações específicas para redes compactas e subterrâneas. O modelo e os perfis de leitura já comportam, mas os testes de aceite desta change usam as três normas recebidas.
+- Levar a configuração de "cliente da implantação" para outros módulos (contrato, estoque, medição). Esta change só configura o padrão construtivo.
 - Treinamento e quiz para as equipes com base no guia.
 
 ## Capabilities
 
 ### New Capabilities
+- `configuracao-padrao-construtivo`: parâmetros da funcionalidade por implantação, emissores de norma, normas aplicáveis ao contrato, perfis de leitura de PDF, importação por planilha modelo, regras de código, dicionário de elementos visuais, escopo da IA e exportação/importação da configuração.
 - `catalogo-estruturas`: cadastro das normas técnicas (com revisões), das estruturas padrão, dos materiais, da fixação conforme o poste, das mídias e das recomendações; regras de vigência e versionamento; permissões.
 - `importacao-norma-estruturas`: importação assistida do PDF da norma e da apresentação de treinamento, com revisão, apontamento de pendências, comparação entre revisões e publicação.
 - `guia-estruturas-campo`: consulta do guia no web e no app de campo (offline), a partir do ponto, do kit ou de uma busca, com o cálculo dos materiais conforme o poste.
@@ -46,6 +59,7 @@ As três normas recebidas trazem texto extraível e um quadro de materiais por e
 ## Impact
 
 - **Backend `obras`:**
+  - Tabelas novas da configuração: `parametros_padrao_construtivo`, `emissores_norma`, `contratos_normas_aplicaveis`, `perfis_leitura_norma`, `dicionario_elementos_visuais`, `regras_codigo_padrao_construtivo`.
   - Tabelas novas: `normas_tecnicas`, `estruturas_padrao`, `estruturas_padrao_materiais`, `estruturas_padrao_fixacoes`, `estruturas_padrao_midias`, `estruturas_padrao_recomendacoes`, `importacoes_norma` e `pareceres_foto_ia`.
   - Colunas novas: `id_estrutura_padrao` em `kits_construtivos`.
   - Caso de uso de importação (PDFBox para o PDF, Apache POI para o .pptx).
@@ -57,5 +71,6 @@ As três normas recebidas trazem texto extraível e um quadro de materiais por e
 - **Frontend web (`features/obras`):** cadastro das normas e estruturas, assistente de importação, tela do guia, indicador de conformidade no kit e no planejamento, e o parecer da IA na revisão de fotos.
 - **Mobile (`features/obras`):** visualizador da estrutura (desenho com zoom, fotos, materiais, recomendações), entrada pela execução do ponto e pela busca, e armazenamento offline das imagens (Dexie + cache do service worker).
 - **Armazenamento:** as imagens recortadas e as fotos de referência vão para o `ObjectStorageService`, com miniatura. O PDF original da norma também é guardado.
-- **White label:** nenhuma norma, código de material ou imagem entra como semente no código. O catálogo é carregado por implantação, pela importação.
+- **White label e multi-cliente:** nenhuma norma, emissor, código de material, layout ou imagem entra como semente no código. As sementes são genéricas: o perfil de leitura padrão, o dicionário, as famílias e as funções. O catálogo e a configuração são carregados por implantação.
+- **Fora do escopo:** contrato, estoque e equipes não mudam. A ligação entre contrato e norma fica em Obras.
 - **Sem quebra:** os kits sem vínculo continuam funcionando como hoje.

@@ -16,7 +16,7 @@ O kit construtivo SHALL poder apontar para uma estrutura do catálogo, e para no
 - **THEN** ele é aplicado, programado e medido como antes, e só mostra "Sem estrutura do catálogo" no cadastro
 
 ### Requirement: Sugestão automática do vínculo
-O sistema SHALL sugerir a estrutura de cada kit sem vínculo pelo código do kit, depois de normalizado: sem caixa, espaços, hífens e pontos, sem o sufixo de poste ou de variação (`N1-11/300` → `N1`, `B3.B3` → `B3B3`) e considerando os apelidos. A sugestão só vale entre estruturas vigentes e compatíveis com a tensão do kit. Uma ação em lote SHALL mostrar todas as sugestões para aceitar ou recusar uma a uma ou todas de uma vez. O sistema MUST NOT ligar sem confirmação.
+O sistema SHALL sugerir a estrutura de cada kit sem vínculo pelo código do kit, depois de normalizado: sem caixa, espaços, hífens e pontos, sem os sufixos de variação configurados nas regras de código (semente: `N1-11/300` → `N1`) e considerando os apelidos. A sugestão só vale entre estruturas vigentes, das normas aplicáveis ao contrato do kit e compatíveis com a tensão do kit. Uma ação em lote SHALL mostrar todas as sugestões para aceitar ou recusar uma a uma ou todas de uma vez. O sistema MUST NOT ligar sem confirmação.
 
 #### Scenario: Sugestões em lote
 - **WHEN** o contrato tem 80 kits sem vínculo e o administrador abre "Sugerir estruturas"
@@ -35,7 +35,7 @@ Para cada kit ligado, o sistema SHALL comparar os itens de material do kit (só 
 - DEPENDE_DO_POSTE: a linha da norma depende de tabela ou da fixação;
 - SEM_CADASTRO: o código da norma não tem material no estoque.
 
-A comparação usa o código do material do estoque igual ao código da norma. Itens de serviço MUST NOT entrar nessa comparação. Quando o kit traz um poste no próprio código ou num item de poste, a fixação desse poste MUST entrar na comparação; sem poste conhecido, a fixação fica como DEPENDE_DO_POSTE.
+A comparação casa o código do material do estoque com o código da norma depois de aplicar, nos dois, a normalização das regras de código (zeros à esquerda, espaços, pontos, prefixo ignorado). Itens de serviço MUST NOT entrar nessa comparação. Quando o kit traz um poste no próprio código ou num item de poste, a fixação desse poste MUST entrar na comparação; sem poste conhecido, a fixação fica como DEPENDE_DO_POSTE.
 
 #### Scenario: Kit confere com a norma
 - **WHEN** o kit `N1` tem exatamente os materiais e as quantidades fixas da N1
@@ -54,7 +54,7 @@ A comparação usa o código do material do estoque igual ao código da norma. I
 - **THEN** a comparação inclui os parafusos da fixação de 11 m/600 daN e os confere com o kit
 
 ### Requirement: Conformidade só avisa
-A conformidade SHALL ser informativa: nenhuma divergência MUST impedir salvar o kit, aplicá-lo no planejamento, programar, executar ou medir. O sistema SHALL guardar o resultado da conformidade no kit (situação, número de divergências, data do cálculo e revisão da norma usada), para filtrar e ordenar sem recalcular a cada consulta.
+Quando a conformidade está desligada nos parâmetros, o sistema MUST NOT calcular nem mostrar a comparação, e o vínculo continua valendo para o guia. A conformidade SHALL ser informativa: nenhuma divergência MUST impedir salvar o kit, aplicá-lo no planejamento, programar, executar ou medir. O sistema SHALL guardar o resultado da conformidade no kit (situação, número de divergências, data do cálculo e revisão da norma usada), para filtrar e ordenar sem recalcular a cada consulta.
 
 #### Scenario: Aplicar kit divergente
 - **WHEN** o planejador aplica num ponto o kit `N4`, que tem 2 divergências
